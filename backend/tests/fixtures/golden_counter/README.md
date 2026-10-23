@@ -5,9 +5,12 @@ Recorded by `make eda-check` using pinned LibreLane 3.0.16 / sky130A / sky130_fd
 - `metrics.json`: untouched LibreLane `runs/golden/final/metrics.json` (includes nonstandard JSON `Infinity` tokens from upstream).
 - `counter.gds`, `counter.png`: final GDS and real KLayout render.
 - `test_results.xml`: all four cocotb tests passed.
-- `reports/`: actual Magic/KLayout DRC, Netgen LVS, post-route timing and power output.
+- `reports/`: actual Magic/KLayout DRC, Netgen LVS, post-route timing and power output (nominal TT and final configured max-FF corners).
+- `resolved.json`: the original fully resolved configuration, including STA corner ordering.
 - `logs/`: full lint, simulation, synthesis, flow and tool-version logs, including warnings.
 
 Discovered metric names for M2: `design__instance__area` includes filler, `design__instance__area__stdcell` is standard-cell area, `design__core__area` and `design__die__area` describe physical regions, `timing__setup__wns` is clamped worst negative slack, and `timing__setup__ws` is worst slack. DRC/LVS/XOR zero counts are explicit in the metrics. Power reports explicitly label watts; conversion and corner selection must be documented by the parser.
+
+In this pinned release, `power__total` is an unqualified key overwritten by each STA corner in configured order; it is not a worst-corner aggregate. This fixture's final retained value matches `power-max-ff.rpt`, not `power-nom-tt.rpt`. The parser converts that flow-reported value to mW without relabeling its corner.
 
 These fixtures establish format and toolchain behavior. They are not an agent event recording or a Tiny Tapeout submission bundle. Do not expose them as a live model result.

@@ -106,6 +106,16 @@
       "source_path": "runs/golden/55-openroad-stapostpnr/nom_tt_025C_1v80/sta.log",
       "sha256": "30e29ddb0701015eac46f46de838ca8f7ee137c49d9ea8129ac23df66b868bb8",
       "bytes": 125467
+    },
+    "resolved.json": {
+      "source_path": "runs/golden/resolved.json",
+      "sha256": "7994dfa6be289cdb814b698fdbcbc4f3d69e6ab9cbddad9d1c078e7e09e6e50a",
+      "bytes": 94253
+    },
+    "reports/power-max-ff.rpt": {
+      "source_path": "runs/golden/55-openroad-stapostpnr/max_ff_n40C_1v95/power.rpt",
+      "sha256": "2ae31c57d1a9caff5e3d867683f2f50066b951de6e17cb07fa85aa7ea4f3495b",
+      "bytes": 1094
     }
   },
   "source_sha256": {

@@ -39,3 +39,17 @@ Discoveries from the real output: `final/metrics.json` contains literal `Infinit
 Preserve the original report/log whitespace as well: `.gitattributes` disables text normalization and whitespace linting for the golden fixture directory. Source code still receives normal whitespace checks; fixture hashes remain authoritative.
 
 After the golden flow passes, the frontend's disabled-build message refers to verification of the agent workflow, since EDA alone does not implement live builds. This intentional copy change keeps the milestone gate accurate. Disable Next.js's developer indicator so it cannot overlap the demo UI.
+
+## 2026-10-23 — M2 metric definitions
+
+Parse the actual fixture into SQLModel `Metric` rows. `area_um2` and `cell_count` use the standard-cell subtotal keys, excluding filler. The broad fields are overwritten by physical-only totals after [LibreLane's area/cell reporting calls](https://github.com/librelane/librelane/blob/3.0.16/librelane/scripts/openroad/common/io.tcl#L508-L510). `clock_mhz` is the configured `1000 / CLOCK_PERIOD` target, not achieved fmax. Setup WNS/TNS use the explicit aggregate keys; their [aggregation takes the minimum](https://github.com/librelane/librelane/blob/3.0.16/librelane/common/metrics/library.py#L137-L163) across corners, rather than summing TNS across corners.
+
+Power requires care: [each corner emits the unqualified `power__total` key](https://github.com/librelane/librelane/blob/3.0.16/librelane/scripts/openroad/sta/corner.tcl#L128-L142), and [the ordered merge retains the last executed corner](https://github.com/librelane/librelane/blob/3.0.16/librelane/steps/openroad.py#L782-L812). `power_mw` is that flow-reported value converted from watts ×1000, with no nominal or worst-corner claim. The real last-corner report and resolved configuration are added unchanged to the fixture with provenance; all original 17 file hashes remain unchanged.
+
+Require finite numeric values for selected measurements, and strict nonnegative integer counts; reject booleans, numeric strings, and invalid/nonfinite selected values. Ignore unrelated optional Infinity fields without changing the raw file. Missing DRC/LVS evidence means unknown, never clean; explicit nonzero final errors mean failed. Historical routing-iteration errors are not final signoff results.
+
+## 2026-10-23 — Temporary ChatGPT-plan provider (user steering)
+
+The user explicitly requested ChatGPT-plan OAuth for development until competition tokens are available. Keep Meta selectable for the hackathon, but use the authenticated Codex CLI locally as the temporary provider. Installed CLI 0.163.0 reports `Logged in using ChatGPT`. [Official non-interactive documentation](https://learn.chatgpt.com/docs/non-interactive-mode) supports saved authentication, JSONL usage events, and JSON-schema final output; [authentication documentation](https://learn.chatgpt.com/docs/auth) describes Codex-managed OAuth and token renewal.
+
+Do not extract OAuth tokens into application code, commit credentials, or mount the user's entire Codex home into an EDA container. Model/tool orchestration remains ours: Codex returns a constrained response, and our runner owns tool permissions and EDA limits. Plan usage does not provide a documented per-call dollar charge, so never report a fabricated dollar estimate for this provider. Provider smoke acceptance replaces the original Meta-only M3 acceptance during this explicitly authorized development phase; Meta acceptance remains required before the competition switch.

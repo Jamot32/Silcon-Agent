@@ -52,6 +52,7 @@ Muse Spark will write and repair RTL through constrained tool calls. A stage-bas
 
 ## Decision log
 
+- 2026-10-23: User authorized ChatGPT-plan OAuth through authenticated Codex for development until competition tokens arrive; retain Meta as a selectable provider and the required competition target.
 - 2026-10-23: Adopt the user's Silicon Agent build brief and milestone order; this replaces the undecided template.
 - 2026-10-23: Use Next.js App Router, TypeScript, Tailwind, FastAPI, Pydantic v2, SQLModel, SQLite, and Docker Compose. Defer optional UI dependencies until their milestones.
 - 2026-10-23: Start with an asyncio worker rather than Redis/arq when jobs are implemented; the brief explicitly allows this simplification.

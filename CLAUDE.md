@@ -13,7 +13,7 @@ Read INTENT.md for product scope and docs/DECISIONS.md for verified documentatio
 
 ## Stack
 
-Next.js App Router + strict TypeScript + Tailwind; Python 3.12 FastAPI/Pydantic v2 + SQLModel/SQLite; Docker Compose. Add Recharts/Monaco/shadcn components when their stages require them. Use an asyncio queue for jobs when implemented. EDA uses pinned LibreLane Docker/sky130. Meta calls use the pinned OpenAI Python SDK pointed to https://api.meta.ai/v1, non-streaming; emit our own SSE events later.
+Next.js App Router + strict TypeScript + Tailwind; Python 3.12 FastAPI/Pydantic v2 + SQLModel/SQLite; Docker Compose. Add Recharts/Monaco/shadcn components when their stages require them. Use an asyncio queue for jobs when implemented. EDA uses pinned LibreLane Docker/sky130. Meta calls use the pinned OpenAI Python SDK pointed to https://api.meta.ai/v1, non-streaming; emit our own SSE events later. User steering temporarily selects authenticated Codex with ChatGPT-plan OAuth for development; preserve a Meta switch for competition. Keep OAuth managed by Codex and never expose credential files to generated code.
 
 ## Commands
 
