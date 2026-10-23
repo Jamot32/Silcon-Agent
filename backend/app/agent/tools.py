@@ -350,11 +350,13 @@ class ToolRunner:
             if self.flow_runs >= 6:
                 raise ValueError("Flow budget exhausted: at most 6 attempts per run")
             self.flow_runs += 1
+            flow_index = self.flow_runs
             async with _FLOW_SEMAPHORE:
                 self._require_verified(arguments.top)
                 result = await self.eda.run_flow(arguments.top, overrides)
             if isinstance(result.get("metrics"), dict):
-                await self._emit("metric_recorded", {"run_tag": result.get("run_tag"), "metrics": result["metrics"]})
+                result["metrics"]["flow_index"] = flow_index
+                await self._emit("metric_recorded", {"run_tag": result.get("run_tag"), "flow_index": flow_index, "metrics": result["metrics"]})
             return result
         if isinstance(arguments, _Report):
             return await self.eda.read_report(arguments.run_tag, arguments.kind)

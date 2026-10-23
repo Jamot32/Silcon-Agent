@@ -8,13 +8,16 @@ setup:
 	@mkdir -p runs
 
 dev: setup
+	python3 scripts/manage_worker.py stop
 	docker compose up --build -d --wait
+	python3 scripts/manage_worker.py start
 	@echo "Silicon Agent: http://localhost:3000 | API: http://localhost:8000/api/health"
 
 demo: dev
 	@echo "Bootstrap: recorded playback appears after real EDA recordings exist."
 
 down:
+	python3 scripts/manage_worker.py stop
 	docker compose down
 
 test:

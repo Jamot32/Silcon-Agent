@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 from contextlib import asynccontextmanager
@@ -5,12 +6,15 @@ from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, HTTPException, Query, Request
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import text
-from sqlmodel import Session, SQLModel, create_engine, select
+from sqlmodel import Session, create_engine
 
-from app.models import Run
+from app.api_schemas import CreateRun, PublicRun
+from app.models import Metric
+from app.storage import BusyRunError, RunStore, TERMINAL
 
 RUNS_DIR = Path(os.getenv("RUNS_DIR", "runs"))
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{RUNS_DIR}/silicon-agent.db")
@@ -20,7 +24,7 @@ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
-    SQLModel.metadata.create_all(engine)
+    app.state.store = RunStore(RUNS_DIR, engine=engine)
     yield
 
 
@@ -135,10 +139,116 @@ def presets() -> list[Preset]:
     return [Preset.model_validate(item) for item in json.loads(path.read_text())]
 
 
-@app.get("/api/runs", response_model=list[Run])
-def runs() -> list[Run]:
-    with Session(engine) as session:
-        return list(session.exec(select(Run).order_by(Run.created_at.desc())).all())
+def store() -> RunStore:
+    return app.state.store
+
+
+def get_run(run_id: str):
+    if len(run_id) != 32 or any(character not in "0123456789abcdef" for character in run_id):
+        raise HTTPException(404, "Run not found")
+    try:
+        return store().get_run(run_id)
+    except KeyError:
+        raise HTTPException(404, "Run not found") from None
+
+
+@app.post("/api/runs", status_code=202)
+def create_run(body: CreateRun) -> dict[str, str]:
+    if body.preset_id is not None and body.preset_id not in {preset.id for preset in presets()}:
+        raise HTTPException(422, "Unknown preset")
+    try:
+        run = store().create_run(body.spec_text, preset_id=body.preset_id,
+                                 targets=body.targets.model_dump(exclude_none=True) if body.targets else None,
+                                 provider=os.getenv("LLM_PROVIDER", "codex"))
+    except BusyRunError as error:
+        raise HTTPException(409, str(error)) from None
+    return {"run_id": run.id}
+
+
+@app.get("/api/runs", response_model=list[PublicRun])
+def runs() -> list[PublicRun]:
+    return [PublicRun.from_run(run) for run in store().list_runs()]
+
+
+@app.get("/api/runs/{run_id}", response_model=PublicRun)
+def run_detail(run_id: str) -> PublicRun:
+    return PublicRun.from_run(get_run(run_id))
+
+
+@app.get("/api/runs/{run_id}/metrics", response_model=list[Metric])
+def run_metrics(run_id: str) -> list[Metric]:
+    get_run(run_id)
+    return store().metrics(run_id)
+
+
+@app.get("/api/runs/{run_id}/files")
+def run_files(run_id: str) -> dict[str, str]:
+    get_run(run_id)
+    root = store().work_dir(run_id)
+    files = {}
+    for directory, extension in (("src", ".v"), ("test", ".py")):
+        parent = root / directory
+        if parent.is_symlink():
+            continue
+        for path in sorted(parent.glob(f"*{extension}")):
+            if not path.is_symlink() and path.resolve().is_relative_to(root.resolve()) and path.is_file() and path.stat().st_size <= 128 * 1024:
+                files[f"{directory}/{path.name}"] = path.read_text()
+    return files
+
+
+@app.get("/api/runs/{run_id}/events")
+async def run_events(run_id: str, request: Request, last_event_id: str | None = Header(default=None), after: int = Query(default=0, ge=0, le=2**63 - 1)):
+    get_run(run_id)
+    if last_event_id is not None:
+        if not last_event_id.isascii() or not last_event_id.isdigit() or len(last_event_id) > 18:
+            raise HTTPException(400, "Last-Event-ID must be a nonnegative integer")
+        after = int(last_event_id)
+
+    async def stream():
+        cursor = after
+        last_ping = asyncio.get_running_loop().time()
+        while not await request.is_disconnected():
+            batch = store().events(run_id, cursor)
+            for event in batch:
+                cursor = event.id
+                envelope = {"id": event.id, "ts": event.ts.isoformat(), "type": event.type, "payload": json.loads(event.payload_json)}
+                data = json.dumps(envelope, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
+                yield f"id: {event.id}\nevent: {event.type}\ndata: {data}\n\n"
+            if len(batch) < 100 and store().get_run(run_id).status in TERMINAL:
+                break
+            now = asyncio.get_running_loop().time()
+            if now - last_ping >= 15:
+                yield ": keep-alive\n\n"
+                last_ping = now
+            await asyncio.sleep(0.25)
+
+    return StreamingResponse(stream(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+def artifact_response(run_id: str, kind: str, run_tag: str | None = None) -> FileResponse:
+    get_run(run_id)
+    try:
+        path = store().artifact(run_id, kind, run_tag)
+    except (KeyError, ValueError):
+        raise HTTPException(404, "Artifact not available") from None
+    return FileResponse(path, media_type="image/png" if kind == "layout" else "application/zip",
+                        filename=f"silicon-agent-{run_id}.zip" if kind == "bundle" else None)
+
+
+@app.get("/api/runs/{run_id}/layout/{run_tag}.png")
+def layout(run_id: str, run_tag: str) -> FileResponse:
+    return artifact_response(run_id, "layout", run_tag)
+
+
+@app.get("/api/runs/{run_id}/bundle.zip")
+def bundle(run_id: str) -> FileResponse:
+    return artifact_response(run_id, "bundle")
+
+
+@app.post("/api/runs/{run_id}/cancel", response_model=PublicRun)
+def cancel(run_id: str) -> PublicRun:
+    get_run(run_id)
+    return PublicRun.from_run(store().request_cancel(run_id))
 
 
 @app.get("/api/recordings", response_model=list[str])

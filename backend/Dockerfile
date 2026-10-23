@@ -8,6 +8,7 @@ COPY backend/app ./app
 COPY backend/tests ./tests
 COPY pytest.ini ./pytest.ini
 COPY designs /designs
+COPY scripts/manage_worker.py /scripts/manage_worker.py
 USER silicon
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

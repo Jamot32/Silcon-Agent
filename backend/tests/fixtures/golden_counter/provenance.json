@@ -116,6 +116,11 @@
       "source_path": "runs/golden/55-openroad-stapostpnr/max_ff_n40C_1v95/power.rpt",
       "sha256": "2ae31c57d1a9caff5e3d867683f2f50066b951de6e17cb07fa85aa7ea4f3495b",
       "bytes": 1094
+    },
+    "counter.lef": {
+      "source_path": "runs/golden/final/lef/counter.lef",
+      "sha256": "3743c1606a76864925f6fd18f903d86680ccc986c23bf124fc7baa48b9c55b23",
+      "bytes": 5954
     }
   },
   "source_sha256": {
