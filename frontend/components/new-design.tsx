@@ -86,7 +86,7 @@ export function NewDesign() {
             </div>
             <div className="build-row">
               <button className="build-button" type="submit" disabled aria-describedby="build-explanation">Build my chip</button>
-              <p id="build-explanation">Live builds unlock after the EDA toolchain is verified.</p>
+              <p id="build-explanation">Live builds unlock after the agent workflow is verified.</p>
             </div>
           </form>
         </section>

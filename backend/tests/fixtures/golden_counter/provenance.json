@@ -1,0 +1,128 @@
+{
+  "recorded_at": "2026-10-23T17:25:11.506118+00:00",
+  "command": [
+    "make",
+    "eda-check"
+  ],
+  "run_directory": "runs/eda-check/20261023T172342Z",
+  "librelane_version": "3.0.16",
+  "librelane_source_commit": "01ddb25e4424f6f5aaf6b951b14a2b6fdcf737c0",
+  "base_image": "ghcr.io/librelane/librelane:3.0.16@sha256:02d50f259d483979e126ef188a50f5b61e1d285b9d538312f280b087439b0302",
+  "eda_image_id": "sha256:eb2a35ac86ece2839f1d40f50b47d09612637617ac460e0c55d4df26c40a3421",
+  "pdk": {
+    "variant": "sky130A",
+    "standard_cell_library": "sky130_fd_sc_hd",
+    "open_pdks_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71"
+  },
+  "sandbox": {
+    "network": "none",
+    "read_only_root": true,
+    "cpus": 4,
+    "memory": "6g",
+    "pids_limit": 512
+  },
+  "files": {
+    "metrics.json": {
+      "source_path": "runs/golden/final/metrics.json",
+      "sha256": "0d41823b5960a792c66b5835a2839e0ab48563c01e49b6e11f124a0c6d0fa5a8",
+      "bytes": 17100
+    },
+    "counter.png": {
+      "source_path": "runs/golden/final/render/counter.png",
+      "sha256": "f52c36eef5be8afa8c55ebff7e48c2c1b189ac54699b2d3b99fcb643538ae095",
+      "bytes": 150295
+    },
+    "counter.gds": {
+      "source_path": "runs/golden/final/gds/counter.gds",
+      "sha256": "c6872a2ee1602d619ad7cd4bb74bf9431585071b3c81efea932153d0cb1fd55b",
+      "bytes": 545730
+    },
+    "config.json": {
+      "source_path": "config.json",
+      "sha256": "e46f93a89db4dbd7ebe25ab09c6b5ae3b7d662b5deee73d334c43665a01505f2",
+      "bytes": 349
+    },
+    "test_results.xml": {
+      "source_path": "test_results.xml",
+      "sha256": "630fe83e957b56943d2f6baa4baf316eff55753e575400fb439d4ef8debe8765",
+      "bytes": 914
+    },
+    "logs/tool-versions.log": {
+      "source_path": "tool-versions.log",
+      "sha256": "30f5b84c8311c5ac8964e2d51f8f0ff235223dfb239f74c1da6612bf7fd43d5b",
+      "bytes": 4404
+    },
+    "logs/lint.log": {
+      "source_path": "lint.log",
+      "sha256": "7f6600a127dead259faa418ecce5a7b6bf4f54929da90049b31d6e08fac87a93",
+      "bytes": 286
+    },
+    "logs/simulation.log": {
+      "source_path": "simulation.log",
+      "sha256": "63cc40b92745e8441e7c1b8eec39be0a17aede7bfee6f5abf240bd7ebaece8ae",
+      "bytes": 3190
+    },
+    "logs/synthesis.log": {
+      "source_path": "synthesis.log",
+      "sha256": "93936515496e7ce2e84d671682dcb834fd37143dca939280b4b2c2f11ea968ac",
+      "bytes": 24440
+    },
+    "logs/flow.log": {
+      "source_path": "flow.log",
+      "sha256": "cf1192bfd6f1d257162db38c24db4f1078d7831db754911f77d3e5bff04338b0",
+      "bytes": 53275
+    },
+    "reports/drc.magic.rpt": {
+      "source_path": "runs/golden/64-magic-drc/reports/drc.magic.rpt",
+      "sha256": "d3dd125a0f1185388a569b13e5834d6528646b7c9eec55759cc716745b783691",
+      "bytes": 101
+    },
+    "reports/drc.klayout.json": {
+      "source_path": "runs/golden/65-klayout-drc/reports/drc.klayout.json",
+      "sha256": "16214d2fe423079d5337d46df5591231798a14dab8ecb9650e6bc52519a27d42",
+      "bytes": 4811
+    },
+    "reports/lvs.netgen.json": {
+      "source_path": "runs/golden/70-netgen-lvs/reports/lvs.netgen.json",
+      "sha256": "688ef6983c61d400e30646c4c7a4aa1d3fdb59a43a750d4ce0908cc91853d133",
+      "bytes": 11422
+    },
+    "reports/lvs.netgen.rpt": {
+      "source_path": "runs/golden/70-netgen-lvs/reports/lvs.netgen.rpt",
+      "sha256": "e1a8d19f24f010fe70044acc01aca3b89606cdf4c381bbefd3686e8f412999ae",
+      "bytes": 48461
+    },
+    "reports/timing-summary.rpt": {
+      "source_path": "runs/golden/55-openroad-stapostpnr/summary.rpt",
+      "sha256": "1fd832950840c243a357b1d456b2644ffa12c6f91fa9b15d7fb00225f19ce2cb",
+      "bytes": 3904
+    },
+    "reports/power-nom-tt.rpt": {
+      "source_path": "runs/golden/55-openroad-stapostpnr/nom_tt_025C_1v80/power.rpt",
+      "sha256": "09c03ce226c4329a99806775059fed3c0780686a4206f916adc6bd031d651171",
+      "bytes": 1094
+    },
+    "reports/sta-nom-tt.log": {
+      "source_path": "runs/golden/55-openroad-stapostpnr/nom_tt_025C_1v80/sta.log",
+      "sha256": "30e29ddb0701015eac46f46de838ca8f7ee137c49d9ea8129ac23df66b868bb8",
+      "bytes": 125467
+    }
+  },
+  "source_sha256": {
+    "eda/Dockerfile": "c0ddd961f55fa61841105816634b2c314fca10790d968c4c609ee40f01234c27",
+    "eda/versions.env": "651193017f47309240fa55cb2a5d9017a6ada6296fd96163384e6a2f3afd4b2c",
+    "eda/prepare.sh": "d33fc9b977cc9e54c486192b8dd8655a16b9e555196483266a5596db8c188c57",
+    "eda/check.sh": "2e32c95ca9f6e878179d0739fe4c8c634b3afc08cf298f63f7924599c2785ff5",
+    "eda/check.py": "0e5aca2f8421420feaee4806cd6e19ee3a16c74cfc282623da2e84cd5c6fdc67",
+    "eda/simulate.py": "50c1c5cf7bc4ca3ea7e9eb1ff6692125829b7f380dee256805ca62ac0735924e",
+    "designs/golden/counter/src/counter.v": "ce83f2404e342980b5db60badaf83f2eebceba959504392556d583f6a830404d",
+    "designs/golden/counter/test/test_counter.py": "283248acf321ba6d4a2ddaedbc7c7c51c17afda5ef5becf62b174b27c32e5bfa",
+    "designs/golden/counter/config.json": "e46f93a89db4dbd7ebe25ab09c6b5ae3b7d662b5deee73d334c43665a01505f2"
+  },
+  "notes": [
+    "Every fixture file is copied byte-for-byte from this real run.",
+    "metrics.json contains LibreLane non-finite Infinity values; intentionally preserved without JSON normalization.",
+    "Instance area includes filler. The standard-cell subtotal is separately reported as design__instance__area__stdcell.",
+    "Power reports label power in watts. No actual shuttle submission or tapeout readiness claim is made."
+  ]
+}

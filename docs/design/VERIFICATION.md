@@ -11,4 +11,6 @@ Reference: `m0-concept.png`, generated through built-in Image Gen for this scaff
 | Controls | Native editable textarea, numeric clock, tile checkbox; preset selection updates text; disabled build explains milestone gate. |
 | Real state | API and Database change from concept Checking to Ready based on actual health; EDA/Model remain unverified/unconfigured. Intentional dynamic deviation. |
 
-Aside's browser does not expose `setViewportSize` (TypeError). Initial current-window screenshot is 2880×1800 device pixels; native concept-size and mobile checks will use a supported browser fallback. Temporary QA screenshots stay outside committed source.
+Aside's browser does not expose `setViewportSize` (TypeError). Initial current-window screenshot is 2880×1800 device pixels. Playwright using installed Chrome therefore captured 1505×1045 (the concept size) and a 390px mobile viewport; both were inspected via `view_image`. No clipping or horizontal overflow is visible. Empty-state heading weight was corrected to match the reference. Temporary QA screenshots remain gitignored and are removed after inspection.
+
+The above-the-fold copy matches the reference, except for real health status and the intentional milestone-gate message updated after the EDA check passes. The implementation was verified against the reference for the five comparison areas above; no material visual mismatches remain.

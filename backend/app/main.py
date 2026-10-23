@@ -1,6 +1,7 @@
 import json
 import os
 from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
 from typing import Literal
 
@@ -43,6 +44,38 @@ class Preset(BaseModel):
     spec_text: str
 
 
+class GoldenChecks(BaseModel):
+    drc_ok: Literal[True]
+    lvs_ok: Literal[True]
+    cocotb_tests: int
+
+
+class GoldenCheck(BaseModel):
+    status: Literal["passed"]
+    checked_at: datetime
+    librelane_version: str
+    artifacts: dict[str, str]
+    checks: GoldenChecks
+
+
+def eda_health() -> Check:
+    directory = (RUNS_DIR / "eda-check").resolve()
+    marker = directory / "complete.json"
+    if not marker.exists():
+        return Check(status="not_verified", detail="Run make eda-check to verify the golden design")
+    try:
+        result = GoldenCheck.model_validate_json(marker.read_text())
+        if result.checks.cocotb_tests < 4:
+            raise ValueError("Incomplete golden tests")
+        for kind in ("metrics", "gds", "layout", "lef", "netlist"):
+            path = (directory / result.artifacts[kind]).resolve()
+            if not path.is_relative_to(directory) or not path.is_file() or not path.stat().st_size:
+                raise ValueError("Missing golden artifact")
+        return Check(status="ok", detail=f"Cached golden check passed at {result.checked_at.isoformat()} (LibreLane {result.librelane_version}, DRC/LVS clean)")
+    except (OSError, ValueError, KeyError, TypeError):
+        return Check(status="error", detail="Golden-check cache is invalid or artifacts are missing; rerun make eda-check")
+
+
 @app.get("/api/health", response_model=Health)
 def health() -> Health:
     try:
@@ -54,13 +87,13 @@ def health() -> Health:
     # Health never makes a billable model request or claims an unexecuted EDA check.
     checks = {
         "database": database,
-        "eda": Check(status="not_verified", detail="Run make eda-check to verify the golden design"),
+        "eda": eda_health(),
         "llm": Check(
             status="not_verified" if os.getenv("META_API_KEY") else "not_configured",
             detail="Run the explicit LLM smoke test" if os.getenv("META_API_KEY") else "META_API_KEY is not set",
         ),
     }
-    return Health(status="degraded", milestone="M0", checks=checks)
+    return Health(status="ok" if all(check.status == "ok" for check in checks.values()) else "degraded", milestone="M1" if checks["eda"].status == "ok" else "M0", checks=checks)
 
 
 @app.get("/api/presets", response_model=list[Preset])
