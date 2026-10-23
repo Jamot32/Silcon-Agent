@@ -1,0 +1,46 @@
+{
+  "recorded_at": "2026-10-23T18:03:33.193985+00:00",
+  "kind": "real_toolchain_integration_failure",
+  "command": [
+    "make",
+    "eda-tools-check"
+  ],
+  "run_directory": "runs/eda-tools-check/cc7fc0c6d9b24bbf98a9c3cdb414e064",
+  "mutation": "Counter increment changed from count + 8'd1 to count + 8'd2; behavioral tests unchanged.",
+  "results": {
+    "ok": false,
+    "passed": 2,
+    "failed": 2,
+    "skipped": 0
+  },
+  "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+  "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+  "files": {
+    "src/counter.v": {
+      "source_path": "runs/eda-tools-check/cc7fc0c6d9b24bbf98a9c3cdb414e064/work/.eda/sim_af944268a1124d5dbd4d926f7e5eb19f/input/src/counter.v",
+      "sha256": "b3970861dc9be80b5ff6c1e9c655e8795d6efacf8949efc0113ddb0311eb03eb",
+      "bytes": 542
+    },
+    "test/test_counter.py": {
+      "source_path": "runs/eda-tools-check/cc7fc0c6d9b24bbf98a9c3cdb414e064/work/.eda/sim_af944268a1124d5dbd4d926f7e5eb19f/input/test/test_counter.py",
+      "sha256": "283248acf321ba6d4a2ddaedbc7c7c51c17afda5ef5becf62b174b27c32e5bfa",
+      "bytes": 1801
+    },
+    "test_results.xml": {
+      "source_path": "runs/eda-tools-check/cc7fc0c6d9b24bbf98a9c3cdb414e064/work/.eda/sim_af944268a1124d5dbd4d926f7e5eb19f/output/test_results.xml",
+      "sha256": "ba1ff9c54c48249ab0dc335b547633ef63cd6ea730a023ed9394f466024a617f",
+      "bytes": 1089
+    },
+    "result.json": {
+      "source_path": "runs/eda-tools-check/cc7fc0c6d9b24bbf98a9c3cdb414e064/work/.eda/sim_af944268a1124d5dbd4d926f7e5eb19f/output/result.json",
+      "sha256": "4d9a123ad8d7b6318d3ecfd9e3010ccc227a17819ae037769da77773df43a37f",
+      "bytes": 191
+    },
+    "simulation.log": {
+      "source_path": "runs/eda-tools-check/cc7fc0c6d9b24bbf98a9c3cdb414e064/work/.eda/sim_af944268a1124d5dbd4d926f7e5eb19f/output/tool.log",
+      "sha256": "6436512516ac343ecf2a7bf5aaf2f2cb446a6cda1e6c615f1c0f93254ef5444a",
+      "bytes": 4130
+    }
+  },
+  "runtime_sha256": "5ba094045c25f71319dbf3ecd1b6e2cb2f9a9f025b33f678d2e154e42d7930f3"
+}

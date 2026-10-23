@@ -15,4 +15,5 @@ ENV PYTHONPATH=/opt/silicon-python
 ENV NIX_PYTHONPATH=/opt/silicon-python:${NIX_PYTHONPATH}
 ENV PATH=/opt/silicon-python/bin:${PATH}
 ENV QT_QPA_PLATFORM=offscreen
+COPY runtime.py /opt/silicon-agent/runtime.py
 WORKDIR /work

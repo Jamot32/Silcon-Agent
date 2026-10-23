@@ -1,6 +1,6 @@
 # Silicon Agent
 
-An AI chip-design lab for the Meta Global AI Developer Hackathon. M0–M3 have passed: app/API scaffold, real EDA toolchain, fixture-backed metric parsers, and the selected model provider with offline tests. The golden counter produced GDS, a KLayout image, and clean DRC/LVS results. Live agent builds and event replay are later milestones. No synthetic EDA results are included.
+An AI chip-design lab for the Meta Global AI Developer Hackathon. M0–M4 have passed: app/API scaffold, real EDA toolchain, fixture-backed parsers, the selected model provider, and constrained tools/sandbox. The golden counter produced GDS, a KLayout image, and clean DRC/LVS results. Live agent builds and event replay are later milestones. No synthetic EDA results are included.
 
 Requires Docker Desktop running, Docker Compose, [uv](https://docs.astral.sh/uv/), Node/npm, and free disk space for the EDA image and sky130 PDK. Development currently uses your ChatGPT plan through Codex-managed OAuth. OAuth credentials stay with the host CLI.
 
@@ -19,6 +19,7 @@ To switch to Meta for the competition, set `LLM_PROVIDER=meta` and `META_API_KEY
 ```sh
 make eda-setup  # fetch the pinned image and sky130 PDK; network required
 make eda-check  # real golden-counter tools, network isolated
+make eda-tools-check # real constrained-tool integration checks (no model calls)
 make test      # scaffold checks; no paid model calls
 ```
 

@@ -14,3 +14,5 @@ Reference: `m0-concept.png`, generated through built-in Image Gen for this scaff
 Aside's browser does not expose `setViewportSize` (TypeError). Initial current-window screenshot is 2880×1800 device pixels. Playwright using installed Chrome therefore captured 1505×1045 (the concept size) and a 390px mobile viewport; both were inspected via `view_image`. No clipping or horizontal overflow is visible. Empty-state heading weight was corrected to match the reference. Temporary QA screenshots remain gitignored and are removed after inspection.
 
 The above-the-fold copy matches the reference, except for real health status and the intentional milestone-gate message updated after the EDA check passes. The implementation was verified against the reference for the five comparison areas above; no material visual mismatches remain.
+
+User-authorized M3 provider steering changes the Model row to the actual selected provider (Codex or Meta). The status comes from cached real smoke verification, not a hardcoded success. This is an intentional functional copy change from the initial M0 concept.

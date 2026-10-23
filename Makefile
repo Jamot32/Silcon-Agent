@@ -1,4 +1,4 @@
-.PHONY: setup dev demo down test eda-setup eda-check llm-smoke meta-smoke logs
+.PHONY: setup dev demo down test eda-setup eda-check eda-tools-check llm-smoke meta-smoke logs
 
 export SILICON_UID := $(shell id -u)
 export SILICON_GID := $(shell id -g)
@@ -18,7 +18,7 @@ down:
 	docker compose down
 
 test:
-	docker compose run --rm --no-deps api python -m pytest -q -o cache_dir=/tmp/pytest-cache tests
+	docker compose run --rm --no-deps api python -m pytest -q -m 'not integration' -o cache_dir=/tmp/pytest-cache tests
 	docker compose run --rm --no-deps web npm run typecheck
 
 eda-setup:
@@ -26,6 +26,9 @@ eda-setup:
 
 eda-check:
 	./eda/check.sh
+
+eda-tools-check:
+	uv run --env-file .env --python 3.12 --with-requirements backend/requirements.txt python -m pytest -q -m integration backend/tests/integration
 
 llm-smoke: setup
 	uv run --env-file .env --python 3.12 --with-requirements backend/requirements.txt python scripts/provider_smoke_test.py

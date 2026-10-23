@@ -6,7 +6,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN useradd --uid 10001 --create-home silicon
 COPY backend/app ./app
 COPY backend/tests ./tests
-COPY designs/presets.json /designs/presets.json
+COPY pytest.ini ./pytest.ini
+COPY designs /designs
 USER silicon
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

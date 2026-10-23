@@ -1,0 +1,35 @@
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with 1792778505
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running test_counter.synchronous_reset (1/4)
+    32.00ns INFO     cocotb.regression                  test_counter.synchronous_reset passed
+    32.00ns INFO     cocotb.regression                  running test_counter.count_and_hold (2/4)
+    52.00ns WARNING  ..st count_and_hold.count_and_hold Traceback (most recent call last):
+                                                          File "/input/test/test_counter.py", line 43, in count_and_hold
+                                                            assert int(dut.count.value) == expected
+                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                        AssertionError
+    52.00ns WARNING  cocotb.regression                  test_counter.count_and_hold failed
+    52.00ns INFO     cocotb.regression                  running test_counter.load_has_priority (3/4)
+    82.00ns INFO     cocotb.regression                  test_counter.load_has_priority passed
+    82.00ns INFO     cocotb.regression                  running test_counter.wrap_in_both_directions (4/4)
+   112.00ns WARNING  ..rections.wrap_in_both_directions Traceback (most recent call last):
+                                                          File "/input/test/test_counter.py", line 73, in wrap_in_both_directions
+                                                            assert int(dut.count.value) == 0
+                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                        AssertionError
+   112.00ns WARNING  cocotb.regression                  test_counter.wrap_in_both_directions failed
+   112.00ns INFO     cocotb.regression                  **********************************************************************************************
+                                                        ** TEST                                  STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        **********************************************************************************************
+                                                        ** test_counter.synchronous_reset         PASS          32.00           0.00      69220.08  **
+                                                        ** test_counter.count_and_hold            FAIL          20.00           0.00      31429.78  **
+                                                        ** test_counter.load_has_priority         PASS          30.00           0.00     122401.87  **
+                                                        ** test_counter.wrap_in_both_directions   FAIL          30.00           0.00      26777.85  **
+                                                        **********************************************************************************************
+                                                        ** TESTS=4 PASS=2 FAIL=2 SKIP=0                        112.00           0.01      10780.33  **
+                                                        **********************************************************************************************

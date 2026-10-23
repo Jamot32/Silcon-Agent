@@ -1,0 +1,13 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1792778505" />
+    <testcase name="synchronous_reset" classname="test_counter" file="/input/test/test_counter.py" lineno="23" time="0.0004622936248779297" sim_time_ns="32.0" ratio_time="69220.07632800413" />
+    <testcase name="count_and_hold" classname="test_counter" file="/input/test/test_counter.py" lineno="37" time="0.0006363391876220703" sim_time_ns="20.0" ratio_time="31429.778943424502">
+      <failure error_type="AssertionError" error_msg="" />
+    </testcase>
+    <testcase name="load_has_priority" classname="test_counter" file="/input/test/test_counter.py" lineno="50" time="0.00024509429931640625" sim_time_ns="29.999999999999993" ratio_time="122401.86770428013" />
+    <testcase name="wrap_in_both_directions" classname="test_counter" file="/input/test/test_counter.py" lineno="64" time="0.0011203289031982422" sim_time_ns="30.0" ratio_time="26777.850606512024">
+      <failure error_type="AssertionError" error_msg="" />
+    </testcase>
+  </testsuite>
+</testsuites>
