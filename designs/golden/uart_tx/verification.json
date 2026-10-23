@@ -1,0 +1,86 @@
+{
+  "status": "passed",
+  "is_model_run": false,
+  "raw_evidence_dir": "runs/golden-uart-check/20261023T220111Z-fullflow",
+  "command": "PYTHONPATH=backend uv run --python 3.12 --with-requirements backend/requirements.txt python runs/golden-uart-check/fullflow_uart.py",
+  "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+  "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+  "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+  "top_module": "uart_tx",
+  "baud_div": 4,
+  "source_sha256": {
+    "test/test_uart_tx.py": "bb53462f363a5b8becf26ad1e42d6f95c89fdc8c4800d77a0c51539bf55d7336",
+    "src/uart_tx.v": "6f773e2040e147395c75e8e7c0b3eb1cb5856829f88a3079139ed10fda9c1e5e"
+  },
+  "lint": {
+    "ok": true,
+    "warnings": [],
+    "errors": []
+  },
+  "tests": {
+    "ok": true,
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0
+  },
+  "synthesis": {
+    "ok": true,
+    "cell_count": 56,
+    "area_estimate": null
+  },
+  "run_tag": "flow_ad3428a4fcfa4f49",
+  "metrics": {
+    "flow_index": 1,
+    "clock_mhz": 50.0,
+    "area_um2": 1291.24,
+    "wns_ns": 0.0,
+    "tns_ns": 0.0,
+    "power_mw": 0.12282273382879794,
+    "cell_count": 189,
+    "drc_ok": true,
+    "lvs_ok": true
+  },
+  "render": {
+    "ok": true,
+    "width": 1000,
+    "height": 1000
+  },
+  "artifacts": {
+    "gds": {
+      "path": "runs/golden-uart-check/20261023T220111Z-fullflow/work/.eda/flow_fffb3261ef1149e1a5b6b617796828d4/output/runs/flow_ad3428a4fcfa4f49/final/gds/uart_tx.gds",
+      "bytes": 523736,
+      "sha256": "90b5aa3cfb424c0d5f0987759f3e05c587d95f510a8b3f5a0b209356453cf456"
+    },
+    "layout": {
+      "path": "runs/golden-uart-check/20261023T220111Z-fullflow/work/.eda/flow_fffb3261ef1149e1a5b6b617796828d4/output/runs/flow_ad3428a4fcfa4f49/final/render/uart_tx.png",
+      "bytes": 152500,
+      "sha256": "5403c2be55dca862d0d7e7f4e3335f0c90a9be23e74327bfb4cf1e239175e345"
+    },
+    "metrics": {
+      "path": "runs/golden-uart-check/20261023T220111Z-fullflow/work/.eda/flow_fffb3261ef1149e1a5b6b617796828d4/output/runs/flow_ad3428a4fcfa4f49/final/metrics.json",
+      "bytes": 17029,
+      "sha256": "f890b231022840d171158efad6bc36ef552c73ed4896299e1e5cdf986aac2a33"
+    },
+    "config": {
+      "path": "runs/golden-uart-check/20261023T220111Z-fullflow/work/.eda/flow_fffb3261ef1149e1a5b6b617796828d4/output/runs/flow_ad3428a4fcfa4f49/resolved.json",
+      "bytes": 94256,
+      "sha256": "76213ea25e388b282f1dbade329a365cf36a238055ba6e0f0c79cb07efdca469"
+    },
+    "lef": {
+      "path": "runs/golden-uart-check/20261023T220111Z-fullflow/work/.eda/flow_fffb3261ef1149e1a5b6b617796828d4/output/runs/flow_ad3428a4fcfa4f49/final/lef/uart_tx.lef",
+      "bytes": 4713,
+      "sha256": "8385f9758678443cf4c39a3afe7463667d07763eebea390fa4adc51aaf8c2530"
+    },
+    "netlist": {
+      "path": "runs/golden-uart-check/20261023T220111Z-fullflow/work/.eda/flow_fffb3261ef1149e1a5b6b617796828d4/output/runs/flow_ad3428a4fcfa4f49/final/nl/uart_tx.nl.v",
+      "bytes": 81891,
+      "sha256": "eebc242c132ea615fe2b588ba0ceb41c2718c6ecb5c88f102d2d576021bffc09"
+    }
+  },
+  "limitations": [
+    "clock_mhz is the configured constraint, not measured Fmax",
+    "power_mw is flow-reported power; no worst-corner or nominal-corner claim",
+    "standalone DRC/LVS does not establish Tiny Tapeout wrapper or shuttle readiness"
+  ],
+  "check_started_at_utc": "2026-10-23T22:01:11Z"
+}

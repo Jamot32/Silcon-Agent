@@ -1,11 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-
-interface PublicRun {
-  id: string;
-  status: string;
-  stage: string;
-  is_replay: boolean;
-}
+import type { Metric, PublicRun } from "../lib/api";
 
 test.beforeEach(async ({ page }) => {
   // These checks only observe runs. Block mutations even if a UI regression
@@ -93,6 +87,68 @@ test("completed real run displays recorded evidence and a loadable layout", asyn
   await assertFinishedDashboard(page, run!.id);
   await page.setViewportSize({ width: 390, height: 844 });
   await assertChartRendered(page);
+  expect(pageErrors).toEqual([]);
+});
+
+test("result page selects the best real layout and downloads its bundle", async ({ page, request }, testInfo) => {
+  const pageErrors: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  const runsResponse = await request.get("/api/runs");
+  expect(runsResponse.ok()).toBeTruthy();
+  const runs = await runsResponse.json() as PublicRun[];
+  const run = process.env.READONLY_RUN_ID
+    ? runs.find((candidate) => candidate.id === process.env.READONLY_RUN_ID)
+    : runs.find((candidate) => candidate.status === "done" && !candidate.is_replay && candidate.best_run_tag);
+  if (process.env.READONLY_RUN_ID) expect(run, "READONLY_RUN_ID must identify an existing run").toBeDefined();
+  test.skip(!run, "No completed real run is available; this test never creates one.");
+  expect(run!.status).toBe("done");
+  expect(run!.is_replay).toBe(false);
+  expect(run!.best_run_tag).toBeTruthy();
+  const metricsResponse = await request.get(`/api/runs/${run!.id}/metrics`);
+  expect(metricsResponse.ok()).toBeTruthy();
+  const metrics = await metricsResponse.json() as Metric[];
+  const best = metrics.find((metric) => metric.run_tag === run!.best_run_tag);
+  expect(best, "The selected result must have an actual metric record").toBeDefined();
+  testInfo.annotations.push({ type: "existing_run_id", description: run!.id });
+  testInfo.annotations.push({ type: "selected_best_tag", description: run!.best_run_tag! });
+
+  await page.goto(`/runs/${run!.id}/result`);
+  await expect(page.getByTestId("result-dashboard")).toBeVisible();
+  const layout = page.getByTestId("result-layout-image");
+  await expect(layout).toBeVisible();
+  const expectedLayout = `/api/runs/${run!.id}/layout/${encodeURIComponent(run!.best_run_tag!)}.png`;
+  await expect(layout).toHaveAttribute("src", expectedLayout);
+  await expect.poll(async () => layout.evaluate((node) => node instanceof HTMLImageElement && node.complete && node.naturalWidth > 0)).toBeTruthy();
+
+  const targets = { ...run!.design_spec?.targets, ...run!.targets };
+  const targetTable = page.getByTestId("result-targets");
+  const displayNumber = (value: number, digits = 2) => value.toLocaleString("en-US", { maximumFractionDigits: digits });
+  await expect(targetTable).toBeVisible();
+  if (targets.clock_mhz != null) await expect(targetTable).toContainText(`${displayNumber(targets.clock_mhz)} MHz`);
+  await expect(targetTable).toContainText(`${displayNumber(best!.clock_mhz)} MHz`);
+  await expect(targetTable).toContainText(`${displayNumber(best!.wns_ns, 3)} ns`);
+  await expect(targetTable).toContainText(displayNumber(best!.area_um2));
+  if (targets.max_area_um2 != null) await expect(targetTable).toContainText(displayNumber(targets.max_area_um2));
+  else await expect(targetTable).toContainText(/no target/i);
+  if (targets.fit === "tt_1x1_tile" && !run!.tapeout_ready) await expect(targetTable).toContainText(/unverified/i);
+  const signoff = page.getByTestId("result-signoff");
+  await expect(signoff).toContainText(new RegExp(`DRC\\s*${best!.drc_ok === true ? "clean" : best!.drc_ok === false ? "failed" : "unknown"}`, "i"));
+  await expect(signoff).toContainText(new RegExp(`LVS\\s*${best!.lvs_ok === true ? "clean" : best!.lvs_ok === false ? "failed" : "unknown"}`, "i"));
+
+  const download = page.getByTestId("bundle-download");
+  await expect(download).toBeVisible();
+  const bundlePath = `/api/runs/${run!.id}/bundle.zip`;
+  await expect(download).toHaveAttribute("href", bundlePath);
+  const bundleResponse = await request.get(bundlePath);
+  expect(bundleResponse.ok()).toBeTruthy();
+  expect(bundleResponse.headers()["content-type"]).toContain("application/zip");
+  expect(bundleResponse.headers()["content-disposition"]).toContain(`silicon-agent-${run!.id}.zip`);
+  const bundle = await bundleResponse.body();
+  expect([...bundle.subarray(0, 4)]).toEqual([0x50, 0x4b, 0x03, 0x04]);
+  const back = page.getByRole("link", { name: /back to live run|view live run/i });
+  await expect(back).toHaveAttribute("href", `/runs/${run!.id}`);
+  await back.click();
+  await expect(page.getByTestId("run-dashboard")).toBeVisible();
   expect(pageErrors).toEqual([]);
 });
 

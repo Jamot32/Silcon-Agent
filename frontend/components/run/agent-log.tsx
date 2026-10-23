@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Circle, LoaderCircle, X } from "lucide-react";
 import type { RunEvent } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { title } from "./format";
 
 const visibleTypes = new Set(["stage_changed", "tool_started", "tool_finished", "file_written", "test_result", "metric_recorded", "layout_rendered", "note", "error", "run_finished"]);
@@ -34,10 +35,11 @@ function tone(event: RunEvent): "pass" | "fail" | "working" | "neutral" {
   return "neutral";
 }
 
-export function AgentLog({ events }: { events: RunEvent[] }) {
+export function AgentLog({ events, title = "Agent log", className }: { events: RunEvent[]; title?: string; className?: string }) {
   const rows = useMemo(() => events.filter((event) => visibleTypes.has(event.type)), [events]);
   const scroller = useRef<HTMLDivElement>(null);
   const pinned = useRef(true);
+  const userScrolled = useRef(false);
   const [hasNew, setHasNew] = useState(false);
   useEffect(() => {
     const element = scroller.current;
@@ -46,18 +48,20 @@ export function AgentLog({ events }: { events: RunEvent[] }) {
   }, [rows.length]);
   function latest() {
     const element = scroller.current;
-    if (element) element.scrollTo({ top: element.scrollHeight, behavior: "smooth" });
+    if (element) element.scrollTo({ top: element.scrollHeight, behavior: "auto" });
     pinned.current = true;
+    userScrolled.current = false;
     setHasNew(false);
   }
   return (
-    <section className="instrument-panel log-panel" aria-labelledby="agent-log-title">
-      <header className="instrument-header"><h2 id="agent-log-title">Agent log</h2><span className="micro-label">{rows.length} events</span></header>
-      <div className="event-log" data-testid="event-log" data-last-event-id={events.at(-1)?.id ?? 0} data-event-count={events.length} ref={scroller} onScroll={() => {
+    <section className={cn("instrument-panel log-panel", className)} aria-labelledby="agent-log-title">
+      <header className="instrument-header"><h2 id="agent-log-title">{title}</h2><span className="micro-label">{rows.length} events</span></header>
+      <div className="event-log" data-testid="event-log" data-last-event-id={events.at(-1)?.id ?? 0} data-event-count={events.length} ref={scroller} onWheel={() => { userScrolled.current = true; }} onTouchMove={() => { userScrolled.current = true; }} onPointerDown={() => { userScrolled.current = true; }} onKeyDown={() => { userScrolled.current = true; }} onScroll={() => {
+        if (!userScrolled.current) return;
         const element = scroller.current;
         if (element) {
           pinned.current = element.scrollHeight - element.scrollTop - element.clientHeight < 60;
-          if (pinned.current) setHasNew(false);
+          if (pinned.current) { userScrolled.current = false; setHasNew(false); }
         }
       }} role="log" aria-label="Agent design log" aria-live="polite" aria-relevant="additions">
         {rows.length === 0 ? <p className="panel-empty">Waiting for the worker to start.</p> : (

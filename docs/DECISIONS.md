@@ -113,3 +113,9 @@ The reference's layout placeholder becomes a real PNG with zoom/pan. Increase it
 ## 2026-10-23 — M8 measured parallel comparison
 
 Focus the first optimization prompt on three distinct configuration-only variants when three flow slots remain. The model first records its rationale, then proposes a pure batch at the requested clock using the existing verified synthesis/utilization/density allow-list. Subsequent rounds retain RTL optimization with mandatory preserved-test verification. This changes the proposal order, not the tool budgets or result handling: only actual returned calls execute, failed tools remain failures, and the backend still allows at most six total attempts and three concurrent flows. Fixture-backed unit tests distinguish test doubles from the real UART acceptance run.
+
+## 2026-10-23 — M9 selected result and target semantics
+
+The result page follows `docs/design/m9-concept.png` and always selects the backend's `best_run_tag`, while the live viewer continues to show the latest rendered variant. This matters in the real UART run: the first flow won, and the last compared flow did not. Download is available only after DONE, whose backend invariant requires validation and registration of the selected real ZIP.
+
+Correct the concept's WNS-row typo using the actual measured slack. A timing target is met only when the configured clock is at least the requested frequency and WNS is nonnegative. No area limit means “No target”; missing evidence means “Unknown”; requested Tiny Tapeout fit remains “Unverified” until wrapper and shuttle checks exist. Use actual persisted events in the design log, replacing the concept's illustrative summaries and timestamps. Partial failed runs retain their actual status, error and available measurements, without a successful download claim.
