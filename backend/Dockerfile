@@ -8,6 +8,7 @@ COPY backend/app ./app
 COPY backend/tests ./tests
 COPY pytest.ini ./pytest.ini
 COPY designs /designs
+COPY demo_recordings /demo_recordings
 COPY scripts/manage_worker.py /scripts/manage_worker.py
 COPY scripts/setup_env.py /scripts/setup_env.py
 USER silicon

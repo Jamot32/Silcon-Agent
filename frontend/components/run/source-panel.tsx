@@ -9,7 +9,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const MonacoView = dynamic(() => import("./monaco-view"), { ssr: false, loading: () => <p className="panel-empty">Loading source editor…</p> });
 
-export function SourcePanel({ files, diffs }: { files: Record<string, string>; diffs: Record<string, FileDiff> }) {
+export function SourcePanel({ files, diffs, isReplay = false }: { files: Record<string, string>; diffs: Record<string, FileDiff>; isReplay?: boolean }) {
   const paths = Object.keys(files).sort();
   const [selected, setSelected] = useState("");
   const [showDiff, setShowDiff] = useState(false);
@@ -42,7 +42,7 @@ export function SourcePanel({ files, diffs }: { files: Record<string, string>; d
       <Button size="icon-xs" variant="ghost" onClick={copy} disabled={!path} aria-label={copied ? "Copied source" : "Copy source"}><Copy /></Button>
     </div></div>
     <div className="source-editor" data-testid="source-editor" data-file-path={path} data-last-file-event-id={latestEvent}>
-      {path ? showDiff && diff && (diff.before === null || diff.after === null) ? <pre className="raw-diff">{diff.diff}</pre> : <MonacoView path={path} value={showDiff && diff?.after != null ? diff.after : files[path]} before={diff?.before ?? undefined} diff={showDiff} /> : <p className="panel-empty">RTL and tests appear as the agent writes them.</p>}
+      {path ? showDiff && diff && (diff.before === null || diff.after === null) ? <pre className="raw-diff">{diff.diff}</pre> : <MonacoView path={path} value={showDiff && diff?.after != null ? diff.after : files[path]} before={diff?.before ?? undefined} diff={showDiff} /> : <p className="panel-empty">{isReplay ? "Recorded RTL and tests appear during playback." : "RTL and tests appear as the agent writes them."}</p>}
     </div>
   </section>;
 }

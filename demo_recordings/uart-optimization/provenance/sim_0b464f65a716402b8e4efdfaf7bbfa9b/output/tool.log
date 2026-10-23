@@ -1,0 +1,31 @@
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with 1792792691
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running test_uart_spec.default_divider_a5_exact_intervals (1/6)
+  1670.00ns INFO     cocotb.regression                  test_uart_spec.default_divider_a5_exact_intervals passed
+  1670.00ns INFO     cocotb.regression                  running test_uart_spec.equal_bit_runs_and_idle (2/6)
+  8320.00ns INFO     cocotb.regression                  test_uart_spec.equal_bit_runs_and_idle passed
+  8320.00ns INFO     cocotb.regression                  running test_uart_spec.busy_requests_ignored_including_completion (3/6)
+ 11570.00ns INFO     cocotb.regression                  test_uart_spec.busy_requests_ignored_including_completion passed
+ 11570.00ns INFO     cocotb.regression                  running test_uart_spec.held_start_recaptures_after_completion (4/6)
+ 14855.00ns INFO     cocotb.regression                  test_uart_spec.held_start_recaptures_after_completion passed
+ 14855.00ns INFO     cocotb.regression                  running test_uart_spec.synchronous_idle_reset_priority (5/6)
+ 16495.00ns INFO     cocotb.regression                  test_uart_spec.synchronous_idle_reset_priority passed
+ 16495.00ns INFO     cocotb.regression                  running test_uart_spec.synchronous_abort_and_recovery (6/6)
+ 25825.01ns INFO     cocotb.regression                  test_uart_spec.synchronous_abort_and_recovery passed
+ 25825.01ns INFO     cocotb.regression                  *******************************************************************************************************************
+                                                        ** TEST                                                       STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        *******************************************************************************************************************
+                                                        ** test_uart_spec.default_divider_a5_exact_intervals           PASS        1670.00           0.00     575222.77  **
+                                                        ** test_uart_spec.equal_bit_runs_and_idle                      PASS        6650.00           0.01     628824.10  **
+                                                        ** test_uart_spec.busy_requests_ignored_including_completion   PASS        3250.00           0.01     561289.96  **
+                                                        ** test_uart_spec.held_start_recaptures_after_completion       PASS        3285.00           0.01     570955.11  **
+                                                        ** test_uart_spec.synchronous_idle_reset_priority              PASS        1640.00           0.00     619252.66  **
+                                                        ** test_uart_spec.synchronous_abort_and_recovery               PASS        9330.00           0.01     636503.25  **
+                                                        *******************************************************************************************************************
+                                                        ** TESTS=6 PASS=6 FAIL=0 SKIP=0                                           25825.01           0.04     579950.43  **
+                                                        *******************************************************************************************************************

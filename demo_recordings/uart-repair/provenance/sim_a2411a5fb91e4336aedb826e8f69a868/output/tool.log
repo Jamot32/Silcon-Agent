@@ -1,0 +1,31 @@
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with 1792794320
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running test_uart_contract.exact_framing_and_lsb_order (1/6)
+  1720.00ns INFO     cocotb.regression                  test_uart_contract.exact_framing_and_lsb_order passed
+  1720.00ns INFO     cocotb.regression                  running test_uart_contract.payload_is_latched (2/6)
+  3400.00ns INFO     cocotb.regression                  test_uart_contract.payload_is_latched passed
+  3400.00ns INFO     cocotb.regression                  running test_uart_contract.busy_requests_are_discarded (3/6)
+  5160.00ns INFO     cocotb.regression                  test_uart_contract.busy_requests_are_discarded passed
+  5160.00ns INFO     cocotb.regression                  running test_uart_contract.held_send_accepts_only_after_completion (4/6)
+  6840.00ns INFO     cocotb.regression                  test_uart_contract.held_send_accepts_only_after_completion passed
+  6840.00ns INFO     cocotb.regression                  running test_uart_contract.synchronous_reset_priority_and_abort (5/6)
+  7880.00ns INFO     cocotb.regression                  test_uart_contract.synchronous_reset_priority_and_abort passed
+  7880.00ns INFO     cocotb.regression                  running test_uart_contract.edge_payloads_full_stop_and_sustained_idle (6/6)
+ 10040.00ns INFO     cocotb.regression                  test_uart_contract.edge_payloads_full_stop_and_sustained_idle passed
+ 10040.00ns INFO     cocotb.regression                  ***********************************************************************************************************************
+                                                        ** TEST                                                           STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        ***********************************************************************************************************************
+                                                        ** test_uart_contract.exact_framing_and_lsb_order                  PASS        1720.00           0.00     753913.98  **
+                                                        ** test_uart_contract.payload_is_latched                           PASS        1680.00           0.00     794769.99  **
+                                                        ** test_uart_contract.busy_requests_are_discarded                  PASS        1760.00           0.00     881956.40  **
+                                                        ** test_uart_contract.held_send_accepts_only_after_completion      PASS        1680.00           0.00     850504.61  **
+                                                        ** test_uart_contract.synchronous_reset_priority_and_abort         PASS        1040.00           0.00     880338.28  **
+                                                        ** test_uart_contract.edge_payloads_full_stop_and_sustained_idle   PASS        2160.00           0.00     871711.41  **
+                                                        ***********************************************************************************************************************
+                                                        ** TESTS=6 PASS=6 FAIL=0 SKIP=0                                               10040.00           0.01     727956.60  **
+                                                        ***********************************************************************************************************************

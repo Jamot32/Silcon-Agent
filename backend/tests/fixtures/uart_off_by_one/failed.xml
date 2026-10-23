@@ -1,0 +1,21 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1792793936" />
+    <testcase name="synchronous_reset_and_reset_priority" classname="test_uart_tx" file="/input/test/test_uart_tx.py" lineno="50" time="0.0012476444244384766" sim_time_ns="522.0" ratio_time="418388.4364609211" />
+    <testcase name="idle_high_and_edge_only_acceptance" classname="test_uart_tx" file="/input/test/test_uart_tx.py" lineno="78" time="0.0011224746704101562" sim_time_ns="172.0" ratio_time="153232.85641461343">
+      <failure error_type="AssertionError" error_msg="Wrong serial bit at frame clock 3" />
+    </testcase>
+    <testcase name="exact_bit_period_and_lsb_first_patterns" classname="test_uart_tx" file="/input/test/test_uart_tx.py" lineno="94" time="0.000843048095703125" sim_time_ns="290.0" ratio_time="343989.86425339367">
+      <failure error_type="AssertionError" error_msg="Wrong serial bit at frame clock 27" />
+    </testcase>
+    <testcase name="input_latched_and_busy_requests_ignored" classname="test_uart_tx" file="/input/test/test_uart_tx.py" lineno="101" time="0.0004394054412841797" sim_time_ns="79.99999999999989" ratio_time="182064.19967444357">
+      <failure error_type="AssertionError" error_msg="Wrong serial bit at frame clock 6" />
+    </testcase>
+    <testcase name="next_frame_after_complete_stop_bit" classname="test_uart_tx" file="/input/test/test_uart_tx.py" lineno="111" time="0.00034308433532714844" sim_time_ns="80.0" ratio_time="233178.81862404448">
+      <failure error_type="AssertionError" error_msg="Wrong serial bit at frame clock 6" />
+    </testcase>
+    <testcase name="randomized_cycle_reference" classname="test_uart_tx" file="/input/test/test_uart_tx.py" lineno="119" time="0.00042057037353515625" sim_time_ns="90.0" ratio_time="213995.10204081633">
+      <failure error_type="AssertionError" error_msg="Reference serial mismatch at clock 7" />
+    </testcase>
+  </testsuite>
+</testsuites>

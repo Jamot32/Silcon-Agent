@@ -9,6 +9,7 @@ from pydantic import JsonValue, ValidationError
 
 from app.agent.memory import Memory
 from app.agent.prompts import STAGE_GOALS, SUMMARY_PROMPT, SYSTEM_PROMPT, stage_prompt
+from app.agent.starters import load_starter
 from app.agent.tools import ToolRunner, tool_definitions
 from app.llm.types import Budget, Completion, LLM, LLMError, Message, ToolCall
 from app.models import Metric
@@ -42,10 +43,13 @@ class Orchestrator:
         targets: dict[str, JsonValue] | None = None,
         package_callback: Callable[[str], Awaitable[Path]] | None = None,
         event_callback: Callable[[str, dict[str, JsonValue]], Awaitable[None]] | None = None,
+        starter_id: str | None = None,
     ):
         self.llm = llm
         self.tools = tools
         self.spec_text = spec_text
+        self.starter = load_starter(starter_id) if starter_id is not None else None
+        self._starter_loaded = False
         self.targets = targets or {}
         self.package_callback = package_callback
         self.event_callback = event_callback if event_callback is not None else tools.event_callback
@@ -119,8 +123,18 @@ class Orchestrator:
             summaries=self.memory.context(verify=stage == "VERIFY"),
             last_results=results, files=files, first_optimization_round=first_optimization_round,
         )
-        return [Message(role="system", content=SYSTEM_PROMPT), Message(role="user", content=prompt),
-                *[Message(role="user", content=f"Current file {file['path']}:\n{file['content']}") for file in files]]
+        messages = [Message(role="system", content=SYSTEM_PROMPT), Message(role="user", content=prompt),
+                    *[Message(role="user", content=f"Current file {file['path']}:\n{file['content']}") for file in files]]
+        if stage == "SPEC" and self.starter is not None:
+            # Supply interface requirements, never source or defect details, to
+            # preserve independent spec-derived verification later on.
+            metadata = self.starter.metadata()
+            messages.append(Message(role="user", content=json.dumps({
+                "supplied_starter": "Known faulty source supplied by the project; not model-generated.",
+                "required_top_module": self.starter.top_module, "required_ports": metadata["ports"],
+                "required_contract": self.starter.spec_text,
+            })))
+        return messages
 
     async def _remember(self, stage: str) -> None:
         evidence = self.last_results[-4:]
@@ -243,7 +257,25 @@ class Orchestrator:
 
     async def _rtl(self, *, previous_ok: bool = True) -> None:
         await self._stage("RTL", previous_ok=previous_ok)
-        await self._design_stage("RTL")
+        if self.starter is not None and not self._starter_loaded:
+            assert self.design_spec is not None
+            self.starter.validate_spec(self.design_spec)
+            calls = [
+                ToolCall(id=uuid4().hex, name="record_note", arguments={
+                    "text": f"Loaded supplied faulty UART starter {self.starter.id}; this initial source is hand-written, not model-generated. Evaluate it with independent tests before repair. Source SHA256 {self.starter.sha256}.",
+                }),
+                ToolCall(id=uuid4().hex, name="write_file", arguments={
+                    "path": "src/uart_tx.v", "content": self.starter.source,
+                }),
+                ToolCall(id=uuid4().hex, name="lint", arguments={"top": self.design_spec.top_module}),
+            ]
+            for call in calls:
+                result = await self._execute("RTL", call)
+                if result.get("ok") is not True:
+                    raise LLMError(f"Supplied starter {call.name} failed; inspect the actual tool result")
+            self._starter_loaded = True
+        else:
+            await self._design_stage("RTL")
         await self._remember("RTL")
 
     async def _verify(self) -> bool:
@@ -298,7 +330,10 @@ class Orchestrator:
                 # Preserve every model field for validation; request targets only
                 # override the corresponding explicitly requested target values.
                 data["targets"] = {**data.get("targets", {}), **self.targets}
-                self.design_spec = DesignSpec.model_validate(data)
+                validated = DesignSpec.model_validate(data)
+                if self.starter is not None:
+                    self.starter.validate_spec(validated)
+                self.design_spec = validated
                 return
             except (ValueError, ValidationError) as error:
                 if isinstance(error, ValidationError):

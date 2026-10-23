@@ -1,0 +1,103 @@
+{
+  "run_id": "f17167a0d7984e89b87a5774285f0037",
+  "status": "passed",
+  "provider": "codex",
+  "call_count": 16,
+  "input_tokens": 173897,
+  "output_tokens": 5207,
+  "cost_usd": null,
+  "flow_points": 4,
+  "best": {
+    "iteration_id": "f59b8d3043de48259f93faf95c19588a",
+    "flow_index": 1,
+    "run_id": "f17167a0d7984e89b87a5774285f0037",
+    "area_um2": 1291.24,
+    "tns_ns": 0.0,
+    "cell_count": 189,
+    "lvs_ok": true,
+    "id": "1bb0b560b5c24f9ead732950580e1a51",
+    "run_tag": "flow_756d6723e386464e",
+    "clock_mhz": 50.0,
+    "wns_ns": 0.0,
+    "power_mw": 0.12282273382879794,
+    "drc_ok": true
+  },
+  "metrics": [
+    {
+      "iteration_id": "f59b8d3043de48259f93faf95c19588a",
+      "flow_index": 1,
+      "run_id": "f17167a0d7984e89b87a5774285f0037",
+      "area_um2": 1291.24,
+      "tns_ns": 0.0,
+      "cell_count": 189,
+      "lvs_ok": true,
+      "id": "1bb0b560b5c24f9ead732950580e1a51",
+      "run_tag": "flow_756d6723e386464e",
+      "clock_mhz": 50.0,
+      "wns_ns": 0.0,
+      "power_mw": 0.12282273382879794,
+      "drc_ok": true
+    },
+    {
+      "iteration_id": "96fccdd18bb3409994ce4334175ac02d",
+      "flow_index": 2,
+      "run_id": "f17167a0d7984e89b87a5774285f0037",
+      "area_um2": 1296.24,
+      "tns_ns": 0.0,
+      "cell_count": 190,
+      "lvs_ok": true,
+      "id": "e50db8005b1c44cbb6ff20ec76cd99cf",
+      "run_tag": "flow_f849855dad8e476b",
+      "clock_mhz": 50.0,
+      "wns_ns": 0.0,
+      "power_mw": 0.12416148092597723,
+      "drc_ok": true
+    },
+    {
+      "iteration_id": "96fccdd18bb3409994ce4334175ac02d",
+      "flow_index": 3,
+      "run_id": "f17167a0d7984e89b87a5774285f0037",
+      "area_um2": 1468.91,
+      "tns_ns": 0.0,
+      "cell_count": 209,
+      "lvs_ok": true,
+      "id": "d47a1938a47d48a39b513efe7f5ce4fe",
+      "run_tag": "flow_23a5137f7aae4969",
+      "clock_mhz": 50.0,
+      "wns_ns": 0.0,
+      "power_mw": 0.1064138050423935,
+      "drc_ok": true
+    },
+    {
+      "iteration_id": "96fccdd18bb3409994ce4334175ac02d",
+      "flow_index": 4,
+      "run_id": "f17167a0d7984e89b87a5774285f0037",
+      "area_um2": 1291.24,
+      "tns_ns": 0.0,
+      "cell_count": 189,
+      "lvs_ok": true,
+      "id": "a34ddaed4b5340cba604d4c5f5232ff1",
+      "run_tag": "flow_e146c7dc3cd34930",
+      "clock_mhz": 50.0,
+      "wns_ns": 0.0,
+      "power_mw": 0.12282273382879794,
+      "drc_ok": true
+    }
+  ],
+  "layout_dimensions": [
+    1000,
+    1000
+  ],
+  "layout_sha256": "5403c2be55dca862d0d7e7f4e3335f0c90a9be23e74327bfb4cf1e239175e345",
+  "bundle_sha256": "fde0bf110de93b7b6d73a4a08b0bd9ef4dbbb9541ef10e05fc9fc612e6204f7d",
+  "tiny_tapeout_ready": false,
+  "max_overlapping_flow_calls": 3,
+  "repair": {
+    "initial_passed": 1,
+    "initial_failed": 5,
+    "final_passed": 6,
+    "final_failed": 0,
+    "tests_unchanged": true,
+    "origin": "supplied_known_faulty_starter"
+  }
+}

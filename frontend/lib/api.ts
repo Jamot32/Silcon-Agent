@@ -6,7 +6,10 @@ export interface Health {
   llm_provider: string;
 }
 export interface Preset { id: string; name: string; spec_text: string }
-export interface Recording { id: string; name: string }
+export interface Recording {
+  id: string; name: string; description: string; source_run_id: string;
+  duration_seconds: number; event_count: number; flow_count: number;
+}
 
 export type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
 export type JsonObject = { [key: string]: JsonValue };
@@ -22,6 +25,7 @@ export interface PublicRun {
   cost_usd: number | null; input_tokens: number; output_tokens: number; call_count: number;
   llm_provider: string; is_replay: boolean; summary: string | null; error: string | null;
   best_run_tag: string | null; tapeout_ready: boolean;
+  recording_id: string | null; replay_speed: number | null; starter_id: string | null;
 }
 export type Run = PublicRun;
 export interface Metric {
@@ -45,7 +49,8 @@ export interface TestResults {
 }
 export interface Layout { run_tag: string; image_url: string; clock_mhz?: number; width?: number; height?: number; event_id?: number }
 export interface FileDiff { path: string; diff: string; before: string | null; after: string | null; event_id: number; ts: string }
-export interface CreateRunInput { spec_text: string; preset_id?: string; targets?: Targets }
+export interface CreateRunInput { spec_text: string; preset_id?: string; targets?: Targets; starter_id?: "uart_off_by_one" }
+export interface CreateReplayInput { recording_id: string; speed: 1 | 4 }
 
 export class ApiError extends Error {
   readonly status: number;
@@ -96,3 +101,7 @@ export const createRun = (body: CreateRunInput, signal?: AbortSignal) => request
   method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal,
 });
 export const cancelRun = (id: string, signal?: AbortSignal) => requestJson<PublicRun>(`${runPath(id)}/cancel`, { method: "POST", signal });
+
+export const createReplay = (body: CreateReplayInput, signal?: AbortSignal) => requestJson<{ run_id: string }>("/api/replays", {
+  method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal,
+});

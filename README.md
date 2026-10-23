@@ -1,28 +1,37 @@
 # Silicon Agent
 
-An AI chip-design lab for the Meta Global AI Developer Hackathon. M0–M7 have passed, including a live dashboard with code diffs, test results, physical metrics, and the actual GDS render. A real Codex-driven counter passed six tests and two clean sky130 flows, improving area from 1097.30 to 980.94 µm² at 50 MHz. No synthetic EDA results are included.
+Describe a small digital chip. Follow the agent's Verilog, independent tests, synthesis, sky130 physical design, measured comparisons, and downloadable GDS bundle. Every displayed EDA result comes from a real tool run. Recorded playback always carries a **REPLAY** label.
 
-Requires Docker Desktop running, Docker Compose, [uv](https://docs.astral.sh/uv/), Node/npm, and free disk space for the EDA image and sky130 PDK. Development currently uses your ChatGPT plan through Codex-managed OAuth. OAuth credentials stay with the host CLI.
+Requires Docker Desktop/Compose and [uv](https://docs.astral.sh/uv/). Node/npm is also required for browser tests. Start the app with two commands:
+
+```sh
+cp .env.example .env
+make demo
+```
+
+Open **http://localhost:3000**. Choose a recorded run and **Replay 4×** for the offline walkthrough. Playback needs no model credentials or EDA installation and makes no model or EDA calls. The three committed recordings show a genuine supplied-UART repair, parallel UART comparisons, and counter area optimization. See [the three-minute demo script](docs/DEMO_SCRIPT.md).
+
+For live builds with the user-selected ChatGPT plan, authenticate the pinned host Codex CLI, then prepare and verify the real EDA tools:
 
 ```sh
 npm install -g @openai/codex@0.163.0
 codex login
-cp .env.example .env
-make llm-smoke
-make demo
+make eda-setup eda-check llm-smoke demo
 ```
 
-Open http://localhost:3000 and choose “Build my chip.” API health is at http://localhost:8000/api/health. Health reports cached smoke/golden checks with timestamps, and `degraded` until they pass. The API and host worker are live; [M7 evidence](docs/evidence/M7.json) records the real acceptance check.
-
-To switch to Meta for the competition, set `LLM_PROVIDER=meta` and `META_API_KEY` in `.env`, then run `make meta-smoke` and restart with `make dev`. There is no automatic provider fallback. ChatGPT-plan calls report real token usage and unknown USD cost; Meta estimates use published token rates. Per-run call, token, and known-dollar limits are enforced by the shared client budget.
+Choose a preset or type a spec, then click **Build my chip**. A small build takes several minutes. OAuth remains with the host CLI; it never enters an application/EDA container. Plan calls report actual token/call usage and unavailable USD cost. To use competition credentials, set `LLM_PROVIDER=meta` and `META_API_KEY` in ignored `.env`, run `make meta-smoke`, then `make dev`. Meta live acceptance remains deferred until those credentials are available; there is no automatic provider fallback.
 
 ```sh
-make eda-setup  # fetch the pinned image and sky130 PDK; network required
-make eda-check  # real golden-counter tools, network isolated
-make eda-tools-check # real constrained-tool integration checks (no model calls)
-make test      # scaffold checks; no paid model calls
+make test             # idle app required; offline units + actual replay E2E, no LLM/EDA
+make eda-tools-check  # explicit real Docker integration checks
+make record-repair    # explicit REAL model build from a disclosed faulty UART starter
+make down
 ```
 
-`make dev` restarts the host worker to apply code/environment changes; an interrupted build is marked failed with its partial logs retained. `make down` stops the worker and app. Worker logs are in `runs/worker.log`; `python3 scripts/manage_worker.py status` checks its process. Outputs/database live in gitignored `runs/`. The API alone opens SQLite; the host worker uses private authenticated HTTP routes. `make setup` generates the server-only worker token in ignored `.env`. Decisions and current milestone evidence are in [docs/DECISIONS.md](docs/DECISIONS.md) and [docs/PROGRESS.md](docs/PROGRESS.md).
+`make dev` restarts the host worker to apply code/environment changes. An interrupted run is marked failed with its partial evidence retained. One build/playback is allowed at a time. Per-run limits are 50 model calls, 300,000 tokens, six physical-flow attempts, and three concurrent flows; known Meta cost is capped by `RUN_BUDGET_USD` (default $2). Live tools run without network, with immutable inputs and CPU/memory/time/output limits.
 
-The [real golden-counter fixture](backend/tests/fixtures/golden_counter/) includes GDS, LEF, PNG, raw metrics, test results, reports, full logs, and SHA256 provenance. Full golden-check artifacts are under `runs/eda-check/<timestamp>/`; agent outputs use `runs/<id>/`. Only the counter has been attempted so far; other golden designs and replay follow in milestone order. Bundles include Tiny Tapeout-style metadata drafts and explicit integration notes. Clean block DRC/LVS is separate from shuttle readiness.
+The API alone owns SQLite. The host worker uses private authenticated HTTP; `make setup` creates a server-only worker token without printing it. Real source snapshots, logs, metrics, events and images remain in ignored `runs/<id>/`. [Recording manifests](demo_recordings/README.md) hash every committed playback asset. API health at http://localhost:8000/api/health reports cached real smoke/tool checks without paid requests.
+
+Bundles contain selected-flow GDS, LEF, Verilog, preserved tests, raw/canonical metrics, design log, checksums, and Tiny Tapeout-style metadata. **Clean block DRC/LVS does not establish Tiny Tapeout wrapper, tile fit, or shuttle readiness.** The metadata draft and bundle explain the remaining integration work. No shuttle submission is performed.
+
+See [milestone evidence](docs/PROGRESS.md), [decisions](docs/DECISIONS.md), [architecture](docs/ARCHITECTURE.md), and [visual verification](docs/design/VERIFICATION.md).

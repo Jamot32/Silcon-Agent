@@ -18,6 +18,7 @@ def main() -> None:
     parser.add_argument("--api", default="http://localhost:8000")
     parser.add_argument("--min-flow-points", type=int, default=2)
     parser.add_argument("--require-parallel", type=int, default=0, choices=range(4))
+    parser.add_argument("--require-repair", action="store_true")
     args = parser.parse_args()
     assert re.fullmatch(r"[0-9a-f]{32}", args.run_id), "Invalid run ID"
     assert args.min_flow_points >= 1, "Require at least one measured flow"
@@ -42,8 +43,10 @@ def main() -> None:
         return (not timing, metric["area_um2"], metric["power_mw"])
     assert score(best) == min(map(score, metrics)), "Selected flow does not match timing/area/power ranking"
     parallel = 0
-    if args.require_parallel:
+    events = []
+    if args.require_parallel or args.require_repair:
         events = [json.loads(line[6:]) for line in fetch("/events", 8 * 1024 * 1024).decode().splitlines() if line.startswith("data: ")]
+    if args.require_parallel:
         active = set()
         for event in events:
             payload = event["payload"]
@@ -55,6 +58,22 @@ def main() -> None:
             elif event["type"] == "tool_finished":
                 active.discard(payload["tool_call_id"])
         assert not active and args.require_parallel <= parallel <= 3, "Parallel flow evidence does not satisfy the requested bound"
+    repair = None
+    if args.require_repair:
+        assert run.get("starter_id") == "uart_off_by_one", "Repair acceptance requires explicit supplied-starter provenance"
+        failed = next(event for event in events if event["type"] == "test_result" and event["payload"].get("failed", 0) > 0)
+        passed = next(event for event in events if event["id"] > failed["id"] and event["type"] == "test_result"
+                      and event["payload"].get("ok") is True and event["payload"].get("failed") == 0 and event["payload"].get("passed", 0) >= 4)
+        assert any(failed["id"] < event["id"] < passed["id"] and event["type"] == "file_written"
+                   and event["payload"]["path"].startswith("src/") for event in events), "No measured RTL repair between failure and pass"
+        before = {event["payload"]["path"]: event["payload"]["content"] for event in events
+                  if event["id"] < failed["id"] and event["type"] == "file_written" and event["payload"]["path"].startswith("test/")}
+        current_files = json.loads(fetch("/files"))
+        assert before and all(current_files.get(path) == content for path, content in before.items()), "Spec-derived tests changed during repair"
+        assert not any(event["id"] > failed["id"] and event["type"] == "file_written" and event["payload"]["path"].startswith("test/") for event in events), "Repair rewrote tests"
+        repair = {"initial_passed": failed["payload"]["passed"], "initial_failed": failed["payload"]["failed"],
+                  "final_passed": passed["payload"]["passed"], "final_failed": 0, "tests_unchanged": True,
+                  "origin": "supplied_known_faulty_starter"}
     assert best["drc_ok"] is True and best["lvs_ok"] is True, "Best block signoff is not clean"
     image = fetch(f"/layout/{run['best_run_tag']}.png", 16 * 1024 * 1024)
     assert image[:8] == b"\x89PNG\r\n\x1a\n" and image[12:16] == b"IHDR", "Layout is not PNG"
@@ -81,6 +100,7 @@ def main() -> None:
         "layout_dimensions": dimensions, "layout_sha256": hashlib.sha256(image).hexdigest(),
         "bundle_sha256": hashlib.sha256(bundle).hexdigest(), "tiny_tapeout_ready": False,
         "max_overlapping_flow_calls": parallel if args.require_parallel else None,
+        "repair": repair,
     }
     root = Path(__file__).resolve().parents[1] / "runs" / args.run_id
     root.mkdir(parents=True, exist_ok=True)
@@ -90,6 +110,8 @@ def main() -> None:
     print("PASS: selected GDS/LEF/source/tests bundle matches spec, metrics, and all manifest hashes")
     if args.require_parallel:
         print(f"PASS: {parallel} overlapping recorded flow calls; selected result follows timing/area/power ranking")
+    if repair:
+        print(f"PASS: supplied faulty UART {repair['initial_passed']} passed / {repair['initial_failed']} failed -> model RTL repair -> {repair['final_passed']} passed / 0 failed; tests unchanged")
     print(f"Usage: {run['call_count']} calls; {run['input_tokens']} input / {run['output_tokens']} output tokens; USD={run['cost_usd']}")
 
 

@@ -1,0 +1,11 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1792793937" />
+    <testcase name="synchronous_reset_and_reset_priority" classname="test_uart_tx" file="/input/test/test_uart_tx.py" lineno="50" time="0.0011935234069824219" sim_time_ns="522.0" ratio_time="437360.5049940072" />
+    <testcase name="idle_high_and_edge_only_acceptance" classname="test_uart_tx" file="/input/test/test_uart_tx.py" lineno="78" time="0.0010704994201660156" sim_time_ns="542.0" ratio_time="506305.7389755011" />
+    <testcase name="exact_bit_period_and_lsb_first_patterns" classname="test_uart_tx" file="/input/test/test_uart_tx.py" lineno="94" time="0.0038385391235351562" sim_time_ns="2060.0" ratio_time="536662.499378882" />
+    <testcase name="input_latched_and_busy_requests_ignored" classname="test_uart_tx" file="/input/test/test_uart_tx.py" lineno="101" time="0.0015521049499511719" sim_time_ns="900.0" ratio_time="579857.6958525346" />
+    <testcase name="next_frame_after_complete_stop_bit" classname="test_uart_tx" file="/input/test/test_uart_tx.py" lineno="111" time="0.002496957778930664" sim_time_ns="1240.0" ratio_time="496604.31204048503" />
+    <testcase name="randomized_cycle_reference" classname="test_uart_tx" file="/input/test/test_uart_tx.py" lineno="119" time="0.019812583923339844" sim_time_ns="9010.0" ratio_time="454761.4806257521" />
+  </testsuite>
+</testsuites>

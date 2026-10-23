@@ -1,0 +1,11 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1792794320" />
+    <testcase name="exact_framing_and_lsb_order" classname="test_uart_contract" file="/input/test/test_uart_contract.py" lineno="53" time="0.0022814273834228516" sim_time_ns="1720.0" ratio_time="753913.9805622322" />
+    <testcase name="payload_is_latched" classname="test_uart_contract" file="/input/test/test_uart_contract.py" lineno="62" time="0.002113819122314453" sim_time_ns="1680.0000000000002" ratio_time="794769.9887209566" />
+    <testcase name="busy_requests_are_discarded" classname="test_uart_contract" file="/input/test/test_uart_contract.py" lineno="69" time="0.001995563507080078" sim_time_ns="1760.0000000000005" ratio_time="881956.3966547195" />
+    <testcase name="held_send_accepts_only_after_completion" classname="test_uart_contract" file="/input/test/test_uart_contract.py" lineno="78" time="0.0019752979278564453" sim_time_ns="1680.0" ratio_time="850504.6131563066" />
+    <testcase name="synchronous_reset_priority_and_abort" classname="test_uart_contract" file="/input/test/test_uart_contract.py" lineno="98" time="0.0011813640594482422" sim_time_ns="1040.0" ratio_time="880338.2764883955" />
+    <testcase name="edge_payloads_full_stop_and_sustained_idle" classname="test_uart_contract" file="/input/test/test_uart_contract.py" lineno="136" time="0.002477884292602539" sim_time_ns="2159.999999999999" ratio_time="871711.4057538725" />
+  </testsuite>
+</testsuites>

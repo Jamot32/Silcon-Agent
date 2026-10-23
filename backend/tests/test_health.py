@@ -7,6 +7,7 @@ from app import main
 def test_bootstrap_health_is_honest(tmp_path, monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "meta")
     monkeypatch.setattr(main, "RUNS_DIR", tmp_path)
+    monkeypatch.setattr(main, "RECORDINGS_DIR", tmp_path / "recordings")
     monkeypatch.setattr(main, "engine", create_engine(f"sqlite:///{tmp_path}/test.db", connect_args={"check_same_thread": False}))
     with TestClient(main.app) as client:
         response = client.get("/api/health")

@@ -1,6 +1,9 @@
-"""Short SQLite transactions shared by the API container and host worker."""
+"""Authoritative API-owned SQLite transactions and durable run projections."""
 
 import json
+import os
+import tempfile
+import threading
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -30,6 +33,7 @@ class RunStore:
     def __init__(self, root: Path, database_url: str | None = None, *, engine: Engine | None = None):
         self.root = root.resolve()
         self.root.mkdir(parents=True, exist_ok=True)
+        self._projection_lock = threading.RLock()
         self.engine = engine or create_engine(database_url or f"sqlite:///{self.root}/silicon-agent.db", connect_args={"check_same_thread": False, "timeout": 30})
         if self.engine.dialect.name == "sqlite":
             @event.listens_for(self.engine, "connect")
@@ -50,6 +54,11 @@ class RunStore:
                 connection.exec_driver_sql("BEGIN IMMEDIATE")
             SQLModel.metadata.create_all(connection)
             self._migrate_bootstrap(connection)
+        # Rebuild from committed rows after a crash, including any missed append.
+        with Session(self.engine) as session:
+            run_ids = list(session.exec(select(Run.id)).all())
+        for run_id in run_ids:
+            self.project(run_id)
 
     def _migrate_bootstrap(self, connection) -> None:
         # Additive migration from the M0-M4 schema; no recorded run is discarded.
@@ -60,6 +69,7 @@ class RunStore:
                 "llm_provider": "VARCHAR NOT NULL DEFAULT 'codex'", "targets_json": "VARCHAR",
                 "preset_id": "VARCHAR", "summary": "VARCHAR", "error": "VARCHAR", "best_run_tag": "VARCHAR",
                 "tapeout_ready": "BOOLEAN NOT NULL DEFAULT 0", "cancel_requested": "BOOLEAN NOT NULL DEFAULT 0",
+                "recording_id": "VARCHAR", "replay_speed": "INTEGER", "starter_id": "VARCHAR",
             },
             "metric": {"flow_index": "INTEGER NOT NULL DEFAULT 0"},
         }
@@ -71,18 +81,58 @@ class RunStore:
                 if name not in existing:
                     connection.exec_driver_sql(f'ALTER TABLE "{table}" ADD COLUMN "{name}" {definition}')
 
-    def create_run(self, spec_text: str, *, targets: dict[str, JsonValue] | None = None, preset_id: str | None = None, provider: str = "codex") -> Run:
+    def create_run(self, spec_text: str, *, targets: dict[str, JsonValue] | None = None, preset_id: str | None = None, provider: str = "codex", starter_id: str | None = None,
+                   recording_id: str | None = None, replay_speed: int | None = None) -> Run:
         with Session(self.engine, expire_on_commit=False) as session:
             session.exec(text("BEGIN IMMEDIATE"))
             if session.exec(select(Run.id).where(Run.status.in_(ACTIVE))).first():
                 raise BusyRunError("One chip build is already active. Wait for it or cancel it first.")
-            run = Run(spec_text=spec_text, targets_json=json_text(targets or {}), preset_id=preset_id, llm_provider=provider)
+            run = Run(spec_text=spec_text, targets_json=json_text(targets or {}), preset_id=preset_id, llm_provider=provider,
+                      starter_id=starter_id, is_replay=recording_id is not None, recording_id=recording_id, replay_speed=replay_speed)
             session.add(run)
             session.flush()
             (self.root / run.id / "work").mkdir(parents=True)
             session.add(Event(run_id=run.id, type="note", payload_json=json_text({"text": "Queued for the local worker."})))
             session.commit()
-            return run
+        self.project(run.id)
+        return run
+
+    def create_replay(self, recording_id: str, speed: int, source) -> Run:
+        if type(speed) is not int or speed not in {1, 4}:
+            raise ValueError("Replay speed must be 1 or 4")
+        return self.create_run(source.spec_text, targets=source.targets, preset_id=source.preset_id,
+                               provider=source.llm_provider, starter_id=source.starter_id,
+                               recording_id=recording_id, replay_speed=speed)
+
+    def project(self, run_id: str) -> None:
+        """Rewrite bounded projections atomically; the database remains authoritative."""
+        from app.api_schemas import PublicRun
+
+        with self._projection_lock:
+            with Session(self.engine) as session:
+                run = session.get(Run, run_id)
+                if run is None:
+                    raise KeyError(run_id)
+                events = session.exec(select(Event).where(Event.run_id == run_id).order_by(Event.id)).all()
+                metrics = session.exec(select(Metric).where(Metric.run_id == run_id).order_by(Metric.flow_index)).all()
+                values = {
+                    "run.json": json_text(PublicRun.from_run(run).model_dump(mode="json")) + "\n",
+                    "metrics.json": json_text([metric.model_dump(mode="json") for metric in metrics]) + "\n",
+                    "events.jsonl": "".join(json_text({"id": event.id, "ts": event.ts.isoformat(), "type": event.type,
+                                                     "payload": json.loads(event.payload_json)}) + "\n" for event in events),
+                }
+            directory = self.root / run_id
+            if directory.is_symlink() or not directory.resolve().is_relative_to(self.root):
+                raise ValueError("Unsafe run projection directory")
+            directory.mkdir(exist_ok=True)
+            for name, contents in values.items():
+                if (directory / name).is_symlink():
+                    raise ValueError("Unsafe run projection file")
+                with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=directory, delete=False) as temporary:
+                    temporary.write(contents)
+                    temporary.flush()
+                    os.fsync(temporary.fileno())
+                os.replace(temporary.name, directory / name)
 
     def get_run(self, run_id: str) -> Run:
         with Session(self.engine) as session:
@@ -112,7 +162,8 @@ class RunStore:
             run.status = "running"
             session.add(run)
             session.commit()
-            return run
+        self.project(run.id)
+        return run
 
     def emit(self, run_id: str, event_type: str, payload: dict[str, JsonValue]) -> None:
         encoded = json_text(payload)
@@ -162,6 +213,7 @@ class RunStore:
             session.add(run)
             session.add(Event(run_id=run_id, type=event_type, payload_json=encoded))
             session.commit()
+        self.project(run_id)
 
     def events(self, run_id: str, after: int = 0, limit: int = 100) -> list[Event]:
         with Session(self.engine) as session:
@@ -189,7 +241,8 @@ class RunStore:
                     run.status = "cancel_requested"
                 session.add(run)
                 session.commit()
-            return run
+        self.project(run_id)
+        return run
 
     def finish(self, run_id: str, outcome) -> None:
         values = outcome.model_dump(mode="json") if hasattr(outcome, "model_dump") else dict(outcome)
@@ -212,6 +265,7 @@ class RunStore:
                 session.add(iteration)
             session.add(Event(run_id=run_id, type="run_finished", payload_json=json_text({key: value for key, value in values.items() if key != "design_spec"})))
             session.commit()
+        self.project(run_id)
 
     def fail(self, run_id: str, error: str, status: str = "failed") -> None:
         self.finish(run_id, {"status": status, "summary": error, "error": error, "tapeout_ready": False})

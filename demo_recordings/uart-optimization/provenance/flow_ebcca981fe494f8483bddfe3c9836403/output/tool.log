@@ -1,0 +1,734 @@
+[21:59:16] [I] Starting a new run of the 'Classic' flow with the tag flow.py:654
+               'flow_c0c9886dede04b46'.                                         
+[21:59:16] [I] Starting…                                       sequential.py:339
+[21:59:16] [V] Running 'Verilator.Lint' at                          step.py:1138
+               'runs/flow_c0c9886dede04b46/01-verilator-lint'…                  
+[21:59:16] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/01-verilator-lint/verila             
+               tor-lint.log'…                                                   
+[21:59:16] [V] Running 'Checker.LintTimingConstructs' at            step.py:1138
+               'runs/flow_c0c9886dede04b46/02-checker-linttimingcon             
+               structs'…                                                        
+[21:59:16] [I] Check for Lint Timing Errors clear.                checker.py:412
+[21:59:16] [V] Running 'Checker.LintErrors' at                      step.py:1138
+               'runs/flow_c0c9886dede04b46/03-checker-linterrors'…              
+[21:59:16] [I] Check for Lint errors clear.                       checker.py:131
+[21:59:16] [V] Running 'Checker.LintWarnings' at                    step.py:1138
+               'runs/flow_c0c9886dede04b46/04-checker-lintwarnings'             
+               …                                                                
+[21:59:16] [I] Check for Lint warnings clear.                     checker.py:131
+[21:59:16] [V] Running 'Yosys.JsonHeader' at                        step.py:1138
+               'runs/flow_c0c9886dede04b46/05-yosys-jsonheader'…                
+[21:59:17] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/05-yosys-jsonheader/yosy             
+               s-jsonheader.log'…                                               
+[21:59:17] [V] Running 'Yosys.Synthesis' at                         step.py:1138
+               'runs/flow_c0c9886dede04b46/06-yosys-synthesis'…                 
+[21:59:17] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/06-yosys-synthesis/yosys             
+               -synthesis.log'…                                                 
+[21:59:17] [V] Parsing synthesis checks…                            pyosys.py:59
+[21:59:17] [V] Parsing synthesis checks…                            pyosys.py:59
+[21:59:17] [V] Running 'Checker.YosysUnmappedCells' at              step.py:1138
+               'runs/flow_c0c9886dede04b46/07-checker-yosysunmapped             
+               cells'…                                                          
+[21:59:17] [I] Check for Unmapped Yosys instances clear.          checker.py:131
+[21:59:17] [V] Running 'Checker.YosysSynthChecks' at                step.py:1138
+               'runs/flow_c0c9886dede04b46/08-checker-yosyssynthche             
+               cks'…                                                            
+[21:59:17] [I] Check for Yosys check errors clear.                checker.py:131
+[21:59:17] [V] Running 'Checker.NetlistAssignStatements' at         step.py:1138
+               'runs/flow_c0c9886dede04b46/09-checker-netlistassign             
+               statements'…                                                     
+[21:59:17] [V] Running 'OpenROAD.CheckSDCFiles' at                  step.py:1138
+               'runs/flow_c0c9886dede04b46/10-openroad-checksdcfile             
+               s'…                                                              
+[21:59:17] [W] 'PNR_SDC_FILE' is not defined. Using generic      openroad.py:184
+               fallback SDC for OpenROAD PnR steps.                             
+[21:59:17] [W] 'SIGNOFF_SDC_FILE' is not defined. Using generic  openroad.py:188
+               fallback SDC for OpenROAD PnR steps.                             
+[21:59:17] [V] Running 'OpenROAD.CheckMacroInstances' at            step.py:1138
+               'runs/flow_c0c9886dede04b46/11-openroad-checkmacroin             
+               stances'…                                                        
+[21:59:17] [I] No macros found, skipping instance check…         openroad.py:694
+[21:59:17] [V] Running 'OpenROAD.STAPrePNR' at                      step.py:1138
+               'runs/flow_c0c9886dede04b46/12-openroad-staprepnr'…              
+[21:59:17] [I] Starting STA for the nom_tt_025C_1v80 timing      openroad.py:749
+               corner…                                                          
+[21:59:17] [I] Starting STA for the nom_ss_100C_1v60 timing      openroad.py:749
+               corner…                                                          
+[21:59:17] [I] Starting STA for the nom_ff_n40C_1v95 timing      openroad.py:749
+               corner…                                                          
+[21:59:17] [I] Skipping corner min_tt_025C_1v80 for STA          openroad.py:787
+               (identical to nom_tt_025C_1v80 at this stage)…                   
+[21:59:17] [I] Skipping corner min_ss_100C_1v60 for STA          openroad.py:787
+               (identical to nom_ss_100C_1v60 at this stage)…                   
+[21:59:17] [I] Skipping corner min_ff_n40C_1v95 for STA          openroad.py:787
+               (identical to nom_ff_n40C_1v95 at this stage)…                   
+[21:59:17] [I] Skipping corner max_tt_025C_1v80 for STA          openroad.py:787
+               (identical to nom_tt_025C_1v80 at this stage)…                   
+[21:59:17] [I] Skipping corner max_ss_100C_1v60 for STA          openroad.py:787
+               (identical to nom_ss_100C_1v60 at this stage)…                   
+[21:59:17] [I] Skipping corner max_ff_n40C_1v95 for STA          openroad.py:787
+               (identical to nom_ff_n40C_1v95 at this stage)…                   
+[21:59:17] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/12-openroad-staprepnr/no             
+               m_tt_025C_1v80/sta.log'…                                         
+[21:59:17] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/12-openroad-staprepnr/no             
+               m_ss_100C_1v60/sta.log'…                                         
+[21:59:17] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/12-openroad-staprepnr/no             
+               m_ff_n40C_1v95/sta.log'…                                         
+[21:59:18] [I] Finished STA for the nom_tt_025C_1v80 timing      openroad.py:764
+               corner.                                                          
+[21:59:18] [I] Finished STA for the nom_ss_100C_1v60 timing      openroad.py:764
+               corner.                                                          
+[21:59:18] [I] Finished STA for the nom_ff_n40C_1v95 timing      openroad.py:764
+               corner.                                                          
+[21:59:18] [V] Running 'OpenROAD.Floorplan' at                      step.py:1138
+               'runs/flow_c0c9886dede04b46/13-openroad-floorplan'…              
+[21:59:18] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/13-openroad-floorplan/op             
+               enroad-floorplan.log'…                                           
+[21:59:18] [V] Running 'OpenROAD.DumpRCValues' at                   step.py:1138
+               'runs/flow_c0c9886dede04b46/14-openroad-dumprcvalues             
+               '…                                                               
+[21:59:18] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/14-openroad-dumprcvalues             
+               /openroad-dumprcvalues.log'…                                     
+[21:59:19] [V] Running 'Odb.CheckMacroAntennaProperties' at         step.py:1138
+               'runs/flow_c0c9886dede04b46/15-odb-checkmacroantenna             
+               properties'…                                                     
+[21:59:19] [I] No cells provided, skipping                            odb.py:234
+               'Odb.CheckMacroAntennaProperties'…                               
+[21:59:19] [V] Running 'Odb.SetPowerConnections' at                 step.py:1138
+               'runs/flow_c0c9886dede04b46/16-odb-setpowerconnectio             
+               ns'…                                                             
+[21:59:19] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/16-odb-setpowerconnectio             
+               ns/odb-setpowerconnections.log'…                                 
+[21:59:19] [V] Running 'Odb.ManualMacroPlacement' at                step.py:1138
+               'runs/flow_c0c9886dede04b46/17-odb-manualmacroplacem             
+               ent'…                                                            
+[21:59:19] [I] No instances found, skipping                           odb.py:468
+               'Odb.ManualMacroPlacement'…                                      
+[21:59:19] [V] Running 'OpenROAD.CutRows' at                        step.py:1138
+               'runs/flow_c0c9886dede04b46/18-openroad-cutrows'…                
+[21:59:19] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/18-openroad-cutrows/open             
+               road-cutrows.log'…                                               
+[21:59:19] [V] Running 'OpenROAD.TapEndcapInsertion' at             step.py:1138
+               'runs/flow_c0c9886dede04b46/19-openroad-tapendcapins             
+               ertion'…                                                         
+[21:59:19] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/19-openroad-tapendcapins             
+               ertion/openroad-tapendcapinsertion.log'…                         
+[21:59:20] [V] Running 'Odb.AddPDNObstructions' at                  step.py:1138
+               'runs/flow_c0c9886dede04b46/20-odb-addpdnobstruction             
+               s'…                                                              
+[21:59:20] [I] 'PDN_OBSTRUCTIONS' is not defined. Skipping            odb.py:589
+               'Odb.AddPDNObstructions'…                                        
+[21:59:20] [V] Running 'OpenROAD.GeneratePDN' at                    step.py:1138
+               'runs/flow_c0c9886dede04b46/21-openroad-generatepdn'             
+               …                                                                
+[21:59:20] [I] 'PDN_CFG' not explicitly set, setting it to      openroad.py:1483
+               /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-pyth                 
+               on3-3.13.9-env/lib/python3.13/site-packages/libr                 
+               elane/scripts/openroad/common/pdn_cfg.tcl…                       
+[21:59:20] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/21-openroad-generatepdn/             
+               openroad-generatepdn.log'…                                       
+[21:59:20] [V] Running 'Odb.RemovePDNObstructions' at               step.py:1138
+               'runs/flow_c0c9886dede04b46/22-odb-removepdnobstruct             
+               ions'…                                                           
+[21:59:20] [I] 'PDN_OBSTRUCTIONS' is not defined. Skipping            odb.py:589
+               'Odb.RemovePDNObstructions'…                                     
+[21:59:20] [V] Running 'Odb.AddRoutingObstructions' at              step.py:1138
+               'runs/flow_c0c9886dede04b46/23-odb-addroutingobstruc             
+               tions'…                                                          
+[21:59:20] [I] 'ROUTING_OBSTRUCTIONS' is not defined. Skipping        odb.py:589
+               'Odb.AddRoutingObstructions'…                                    
+[21:59:20] [V] Running 'OpenROAD.GlobalPlacementSkipIO' at          step.py:1138
+               'runs/flow_c0c9886dede04b46/24-openroad-globalplacem             
+               entskipio'…                                                      
+[21:59:20] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/24-openroad-globalplacem             
+               entskipio/openroad-globalplacementskipio.log'…                   
+[21:59:21] [V] Running 'OpenROAD.IOPlacement' at                    step.py:1138
+               'runs/flow_c0c9886dede04b46/25-openroad-ioplacement'             
+               …                                                                
+[21:59:21] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/25-openroad-ioplacement/             
+               openroad-ioplacement.log'…                                       
+[21:59:21] [V] Running 'Odb.CustomIOPlacement' at                   step.py:1138
+               'runs/flow_c0c9886dede04b46/26-odb-customioplacement             
+               '…                                                               
+[21:59:21] [I] No custom I/O placement file configured, skipping      odb.py:718
+               'Odb.CustomIOPlacement'…                                         
+[21:59:21] [V] Running 'Odb.ApplyDEFTemplate' at                    step.py:1138
+               'runs/flow_c0c9886dede04b46/27-odb-applydeftemplate'             
+               …                                                                
+[21:59:21] [I] No DEF template provided, skipping                     odb.py:302
+               'Odb.ApplyDEFTemplate'…                                          
+[21:59:21] [V] Running 'OpenROAD.GlobalPlacement' at                step.py:1138
+               'runs/flow_c0c9886dede04b46/28-openroad-globalplacem             
+               ent'…                                                            
+[21:59:21] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/28-openroad-globalplacem             
+               ent/openroad-globalplacement.log'…                               
+[21:59:22] [V] Running 'Odb.WriteVerilogHeader' at                  step.py:1138
+               'runs/flow_c0c9886dede04b46/29-odb-writeverilogheade             
+               r'…                                                              
+[21:59:22] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/29-odb-writeverilogheade             
+               r/odb-writeverilogheader.log'…                                   
+[21:59:22] [V] Running 'Checker.PowerGridViolations' at             step.py:1138
+               'runs/flow_c0c9886dede04b46/30-checker-powergridviol             
+               ations'…                                                         
+[21:59:22] [I] Check for power grid violations (as reported by    checker.py:131
+               OpenROAD PSM- you may ignore these if LVS passes)                
+               clear.                                                           
+[21:59:22] [V] Running 'OpenROAD.STAMidPNR' at                      step.py:1138
+               'runs/flow_c0c9886dede04b46/31-openroad-stamidpnr'…              
+[21:59:22] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/31-openroad-stamidpnr/op             
+               enroad-stamidpnr.log'…                                           
+[21:59:22] [V] Running 'OpenROAD.RepairDesignPostGPL' at            step.py:1138
+               'runs/flow_c0c9886dede04b46/32-openroad-repairdesign             
+               postgpl'…                                                        
+[21:59:22] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/32-openroad-repairdesign             
+               postgpl/openroad-repairdesignpostgpl.log'…                       
+[21:59:23] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__tt_025C_1v80.lib line 1, library                       
+               sky130_fd_sc_hd__tt_025C_1v80 already exists.                    
+[21:59:23] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__ff_n40C_1v95.lib line 1, library                       
+               sky130_fd_sc_hd__ff_n40C_1v95 already exists.                    
+[21:59:23] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__ss_100C_1v60.lib line 1, library                       
+               sky130_fd_sc_hd__ss_100C_1v60 already exists.                    
+[21:59:23] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__tt_025C_1v80.lib line 1, library                       
+               sky130_fd_sc_hd__tt_025C_1v80 already exists.                    
+[21:59:23] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__ss_100C_1v60.lib line 1, library                       
+               sky130_fd_sc_hd__ss_100C_1v60 already exists.                    
+[21:59:24] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__ff_n40C_1v95.lib line 1, library                       
+               sky130_fd_sc_hd__ff_n40C_1v95 already exists.                    
+[21:59:24] [W] [RSZ-0020] found 2 floating nets.                 openroad.py:314
+[21:59:24] [V] Running 'Odb.ManualGlobalPlacement' at               step.py:1138
+               'runs/flow_c0c9886dede04b46/33-odb-manualglobalplace             
+               ment'…                                                           
+[21:59:24] [I] 'MANUAL_GLOBAL_PLACEMENTS' not set. Skipping          odb.py:1033
+               'Odb.ManualGlobalPlacement'…                                     
+[21:59:24] [V] Running 'OpenROAD.DetailedPlacement' at              step.py:1138
+               'runs/flow_c0c9886dede04b46/34-openroad-detailedplac             
+               ement'…                                                          
+[21:59:24] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/34-openroad-detailedplac             
+               ement/openroad-detailedplacement.log'…                           
+[21:59:25] [V] Running 'OpenROAD.CTS' at                            step.py:1138
+               'runs/flow_c0c9886dede04b46/35-openroad-cts'…                    
+[21:59:25] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/35-openroad-cts/openroad             
+               -cts.log'…                                                       
+[21:59:25] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__tt_025C_1v80.lib line 1, library                       
+               sky130_fd_sc_hd__tt_025C_1v80 already exists.                    
+[21:59:25] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__ff_n40C_1v95.lib line 1, library                       
+               sky130_fd_sc_hd__ff_n40C_1v95 already exists.                    
+[21:59:26] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__ss_100C_1v60.lib line 1, library                       
+               sky130_fd_sc_hd__ss_100C_1v60 already exists.                    
+[21:59:26] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__tt_025C_1v80.lib line 1, library                       
+               sky130_fd_sc_hd__tt_025C_1v80 already exists.                    
+[21:59:26] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__ss_100C_1v60.lib line 1, library                       
+               sky130_fd_sc_hd__ss_100C_1v60 already exists.                    
+[21:59:26] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__ff_n40C_1v95.lib line 1, library                       
+               sky130_fd_sc_hd__ff_n40C_1v95 already exists.                    
+[21:59:29] [V] Running 'OpenROAD.STAMidPNR-1' at                    step.py:1138
+               'runs/flow_c0c9886dede04b46/36-openroad-stamidpnr-1'             
+               …                                                                
+[21:59:29] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/36-openroad-stamidpnr-1/             
+               openroad-stamidpnr-1.log'…                                       
+[21:59:29] [V] Running 'OpenROAD.ResizerTimingPostCTS' at           step.py:1138
+               'runs/flow_c0c9886dede04b46/37-openroad-resizertimin             
+               gpostcts'…                                                       
+[21:59:29] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/37-openroad-resizertimin             
+               gpostcts/openroad-resizertimingpostcts.log'…                     
+[21:59:30] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__tt_025C_1v80.lib line 1, library                       
+               sky130_fd_sc_hd__tt_025C_1v80 already exists.                    
+[21:59:30] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__ff_n40C_1v95.lib line 1, library                       
+               sky130_fd_sc_hd__ff_n40C_1v95 already exists.                    
+[21:59:30] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__ss_100C_1v60.lib line 1, library                       
+               sky130_fd_sc_hd__ss_100C_1v60 already exists.                    
+[21:59:30] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__tt_025C_1v80.lib line 1, library                       
+               sky130_fd_sc_hd__tt_025C_1v80 already exists.                    
+[21:59:30] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__ss_100C_1v60.lib line 1, library                       
+               sky130_fd_sc_hd__ss_100C_1v60 already exists.                    
+[21:59:30] [W] [STA-1140]                                        openroad.py:314
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_                
+               fd_sc_hd__ff_n40C_1v95.lib line 1, library                       
+               sky130_fd_sc_hd__ff_n40C_1v95 already exists.                    
+[21:59:31] [V] Running 'OpenROAD.STAMidPNR-2' at                    step.py:1138
+               'runs/flow_c0c9886dede04b46/38-openroad-stamidpnr-2'             
+               …                                                                
+[21:59:31] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/38-openroad-stamidpnr-2/             
+               openroad-stamidpnr-2.log'…                                       
+[21:59:32] [V] Running 'OpenROAD.GlobalRouting' at                  step.py:1138
+               'runs/flow_c0c9886dede04b46/39-openroad-globalroutin             
+               g'…                                                              
+[21:59:32] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/39-openroad-globalroutin             
+               g/openroad-globalrouting.log'…                                   
+[21:59:32] [V] Running 'OpenROAD.CheckAntennas' at                  step.py:1138
+               'runs/flow_c0c9886dede04b46/40-openroad-checkantenna             
+               s'…                                                              
+[21:59:32] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/40-openroad-checkantenna             
+               s/openroad-checkantennas.log'…                                   
+[21:59:33] [I] Gating variable for step                        sequential.py:362
+               'OpenROAD.RepairDesignPostGRT' set to 'False'-                   
+               the step will be skipped.                                        
+[21:59:33] [I] Skipping step 'Repair Design (Post-Global       sequential.py:370
+               Routing)'…                                                       
+[21:59:33] [V] Running 'Odb.DiodesOnPorts' at                       step.py:1138
+               'runs/flow_c0c9886dede04b46/41-odb-diodesonports'…               
+[21:59:33] [I] 'DIODE_ON_PORTS' is set to 'none': skipping            odb.py:820
+               'Odb.DiodesOnPorts'…                                             
+[21:59:33] [I] Gating variable for step                        sequential.py:362
+               'Odb.HeuristicDiodeInsertion' set to 'False'-                    
+               the step will be skipped.                                        
+[21:59:33] [I] Skipping step 'Heuristic Diode Insertion'…      sequential.py:370
+[21:59:33] [V] Running 'OpenROAD.RepairAntennas' at                 step.py:1138
+               'runs/flow_c0c9886dede04b46/42-openroad-repairantenn             
+               as'…                                                             
+[21:59:33] [V] Running 'OpenROAD.DiodeInsertion' at                 step.py:1138
+               'runs/flow_c0c9886dede04b46/42-openroad-repairantenn             
+               as/1-openroad-diodeinsertion'…                                   
+[21:59:33] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/42-openroad-repairantenn             
+               as/1-openroad-diodeinsertion/openroad-diodeinsertion             
+               .log'…                                                           
+[21:59:33] [V] Running 'OpenROAD.CheckAntennas' at                  step.py:1138
+               'runs/flow_c0c9886dede04b46/42-openroad-repairantenn             
+               as/2-openroad-checkantennas'…                                    
+[21:59:33] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/42-openroad-repairantenn             
+               as/2-openroad-checkantennas/openroad-checkantennas.l             
+               og'…                                                             
+[21:59:34] [I] Gating variable for step                        sequential.py:362
+               'OpenROAD.ResizerTimingPostGRT' set to 'False'-                  
+               the step will be skipped.                                        
+[21:59:34] [I] Skipping step 'Resizer Timing Optimizations     sequential.py:370
+               (Post-Global Routing)'…                                          
+[21:59:34] [V] Running 'OpenROAD.STAMidPNR-3' at                    step.py:1138
+               'runs/flow_c0c9886dede04b46/43-openroad-stamidpnr-3'             
+               …                                                                
+[21:59:34] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/43-openroad-stamidpnr-3/             
+               openroad-stamidpnr-3.log'…                                       
+[21:59:34] [V] Running 'OpenROAD.DetailedRouting' at                step.py:1138
+               'runs/flow_c0c9886dede04b46/44-openroad-detailedrout             
+               ing'…                                                            
+[21:59:34] [I] Running TritonRoute with 18 threads…             openroad.py:2004
+[21:59:34] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/44-openroad-detailedrout             
+               ing/openroad-detailedrouting.log'…                               
+[21:59:34] [W] [DRT-0349] LEF58_ENCLOSURE with no CUTCLASS is    openroad.py:314
+               not supported. Skipping for layer mcon                           
+[21:59:34] [W] [DRT-0349] LEF58_ENCLOSURE with no CUTCLASS is    openroad.py:314
+               not supported. Skipping for layer mcon                           
+[21:59:34] [W] [DRT-0349] LEF58_ENCLOSURE with no CUTCLASS is    openroad.py:314
+               not supported. Skipping for layer via                            
+[21:59:34] [W] [DRT-0349] LEF58_ENCLOSURE with no CUTCLASS is    openroad.py:314
+               not supported. Skipping for layer via                            
+[21:59:34] [W] [DRT-0349] LEF58_ENCLOSURE with no CUTCLASS is    openroad.py:314
+               not supported. Skipping for layer via2                           
+[21:59:34] [W] [DRT-0349] LEF58_ENCLOSURE with no CUTCLASS is    openroad.py:314
+               not supported. Skipping for layer via2                           
+[21:59:34] [W] [DRT-0349] LEF58_ENCLOSURE with no CUTCLASS is    openroad.py:314
+               not supported. Skipping for layer via3                           
+[21:59:34] [W] [DRT-0349] LEF58_ENCLOSURE with no CUTCLASS is    openroad.py:314
+               not supported. Skipping for layer via3                           
+[21:59:34] [W] [DRT-0349] LEF58_ENCLOSURE with no CUTCLASS is    openroad.py:314
+               not supported. Skipping for layer via4                           
+[21:59:34] [W] [DRT-0349] LEF58_ENCLOSURE with no CUTCLASS is    openroad.py:314
+               not supported. Skipping for layer via4                           
+[21:59:40] [V] Running 'Odb.RemoveRoutingObstructions' at           step.py:1138
+               'runs/flow_c0c9886dede04b46/45-odb-removeroutingobst             
+               ructions'…                                                       
+[21:59:40] [I] 'ROUTING_OBSTRUCTIONS' is not defined. Skipping        odb.py:589
+               'Odb.RemoveRoutingObstructions'…                                 
+[21:59:40] [V] Running 'OpenROAD.CheckAntennas-1' at                step.py:1138
+               'runs/flow_c0c9886dede04b46/46-openroad-checkantenna             
+               s-1'…                                                            
+[21:59:40] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/46-openroad-checkantenna             
+               s-1/openroad-checkantennas-1.log'…                               
+[21:59:41] [V] Running 'Checker.TrDRC' at                           step.py:1138
+               'runs/flow_c0c9886dede04b46/47-checker-trdrc'…                   
+[21:59:41] [I] Check for Routing DRC errors clear.                checker.py:131
+[21:59:41] [V] Running 'Odb.ReportDisconnectedPins' at              step.py:1138
+               'runs/flow_c0c9886dede04b46/48-odb-reportdisconnecte             
+               dpins'…                                                          
+[21:59:41] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/48-odb-reportdisconnecte             
+               dpins/odb-reportdisconnectedpins.log'…                           
+[21:59:41] [V] Running 'Checker.DisconnectedPins' at                step.py:1138
+               'runs/flow_c0c9886dede04b46/49-checker-disconnectedp             
+               ins'…                                                            
+[21:59:41] [I] Check for critical disconnected pins clear.        checker.py:131
+[21:59:41] [V] Running 'Odb.ReportWireLength' at                    step.py:1138
+               'runs/flow_c0c9886dede04b46/50-odb-reportwirelength'             
+               …                                                                
+[21:59:41] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/50-odb-reportwirelength/             
+               odb-reportwirelength.log'…                                       
+[21:59:42] [V] Running 'Checker.WireLength' at                      step.py:1138
+               'runs/flow_c0c9886dede04b46/51-checker-wirelength'…              
+[21:59:42] [W] Threshold for Threshold-surpassing long wires is   checker.py:108
+               not set. The checker will be skipped.                            
+[21:59:42] [V] Running 'OpenROAD.FillInsertion' at                  step.py:1138
+               'runs/flow_c0c9886dede04b46/52-openroad-fillinsertio             
+               n'…                                                              
+[21:59:42] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/52-openroad-fillinsertio             
+               n/openroad-fillinsertion.log'…                                   
+[21:59:42] [V] Running 'Odb.CellFrequencyTables' at                 step.py:1138
+               'runs/flow_c0c9886dede04b46/53-odb-cellfrequencytabl             
+               es'…                                                             
+[21:59:42] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/53-odb-cellfrequencytabl             
+               es/buffer_list.txt'…                                             
+[21:59:43] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/53-odb-cellfrequencytabl             
+               es/odb-cellfrequencytables.log'…                                 
+[21:59:43] [V] Running 'OpenROAD.RCX' at                            step.py:1138
+               'runs/flow_c0c9886dede04b46/54-openroad-rcx'…                    
+[21:59:43] [I] Running RCX for corners matching nom_*           openroad.py:2147
+               (/output/runs/flow_c0c9886dede04b46/54-openroad-                 
+               rcx/nom/rcx.log)…                                                
+[21:59:43] [I] Running RCX for corners matching min_*           openroad.py:2147
+               (/output/runs/flow_c0c9886dede04b46/54-openroad-                 
+               rcx/min/rcx.log)…                                                
+[21:59:43] [I] Running RCX for corners matching max_*           openroad.py:2147
+               (/output/runs/flow_c0c9886dede04b46/54-openroad-                 
+               rcx/max/rcx.log)…                                                
+[21:59:43] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/54-openroad-rcx/nom/rcx.             
+               log'…                                                            
+[21:59:43] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/54-openroad-rcx/min/rcx.             
+               log'…                                                            
+[21:59:43] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/54-openroad-rcx/max/rcx.             
+               log'…                                                            
+[21:59:43] [I] Finished RCX for corners matching nom_*.         openroad.py:2156
+[21:59:43] [I] Finished RCX for corners matching min_*.         openroad.py:2156
+[21:59:43] [I] Finished RCX for corners matching max_*.         openroad.py:2156
+[21:59:43] [V] Running 'OpenROAD.STAPostPNR' at                     step.py:1138
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr'…             
+[21:59:43] [I] Starting STA for the nom_tt_025C_1v80 timing      openroad.py:749
+               corner…                                                          
+[21:59:43] [I] Starting STA for the nom_ss_100C_1v60 timing      openroad.py:749
+               corner…                                                          
+[21:59:43] [I] Starting STA for the nom_ff_n40C_1v95 timing      openroad.py:749
+               corner…                                                          
+[21:59:43] [I] Starting STA for the min_tt_025C_1v80 timing      openroad.py:749
+               corner…                                                          
+[21:59:43] [I] Starting STA for the min_ss_100C_1v60 timing      openroad.py:749
+               corner…                                                          
+[21:59:43] [I] Starting STA for the min_ff_n40C_1v95 timing      openroad.py:749
+               corner…                                                          
+[21:59:43] [I] Starting STA for the max_tt_025C_1v80 timing      openroad.py:749
+               corner…                                                          
+[21:59:43] [I] Starting STA for the max_ss_100C_1v60 timing      openroad.py:749
+               corner…                                                          
+[21:59:43] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/n             
+               om_tt_025C_1v80/sta.log'…                                        
+[21:59:43] [I] Starting STA for the max_ff_n40C_1v95 timing      openroad.py:749
+               corner…                                                          
+[21:59:43] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/n             
+               om_ss_100C_1v60/sta.log'…                                        
+[21:59:43] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/m             
+               in_tt_025C_1v80/sta.log'…                                        
+[21:59:43] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/n             
+               om_ff_n40C_1v95/sta.log'…                                        
+[21:59:43] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/m             
+               ax_tt_025C_1v80/sta.log'…                                        
+[21:59:43] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/m             
+               ax_ss_100C_1v60/sta.log'…                                        
+[21:59:43] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/m             
+               in_ss_100C_1v60/sta.log'…                                        
+[21:59:43] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/m             
+               in_ff_n40C_1v95/sta.log'…                                        
+[21:59:43] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/m             
+               ax_ff_n40C_1v95/sta.log'…                                        
+[21:59:44] [I] Finished STA for the nom_ss_100C_1v60 timing      openroad.py:764
+               corner.                                                          
+[21:59:44] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/n             
+               om_ss_100C_1v60/filter_unannotated.log'…                         
+[21:59:44] [I] Finished STA for the min_ff_n40C_1v95 timing      openroad.py:764
+               corner.                                                          
+[21:59:44] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/m             
+               in_ff_n40C_1v95/filter_unannotated.log'…                         
+[21:59:44] [I] Finished STA for the nom_tt_025C_1v80 timing      openroad.py:764
+               corner.                                                          
+[21:59:44] [I] Finished STA for the nom_ff_n40C_1v95 timing      openroad.py:764
+               corner.                                                          
+[21:59:44] [I] Finished STA for the max_tt_025C_1v80 timing      openroad.py:764
+               corner.                                                          
+[21:59:44] [I] Finished STA for the min_tt_025C_1v80 timing      openroad.py:764
+               corner.                                                          
+[21:59:44] [I] Finished STA for the min_ss_100C_1v60 timing      openroad.py:764
+               corner.                                                          
+[21:59:44] [I] Finished STA for the max_ff_n40C_1v95 timing      openroad.py:764
+               corner.                                                          
+[21:59:44] [I] Finished STA for the max_ss_100C_1v60 timing      openroad.py:764
+               corner.                                                          
+[21:59:44] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/n             
+               om_tt_025C_1v80/filter_unannotated.log'…                         
+[21:59:44] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/n             
+               om_ff_n40C_1v95/filter_unannotated.log'…                         
+[21:59:44] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/m             
+               ax_tt_025C_1v80/filter_unannotated.log'…                         
+[21:59:44] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/m             
+               in_tt_025C_1v80/filter_unannotated.log'…                         
+[21:59:44] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/m             
+               ax_ff_n40C_1v95/filter_unannotated.log'…                         
+[21:59:44] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/m             
+               in_ss_100C_1v60/filter_unannotated.log'…                         
+[21:59:44] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/55-openroad-stapostpnr/m             
+               ax_ss_100C_1v60/filter_unannotated.log'…                         
+[21:59:45] [V] Running 'OpenROAD.IRDropReport' at                   step.py:1138
+               'runs/flow_c0c9886dede04b46/56-openroad-irdropreport             
+               '…                                                               
+[21:59:45] [W] 'VSRC_LOC_FILES' was not given a value, which    openroad.py:2249
+               may make the results of IR drop analysis                         
+               inaccurate. If you are not integrating a                         
+               top-level chip for manufacture, you may ignore                   
+               this warning, otherwise, see the documentation                   
+               for 'VSRC_LOC_FILES'.                                            
+[21:59:45] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/56-openroad-irdropreport             
+               /openroad-irdropreport.log'…                                     
+[21:59:45] [V] + analyze_power_grid -net VPWR -voltage_file     openroad.py:2261
+               /output/runs/flow_c0c9886dede04b46/56-openroad-i                 
+               rdropreport/net-VPWR.csv                                         
+               [INFO PSM-0040] All shapes on net VPWR are                       
+               connected.                                                       
+               ########## IR report #################                           
+               Net              : VPWR                                          
+               Corner           : nom_tt_025C_1v80                              
+               Total power      : 1.23e-04 W                                    
+               Supply voltage   : 1.80e+00 V                                    
+               Worstcase voltage: 1.80e+00 V                                    
+               Average voltage  : 1.80e+00 V                                    
+               Average IR drop  : 3.19e-06 V                                    
+               Worstcase IR drop: 4.43e-05 V                                    
+               Percentage drop  : 0.00 %                                        
+               ######################################                           
+               + analyze_power_grid -net VGND -voltage_file                     
+               /output/runs/flow_c0c9886dede04b46/56-openroad-i                 
+               rdropreport/net-VGND.csv                                         
+               [INFO PSM-0040] All shapes on net VGND are                       
+               connected.                                                       
+               ########## IR report #################                           
+               Net              : VGND                                          
+               Corner           : nom_tt_025C_1v80                              
+               Total power      : 1.23e-04 W                                    
+               Supply voltage   : 0.00e+00 V                                    
+               Worstcase voltage: 4.07e-05 V                                    
+               Average voltage  : 3.07e-06 V                                    
+               Average IR drop  : 3.07e-06 V                                    
+               Worstcase IR drop: 4.07e-05 V                                    
+               Percentage drop  : 0.00 %                                        
+               ######################################                           
+                                                                                
+[21:59:45] [V] Running 'Magic.StreamOut' at                         step.py:1138
+               'runs/flow_c0c9886dede04b46/57-magic-streamout'…                 
+[21:59:45] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/57-magic-streamout/magic             
+               -streamout.log'…                                                 
+[21:59:46] [V] Running 'KLayout.StreamOut' at                       step.py:1138
+               'runs/flow_c0c9886dede04b46/58-klayout-streamout'…               
+[21:59:46] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/58-klayout-streamout/kla             
+               yout-streamout.log'…                                             
+[21:59:47] [V] Running 'KLayout.Render' at                          step.py:1138
+               'runs/flow_c0c9886dede04b46/59-klayout-render'…                  
+[21:59:47] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/59-klayout-render/klayou             
+               t-render.log'…                                                   
+[21:59:48] [V] Running 'Magic.WriteLEF' at                          step.py:1138
+               'runs/flow_c0c9886dede04b46/60-magic-writelef'…                  
+[21:59:48] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/60-magic-writelef/magic-             
+               writelef.log'…                                                   
+[21:59:48] [V] Running 'Odb.CheckDesignAntennaProperties' at        step.py:1138
+               'runs/flow_c0c9886dede04b46/61-odb-checkdesignantenn             
+               aproperties'…                                                    
+[21:59:48] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/61-odb-checkdesignantenn             
+               aproperties/odb-checkdesignantennaproperties.log'…               
+[21:59:49] [V] Running 'KLayout.XOR' at                             step.py:1138
+               'runs/flow_c0c9886dede04b46/62-klayout-xor'…                     
+[21:59:49] [I] Running XOR with 18 threads…                       klayout.py:401
+[21:59:49] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/62-klayout-xor/klayout-x             
+               or.log'…                                                         
+[21:59:50] [V] Running 'Checker.XOR' at                             step.py:1138
+               'runs/flow_c0c9886dede04b46/63-checker-xor'…                     
+[21:59:50] [I] Check for XOR differences clear.                   checker.py:131
+[21:59:50] [V] Running 'Magic.DRC' at                               step.py:1138
+               'runs/flow_c0c9886dede04b46/64-magic-drc'…                       
+[21:59:50] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/64-magic-drc/magic-drc.l             
+               og'…                                                             
+[21:59:51] [V] Running 'KLayout.DRC' at                             step.py:1138
+               'runs/flow_c0c9886dede04b46/65-klayout-drc'…                     
+[21:59:51] [I] Running KLayout DRC with 18 threads…               klayout.py:578
+[21:59:51] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/65-klayout-drc/klayout-d             
+               rc.log'…                                                         
+[21:59:53] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/65-klayout-drc/xml_drc_r             
+               eport_to_json.log'…                                              
+[21:59:54] [V] Running 'Checker.MagicDRC' at                        step.py:1138
+               'runs/flow_c0c9886dede04b46/66-checker-magicdrc'…                
+[21:59:54] [I] Check for Magic DRC errors clear.                  checker.py:131
+[21:59:54] [V] Running 'Checker.KLayoutDRC' at                      step.py:1138
+               'runs/flow_c0c9886dede04b46/67-checker-klayoutdrc'…              
+[21:59:54] [I] Check for KLayout DRC errors clear.                checker.py:131
+[21:59:54] [V] Running 'Magic.SpiceExtraction' at                   step.py:1138
+               'runs/flow_c0c9886dede04b46/68-magic-spiceextraction             
+               '…                                                               
+[21:59:54] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/68-magic-spiceextraction             
+               /magic-spiceextraction.log'…                                     
+[21:59:55] [V] Running 'Checker.IllegalOverlap' at                  step.py:1138
+               'runs/flow_c0c9886dede04b46/69-checker-illegaloverla             
+               p'…                                                              
+[21:59:55] [I] Check for Magic Illegal Overlap errors clear.      checker.py:131
+[21:59:55] [V] Running 'Netgen.LVS' at                              step.py:1138
+               'runs/flow_c0c9886dede04b46/70-netgen-lvs'…                      
+[21:59:55] [I] Logging subprocess to                                step.py:1336
+               'runs/flow_c0c9886dede04b46/70-netgen-lvs/netgen-lvs             
+               .log'…                                                           
+[21:59:55] [V] Running 'Checker.LVS' at                             step.py:1138
+               'runs/flow_c0c9886dede04b46/71-checker-lvs'…                     
+[21:59:55] [I] Check for LVS errors clear.                        checker.py:131
+[21:59:55] [I] Gating variable for step 'Yosys.EQY' set to     sequential.py:362
+               'False'- the step will be skipped.                               
+[21:59:55] [I] Skipping step 'Equivalence Check'…              sequential.py:370
+[21:59:55] [V] Running 'Checker.SetupViolations' at                 step.py:1138
+               'runs/flow_c0c9886dede04b46/72-checker-setupviolatio             
+               ns'…                                                             
+[21:59:55] [V] No setup violations found                          checker.py:628
+[21:59:55] [V] Running 'Checker.HoldViolations' at                  step.py:1138
+               'runs/flow_c0c9886dede04b46/73-checker-holdviolation             
+               s'…                                                              
+[21:59:55] [V] No hold violations found                           checker.py:628
+[21:59:55] [V] Running 'Checker.MaxSlewViolations' at               step.py:1138
+               'runs/flow_c0c9886dede04b46/74-checker-maxslewviolat             
+               ions'…                                                           
+[21:59:55] [W] Max Slew violations found in the following         checker.py:626
+               corners:                                                         
+               * max_ss_100C_1v60                                               
+               * min_ss_100C_1v60                                               
+               * nom_ss_100C_1v60                                               
+[21:59:55] [V] No max slew violations found                       checker.py:628
+[21:59:55] [V] Running 'Checker.MaxCapViolations' at                step.py:1138
+               'runs/flow_c0c9886dede04b46/75-checker-maxcapviolati             
+               ons'…                                                            
+[21:59:55] [V] No max cap violations found                        checker.py:628
+[21:59:55] [V] Running 'Misc.ReportManufacturability' at            step.py:1138
+               'runs/flow_c0c9886dede04b46/76-misc-reportmanufactur             
+               ability'…                                                        
+[21:59:55] [I] Saving views to                                      state.py:209
+               '/output/runs/flow_c0c9886dede04b46/final'…                      
+[21:59:56] [I] Flow complete.                                  sequential.py:413
+
+
+[21:59:56] [W] The following warnings were generated by the flow:    flow.py:699
+[21:59:56] [W] [OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not        flow.py:701
+               defined. Using generic fallback SDC for OpenROAD PnR             
+               steps.                                                           
+[21:59:56] [W] [OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is not    flow.py:701
+               defined. Using generic fallback SDC for OpenROAD PnR             
+               steps.                                                           
+[21:59:56] [W] [OpenROAD.RepairDesignPostGPL] [STA-1140]             flow.py:701
+               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_s            
+               c_hd__tt_025C_1v80.lib line 1, library                           
+               sky130_fd_sc_hd__tt_025C_1v80 already exists. (and 17            
+               similar warnings)                                                
+[21:59:56] [W] [OpenROAD.RepairDesignPostGPL] [RSZ-0020] found 2     flow.py:701
+               floating nets.                                                   
+[21:59:56] [W] [OpenROAD.DetailedRouting] [DRT-0349] LEF58_ENCLOSURE flow.py:701
+               with no CUTCLASS is not supported. Skipping for layer            
+               mcon (and 9 similar warnings)                                    
+[21:59:56] [W] [Checker.WireLength] Threshold for                    flow.py:701
+               Threshold-surpassing long wires is not set. The                  
+               checker will be skipped.                                         
+[21:59:56] [W] [OpenROAD.IRDropReport] 'VSRC_LOC_FILES' was not      flow.py:701
+               given a value, which may make the results of IR drop             
+               analysis inaccurate. If you are not integrating a                
+               top-level chip for manufacture, you may ignore this              
+               warning, otherwise, see the documentation for                    
+               'VSRC_LOC_FILES'.                                                
+[21:59:56] [W] [Checker.MaxSlewViolations] Max Slew violations found flow.py:701
+               in the following corners:                                        
+               * max_ss_100C_1v60                                               
+               * min_ss_100C_1v60                                               
+               * nom_ss_100C_1v60                                               

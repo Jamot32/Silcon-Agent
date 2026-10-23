@@ -1,5 +1,5 @@
-import { expect, test, type Page } from "@playwright/test";
-import type { Metric, PublicRun } from "../lib/api";
+import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
+import type { Metric, PublicRun, RunEvent } from "../lib/api";
 
 test.beforeEach(async ({ page }) => {
   // These checks only observe runs. Block mutations even if a UI regression
@@ -54,6 +54,36 @@ async function assertChartRendered(page: Page) {
   expect(bounds?.height).toBeGreaterThan(0);
 }
 
+async function assertRepairEvidence(request: APIRequestContext, runId: string) {
+  const response = await request.get(`/api/runs/${runId}/events?after=0`);
+  expect(response.ok()).toBeTruthy();
+  const events = (await response.text()).split("\n")
+    .filter((line) => line.startsWith("data: "))
+    .map((line) => JSON.parse(line.slice(6)) as RunEvent);
+  const failure = events.find((event) => event.type === "test_result" && typeof event.payload.failed === "number" && event.payload.failed > 0);
+  expect(failure, "The supplied RTL must have a real failing simulator result").toBeDefined();
+  const passed = events.find((event) => event.id > failure!.id && event.type === "test_result"
+    && event.payload.ok === true && event.payload.failed === 0 && typeof event.payload.passed === "number" && event.payload.passed > 0);
+  expect(passed, "A later simulator result must pass after the failure").toBeDefined();
+  expect(events.some((event) => event.id > failure!.id && event.id < passed!.id && event.type === "file_written"
+    && typeof event.payload.path === "string" && event.payload.path.startsWith("src/")), "RTL must change between the failing and passing tests").toBe(true);
+  expect(events.some((event) => event.type === "note" && typeof event.payload.text === "string"
+    && /loaded supplied faulty uart starter/i.test(event.payload.text) && /not model-generated/i.test(event.payload.text))).toBe(true);
+
+  const independentTests = new Map<string, string>();
+  for (const event of events) {
+    if (event.type !== "file_written" || typeof event.payload.path !== "string" || !event.payload.path.startsWith("test/")) continue;
+    expect(typeof event.payload.content, "Test source must be preserved in the actual recording").toBe("string");
+    if (event.id < failure!.id) independentTests.set(event.payload.path, event.payload.content as string);
+    else expect(event.payload.content, `Repair must preserve independent test ${event.payload.path}`).toBe(independentTests.get(event.payload.path));
+  }
+  expect(independentTests.size).toBeGreaterThan(0);
+  const filesResponse = await request.get(`/api/runs/${runId}/files`);
+  expect(filesResponse.ok()).toBeTruthy();
+  const files = await filesResponse.json() as Record<string, string>;
+  for (const [path, source] of independentTests) expect(files[path], `Final test ${path} must match its pre-failure source`).toBe(source);
+}
+
 test("new-design screen loads and presets change the specification without creating a job", async ({ page }) => {
   const pageErrors: string[] = [];
   page.on("pageerror", (error) => pageErrors.push(error.message));
@@ -62,9 +92,9 @@ test("new-design screen loads and presets change the specification without creat
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   const specification = page.getByRole("textbox", { name: /describe|specification/i });
   await expect(specification).toBeVisible();
-  await page.getByRole("button", { name: /PWM/i, exact: true }).click();
+  await page.getByRole("button", { name: /^PWM$/i }).click();
   await expect(specification).toHaveValue(/PWM/i);
-  await page.getByRole("button", { name: /Counter/i, exact: true }).click();
+  await page.getByRole("button", { name: /^Counter$/i }).click();
   await expect(specification).toHaveValue(/counter/i);
   expect(pageErrors).toEqual([]);
 });
@@ -152,6 +182,59 @@ test("result page selects the best real layout and downloads its bundle", async 
   expect(pageErrors).toEqual([]);
 });
 
+test("supplied faulty starter has real failing then passing tests without weakening them", async ({ request }, testInfo) => {
+  const response = await request.get("/api/runs");
+  expect(response.ok()).toBeTruthy();
+  const runs = await response.json() as PublicRun[];
+  const run = process.env.READONLY_REPAIR_RUN_ID
+    ? runs.find((candidate) => candidate.id === process.env.READONLY_REPAIR_RUN_ID)
+    : runs.find((candidate) => candidate.status === "done" && !candidate.is_replay && candidate.starter_id === "uart_off_by_one");
+  if (process.env.READONLY_REPAIR_RUN_ID) expect(run, "READONLY_REPAIR_RUN_ID must identify an existing run").toBeDefined();
+  test.skip(!run, "No completed supplied-starter repair run exists; this test never creates one.");
+  expect(run!.status).toBe("done");
+  expect(run!.is_replay).toBe(false);
+  expect(run!.starter_id).toBe("uart_off_by_one");
+  testInfo.annotations.push({ type: "actual_repair_run_id", description: run!.id });
+  await assertRepairEvidence(request, run!.id);
+});
+
+test("source editor switches changes and file tabs without browser errors", async ({ page, request }) => {
+  const pageErrors: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  const runsResponse = await request.get("/api/runs");
+  expect(runsResponse.ok()).toBeTruthy();
+  const runs = await runsResponse.json() as PublicRun[];
+  const runId = process.env.READONLY_REPAIR_RUN_ID ?? process.env.READONLY_RUN_ID;
+  const run = runId ? runs.find((candidate) => candidate.id === runId)
+    : runs.find((candidate) => candidate.status === "done" && !candidate.is_replay);
+  if (runId) expect(run, "The requested existing run must be available").toBeDefined();
+  test.skip(!run, "No completed real run is available; this test never creates one.");
+  expect(run!.status).toBe("done");
+  const filesResponse = await request.get(`/api/runs/${run!.id}/files`);
+  expect(filesResponse.ok()).toBeTruthy();
+  const files = await filesResponse.json() as Record<string, string>;
+  const rtl = Object.keys(files).find((path) => path.startsWith("src/") && path.endsWith(".v"));
+  const tests = Object.keys(files).find((path) => path.startsWith("test/") && path.endsWith(".py"));
+  expect(rtl).toBeTruthy();
+  expect(tests).toBeTruthy();
+  await page.goto(`/runs/${run!.id}`);
+  const source = page.getByTestId("source-editor");
+  const changes = page.getByRole("button", { name: "Changes", exact: true });
+  for (let round = 0; round < 3; round++) {
+    await page.getByRole("tab", { name: rtl!, exact: true }).click();
+    if (await changes.getAttribute("aria-pressed") === "true") await changes.click();
+    await changes.click();
+    await expect(source.locator(".monaco-diff-editor").first()).toBeVisible();
+    await page.getByRole("tab", { name: tests!, exact: true }).click();
+    await expect(source.locator(".monaco-editor:visible .view-lines:visible").first()).toBeVisible();
+    await changes.click();
+    await expect(source.locator(".monaco-diff-editor").first()).toBeVisible();
+    await changes.click();
+    await expect(source.locator(".monaco-editor:visible .view-lines:visible").first()).toBeVisible();
+  }
+  expect(pageErrors).toEqual([]);
+});
+
 test.describe("real active run @live", () => {
   test.skip(process.env.LIVE_EDA !== "1", "Opt in with LIVE_EDA=1 and an existing new LIVE_RUN_ID; no run is created by this test.");
 
@@ -168,6 +251,7 @@ test.describe("real active run @live", () => {
     const initial = await initialResponse.json() as PublicRun;
     expect(initial.is_replay).toBe(false);
     expect(["pending", "running"]).toContain(initial.status);
+    if (process.env.LIVE_REQUIRE_REPAIR === "1") expect(initial.starter_id).toBe("uart_off_by_one");
     testInfo.annotations.push({ type: "live_run_id", description: runId });
     testInfo.annotations.push({ type: "attachment_stage", description: initial.stage });
     const recovery = process.env.LIVE_RECOVERY === "1";
@@ -199,6 +283,7 @@ test.describe("real active run @live", () => {
     ]);
     await expect(page.getByTestId("stage-current")).toHaveText("DONE");
     await assertFinishedDashboard(page, runId, minimumFlowPoints);
+    if (process.env.LIVE_REQUIRE_REPAIR === "1") await assertRepairEvidence(request, runId);
     expect(pageErrors).toEqual([]);
   });
 });

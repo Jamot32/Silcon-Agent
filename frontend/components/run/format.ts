@@ -1,4 +1,4 @@
-import type { Metric } from "@/lib/api";
+import type { Metric, PublicRun } from "@/lib/api";
 
 export function number(value: number | null | undefined, digits = 2): string {
   return value == null ? "—" : value.toLocaleString("en-US", { maximumFractionDigits: digits });
@@ -24,3 +24,18 @@ export function bestMeasured(metrics: Metric[], bestTag?: string | null, targetC
   })[0];
 }
 
+
+export function replayLabel(run: Pick<PublicRun, "replay_speed">): string {
+  return `REPLAY${run.replay_speed == null ? "" : ` ${number(run.replay_speed)}×`}`;
+}
+
+export function usageLabel(run: Pick<PublicRun, "is_replay" | "input_tokens" | "output_tokens" | "call_count">): string {
+  const tokens = run.input_tokens + run.output_tokens;
+  if (tokens === 0) return run.is_replay ? "Recorded usage appears during playback" : "Waiting for model usage";
+  return `${run.is_replay ? "Recorded: " : ""}${number(tokens, 0)} tokens · ${run.call_count} ${run.call_count === 1 ? "call" : "calls"}`;
+}
+
+export function duration(seconds: number): string {
+  const whole = Math.round(seconds);
+  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
+}

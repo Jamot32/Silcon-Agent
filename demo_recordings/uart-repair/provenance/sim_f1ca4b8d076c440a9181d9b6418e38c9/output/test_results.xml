@@ -1,0 +1,21 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1792794285" />
+    <testcase name="exact_framing_and_lsb_order" classname="test_uart_contract" file="/input/test/test_uart_contract.py" lineno="53" time="0.0015735626220703125" sim_time_ns="180.0" ratio_time="114390.10909090909">
+      <failure error_type="AssertionError" error_msg="payload 96, age 6: expected busy/tx (1, 0), got (1, 1)" />
+    </testcase>
+    <testcase name="payload_is_latched" classname="test_uart_contract" file="/input/test/test_uart_contract.py" lineno="62" time="0.0008451938629150391" sim_time_ns="179.99999999999997" ratio_time="212968.89139633282">
+      <failure error_type="AssertionError" error_msg="payload 96, age 6: expected busy/tx (1, 0), got (1, 1)" />
+    </testcase>
+    <testcase name="busy_requests_are_discarded" classname="test_uart_contract" file="/input/test/test_uart_contract.py" lineno="69" time="0.0005905628204345703" sim_time_ns="120.0" ratio_time="203195.99515542996">
+      <failure error_type="AssertionError" error_msg="payload 69, age 3: expected busy/tx (1, 0), got (1, 1)" />
+    </testcase>
+    <testcase name="held_send_accepts_only_after_completion" classname="test_uart_contract" file="/input/test/test_uart_contract.py" lineno="78" time="0.0004951953887939453" sim_time_ns="180.00000000000006" ratio_time="363492.8839672606">
+      <failure error_type="AssertionError" error_msg="held send first age 6: expected busy/tx (1, 0), got (1, 1)" />
+    </testcase>
+    <testcase name="synchronous_reset_priority_and_abort" classname="test_uart_contract" file="/input/test/test_uart_contract.py" lineno="98" time="0.0012028217315673828" sim_time_ns="1040.0" ratio_time="864633.5302279484" />
+    <testcase name="edge_payloads_full_stop_and_sustained_idle" classname="test_uart_contract" file="/input/test/test_uart_contract.py" lineno="136" time="0.0010805130004882812" sim_time_ns="600.0" ratio_time="555291.7917034422">
+      <failure error_type="AssertionError" error_msg="payload 00, age 27: expected busy/tx (1, 0), got (1, 1)" />
+    </testcase>
+  </testsuite>
+</testsuites>

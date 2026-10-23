@@ -1,0 +1,15 @@
+{
+  "id": "uart_off_by_one",
+  "origin": "supplied_known_faulty_starter",
+  "model_generated": false,
+  "base_source": "designs/golden/uart_tx/src/uart_tx.v",
+  "base_sha256": "6f773e2040e147395c75e8e7c0b3eb1cb5856829f88a3079139ed10fda9c1e5e",
+  "source": "src/uart_tx.v",
+  "sha256": "5e7f2ff67ed0967574a1442c54b560e1114d597f429d8d2075773ca94780b23b",
+  "deliberate_mutation": {
+    "before": "BAUD_DIV[BAUD_BITS-1:0] - 1'b1",
+    "after": "BAUD_DIV[BAUD_BITS-1:0] - 2'd2"
+  },
+  "defect": "At the required default BAUD_DIV=4, the divider advances serial bits every three rising-edge periods instead of four.",
+  "expected_contract": "Top uart_tx, ports clk/rst_n/send/data[7:0]/busy/tx; synchronous active-low reset; 8N1 LSB-first; BAUD_DIV default4; idle high; ignore requests while busy."
+}

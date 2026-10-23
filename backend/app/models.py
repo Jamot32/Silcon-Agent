@@ -27,6 +27,9 @@ class Run(SQLModel, table=True):
     tapeout_ready: bool = False
     cancel_requested: bool = False
     is_replay: bool = False
+    recording_id: str | None = None
+    replay_speed: int | None = None
+    starter_id: str | None = None
 
 
 class Iteration(SQLModel, table=True):

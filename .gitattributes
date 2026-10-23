@@ -1,3 +1,5 @@
 # Preserve original tool output bytes, including report alignment/trailing spaces.
 backend/tests/fixtures/golden_counter/** -text -whitespace
 backend/tests/fixtures/counter_increment_bug/** -text -whitespace
+backend/tests/fixtures/uart_off_by_one/** -text -whitespace
+demo_recordings/** -text -whitespace

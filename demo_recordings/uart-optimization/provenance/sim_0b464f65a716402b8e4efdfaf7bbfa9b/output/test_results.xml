@@ -1,0 +1,11 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1792792691" />
+    <testcase name="default_divider_a5_exact_intervals" classname="test_uart_spec" file="/input/test/test_uart_spec.py" lineno="61" time="0.0029032230377197266" sim_time_ns="1670.0" ratio_time="575222.7707974049" />
+    <testcase name="equal_bit_runs_and_idle" classname="test_uart_spec" file="/input/test/test_uart_spec.py" lineno="69" time="0.010575294494628906" sim_time_ns="6650.0" ratio_time="628824.0959509424" />
+    <testcase name="busy_requests_ignored_including_completion" classname="test_uart_spec" file="/input/test/test_uart_spec.py" lineno="78" time="0.005790233612060547" sim_time_ns="3250.0" ratio_time="561289.961294573" />
+    <testcase name="held_start_recaptures_after_completion" classname="test_uart_spec" file="/input/test/test_uart_spec.py" lineno="86" time="0.005753517150878906" sim_time_ns="3285.0" ratio_time="570955.106911984" />
+    <testcase name="synchronous_idle_reset_priority" classname="test_uart_spec" file="/input/test/test_uart_spec.py" lineno="104" time="0.0026483535766601562" sim_time_ns="1640.0" ratio_time="619252.6611451206" />
+    <testcase name="synchronous_abort_and_recovery" classname="test_uart_spec" file="/input/test/test_uart_spec.py" lineno="124" time="0.014658212661743164" sim_time_ns="9330.0" ratio_time="636503.25010979" />
+  </testsuite>
+</testsuites>

@@ -52,3 +52,38 @@ Reference: `m9-concept.png` (1672×941), inspected with `view_image` before codi
 | Mobile and failure state | Layout, measurements/signoff, and log stack without horizontal page overflow at 390px. The selected tag and clock wrap rather than truncate. A real failed run preserved its error and Unknown measurements, with no fabricated layout or bundle. |
 
 Above-the-fold copy follows the reference except for actual API values/status, correct navigation selection, the full actual run tag, and the functional corrections above. The layout placeholder becomes the real GDS image; no generated image, metric, timestamp, or log summary is used as product evidence. All new code reuses the pinned M7 component/dependency system. Typecheck and production build pass, and the read-only browser suite passes three checks, including the result's selected PNG and real ZIP. No model or EDA job was created for this verification. The latest desktop/mobile pair faithfully implements the accepted composition; no material visual mismatch remains.
+
+# M10 record/replay verification
+
+Replay is a small functional extension of the accepted M0/M7/M9 design system; no new visual concept was needed. Root verified the first real replay in Aside and compared the completed dashboard with the M7 reference. Independent, read-only Playwright contexts captured 1920×1080 and 390×844 dashboard views, plus native 1672×941 and mobile catalog/result/history views. All screenshots below were inspected with `view_image`; these are temporary QA evidence, not product assets. No model, EDA, or replay job was created by these visual checks, and their API mutations were blocked.
+
+| Comparison | Evidence / disposition |
+| --- | --- |
+| Existing composition | Navigation, dark surfaces, teal controls, three-column dashboard, selected-layout result, and actual metric tables retain the accepted hierarchy. The completed replay's real chip remains visible within the 1080px dashboard capture. |
+| Recorded-run catalog | Three actual authenticated recording packs appear with their API names, descriptions, original duration, physical-run count, and source ID. Clearly named Replay 1× and Replay 4× controls have pending/error handling. No simulated recording cards or live supplied-starter action were added. |
+| Replay provenance | Dashboard, result, and history display REPLAY 4× for the actual repair playback `534d0b18…`, plus the actual source `f17167a0…`. Playback elapsed, recorded provider/cost, and historical token/call labels prevent confusion with a live run or fresh charges. Unknown ChatGPT-plan USD cost remains unavailable. |
+| Supplied starter | The real repair and its recording visibly identify a Supplied faulty starter and explain that the first UART RTL was supplied with a known timing bug. Catalog copy distinguishes the real fail-then-fix demonstration from the from-scratch UART that passed its first test cycle. |
+| Actual evidence | File edits, tests, chart points, event times, and images come from recorded real events and artifacts. The result still renders the selected best tag, rather than the latest flow, with its measured 1291.24 µm² area, actual signoff, and genuine bundle link. No runtime metric or test case was invented. |
+| Contextual wording | Replay empty states, the recorded design log, Back to replay, and Stop replay describe playback accurately. Source IDs derive from catalog metadata and remain explicitly unavailable if that lookup fails. |
+| Mobile continuation | At 390×844, catalog actions remain usable, header badges/source/usage wrap, result panels stack, and long metric tables scroll locally. Home, replay dashboard, result, and history have no horizontal page overflow or browser errors. |
+| Editor lifecycle | A real live repair exposed Monaco's model-disposal ordering error when switching diff/file views. A read-only reproduction failed before the fix. The native diff view now detaches its model, disposes the widget, then disposes its owned models; it does not suppress errors or retain orphan models. Repeated actual file/diff transitions and the committed regression now pass with zero page errors. |
+
+Inspected evidence: `/tmp/silicon-m10-replay-desktop.png`, `/tmp/silicon-m10-replay-mobile.png`, `/tmp/silicon-m10-recordings.png`, `/tmp/silicon-m10-result.png`, `/tmp/silicon-m10-history.png`, `/tmp/silicon-m10-home-mobile.png`, `/tmp/silicon-m10-result-mobile.png`, and `/tmp/silicon-m10-history-mobile.png`. Root independently accepted the dashboard desktop/mobile pair against the M7 concept. No material visual mismatch remains.
+
+The pinned M7 dependencies are unchanged. Typecheck, production build, and 15 frontend unit checks pass. The read-only browser suite passes five checks, including the Monaco regression. Root's final `make test` passes 318 backend tests, 15 frontend unit tests, and the offline replay E2E in 54.7 seconds, with actual chart/image/bundle evidence and editor transitions. Replay submission and live recording acceptance are recorded separately in the milestone progress evidence.
+
+
+## M10 replay extension and lifecycle regression
+
+Root compared `m7-concept.png` with the native completed UART repair replay at 1920px and 390px in the same image-viewing pass. Screens were `/tmp/silicon-m10-replay-desktop.png` and `/tmp/silicon-m10-replay-mobile.png`; passive home/result/history captures use the same existing instrument design. This is a functional extension of the accepted M7/M9 surfaces.
+
+| Area | Verified result |
+| --- | --- |
+| Composition | Desktop retains log/code/evidence columns, stage timeline and full-width actual layout. Mobile stacks code/evidence/log/layout and scrolls bounded comparison tables. |
+| Typography and color | Existing restrained dark panels, legible code, teal active/action accents and pass/fail colors remain consistent. |
+| Evidence | Four real measurements, six named passing tests and the original rendered PNG are visible; no generated layout is used. |
+| Replay origin | REPLAY 4×, source run ID, playback elapsed, recorded provider/cost/tokens and supplied faulty starter disclosure appear together. Result/history retain their replay origin. |
+| Interaction | Actual SSE playback advances without refresh; zoom/Fit, source/test tabs, Changes and ZIP work. A native diff-model cleanup fixed the real disposed-model error; repeated switches now produce zero page errors. |
+| Verification | Main offline replay E2E passed (54.7s); clean-data/no-key/no-PDK instance passed (55.2s). Read-only regression checks passed 5/5. Real failure/repair provenance remains separately documented. |
+
+No material composition or functional mismatch remains. New replay rows use real recording names, durations and flow counts; replay actions are separate from live Build my chip.

@@ -1,0 +1,11 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1792792250" />
+    <testcase name="synchronous_reset_priority" classname="test_counter_spec" file="/input/test/test_counter_spec.py" lineno="40" time="0.001035451889038086" sim_time_ns="390.0" ratio_time="376647.147133318" />
+    <testcase name="load_values_and_priority" classname="test_counter_spec" file="/input/test/test_counter_spec.py" lineno="52" time="0.008526802062988281" sim_time_ns="4155.0" ratio_time="487287.0238228386" />
+    <testcase name="consecutive_counting" classname="test_counter_spec" file="/input/test/test_counter_spec.py" lineno="63" time="0.0053293704986572266" sim_time_ns="2430.0" ratio_time="455963.7954636961" />
+    <testcase name="disabled_hold" classname="test_counter_spec" file="/input/test/test_counter_spec.py" lineno="72" time="0.005318880081176758" sim_time_ns="2490.000000000001" ratio_time="468143.66219911264" />
+    <testcase name="wraparound_both_directions" classname="test_counter_spec" file="/input/test/test_counter_spec.py" lineno="81" time="0.015475988388061523" sim_time_ns="7785.0" ratio_time="503037.3378934233" />
+    <testcase name="mixed_operations_and_high_phase_inputs" classname="test_counter_spec" file="/input/test/test_counter_spec.py" lineno="92" time="0.024797677993774414" sim_time_ns="12015.0" ratio_time="484521.17182166927" />
+  </testsuite>
+</testsuites>

@@ -1,0 +1,31 @@
+{
+  "origin": "real_pinned_docker_simulations_of_supplied_starter_and_hand_written_golden_uart",
+  "model_generated": false,
+  "raw_evidence_dir": "runs/starter-check/20261023T221856Z",
+  "command": "PYTHONPATH=backend uv run --python 3.12 --with-requirements backend/requirements.txt python runs/starter-check/check_uart_starter.py",
+  "files": {
+    "failed.xml": {
+      "source": "runs/starter-check/20261023T221856Z/work/.eda/sim_bb561ebf6a954835a30cb6a7292aa810/output/test_results.xml",
+      "sha256": "6f0ae51b1b8f32170c7cdfd42c5b39dceb69db6af2f1fbc25c03054387a49b4a",
+      "bytes": 1973
+    },
+    "failed.json": {
+      "source": "runs/starter-check/20261023T221856Z/work/.eda/sim_bb561ebf6a954835a30cb6a7292aa810/output/result.json",
+      "sha256": "deeb2cb9b41b54f2fe80053b9c44aec060e46e75771ad15c55ad9a2a1bcd637b",
+      "bytes": 554
+    },
+    "passed.xml": {
+      "source": "runs/starter-check/20261023T221856Z/work/.eda/sim_82ace5a55fdc4945ae2a021cca3e44a0/output/test_results.xml",
+      "sha256": "3c3da014eec03bdcff178b52b0160d3a4bc440303e36975163efb1e3a74413f0",
+      "bytes": 1424
+    },
+    "passed.json": {
+      "source": "runs/starter-check/20261023T221856Z/work/.eda/sim_82ace5a55fdc4945ae2a021cca3e44a0/output/result.json",
+      "sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e",
+      "bytes": 69
+    }
+  },
+  "starter_source_sha256": "5e7f2ff67ed0967574a1442c54b560e1114d597f429d8d2075773ca94780b23b",
+  "golden_source_sha256": "6f773e2040e147395c75e8e7c0b3eb1cb5856829f88a3079139ed10fda9c1e5e",
+  "unchanged_test_sha256": "bb53462f363a5b8becf26ad1e42d6f95c89fdc8c4800d77a0c51539bf55d7336"
+}

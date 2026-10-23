@@ -1,0 +1,84 @@
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with 1792794285
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running test_uart_contract.exact_framing_and_lsb_order (1/6)
+   180.00ns WARNING  ..rder.exact_framing_and_lsb_order payload 96, age 6: expected busy/tx (1, 0), got (1, 1)
+                                                        Traceback (most recent call last):
+                                                          File "/input/test/test_uart_contract.py", line 57, in exact_framing_and_lsb_order
+                                                            await frame(dut, payload)
+                                                          File "/input/test/test_uart_contract.py", line 49, in frame
+                                                            check(dut, int(age < 40), frame_bit(payload, age), f'payload {payload:02x}, age {age}')
+                                                            ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                          File "/input/test/test_uart_contract.py", line 16, in check
+                                                            assert actual == (busy, tx), f'{label}: expected busy/tx {(busy, tx)}, got {actual}'
+                                                                   ^^^^^^^^^^^^^^^^^^^^
+                                                        AssertionError: payload 96, age 6: expected busy/tx (1, 0), got (1, 1)
+   180.00ns WARNING  cocotb.regression                  test_uart_contract.exact_framing_and_lsb_order failed
+   180.00ns INFO     cocotb.regression                  running test_uart_contract.payload_is_latched (2/6)
+   360.00ns WARNING  ..ad_is_latched.payload_is_latched payload 96, age 6: expected busy/tx (1, 0), got (1, 1)
+                                                        Traceback (most recent call last):
+                                                          File "/input/test/test_uart_contract.py", line 65, in payload_is_latched
+                                                            await frame(dut, 0x96, mutate=True)
+                                                          File "/input/test/test_uart_contract.py", line 49, in frame
+                                                            check(dut, int(age < 40), frame_bit(payload, age), f'payload {payload:02x}, age {age}')
+                                                            ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                          File "/input/test/test_uart_contract.py", line 16, in check
+                                                            assert actual == (busy, tx), f'{label}: expected busy/tx {(busy, tx)}, got {actual}'
+                                                                   ^^^^^^^^^^^^^^^^^^^^
+                                                        AssertionError: payload 96, age 6: expected busy/tx (1, 0), got (1, 1)
+   360.00ns WARNING  cocotb.regression                  test_uart_contract.payload_is_latched failed
+   360.00ns INFO     cocotb.regression                  running test_uart_contract.busy_requests_are_discarded (3/6)
+   480.00ns WARNING  ..rded.busy_requests_are_discarded payload 69, age 3: expected busy/tx (1, 0), got (1, 1)
+                                                        Traceback (most recent call last):
+                                                          File "/input/test/test_uart_contract.py", line 72, in busy_requests_are_discarded
+                                                            await frame(dut, 0x69, mutate=True, pulses=True)
+                                                          File "/input/test/test_uart_contract.py", line 49, in frame
+                                                            check(dut, int(age < 40), frame_bit(payload, age), f'payload {payload:02x}, age {age}')
+                                                            ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                          File "/input/test/test_uart_contract.py", line 16, in check
+                                                            assert actual == (busy, tx), f'{label}: expected busy/tx {(busy, tx)}, got {actual}'
+                                                                   ^^^^^^^^^^^^^^^^^^^^
+                                                        AssertionError: payload 69, age 3: expected busy/tx (1, 0), got (1, 1)
+   480.00ns WARNING  cocotb.regression                  test_uart_contract.busy_requests_are_discarded failed
+   480.00ns INFO     cocotb.regression                  running test_uart_contract.held_send_accepts_only_after_completion (4/6)
+   660.00ns WARNING  ..nd_accepts_only_after_completion held send first age 6: expected busy/tx (1, 0), got (1, 1)
+                                                        Traceback (most recent call last):
+                                                          File "/input/test/test_uart_contract.py", line 88, in held_send_accepts_only_after_completion
+                                                            check(dut, int(age < 40), frame_bit(0x96, age), f'held send first age {age}')
+                                                            ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                          File "/input/test/test_uart_contract.py", line 16, in check
+                                                            assert actual == (busy, tx), f'{label}: expected busy/tx {(busy, tx)}, got {actual}'
+                                                                   ^^^^^^^^^^^^^^^^^^^^
+                                                        AssertionError: held send first age 6: expected busy/tx (1, 0), got (1, 1)
+   660.00ns WARNING  cocotb.regression                  test_uart_contract.held_send_accepts_only_after_completion failed
+   660.00ns INFO     cocotb.regression                  running test_uart_contract.synchronous_reset_priority_and_abort (5/6)
+  1700.00ns INFO     cocotb.regression                  test_uart_contract.synchronous_reset_priority_and_abort passed
+  1700.00ns INFO     cocotb.regression                  running test_uart_contract.edge_payloads_full_stop_and_sustained_idle (6/6)
+  2300.01ns WARNING  ..ads_full_stop_and_sustained_idle payload 00, age 27: expected busy/tx (1, 0), got (1, 1)
+                                                        Traceback (most recent call last):
+                                                          File "/input/test/test_uart_contract.py", line 140, in edge_payloads_full_stop_and_sustained_idle
+                                                            await frame(dut, payload)
+                                                          File "/input/test/test_uart_contract.py", line 49, in frame
+                                                            check(dut, int(age < 40), frame_bit(payload, age), f'payload {payload:02x}, age {age}')
+                                                            ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                                                          File "/input/test/test_uart_contract.py", line 16, in check
+                                                            assert actual == (busy, tx), f'{label}: expected busy/tx {(busy, tx)}, got {actual}'
+                                                                   ^^^^^^^^^^^^^^^^^^^^
+                                                        AssertionError: payload 00, age 27: expected busy/tx (1, 0), got (1, 1)
+  2300.01ns WARNING  cocotb.regression                  test_uart_contract.edge_payloads_full_stop_and_sustained_idle failed
+  2300.01ns INFO     cocotb.regression                  ***********************************************************************************************************************
+                                                        ** TEST                                                           STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        ***********************************************************************************************************************
+                                                        ** test_uart_contract.exact_framing_and_lsb_order                  FAIL         180.00           0.00     114390.11  **
+                                                        ** test_uart_contract.payload_is_latched                           FAIL         180.00           0.00     212968.89  **
+                                                        ** test_uart_contract.busy_requests_are_discarded                  FAIL         120.00           0.00     203196.00  **
+                                                        ** test_uart_contract.held_send_accepts_only_after_completion      FAIL         180.00           0.00     363492.88  **
+                                                        ** test_uart_contract.synchronous_reset_priority_and_abort         PASS        1040.00           0.00     864633.53  **
+                                                        ** test_uart_contract.edge_payloads_full_stop_and_sustained_idle   FAIL         600.00           0.00     555291.79  **
+                                                        ***********************************************************************************************************************
+                                                        ** TESTS=6 PASS=1 FAIL=5 SKIP=0                                                2300.01           0.01     233553.33  **
+                                                        ***********************************************************************************************************************

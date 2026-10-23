@@ -12,13 +12,15 @@ from pydantic import BaseModel
 from sqlalchemy import text
 from sqlmodel import Session, create_engine
 
-from app.api_schemas import CreateRun, PublicRun
+from app.api_schemas import CreateReplay, CreateRun, PublicRun
 from app.models import Metric
+from app.replay import RecordingMetadata, list_recordings, load_recording
 from app.storage import BusyRunError, RunStore, TERMINAL
 from app.worker_api import router as worker_router
 
 RUNS_DIR = Path(os.getenv("RUNS_DIR", "runs"))
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{RUNS_DIR}/silicon-agent.db")
+RECORDINGS_DIR = Path(os.getenv("RECORDINGS_DIR", "/demo_recordings"))
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
 
@@ -161,7 +163,7 @@ def create_run(body: CreateRun) -> dict[str, str]:
     try:
         run = store().create_run(body.spec_text, preset_id=body.preset_id,
                                  targets=body.targets.model_dump(exclude_none=True) if body.targets else None,
-                                 provider=os.getenv("LLM_PROVIDER", "codex"))
+                                 provider=os.getenv("LLM_PROVIDER", "codex"), starter_id=body.starter_id)
     except BusyRunError as error:
         raise HTTPException(409, str(error)) from None
     return {"run_id": run.id}
@@ -253,7 +255,19 @@ def cancel(run_id: str) -> PublicRun:
     return PublicRun.from_run(store().request_cancel(run_id))
 
 
-@app.get("/api/recordings", response_model=list[str])
-def recordings() -> list[str]:
-    # Real recordings are added in M10. There is deliberately no synthetic fallback.
-    return []
+@app.get("/api/recordings", response_model=list[RecordingMetadata])
+def recordings() -> list[RecordingMetadata]:
+    return list_recordings(RECORDINGS_DIR)
+
+
+@app.post("/api/replays", status_code=202)
+def create_replay(body: CreateReplay) -> dict[str, str]:
+    try:
+        recording = load_recording(RECORDINGS_DIR, body.recording_id)
+    except (OSError, ValueError, KeyError, TypeError):
+        raise HTTPException(422, "Recording is missing or failed integrity validation") from None
+    try:
+        run = store().create_replay(body.recording_id, body.speed, recording.run)
+    except BusyRunError as error:
+        raise HTTPException(409, str(error)) from None
+    return {"run_id": run.id}

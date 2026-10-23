@@ -1,4 +1,4 @@
-.PHONY: setup dev demo down test eda-setup eda-check eda-tools-check llm-smoke meta-smoke logs
+.PHONY: setup dev demo down test test-unit test-e2e record-repair eda-setup eda-check eda-tools-check llm-smoke meta-smoke logs
 
 export SILICON_UID := $(shell id -u)
 export SILICON_GID := $(shell id -g)
@@ -15,15 +15,28 @@ dev: setup
 	@echo "Silicon Agent: http://localhost:3000 | API: http://localhost:8000/api/health"
 
 demo: dev
-	@echo "Bootstrap: recorded playback appears after real EDA recordings exist."
+	@echo "Authentic replays are on the home page; playback makes no model or EDA calls."
 
 down:
 	python3 scripts/manage_worker.py stop
 	docker compose down
 
-test:
+test: test-unit test-e2e
+
+test-unit:
 	docker compose run --rm --no-deps api python -m pytest -q -m 'not integration' -o cache_dir=/tmp/pytest-cache tests
 	docker compose run --rm --no-deps web npm run typecheck
+	npm --prefix frontend run test:unit
+
+frontend/node_modules/.package-lock.json: frontend/package.json frontend/package-lock.json
+	npm --prefix frontend ci
+
+test-e2e: frontend/node_modules/.package-lock.json
+	cd frontend && npx playwright install chromium
+	cd frontend && npm run test:e2e -- e2e/replay.spec.ts
+
+record-repair:
+	uv run --python 3.12 --with-requirements backend/requirements.txt python scripts/start_repair_demo.py
 
 eda-setup:
 	./eda/prepare.sh

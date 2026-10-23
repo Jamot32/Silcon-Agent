@@ -1,0 +1,31 @@
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with 1792792250
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running test_counter_spec.synchronous_reset_priority (1/6)
+   390.00ns INFO     cocotb.regression                  test_counter_spec.synchronous_reset_priority passed
+   390.00ns INFO     cocotb.regression                  running test_counter_spec.load_values_and_priority (2/6)
+  4545.00ns INFO     cocotb.regression                  test_counter_spec.load_values_and_priority passed
+  4545.00ns INFO     cocotb.regression                  running test_counter_spec.consecutive_counting (3/6)
+  6975.00ns INFO     cocotb.regression                  test_counter_spec.consecutive_counting passed
+  6975.00ns INFO     cocotb.regression                  running test_counter_spec.disabled_hold (4/6)
+  9465.00ns INFO     cocotb.regression                  test_counter_spec.disabled_hold passed
+  9465.00ns INFO     cocotb.regression                  running test_counter_spec.wraparound_both_directions (5/6)
+ 17250.00ns INFO     cocotb.regression                  test_counter_spec.wraparound_both_directions passed
+ 17250.00ns INFO     cocotb.regression                  running test_counter_spec.mixed_operations_and_high_phase_inputs (6/6)
+ 29265.01ns INFO     cocotb.regression                  test_counter_spec.mixed_operations_and_high_phase_inputs passed
+ 29265.01ns INFO     cocotb.regression                  ******************************************************************************************************************
+                                                        ** TEST                                                      STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        ******************************************************************************************************************
+                                                        ** test_counter_spec.synchronous_reset_priority               PASS         390.00           0.00     376647.15  **
+                                                        ** test_counter_spec.load_values_and_priority                 PASS        4155.00           0.01     487287.02  **
+                                                        ** test_counter_spec.consecutive_counting                     PASS        2430.00           0.01     455963.80  **
+                                                        ** test_counter_spec.disabled_hold                            PASS        2490.00           0.01     468143.66  **
+                                                        ** test_counter_spec.wraparound_both_directions               PASS        7785.00           0.02     503037.34  **
+                                                        ** test_counter_spec.mixed_operations_and_high_phase_inputs   PASS       12015.00           0.02     484521.17  **
+                                                        ******************************************************************************************************************
+                                                        ** TESTS=6 PASS=6 FAIL=0 SKIP=0                                          29265.01           0.06     466225.03  **
+                                                        ******************************************************************************************************************

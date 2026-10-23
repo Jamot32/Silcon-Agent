@@ -13,7 +13,8 @@ import { SourcePanel } from "./source-panel";
 import { RunInspection } from "./run-inspection";
 import { LayoutViewer } from "./layout-viewer";
 import { FlowComparison } from "./flow-comparison";
-import { elapsed, number, title } from "./format";
+import { ReplaySource, StarterNotice } from "./run-origin";
+import { elapsed, number, replayLabel, title, usageLabel } from "./format";
 
 export function RunDashboard({ id }: { id: string }) {
   const { run, events, files, metrics, latestLayout, testResults, latestDiffs, loading, error, connection, cancel } = useRun(id);
@@ -36,16 +37,17 @@ export function RunDashboard({ id }: { id: string }) {
     try { await cancel(); } catch (reason) { setCancelError(reason instanceof Error ? reason.message : "Could not cancel this run."); }
     finally { setCancelling(false); }
   }
-  return <div className="run-dashboard" data-testid="run-dashboard">
-    <div className="run-heading-row"><div className="run-identity"><h1>{name}{top ? <span> / {top}</span> : null}</h1>{run.is_replay ? <Badge variant="outline" className="replay-badge">REPLAY</Badge> : null}</div>
-      <dl className="run-meta"><div><dt>Run</dt><dd title={run.id}>{run.id.slice(0, 8)}</dd></div><div><dt>{run.llm_provider === "codex" ? "Plan" : "Model"}</dt><dd>{run.llm_provider === "codex" ? "Codex / ChatGPT" : "Meta / Muse Spark"}</dd></div><div><dt>Cost (USD)</dt><dd title={run.cost_usd == null ? "ChatGPT plan usage does not provide dollar pricing." : undefined}>{run.cost_usd == null ? "unavailable" : `$${number(run.cost_usd, 4)}`}</dd></div><div><dt>Elapsed</dt><dd>{elapsed(run.created_at, active ? now : ended)}</dd></div></dl>
-      <div className="run-actions">{active ? <Button variant="outline" onClick={stop} disabled={cancelling}>{cancelling ? "Cancelling…" : "Cancel run"}</Button> : null}{latestLayout ? <Button variant="outline" asChild><Link href={`/runs/${id}/result`}>View result</Link></Button> : null}{run.status === "done" ? <Button asChild><a href={bundleUrl(id)}><Download data-icon="inline-start" />Download bundle</a></Button> : null}</div>
+  return <div className="run-dashboard" data-testid="run-dashboard" data-is-replay={run.is_replay}>
+    <div className="run-heading-row"><div className="run-identity"><h1>{name}{top ? <span> / {top}</span> : null}</h1>{run.is_replay ? <Badge variant="outline" className="replay-badge">{replayLabel(run)}</Badge> : null}</div>
+      <dl className="run-meta"><div><dt>Run</dt><dd title={run.id}>{run.id.slice(0, 8)}</dd></div><div><dt>{run.is_replay ? "Recorded provider" : run.llm_provider === "codex" ? "Plan" : "Model"}</dt><dd>{run.llm_provider === "codex" ? "Codex / ChatGPT" : "Meta / Muse Spark"}</dd></div><div><dt>{run.is_replay ? "Recorded cost (USD)" : "Cost (USD)"}</dt><dd title={run.cost_usd == null ? "ChatGPT plan usage does not provide dollar pricing." : undefined}>{run.cost_usd == null ? "unavailable" : `$${number(run.cost_usd, 4)}`}</dd></div><div><dt>{run.is_replay ? "Playback elapsed" : "Elapsed"}</dt><dd>{elapsed(run.created_at, active ? now : ended)}</dd></div></dl>
+      <div className="run-actions">{active ? <Button variant="outline" onClick={stop} disabled={cancelling}>{cancelling ? "Stopping…" : run.is_replay ? "Stop replay" : "Cancel run"}</Button> : null}{latestLayout ? <Button variant="outline" asChild><Link href={`/runs/${id}/result`}>View result</Link></Button> : null}{run.status === "done" ? <Button asChild><a href={bundleUrl(id)}><Download data-icon="inline-start" />Download bundle</a></Button> : null}</div>
     </div>
-    <div className="run-state-row"><span data-testid="run-status" data-status={run.status} className={run.status === "failed" ? "fail-text" : run.status === "done" ? "pass-text" : "muted"}>{title(run.status)}</span><span>{run.input_tokens + run.output_tokens > 0 ? `${number(run.input_tokens + run.output_tokens, 0)} tokens · ${run.call_count} calls` : "Waiting for model usage"}</span><span className={connection === "open" ? "connection open" : "connection"}>{connection === "open" ? "Event stream connected" : connection === "reconnecting" ? "Reconnecting to event stream…" : active ? "Connecting to event stream…" : "Recorded event history"}</span></div>
+    <div className="run-state-row"><span data-testid="run-status" data-status={run.status} className={run.status === "failed" ? "fail-text" : run.status === "done" ? "pass-text" : "muted"}>{title(run.status)}</span><span>{usageLabel(run)}</span>{run.is_replay ? <ReplaySource recordingId={run.recording_id} /> : null}<span className={connection === "open" ? "connection open" : "connection"}>{connection === "open" ? run.is_replay ? "Replay event stream connected" : "Event stream connected" : connection === "reconnecting" ? "Reconnecting to event stream…" : active ? "Connecting to event stream…" : "Recorded event history"}</span></div>
+    <StarterNotice starterId={run.starter_id} />
     <StageTimeline stage={run.stage} status={run.status} />
     {error || run.error || cancelError ? <div className="run-error" role="alert">{cancelError || run.error || error}</div> : null}
-    <div className="dashboard-grid"><AgentLog events={events} /><SourcePanel files={files} diffs={latestDiffs} /><RunInspection tests={testResults} metrics={metrics} bestTag={run.best_run_tag} targetClock={run.design_spec?.targets.clock_mhz ?? run.targets.clock_mhz} /></div>
-    <LayoutViewer key={latestLayout?.run_tag ?? "waiting"} layout={latestLayout} metrics={metrics} runId={run.id} />
+    <div className="dashboard-grid"><AgentLog events={events} title={run.is_replay ? "Recorded agent log" : "Agent log"} /><SourcePanel files={files} diffs={latestDiffs} isReplay={run.is_replay} /><RunInspection tests={testResults} metrics={metrics} bestTag={run.best_run_tag} targetClock={run.design_spec?.targets.clock_mhz ?? run.targets.clock_mhz} isReplay={run.is_replay} /></div>
+    <LayoutViewer key={latestLayout?.run_tag ?? "waiting"} layout={latestLayout} metrics={metrics} runId={run.id} emptyMessage={run.is_replay ? "The recorded GDS render appears during playback." : undefined} />
     <FlowComparison metrics={metrics} bestTag={run.best_run_tag} />
     <p className="integration-note">{run.tapeout_ready ? "Block signoff complete." : "Tiny Tapeout wrapper and shuttle integration require separate verification."}</p>
   </div>;

@@ -74,6 +74,10 @@ class Worker:
         llm = None
         monitor: asyncio.Task[None] | None = None
         try:
+            if run.is_replay:
+                self.current_task = asyncio.create_task(self._replay(run))
+                await self._complete_task(run)
+                return
             if run.llm_provider != os.getenv("LLM_PROVIDER", "codex"):
                 raise LLMError("Queued provider does not match the worker configuration; restart with the selected LLM_PROVIDER")
             llm = create_llm()
@@ -112,22 +116,10 @@ class Worker:
 
                 factory = Orchestrator
             targets = json.loads(run.targets_json) if run.targets_json else None
-            orchestrator = factory(llm, tools, spec_text=run.spec_text, targets=targets, package_callback=package, event_callback=publish)
+            starter = {"starter_id": run.starter_id} if run.starter_id is not None else {}
+            orchestrator = factory(llm, tools, spec_text=run.spec_text, targets=targets, package_callback=package, event_callback=publish, **starter)
             self.current_task = asyncio.create_task(orchestrator.run())
-
-            async def watch_cancellation() -> None:
-                while self.current_task and not self.current_task.done():
-                    if await asyncio.to_thread(self.store.cancel_requested, run.id):
-                        self.current_task.cancel()
-                        return
-                    await asyncio.sleep(self.poll_interval)
-
-            monitor = asyncio.create_task(watch_cancellation())
-            outcome = await self.current_task
-            if await asyncio.to_thread(self.store.cancel_requested, run.id):
-                await asyncio.to_thread(self.store.fail, run.id, "Run cancelled by the user", status="cancelled")
-            else:
-                await asyncio.to_thread(self.store.finish, run.id, outcome)
+            await self._complete_task(run)
         except asyncio.CancelledError:
             cancelled = await asyncio.to_thread(self.store.cancel_requested, run.id)
             await asyncio.to_thread(self.store.fail, run.id, "Run cancelled by the user" if cancelled else "Worker stopped during the run", status="cancelled" if cancelled else "failed")
@@ -150,6 +142,40 @@ class Worker:
                     await close()
                 except Exception:
                     logger.error("provider_close_failed run_id=%s", run.id)
+
+    async def _complete_task(self, run: Run) -> None:
+        async def watch_cancellation() -> None:
+            while self.current_task and not self.current_task.done():
+                if await asyncio.to_thread(self.store.cancel_requested, run.id):
+                    self.current_task.cancel()
+                    return
+                await asyncio.sleep(self.poll_interval)
+        monitor = asyncio.create_task(watch_cancellation())
+        try:
+            assert self.current_task is not None
+            outcome = await self.current_task
+            if await asyncio.to_thread(self.store.cancel_requested, run.id):
+                await asyncio.to_thread(self.store.fail, run.id, "Run cancelled by the user", status="cancelled")
+            else:
+                await asyncio.to_thread(self.store.finish, run.id, outcome)
+        finally:
+            monitor.cancel()
+            await asyncio.gather(monitor, return_exceptions=True)
+
+    async def _replay(self, run: Run) -> Outcome:
+        from app.replay import load_recording, play_recording
+
+        catalog = Path(os.getenv("RECORDINGS_DIR", str(REPO_ROOT / "demo_recordings")))
+        try:
+            recording = await asyncio.to_thread(load_recording, catalog, run.recording_id)
+        except (ValueError, OSError, TypeError, KeyError):
+            raise LLMError("Recording failed integrity validation; no replay events were emitted") from None
+        work = await asyncio.to_thread(self.store.work_dir, run.id)
+        async def emit(kind: str, payload: dict[str, JsonValue]) -> None:
+            await asyncio.to_thread(self.store.emit, run.id, kind, payload)
+        async def register(kind: str, path: Path, tag: str | None) -> None:
+            await asyncio.to_thread(self.store.register_artifact, run.id, kind, path, tag)
+        return await play_recording(recording, run.id, run.replay_speed, work, emit=emit, register=register)
 
 
 async def _serve(store: WorkerStore) -> None:

@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -18,6 +19,7 @@ class CreateRun(BaseModel):
     spec_text: str = Field(min_length=10, max_length=12000)
     preset_id: str | None = Field(default=None, pattern=r"^[a-z0-9_-]{1,64}$")
     targets: Targets | None = None
+    starter_id: Literal["uart_off_by_one"] | None = None
 
     @field_validator("spec_text")
     @classmethod
@@ -46,9 +48,25 @@ class PublicRun(BaseModel):
     error: str | None
     best_run_tag: str | None
     tapeout_ready: bool
+    recording_id: str | None = None
+    replay_speed: int | None = None
+    starter_id: str | None = None
 
     @classmethod
     def from_run(cls, run: Run) -> "PublicRun":
         return cls(**run.model_dump(exclude={"design_spec_json", "targets_json", "cost_known", "cancel_requested", "cost_usd"}),
                    design_spec=json.loads(run.design_spec_json) if run.design_spec_json else None,
                    targets=json.loads(run.targets_json or "{}"), cost_usd=run.cost_usd if run.cost_known else None)
+
+
+class CreateReplay(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    recording_id: str = Field(pattern=r"^[a-z0-9][a-z0-9_-]{0,63}$")
+    speed: Literal[1, 4] = 4
+
+    @field_validator("speed", mode="before")
+    @classmethod
+    def integer_speed(cls, value):
+        if type(value) is not int:
+            raise ValueError("Replay speed must be 1 or 4")
+        return value

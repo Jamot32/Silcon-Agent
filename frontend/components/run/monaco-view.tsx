@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Editor, { DiffEditor, loader, type Monaco } from "@monaco-editor/react";
+import { useEffect, useRef, useState } from "react";
+import Editor, { loader, type Monaco } from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
 
 // The editor and its worker are built from pinned npm sources and served by this app.
@@ -47,6 +47,35 @@ const options: editor.IStandaloneEditorConstructionOptions = {
   scrollbar: { verticalScrollbarSize: 7, horizontalScrollbarSize: 7 },
 };
 
+function DiffView({ path, before, value, language }: { path: string; before: string; value: string; language: string }) {
+  const container = useRef<HTMLDivElement>(null);
+  const models = useRef<{ original: editor.ITextModel; modified: editor.ITextModel } | null>(null);
+  useEffect(() => {
+    const monaco = window.SiliconMonaco;
+    if (!container.current || !monaco) return;
+    theme(monaco);
+    const original = monaco.editor.createModel("", language);
+    const modified = monaco.editor.createModel("", language);
+    const view = monaco.editor.createDiffEditor(container.current, { ...options, theme: "silicon-lab", renderSideBySide: false, originalEditable: false, ariaLabel: `Read-only changes to ${path}` });
+    models.current = { original, modified };
+    view.setModel(models.current);
+    return () => {
+      // Monaco 0.57 requires detaching the diff widget before disposing its text models.
+      view.setModel(null);
+      view.dispose();
+      original.dispose();
+      modified.dispose();
+      models.current = null;
+    };
+  }, [language, path]);
+  useEffect(() => {
+    const current = models.current;
+    if (current?.original.getValue() !== before) current?.original.setValue(before);
+    if (current?.modified.getValue() !== value) current?.modified.setValue(value);
+  }, [before, value, language, path]);
+  return <div ref={container} style={{ height: "100%", width: "100%" }} />;
+}
+
 export default function MonacoView({ path, value, before, diff }: { path: string; value: string; before?: string; diff: boolean }) {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
@@ -58,6 +87,6 @@ export default function MonacoView({ path, value, before, diff }: { path: string
   const language = path.endsWith(".py") ? "python" : "verilog";
   if (error) return <div className="editor-fallback"><p role="status">{error}</p><pre>{value}</pre></div>;
   if (!ready) return <div className="editor-fallback"><p className="micro-label">Loading local editor…</p><pre>{value}</pre></div>;
-  if (diff && before !== undefined) return <DiffEditor height="100%" language={language} original={before} modified={value} originalModelPath={`before://${path}`} modifiedModelPath={`after://${path}`} theme="silicon-lab" beforeMount={theme} options={{ ...options, renderSideBySide: false, originalEditable: false, ariaLabel: `Read-only changes to ${path}` }} />;
+  if (diff && before !== undefined) return <DiffView path={path} before={before} value={value} language={language} />;
   return <Editor height="100%" path={path} value={value} language={language} theme="silicon-lab" beforeMount={theme} options={{ ...options, ariaLabel: `Read-only ${path}` }} />;
 }

@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createRun, getJson, type Check, type Health, type Preset, type Recording } from "@/lib/api";
+import { createReplay, createRun, getJson, type Check, type Health, type Preset, type Recording } from "@/lib/api";
+
+import { RecordedRuns } from "@/components/recorded-runs";
 
 const initialSpec = "An 8-bit up/down counter with enable, synchronous load, and active-low reset.";
 const shortNames: Record<string, string> = {
@@ -22,6 +24,8 @@ export function NewDesign() {
   const router = useRouter();
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>("counter");
   const [building, setBuilding] = useState(false);
+  const [pendingReplay, setPendingReplay] = useState<string | null>(null);
+  const [replayError, setReplayError] = useState("");
   const [buildError, setBuildError] = useState("");
   const [spec, setSpec] = useState(initialSpec);
   const [clock, setClock] = useState("50");
@@ -58,7 +62,7 @@ export function NewDesign() {
 
   async function build(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (building) return;
+    if (building || pendingReplay) return;
     setBuilding(true);
     setBuildError("");
     try {
@@ -67,6 +71,18 @@ export function NewDesign() {
     } catch (reason) {
       setBuildError(reason instanceof Error ? reason.message : "The build could not be queued.");
       setBuilding(false);
+    }
+  }
+  async function replay(recordingId: string, speed: 1 | 4) {
+    if (building || pendingReplay) return;
+    setPendingReplay(`${recordingId}:${speed}`);
+    setReplayError("");
+    try {
+      const result = await createReplay({ recording_id: recordingId, speed });
+      router.push(`/runs/${result.run_id}`);
+    } catch (reason) {
+      setReplayError(reason instanceof Error ? reason.message : "The replay could not be queued.");
+      setPendingReplay(null);
     }
   }
   const valid = spec.trim().length >= 10 && Number(clock) >= 1 && Number(clock) <= 1000;
@@ -104,7 +120,7 @@ export function NewDesign() {
               </label>
             </div>
             <div className="build-row">
-              <button className="build-button" type="submit" disabled={building || !valid} aria-describedby="build-explanation">{building ? "Queuing your chip…" : "Build my chip"}</button>
+              <button className="build-button" type="submit" disabled={building || pendingReplay !== null || !valid} aria-describedby="build-explanation">{building ? "Queuing your chip…" : "Build my chip"}</button>
               <p id="build-explanation">The agent writes Verilog, verifies it, then builds a real sky130 layout.</p>
             </div>
             {buildError ? <p className="form-error" role="alert">{buildError}</p> : null}
@@ -122,20 +138,7 @@ export function NewDesign() {
           </dl>
         </section>
       </div>
-      <section className="panel recordings-panel" aria-labelledby="recordings-title">
-        <h2 id="recordings-title">Recorded runs</h2>
-        <div className="empty-state" aria-live="polite">
-          {recordingsError ? (
-            <><h3>Recordings could not be loaded.</h3><p>Check the API connection and reload this page.</p></>
-          ) : recordings === null ? (
-            <><h3>Checking recorded runs…</h3><p>Only recordings from real tool runs appear here.</p></>
-          ) : recordings.length === 0 ? (
-            <><h3>No real recordings yet.</h3><p>Replay will appear here after a real tool run is recorded.</p></>
-          ) : (
-            <><h3>{recordings.length} recorded run{recordings.length === 1 ? "" : "s"} available.</h3><p>Replay controls unlock after the recorded-run workflow is verified.</p></>
-          )}
-        </div>
-      </section>
+      <RecordedRuns recordings={recordings} unavailable={recordingsError} pending={pendingReplay} disabled={building} error={replayError} onReplay={(id, speed) => { void replay(id, speed); }} />
     </>
   );
 }
