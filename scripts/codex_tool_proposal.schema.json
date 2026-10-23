@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "content": {"type": "string"},
+    "tool_calls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {"type": "string"},
+          "name": {"type": "string", "enum": ["add"]},
+          "arguments_json": {"type": "string"}
+        },
+        "required": ["id", "name", "arguments_json"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["content", "tool_calls"],
+  "additionalProperties": false
+}

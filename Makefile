@@ -1,4 +1,4 @@
-.PHONY: setup dev demo down test eda-setup eda-check llm-smoke logs
+.PHONY: setup dev demo down test eda-setup eda-check llm-smoke meta-smoke logs
 
 export SILICON_UID := $(shell id -u)
 export SILICON_GID := $(shell id -g)
@@ -28,6 +28,9 @@ eda-check:
 	./eda/check.sh
 
 llm-smoke: setup
+	uv run --env-file .env --python 3.12 --with-requirements backend/requirements.txt python scripts/provider_smoke_test.py
+
+meta-smoke: setup
 	uv run --env-file .env --python 3.11 --with-requirements scripts/requirements-smoke.txt python scripts/llm_smoke_test.py
 
 logs:

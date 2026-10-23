@@ -1,0 +1,25 @@
+{
+  "provider": "codex",
+  "status": "passed",
+  "checked_at": "2026-10-23T17:39:17.734423+00:00",
+  "model": "gpt-6.1-sol",
+  "model_source": "CLI selected model; actual serving model is not reported",
+  "cli_version": "0.163.0",
+  "tool_call": {
+    "name": "add",
+    "arguments": {
+      "a": 2,
+      "b": 3
+    }
+  },
+  "usage": {
+    "input_tokens": 8493,
+    "cached_input_tokens": 0,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 41,
+    "reasoning_output_tokens": 0
+  },
+  "elapsed_seconds": 4.202,
+  "cost_usd": null,
+  "billing": "ChatGPT plan; USD cost unavailable"
+}

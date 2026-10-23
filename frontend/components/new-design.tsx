@@ -55,7 +55,7 @@ export function NewDesign() {
     { name: "API", label: apiState, detail: apiState === "Ready" ? "Backend API is reachable." : undefined, ready: apiState === "Ready" },
     { name: "Database", label: checkLabel(health?.checks.database, "Checking"), detail: health?.checks.database.detail, ready: health?.checks.database.status === "ok" },
     { name: "EDA", label: checkLabel(health?.checks.eda, "Not verified"), detail: health?.checks.eda.detail, ready: health?.checks.eda.status === "ok" },
-    { name: "Model", label: checkLabel(health?.checks.llm, "Not configured"), detail: health?.checks.llm.detail, ready: health?.checks.llm.status === "ok" },
+    { name: health?.llm_provider === "codex" ? "Codex" : "Meta", label: checkLabel(health?.checks.llm, "Checking"), detail: health?.checks.llm.detail, ready: health?.checks.llm.status === "ok" },
   ];
 
   return (

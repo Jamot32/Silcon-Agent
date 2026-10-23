@@ -36,6 +36,7 @@ class Health(BaseModel):
     status: Literal["ok", "degraded"]
     milestone: str
     checks: dict[str, Check]
+    llm_provider: str
 
 
 class Preset(BaseModel):
@@ -56,6 +57,41 @@ class GoldenCheck(BaseModel):
     librelane_version: str
     artifacts: dict[str, str]
     checks: GoldenChecks
+
+
+class SmokeUsage(BaseModel):
+    input_tokens: int
+    cached_input_tokens: int
+    output_tokens: int
+
+
+class CodexSmoke(BaseModel):
+    status: Literal["passed"]
+    provider: Literal["codex"]
+    checked_at: datetime
+    model: str
+    cli_version: Literal["0.163.0"]
+    usage: SmokeUsage
+    cost_usd: None
+
+
+def llm_health() -> Check:
+    provider = os.getenv("LLM_PROVIDER", "codex")
+    if provider == "meta":
+        return Check(
+            status="not_verified" if os.getenv("META_API_KEY") else "not_configured",
+            detail="Run make meta-smoke" if os.getenv("META_API_KEY") else "META_API_KEY is not set",
+        )
+    if provider != "codex":
+        return Check(status="error", detail="LLM_PROVIDER must be codex or meta")
+    marker = RUNS_DIR / "llm-smoke-codex.json"
+    if not marker.exists():
+        return Check(status="not_verified", detail="Run make llm-smoke on the host using the Codex ChatGPT login")
+    try:
+        result = CodexSmoke.model_validate_json(marker.read_text())
+        return Check(status="ok", detail=f"Cached Codex/ChatGPT-plan smoke passed at {result.checked_at.isoformat()}; USD cost unavailable")
+    except (OSError, ValueError):
+        return Check(status="error", detail="Codex smoke cache is invalid; rerun make llm-smoke")
 
 
 def eda_health() -> Check:
@@ -88,12 +124,9 @@ def health() -> Health:
     checks = {
         "database": database,
         "eda": eda_health(),
-        "llm": Check(
-            status="not_verified" if os.getenv("META_API_KEY") else "not_configured",
-            detail="Run the explicit LLM smoke test" if os.getenv("META_API_KEY") else "META_API_KEY is not set",
-        ),
+        "llm": llm_health(),
     }
-    return Health(status="ok" if all(check.status == "ok" for check in checks.values()) else "degraded", milestone="M1" if checks["eda"].status == "ok" else "M0", checks=checks)
+    return Health(status="ok" if all(check.status == "ok" for check in checks.values()) else "degraded", milestone="M3" if checks["llm"].status == "ok" else "M1" if checks["eda"].status == "ok" else "M0", checks=checks, llm_provider=os.getenv("LLM_PROVIDER", "codex"))
 
 
 @app.get("/api/presets", response_model=list[Preset])

@@ -1,0 +1,2 @@
+{"type": "item.completed", "item": {"id": "item_0", "type": "agent_message", "text": "{\"content\":\"\",\"tool_calls\":[{\"id\":\"add_1\",\"name\":\"add\",\"arguments_json\":\"{\\\"a\\\":2,\\\"b\\\":3}\"}]}"}}
+{"type": "turn.completed", "usage": {"input_tokens": 8493, "cached_input_tokens": 0, "cache_write_input_tokens": 0, "output_tokens": 41, "reasoning_output_tokens": 0}}

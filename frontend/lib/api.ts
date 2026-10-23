@@ -3,6 +3,7 @@ export interface Health {
   status: "ok" | "degraded";
   checks: { database: Check; eda: Check; llm: Check };
   milestone: string;
+  llm_provider: string;
 }
 export interface Preset { id: string; name: string; spec_text: string }
 export interface Run { id: string; spec_text: string; status: string; stage: string; created_at: string }
