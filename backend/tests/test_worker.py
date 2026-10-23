@@ -3,6 +3,8 @@ import importlib.util
 import json
 from pathlib import Path
 import shutil
+import threading
+import time
 from types import SimpleNamespace
 
 import pytest
@@ -167,6 +169,32 @@ def test_startup_recovers_interrupted_jobs_without_inference(monkeypatch, tmp_pa
     asyncio.run(scenario())
     assert store.get_run(run.id).status == "failed"
     assert "retained" in store.get_run(run.id).error
+
+
+def test_stop_during_claim_does_not_begin_model_run(monkeypatch, tmp_path):
+    store = RunStore(tmp_path / "runs")
+    run = store.create_run("Must not start")
+    host = worker.Worker(store, poll_interval=0.001)
+    original = store.claim_pending
+    started = threading.Event()
+
+    def slow_claim():
+        started.set()
+        time.sleep(0.03)
+        return original()
+
+    monkeypatch.setattr(store, "claim_pending", slow_claim)
+    monkeypatch.setattr(worker, "create_llm", lambda: pytest.fail("Stopping must prevent model initialization"))
+
+    async def scenario():
+        pending = asyncio.create_task(host.run())
+        assert await asyncio.to_thread(started.wait, 2)
+        host.request_stop()
+        await pending
+
+    asyncio.run(scenario())
+    assert store.get_run(run.id).status == "failed"
+    assert store.get_run(run.id).error == "Worker stopped before execution"
 
 
 def test_provider_mismatch_never_uses_a_different_provider(monkeypatch, tmp_path):

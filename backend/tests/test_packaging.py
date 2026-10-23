@@ -53,6 +53,7 @@ def test_package_uses_selected_snapshot_and_real_outputs(tmp_path):
         assert archive.read("layout/design.gds") == (FIXTURE / "counter.gds").read_bytes()
         assert archive.read("layout/design.lef") == (FIXTURE / "counter.lef").read_bytes()
         assert archive.read("raw_metrics.json") == (FIXTURE / "metrics.json").read_bytes()
+        assert "flow_index" not in json.loads(archive.read("metrics.json"))
         metrics = json.loads(archive.read("metrics.json"))
         assert metrics["run_tag"] == "recorded" and metrics["area_um2"] == 1097.3
         assert metrics["drc_ok"] is True and metrics["lvs_ok"] is True

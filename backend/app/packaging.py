@@ -131,7 +131,7 @@ def _package_design(tools: ToolRunner, best_run_tag: str, spec: DesignSpec) -> P
         "DRC/LVS results describe this standalone flow and do not establish shuttle readiness.\n"
     )
     generated = {
-        "metrics.json": json.dumps(metric.model_dump(mode="json", exclude={"id", "run_id", "iteration_id"}), allow_nan=False, indent=2) + "\n",
+        "metrics.json": json.dumps(metric.model_dump(mode="json", exclude={"id", "run_id", "iteration_id", "flow_index"}), allow_nan=False, indent=2) + "\n",
         "design_spec.json": spec.model_dump_json(indent=2) + "\n",
         "design.log": design_log or "No design notes were recorded.\n",
         "info.yaml": _info(spec, source_names, metric.clock_mhz),

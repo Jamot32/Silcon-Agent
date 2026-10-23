@@ -5,6 +5,7 @@ export SILICON_GID := $(shell id -g)
 
 setup:
 	@test -f .env || cp .env.example .env
+	python3 scripts/setup_env.py
 	@mkdir -p runs
 
 dev: setup

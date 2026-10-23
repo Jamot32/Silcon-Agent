@@ -30,6 +30,16 @@ def test_sequential_spec_and_explicit_combinational_exception():
     assert DesignSpec.model_validate(data).purely_combinational is True
 
 
+def test_advertised_targets_schema_matches_runtime_allowlist():
+    targets = DesignSpec.model_json_schema()["properties"]["targets"]
+    assert targets["additionalProperties"] is False
+    assert set(targets["properties"]) == {"clock_mhz", "max_area_um2", "fit"}
+    data = spec_data()
+    data["targets"]["technology"] = "sky130"
+    with pytest.raises(ValidationError, match="technology"):
+        DesignSpec.model_validate(data)
+
+
 @pytest.mark.parametrize("name", ["BadTop", "1counter", "a;command", "module", "repeat", "real", "time", "force", "specify"])
 def test_invalid_or_reserved_top_is_rejected(name):
     data = spec_data()

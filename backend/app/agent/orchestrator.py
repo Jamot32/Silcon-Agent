@@ -283,6 +283,43 @@ class Orchestrator:
             raise LLMError("Synthesis failed to report an actual cell count")
         await self._remember("SYNTH")
 
+    async def _spec(self) -> None:
+        messages = self._context("SPEC")
+        for attempt in range(1, 4):
+            response = await self._ask(messages, set())
+            try:
+                if response.tool_calls:
+                    raise ValueError("SPEC requires DesignSpec JSON without tool calls")
+                data = json.loads(response.content)
+                if not isinstance(data, dict):
+                    raise ValueError("SPEC must return a JSON object")
+                if not isinstance(data.get("targets", {}), dict):
+                    raise ValueError("DesignSpec targets must be a JSON object")
+                # Preserve every model field for validation; request targets only
+                # override the corresponding explicitly requested target values.
+                data["targets"] = {**data.get("targets", {}), **self.targets}
+                self.design_spec = DesignSpec.model_validate(data)
+                return
+            except (ValueError, ValidationError) as error:
+                if isinstance(error, ValidationError):
+                    first = error.errors(include_input=False, include_context=False, include_url=False)[0]
+                    feedback = f"{'.'.join(str(part) for part in first['loc'])}: {first['msg']}"
+                else:
+                    feedback = str(error)
+                feedback = feedback[:1000]
+                await self._emit("note", {
+                    "stage": "SPEC", "attempt": attempt,
+                    "text": f"SPEC validation attempt {attempt}/3 rejected: {feedback}",
+                })
+                if attempt == 3:
+                    raise LLMError(f"SPEC validation failed after three attempts: {feedback}") from None
+                messages = [
+                    *self._context("SPEC"),
+                    Message(role="assistant", content=response.content[:8192]),
+                    Message(role="user", content="Correct the invalid DesignSpec and return only complete JSON matching the schema. "
+                            f"Validation feedback: {feedback}"),
+                ]
+
     async def _accept_flow(self, result: dict[str, JsonValue]) -> None:
         assert self.design_spec is not None
         if result.get("ok") is not True:
@@ -344,7 +381,23 @@ class Orchestrator:
                 elif self.tools.verified_revision != self.tools.rtl_digest() and not await self._verify_existing():
                     await self._repair()
                 await self._synth()
-                return "changed"
+                # A verified RTL edit must be measured before asking for another
+                # proposal; synthesis alone cannot establish physical PPA.
+                await self._stage("FLOW")
+                overrides: dict[str, JsonValue] = {}
+                clock = self.design_spec.targets.get("clock_mhz")
+                if clock is not None:
+                    overrides["CLOCK_PERIOD"] = 1000 / float(clock)
+                flow_call = ToolCall(
+                    id=uuid4().hex, name="run_flow",
+                    arguments={"top": self.design_spec.top_module, "config_overrides": overrides},
+                )
+                flow = await self.tools.execute(flow_call, allowed_tools={"run_flow"})
+                self._record_result(flow_call, flow)
+                await self._accept_flow(flow)
+                await self._remember("FLOW")
+                await self._stage("OPTIMIZE", previous_ok=flow.get("ok") is True)
+                return "compared"
             if not completion.tool_calls:
                 messages.append(Message(role="user", content="Compare a real physical-design variant using run_flow. A text claim cannot replace a measured comparison."))
         return "empty"
@@ -357,11 +410,9 @@ class Orchestrator:
                 break
             before = score_metric(self.best, self.design_spec.targets) if self.best else None
             await self._stage("OPTIMIZE", previous_ok=previous_ok)
-            action = await self._optimize_round()
+            await self._optimize_round()
             await self._remember("OPTIMIZE")
             previous_ok = True
-            if action == "changed":
-                continue
             improved = self.best is not None and (before is None or score_metric(self.best, self.design_spec.targets) < before)
             stagnant = 0 if improved else stagnant + 1
             if len(self.candidates) >= 2 and self.best and targets_met(self.best, self.design_spec.targets):
@@ -376,14 +427,8 @@ class Orchestrator:
     async def run(self) -> Outcome:
         try:
             await self._stage("SPEC", previous_ok=None)
-            response = await self._ask(self._context("SPEC"), set())
-            if response.tool_calls:
-                raise LLMError("SPEC must return structured DesignSpec JSON without tools")
-            data = json.loads(response.content)
-            if not isinstance(data, dict):
-                raise LLMError("SPEC must return a JSON object")
-            data["targets"] = {**data.get("targets", {}), **self.targets}
-            self.design_spec = DesignSpec.model_validate(data)
+            await self._spec()
+            assert self.design_spec is not None
             self.tools.eda.clock_port = None if self.design_spec.purely_combinational else "clk"
             await self._remember("SPEC")
             await self._rtl()

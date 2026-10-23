@@ -194,9 +194,12 @@ class RunStore:
     def finish(self, run_id: str, outcome) -> None:
         values = outcome.model_dump(mode="json") if hasattr(outcome, "model_dump") else dict(outcome)
         with Session(self.engine) as session:
+            session.exec(text("BEGIN IMMEDIATE"))
             run = session.get(Run, run_id)
             if run is None:
                 raise KeyError(run_id)
+            if run.cancel_requested and values.get("status") == "done":
+                values.update(status="cancelled", summary="Run cancelled by the user before completion was committed.", error=None, tapeout_ready=False)
             for field in ("status", "summary", "error", "best_run_tag", "tapeout_ready"):
                 if field in values:
                     setattr(run, field, values[field])

@@ -9,6 +9,7 @@ services:
       DATABASE_URL: sqlite:////data/silicon-agent.db
       RUNS_DIR: /data
       LLM_PROVIDER: ${LLM_PROVIDER:-codex}
+      WORKER_TOKEN: ${WORKER_TOKEN:-}
       META_API_KEY: ${META_API_KEY:-}
       META_BASE_URL: ${META_BASE_URL:-https://api.meta.ai/v1}
       META_MODEL: ${META_MODEL:-muse-spark-1.3}

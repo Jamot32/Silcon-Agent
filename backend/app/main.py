@@ -15,6 +15,7 @@ from sqlmodel import Session, create_engine
 from app.api_schemas import CreateRun, PublicRun
 from app.models import Metric
 from app.storage import BusyRunError, RunStore, TERMINAL
+from app.worker_api import router as worker_router
 
 RUNS_DIR = Path(os.getenv("RUNS_DIR", "runs"))
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{RUNS_DIR}/silicon-agent.db")
@@ -29,6 +30,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Silicon Agent", version="0.1.0", lifespan=lifespan)
+app.include_router(worker_router)
 
 
 class Check(BaseModel):

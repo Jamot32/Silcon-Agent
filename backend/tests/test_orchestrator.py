@@ -79,6 +79,7 @@ class RecordedEDA(EDA):
     def __init__(self, work_dir):
         super().__init__(work_dir, run_id="unit-recorded-evidence")
         self.flow_calls = 0
+        self.flow_overrides = []
         self.test_results = []
         self.fail_comparisons = False
 
@@ -104,6 +105,7 @@ class RecordedEDA(EDA):
 
     async def run_flow(self, top, config_overrides):
         self.flow_calls += 1
+        self.flow_overrides.append(dict(config_overrides))
         if self.fail_comparisons and self.flow_calls > 1:
             return {"ok": False, "log_tail": "Unit-double injected tool failure; no physical measurements produced."}
         tag = f"recorded_{self.flow_calls}"
@@ -205,12 +207,71 @@ def test_failed_comparisons_keep_and_package_actual_initial_best(tmp_path):
     assert any("preserving" in str(payload.get("text", "")) for kind, payload in events if kind == "note")
 
 
+def test_verified_rtl_proposal_is_physically_measured_before_another_proposal(tmp_path):
+    script = [
+        *full_script()[:12],
+        response(
+            call("record_note", text="Compare this RTL candidate against the measured baseline."),
+            call("write_file", path="src/counter.v", content=(GOLDEN / "src/counter.v").read_text()),
+            call("run_tests", top="counter", test_module="test_counter"),
+        ),
+        response(), response(), response(), response(), response(), response(),
+        # VERIFY, SYNTH, automatic FLOW, OPTIMIZE, SIGNOFF, PACKAGE summaries.
+    ]
+    orchestrator, llm, eda, events = build_run(tmp_path, script)
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "done", outcome.error
+    assert eda.flow_calls == 2
+    assert orchestrator.tools.flow_runs == 2
+    assert len(orchestrator.candidates) == 2
+    assert eda.flow_overrides == [{"CLOCK_PERIOD": 20.0}, {"CLOCK_PERIOD": 20.0}]
+    assert [result["ok"] for result in eda.test_results] == [False, True, True]
+    optimization_requests = [(index, messages) for index, (messages, definitions) in enumerate(llm.requests)
+                             if "run_flow" in {tool.name for tool in definitions}]
+    assert len(optimization_requests) == 1
+    assert all(not definitions for _, definitions in llm.requests[optimization_requests[0][0] + 1:])
+    stages = [payload["stage"] for kind, payload in events if kind == "stage_changed"]
+    assert stages[-5:] == ["FLOW", "OPTIMIZE", "SIGNOFF", "PACKAGE", "DONE"]
+    assert orchestrator.bundle_path.is_file()
+
+
 def test_budget_exhaustion_stops_before_eda(tmp_path):
     orchestrator, _, eda, _ = build_run(tmp_path, budget=Budget(max_calls=1))
     outcome = asyncio.run(orchestrator.run())
     assert outcome.status == "failed"
     assert "budget" in outcome.error
     assert eda.test_results == [] and eda.flow_calls == 0
+
+
+def test_invalid_spec_gets_metered_correction_before_full_run(tmp_path):
+    invalid = spec_data()
+    invalid["targets"]["technology"] = "sky130"
+    script = [response(content=json.dumps(invalid)), *full_script()]
+    orchestrator, llm, eda, events = build_run(tmp_path, script)
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "done", outcome.error
+    assert llm.budget.calls == len(script)
+    assert "technology" not in orchestrator.design_spec.targets
+    correction = llm.requests[1][0][-1].content
+    assert "targets.technology" in correction
+    assert "Extra inputs are not permitted" in correction
+    notes = [payload for kind, payload in events if kind == "note" and payload.get("stage") == "SPEC"]
+    assert len(notes) == 1 and notes[0]["attempt"] == 1
+    assert "targets.technology" in notes[0]["text"]
+    assert eda.flow_calls == 3
+
+
+def test_spec_correction_limit_is_three_and_never_starts_eda(tmp_path):
+    invalid = spec_data()
+    invalid["targets"]["technology"] = "sky130"
+    orchestrator, llm, eda, events = build_run(tmp_path, [response(content=json.dumps(invalid)) for _ in range(3)])
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "failed"
+    assert "after three attempts" in outcome.error
+    assert llm.budget.calls == 3
+    assert orchestrator.design_spec is None
+    assert eda.test_results == [] and eda.flow_calls == 0
+    assert len([payload for kind, payload in events if kind == "note" and payload.get("stage") == "SPEC"]) == 3
 
 
 def test_missing_package_never_reaches_done(tmp_path):

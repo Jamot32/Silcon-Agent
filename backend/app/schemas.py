@@ -52,7 +52,7 @@ class DesignSpec(BaseModel):
     summary: str = Field(min_length=1, max_length=1500)
     ports: list[Port] = Field(min_length=1, max_length=64)
     behavior: list[str] = Field(min_length=1, max_length=32)
-    targets: dict[str, JsonValue] = Field(default_factory=dict)
+    targets: dict[str, JsonValue] = Field(default_factory=dict, json_schema_extra=_Targets.model_json_schema())
     test_plan: list[str] = Field(min_length=4, max_length=32)
     purely_combinational: bool = False
 

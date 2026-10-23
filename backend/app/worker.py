@@ -11,7 +11,7 @@ import math
 import os
 from pathlib import Path
 import signal
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Protocol
 
 from pydantic import JsonValue
 
@@ -24,14 +24,24 @@ from app.schemas import Outcome
 if TYPE_CHECKING:
     from app.agent.orchestrator import Orchestrator
     from app.models import Run
-    from app.storage import RunStore
 
 logger = logging.getLogger(__name__)
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+class WorkerStore(Protocol):
+    def recover_interrupted(self) -> None: ...
+    def claim_pending(self) -> Run | None: ...
+    def work_dir(self, run_id: str) -> Path: ...
+    def emit(self, run_id: str, event_type: str, payload: dict[str, JsonValue]) -> None: ...
+    def cancel_requested(self, run_id: str) -> bool: ...
+    def register_artifact(self, run_id: str, kind: str, path: Path, run_tag: str | None = None) -> None: ...
+    def finish(self, run_id: str, outcome: Outcome) -> None: ...
+    def fail(self, run_id: str, error: str, status: str = "failed") -> None: ...
+
+
 class Worker:
-    def __init__(self, store: RunStore, *, poll_interval: float = 0.5, orchestrator_factory: Callable[..., Orchestrator] | None = None):
+    def __init__(self, store: WorkerStore, *, poll_interval: float = 0.5, orchestrator_factory: Callable[..., Orchestrator] | None = None):
         if not math.isfinite(poll_interval) or poll_interval <= 0:
             raise ValueError("Worker polling interval must be positive")
         self.store = store
@@ -46,10 +56,13 @@ class Worker:
             self.current_task.cancel()
 
     async def run(self) -> None:
-        self.store.recover_interrupted()
+        await asyncio.to_thread(self.store.recover_interrupted)
         while not self.stop_event.is_set():
-            pending = self.store.claim_pending()
+            pending = await asyncio.to_thread(self.store.claim_pending)
             if pending is not None:
+                if self.stop_event.is_set():
+                    await asyncio.to_thread(self.store.fail, pending.id, "Worker stopped before execution")
+                    break
                 await self.execute(pending)
                 continue
             try:
@@ -77,16 +90,20 @@ class Worker:
                 if isinstance(tag, str) and (event_type == "layout_rendered" or (event_type == "tool_finished" and payload.get("tool") == "run_flow")):
                     for kind, path in tools.eda.flow_artifacts(tag).items():
                         if kind not in {"logs_dir", "source_dir", "tests_dir"} and path.is_file():
-                            self.store.register_artifact(run.id, kind, path, run_tag=tag)
-                self.store.emit(run.id, event_type, payload)
+                            await asyncio.to_thread(self.store.register_artifact, run.id, kind, path, run_tag=tag)
+                await asyncio.to_thread(self.store.emit, run.id, event_type, payload)
 
-            tools = ToolRunner(self.store.work_dir(run.id), run_id=run.id, event_callback=publish)
+            work_dir = await asyncio.to_thread(self.store.work_dir, run.id)
+            if self.stop_event.is_set():
+                await asyncio.to_thread(self.store.fail, run.id, "Worker stopped before execution")
+                return
+            tools = ToolRunner(work_dir, run_id=run.id, event_callback=publish)
 
             async def package(best_run_tag: str) -> Path:
                 if orchestrator.design_spec is None:
                     raise ValueError("A validated design spec is required for packaging")
                 path = await package_design(tools, best_run_tag, orchestrator.design_spec)
-                self.store.register_artifact(run.id, "bundle", path)
+                await asyncio.to_thread(self.store.register_artifact, run.id, "bundle", path)
                 return path
 
             factory = self.orchestrator_factory
@@ -100,25 +117,25 @@ class Worker:
 
             async def watch_cancellation() -> None:
                 while self.current_task and not self.current_task.done():
-                    if self.store.cancel_requested(run.id):
+                    if await asyncio.to_thread(self.store.cancel_requested, run.id):
                         self.current_task.cancel()
                         return
                     await asyncio.sleep(self.poll_interval)
 
             monitor = asyncio.create_task(watch_cancellation())
             outcome = await self.current_task
-            if self.store.cancel_requested(run.id):
-                self.store.fail(run.id, "Run cancelled by the user", status="cancelled")
+            if await asyncio.to_thread(self.store.cancel_requested, run.id):
+                await asyncio.to_thread(self.store.fail, run.id, "Run cancelled by the user", status="cancelled")
             else:
-                self.store.finish(run.id, outcome)
+                await asyncio.to_thread(self.store.finish, run.id, outcome)
         except asyncio.CancelledError:
-            cancelled = self.store.cancel_requested(run.id)
-            self.store.fail(run.id, "Run cancelled by the user" if cancelled else "Worker stopped during the run", status="cancelled" if cancelled else "failed")
+            cancelled = await asyncio.to_thread(self.store.cancel_requested, run.id)
+            await asyncio.to_thread(self.store.fail, run.id, "Run cancelled by the user" if cancelled else "Worker stopped during the run", status="cancelled" if cancelled else "failed")
         except Exception as error:
             # Provider errors already exclude credentials; unexpected exceptions expose only their class.
             detail = str(error) if isinstance(error, LLMError) else f"Worker failed ({type(error).__name__})"
             logger.error("run_failed run_id=%s error_type=%s", run.id, type(error).__name__)
-            self.store.fail(run.id, detail)
+            await asyncio.to_thread(self.store.fail, run.id, detail)
         finally:
             if monitor:
                 monitor.cancel()
@@ -135,7 +152,7 @@ class Worker:
                     logger.error("provider_close_failed run_id=%s", run.id)
 
 
-async def _serve(store: RunStore) -> None:
+async def _serve(store: WorkerStore) -> None:
     worker = Worker(store)
     loop = asyncio.get_running_loop()
     for signum in (signal.SIGTERM, signal.SIGINT):
@@ -151,7 +168,8 @@ def main() -> int:
     root = options.runs_dir.resolve()
     root.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
-    from app.storage import RunStore
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    from app.remote_store import HTTPRunStore
 
     with (root / "worker.lock").open("a") as lock:
         try:
@@ -159,7 +177,11 @@ def main() -> int:
         except BlockingIOError:
             print("A Silicon Agent worker already owns this run directory.")
             return 2
-        asyncio.run(_serve(RunStore(root)))
+        store = HTTPRunStore(root)
+        try:
+            asyncio.run(_serve(store))
+        finally:
+            store.close()
     return 0
 
 
