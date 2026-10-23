@@ -17,6 +17,7 @@ def main() -> None:
     parser.add_argument("run_id")
     parser.add_argument("--api", default="http://localhost:8000")
     parser.add_argument("--min-flow-points", type=int, default=2)
+    parser.add_argument("--require-parallel", type=int, default=0, choices=range(4))
     args = parser.parse_args()
     assert re.fullmatch(r"[0-9a-f]{32}", args.run_id), "Invalid run ID"
     assert args.min_flow_points >= 1, "Require at least one measured flow"
@@ -35,6 +36,25 @@ def main() -> None:
     indexes = [metric["flow_index"] for metric in metrics]
     assert indexes == sorted(set(indexes)) and min(indexes) >= 1, "Invalid flow attempt order"
     best = next(metric for metric in metrics if metric["run_tag"] == run["best_run_tag"])
+    requested_clock = run["design_spec"]["targets"].get("clock_mhz")
+    def score(metric):
+        timing = metric["wns_ns"] >= 0 and (requested_clock is None or metric["clock_mhz"] >= requested_clock)
+        return (not timing, metric["area_um2"], metric["power_mw"])
+    assert score(best) == min(map(score, metrics)), "Selected flow does not match timing/area/power ranking"
+    parallel = 0
+    if args.require_parallel:
+        events = [json.loads(line[6:]) for line in fetch("/events", 8 * 1024 * 1024).decode().splitlines() if line.startswith("data: ")]
+        active = set()
+        for event in events:
+            payload = event["payload"]
+            if payload.get("tool") != "run_flow":
+                continue
+            if event["type"] == "tool_started":
+                active.add(payload["tool_call_id"])
+                parallel = max(parallel, len(active))
+            elif event["type"] == "tool_finished":
+                active.discard(payload["tool_call_id"])
+        assert not active and args.require_parallel <= parallel <= 3, "Parallel flow evidence does not satisfy the requested bound"
     assert best["drc_ok"] is True and best["lvs_ok"] is True, "Best block signoff is not clean"
     image = fetch(f"/layout/{run['best_run_tag']}.png", 16 * 1024 * 1024)
     assert image[:8] == b"\x89PNG\r\n\x1a\n" and image[12:16] == b"IHDR", "Layout is not PNG"
@@ -57,9 +77,10 @@ def main() -> None:
     report = {
         "run_id": run["id"], "status": "passed", "provider": run["llm_provider"],
         "call_count": run["call_count"], "input_tokens": run["input_tokens"], "output_tokens": run["output_tokens"],
-        "cost_usd": run["cost_usd"], "flow_points": len(metrics), "best": best,
+        "cost_usd": run["cost_usd"], "flow_points": len(metrics), "best": best, "metrics": metrics,
         "layout_dimensions": dimensions, "layout_sha256": hashlib.sha256(image).hexdigest(),
         "bundle_sha256": hashlib.sha256(bundle).hexdigest(), "tiny_tapeout_ready": False,
+        "max_overlapping_flow_calls": parallel if args.require_parallel else None,
     }
     root = Path(__file__).resolve().parents[1] / "runs" / args.run_id
     root.mkdir(parents=True, exist_ok=True)
@@ -67,6 +88,8 @@ def main() -> None:
     print(f"PASS: live {run['llm_provider']} run {args.run_id}; {len(metrics)} real flow points")
     print(f"PASS: block DRC/LVS clean; {dimensions[0]}x{dimensions[1]} PNG downloaded")
     print("PASS: selected GDS/LEF/source/tests bundle matches spec, metrics, and all manifest hashes")
+    if args.require_parallel:
+        print(f"PASS: {parallel} overlapping recorded flow calls; selected result follows timing/area/power ranking")
     print(f"Usage: {run['call_count']} calls; {run['input_tokens']} input / {run['output_tokens']} output tokens; USD={run['cost_usd']}")
 
 

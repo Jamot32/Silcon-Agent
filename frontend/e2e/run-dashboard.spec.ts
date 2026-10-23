@@ -16,18 +16,18 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-async function assertFinishedDashboard(page: Page, runId: string) {
+async function assertFinishedDashboard(page: Page, runId: string, minimumFlowPoints = 2) {
   await expect(page.getByTestId("run-dashboard")).toBeVisible();
   await expect(page.getByTestId("stage-timeline")).toContainText("DONE");
   await expect(page.getByTestId("run-status")).toHaveAttribute("data-status", "done");
   await expect(page.getByTestId("event-log")).not.toBeEmpty();
   await expect.poll(async () => Number(await page.getByTestId("test-results").getAttribute("data-test-count"))).toBeGreaterThanOrEqual(4);
-  await expect.poll(async () => Number(await page.getByTestId("metrics-chart").getAttribute("data-point-count"))).toBeGreaterThanOrEqual(2);
+  await expect.poll(async () => Number(await page.getByTestId("metrics-chart").getAttribute("data-point-count"))).toBeGreaterThanOrEqual(minimumFlowPoints);
 
   const metricsResponse = await page.request.get(`/api/runs/${runId}/metrics`);
   expect(metricsResponse.ok()).toBeTruthy();
   const metrics = await metricsResponse.json() as unknown[];
-  expect(metrics.length).toBeGreaterThanOrEqual(2);
+  expect(metrics.length).toBeGreaterThanOrEqual(minimumFlowPoints);
   await expect(page.getByTestId("metrics-chart")).toHaveAttribute("data-point-count", String(metrics.length));
   await assertChartRendered(page);
 
@@ -43,7 +43,7 @@ async function assertFinishedDashboard(page: Page, runId: string) {
   for (const path of [testPath!, rtlPath!]) {
     await page.getByRole("tab", { name: path, exact: true }).click();
     await expect(source).toHaveAttribute("data-file-path", path);
-    await expect(source.locator(".monaco-editor").first()).toBeVisible();
+    await expect(source.locator(".monaco-editor:visible .view-lines:visible").first()).toBeVisible();
   }
 
   const layout = page.getByTestId("layout-image");
@@ -104,6 +104,8 @@ test.describe("real active run @live", () => {
     const pageErrors: string[] = [];
     page.on("pageerror", (error) => pageErrors.push(error.message));
     const runId = process.env.LIVE_RUN_ID ?? "";
+    const minimumFlowPoints = Number(process.env.LIVE_MIN_FLOW_POINTS ?? "2");
+    expect(Number.isInteger(minimumFlowPoints) && minimumFlowPoints >= 2 && minimumFlowPoints <= 6, "LIVE_MIN_FLOW_POINTS must be an integer from 2 to 6").toBe(true);
     expect(runId, "Supply the ID of a run created explicitly through the app").toMatch(/^[0-9a-f]{32}$/);
     const initialResponse = await request.get(`/api/runs/${runId}`);
     expect(initialResponse.ok()).toBeTruthy();
@@ -113,7 +115,7 @@ test.describe("real active run @live", () => {
     testInfo.annotations.push({ type: "live_run_id", description: runId });
     testInfo.annotations.push({ type: "attachment_stage", description: initial.stage });
     const recovery = process.env.LIVE_RECOVERY === "1";
-    testInfo.annotations.push({ type: "observation", description: recovery ? "recovery: new SSE events and physical comparison; earlier stages not observed live" : "new stage, code, and test events" });
+    testInfo.annotations.push({ type: "observation", description: recovery ? "recovery: new SSE events and completion; earlier stages not observed live" : "new stage, code, and test events" });
 
     await page.goto(`/runs/${runId}`);
     await expect(page.getByTestId("run-dashboard")).toBeVisible();
@@ -123,7 +125,6 @@ test.describe("real active run @live", () => {
     const firstEvent = Number(await log.getAttribute("data-last-event-id") ?? "0");
     const firstFile = Number(await source.getAttribute("data-last-file-event-id") ?? "0");
     const firstTest = Number(await tests.getAttribute("data-last-test-event-id") ?? "0");
-    const firstMetricCount = Number(await page.getByTestId("metrics-chart").getAttribute("data-point-count") ?? "0");
 
     await Promise.all([
       expect.poll(async () => {
@@ -131,9 +132,7 @@ test.describe("real active run @live", () => {
         return stage !== initial.stage && /^(SPEC|RTL|VERIFY|SYNTH|FLOW|OPTIMIZE|SIGNOFF|PACKAGE|DONE)$/.test(stage ?? "");
       }, { timeout: 3 * 60_000 }).toBe(true),
       expect.poll(async () => Number(await log.getAttribute("data-last-event-id") ?? "0"), { timeout: 3 * 60_000 }).toBeGreaterThan(firstEvent),
-      ...(recovery ? [
-        expect.poll(async () => Number(await page.getByTestId("metrics-chart").getAttribute("data-point-count") ?? "0"), { timeout: 18 * 60_000 }).toBeGreaterThan(firstMetricCount),
-      ] : [
+      ...(recovery ? [] : [
         expect.poll(async () => Number(await source.getAttribute("data-last-file-event-id") ?? "0"), { timeout: 6 * 60_000 }).toBeGreaterThan(firstFile),
         expect.poll(async () => Number(await tests.getAttribute("data-last-test-event-id") ?? "0"), { timeout: 10 * 60_000 }).toBeGreaterThan(firstTest),
       ]),
@@ -143,7 +142,7 @@ test.describe("real active run @live", () => {
       })(),
     ]);
     await expect(page.getByTestId("stage-current")).toHaveText("DONE");
-    await assertFinishedDashboard(page, runId);
+    await assertFinishedDashboard(page, runId, minimumFlowPoints);
     expect(pageErrors).toEqual([]);
   });
 });

@@ -12,6 +12,7 @@ import { AgentLog } from "./agent-log";
 import { SourcePanel } from "./source-panel";
 import { RunInspection } from "./run-inspection";
 import { LayoutViewer } from "./layout-viewer";
+import { FlowComparison } from "./flow-comparison";
 import { elapsed, number, title } from "./format";
 
 export function RunDashboard({ id }: { id: string }) {
@@ -27,7 +28,7 @@ export function RunDashboard({ id }: { id: string }) {
   }, [active]);
   if (!run) return <div className="dashboard-loading" role="status"><h1>{loading ? "Opening the lab…" : "Run unavailable."}</h1><p>{error ?? "Loading the recorded state and event stream."}</p><Link href="/runs" className="text-link">Return to run history →</Link></div>;
   const ended = events.findLast((event) => event.type === "run_finished")?.ts ?? now;
-  const name = run.preset_id ? title(run.preset_id === "uart_tx" ? "UART TX" : run.preset_id) : "Chip design";
+  const name = run.preset_id ? title(run.preset_id) : "Chip design";
   const top = typeof run.design_spec?.top_module === "string" ? run.design_spec.top_module : null;
   async function stop() {
     setCancelling(true);
@@ -45,6 +46,7 @@ export function RunDashboard({ id }: { id: string }) {
     {error || run.error || cancelError ? <div className="run-error" role="alert">{cancelError || run.error || error}</div> : null}
     <div className="dashboard-grid"><AgentLog events={events} /><SourcePanel files={files} diffs={latestDiffs} /><RunInspection tests={testResults} metrics={metrics} bestTag={run.best_run_tag} targetClock={run.design_spec?.targets.clock_mhz ?? run.targets.clock_mhz} /></div>
     <LayoutViewer key={latestLayout?.run_tag ?? "waiting"} layout={latestLayout} metrics={metrics} runId={run.id} />
+    <FlowComparison metrics={metrics} bestTag={run.best_run_tag} />
     <p className="integration-note">{run.tapeout_ready ? "Block signoff complete." : "Tiny Tapeout wrapper and shuttle integration require separate verification."}</p>
   </div>;
 }

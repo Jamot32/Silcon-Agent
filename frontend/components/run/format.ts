@@ -10,6 +10,7 @@ export function elapsed(start: string, end: string | number): string {
 }
 
 export function title(value: string): string {
+  if (value === "uart" || value === "uart_tx") return "UART TX";
   return value.replaceAll("_", " ").replace(/^\w/, (letter) => letter.toUpperCase());
 }
 

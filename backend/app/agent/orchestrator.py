@@ -108,7 +108,7 @@ class Orchestrator:
                     return files
         return files
 
-    def _context(self, stage: str) -> list[Message]:
+    def _context(self, stage: str, *, first_optimization_round: bool = False) -> list[Message]:
         files = self._files(stage) if stage != "SPEC" else []
         results = self.last_results[-4:]
         if stage == "VERIFY":
@@ -117,7 +117,7 @@ class Orchestrator:
             stage, spec=self.design_spec, spec_text=self.spec_text,
             budget={"fix_loops": 5 - self.fix_loops, "flow_runs": 6 - self.tools.flow_runs},
             summaries=self.memory.context(verify=stage == "VERIFY"),
-            last_results=results, files=files,
+            last_results=results, files=files, first_optimization_round=first_optimization_round,
         )
         return [Message(role="system", content=SYSTEM_PROMPT), Message(role="user", content=prompt),
                 *[Message(role="user", content=f"Current file {file['path']}:\n{file['content']}") for file in files]]
@@ -341,8 +341,8 @@ class Orchestrator:
         if rendered.get("ok") is not True or not rendered.get("image_url"):
             raise LLMError("The real layout could not be rendered")
 
-    async def _optimize_round(self) -> str:
-        messages = self._context("OPTIMIZE")
+    async def _optimize_round(self, *, first_round: bool = False) -> str:
+        messages = self._context("OPTIMIZE", first_optimization_round=first_round)
         for _ in range(6):
             completion = await self._ask(messages, _ALLOWED["OPTIMIZE"])
             messages.append(Message(role="assistant", content=completion.content, tool_calls=completion.tool_calls))
@@ -405,12 +405,12 @@ class Orchestrator:
     async def _optimize(self, *, previous_ok: bool) -> None:
         assert self.design_spec is not None
         stagnant = 0
-        for _ in range(6):
+        for round_index in range(6):
             if self.tools.flow_runs >= 6:
                 break
             before = score_metric(self.best, self.design_spec.targets) if self.best else None
             await self._stage("OPTIMIZE", previous_ok=previous_ok)
-            await self._optimize_round()
+            await self._optimize_round(first_round=round_index == 0)
             await self._remember("OPTIMIZE")
             previous_ok = True
             improved = self.best is not None and (before is None or score_metric(self.best, self.design_spec.targets) < before)

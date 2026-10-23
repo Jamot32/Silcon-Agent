@@ -1,6 +1,7 @@
 """Controller unit doubles consume recorded tool evidence; no live model/EDA calls."""
 
 import asyncio
+from itertools import count
 import json
 import re
 import shutil
@@ -11,6 +12,7 @@ from zipfile import ZipFile
 import pytest
 
 from app.agent.orchestrator import Orchestrator, meets_timing, score_metric
+from app.agent.prompts import stage_prompt
 from app.agent.tools import ToolRunner
 from app.eda.parsers import parse_librelane_metrics
 from app.eda.service import EDA
@@ -25,6 +27,7 @@ FLOW = FIXTURES / "golden_counter"
 BUG = FIXTURES / "counter_increment_bug"
 GOLDEN = Path(__file__).resolve().parents[2] / "designs/golden/counter"
 SUMMARY = "Requirements preserved.\nUsed recorded tool evidence.\nMeasurements remain unchanged.\nNo additional claim.\nContinue to the next check."
+CALL_IDS = count(1)
 
 
 def spec_data():
@@ -41,7 +44,7 @@ def spec_data():
 
 
 def call(name, **arguments):
-    return ToolCall(id=f"script-{name}", name=name, arguments=arguments)
+    return ToolCall(id=f"script-{name}-{next(CALL_IDS)}", name=name, arguments=arguments)
 
 
 def response(*calls, content=None):
@@ -193,6 +196,58 @@ def test_scripted_spec_to_done_uses_real_fail_fix_evidence_and_real_bundle(tmp_p
     assert len(verify_requests) == 2
     assert all({tool.name for tool in definitions} == {"write_file", "read_file", "run_tests", "record_note"}
                for _, definitions in verify_requests)
+
+
+def test_first_optimization_round_runs_three_parallel_configuration_variants(tmp_path):
+    script = full_script()
+    script[12] = response(call("record_note", text="Compare area synthesis, lower placement density, and delay synthesis at the requested clock."))
+    overrides = [
+        {"CLOCK_PERIOD": 20.0, "SYNTH_STRATEGY": "AREA 1"},
+        {"CLOCK_PERIOD": 20.0, "PL_TARGET_DENSITY_PCT": 35},
+        {"CLOCK_PERIOD": 20.0, "SYNTH_STRATEGY": "DELAY 1", "FP_CORE_UTIL": 35},
+    ]
+    script[13] = response(*(call("run_flow", top="counter", config_overrides=variant) for variant in overrides))
+    orchestrator, llm, eda, events = build_run(tmp_path, script)
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "done", outcome.error
+    assert eda.flow_overrides == [{"CLOCK_PERIOD": 20.0}, *overrides]
+    assert orchestrator.tools.flow_runs == 4 and len(orchestrator.candidates) == 4
+    assert (orchestrator.tools.work_dir / "src/counter.v").read_bytes() == (GOLDEN / "src/counter.v").read_bytes()
+    assert (orchestrator.tools.work_dir / "test/test_counter.py").read_bytes() == (GOLDEN / "test/test_counter.py").read_bytes()
+    flow_events = [(index, kind, payload) for index, (kind, payload) in enumerate(events)
+                   if kind in {"tool_started", "tool_finished"} and payload.get("tool") == "run_flow"]
+    # RecordedEDA yields inside each call, so a sequential executor would put
+    # finish before the next start. All three comparison starts must come first.
+    assert [kind for _, kind, _ in flow_events] == ["tool_started", "tool_finished", *(["tool_started"] * 3), *(["tool_finished"] * 3)]
+    started_ids = [payload["tool_call_id"] for _, kind, payload in flow_events if kind == "tool_started"]
+    assert len(set(started_ids)) == 4
+    active = set()
+    peak = 0
+    for _, kind, payload in flow_events:
+        if kind == "tool_started":
+            active.add(payload["tool_call_id"])
+            peak = max(peak, len(active))
+        else:
+            active.remove(payload["tool_call_id"])
+    assert peak == 3 and not active
+    assert [payload["flow_index"] for kind, payload in events if kind == "metric_recorded"] == [1, 2, 3, 4]
+    optimization = next(json.loads(messages[1].content) for messages, definitions in llm.requests
+                        if "run_flow" in {tool.name for tool in definitions})
+    assert optimization["remaining_budget"]["flow_runs"] == 5
+    assert "exactly three run_flow" in optimization["first_round_plan"]
+    assert "record_note once" in optimization["first_round_plan"]
+    assert "CLOCK_PERIOD=20 ns" in optimization["first_round_plan"]
+    assert outcome.best_run_tag == "recorded_1"  # Equal recorded metrics do not prove improvement.
+
+
+@pytest.mark.parametrize("first_round,remaining", [(False, 5), (True, 2), (True, 0)])
+def test_three_variant_prompt_does_not_exceed_remaining_budget(first_round, remaining):
+    prompt = json.loads(stage_prompt(
+        "OPTIMIZE", spec=DesignSpec.model_validate(spec_data()), spec_text="Counter",
+        budget={"flow_runs": remaining}, summaries={}, last_results=[], files=[],
+        first_optimization_round=first_round,
+    ))
+    assert "first_round_plan" not in prompt
 
 
 def test_failed_comparisons_keep_and_package_actual_initial_best(tmp_path):

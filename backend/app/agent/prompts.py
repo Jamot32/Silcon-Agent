@@ -38,6 +38,7 @@ def stage_prompt(
     stage: str, *, spec: DesignSpec | None, spec_text: str,
     budget: dict[str, JsonValue], summaries: dict[str, str],
     last_results: list[dict[str, JsonValue]], files: list[dict[str, str]],
+    first_optimization_round: bool = False,
 ) -> str:
     context = {
         "stage": stage, "goal": STAGE_GOALS[stage],
@@ -45,6 +46,25 @@ def stage_prompt(
         "remaining_budget": budget, "stage_summaries": summaries,
         "last_tool_results": last_results, "current_files": [file["path"] for file in files],
     }
+    remaining_flows = budget.get("flow_runs")
+    if stage == "OPTIMIZE" and first_optimization_round and isinstance(remaining_flows, int) and remaining_flows >= 3:
+        clock = spec.targets.get("clock_mhz") if spec else None
+        clock_instruction = (
+            f"Include CLOCK_PERIOD={1000 / float(clock):g} ns in all three variants to preserve the requested {float(clock):g} MHz. "
+            if clock is not None else "Keep the initial clock target unchanged; do not override CLOCK_PERIOD. "
+        )
+        context["first_round_plan"] = (
+            "Before any RTL edits, compare three distinct configuration-only variants of the verified RTL. "
+            "First call record_note once with a short rationale naming all three variants. "
+            "Then, in your next response, propose exactly three run_flow calls as one pure batch with no other tools. "
+            + clock_instruction
+            + "Only CLOCK_PERIOD, SYNTH_STRATEGY, FP_CORE_UTIL, PL_TARGET_DENSITY_PCT, and DIE_AREA may be overridden. "
+            "Prefer exploring synthesis strategy and placement density; include at least one SYNTH_STRATEGY change "
+            "and one PL_TARGET_DENSITY_PCT change across the batch. Strategies are AREA 0..3 or DELAY 0..4. "
+            "Do not change source, tests, or config.json before this batch. Each attempt consumes one flow slot; "
+            "failed attempts remain failures and must never be assigned invented metrics. "
+            "The backend ranks actual results by meeting requested timing, then area, then power."
+        )
     if stage == "SPEC":
         context.update(spec_text=spec_text, output_schema=DesignSpec.model_json_schema())
     return json.dumps(context, ensure_ascii=False, separators=(",", ":"))

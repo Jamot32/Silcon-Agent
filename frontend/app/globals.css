@@ -271,3 +271,12 @@ body:has(.run-dashboard) .site-footer div { max-width: 1920px; padding: 10px 1.4
 @media (min-width: 1750px) { .dashboard-grid { height: 470px; } .metrics-chart { height: 150px; } .layout-canvas { height: 300px; } }
 @media (max-width: 1150px) { .dashboard-grid { height: auto; } .metrics-chart { height: 220px; min-height: 220px; } }
 @media (max-width: 700px) { .main-content:has(.run-dashboard) { padding-top: 20px; } .run-state-row { min-height: 28px; } .stage-timeline { min-height: 70px; margin-top: 6px; margin-bottom: 12px; padding: 15px 6px 8px; } .metrics-chart { height: 200px; min-height: 200px; flex: 0 0 auto; } .chart-section { flex: none; min-height: 0; } .layout-canvas { height: 290px; } }
+
+.flow-comparison { margin-top: 12px; padding: 0 16px 12px; }
+.flow-comparison .instrument-header { border: 0; padding-inline: 0; }
+.flow-comparison .metric-table th, .flow-comparison .metric-table td { padding: 8px 12px; }
+.flow-comparison .metric-table td:first-child > span { display: inline-block; min-width: 55px; }
+.flow-comparison .metric-table small { color: #829bac; margin-left: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; }
+.flow-comparison tr[data-selected="true"] { background: #11282d; }
+.flow-comparison > p { color: #8198a9; font-size: 10px; margin: 8px 0 0; }
+@media (max-width: 700px) { .flow-comparison { padding-inline: 12px; } .flow-comparison .instrument-header { flex-wrap: wrap; height: auto; min-height: 44px; padding-block: 10px; } .flow-comparison .metric-table th, .flow-comparison .metric-table td { padding: 7px 9px; } .flow-comparison .metric-table small { display: block; margin: 4px 0 0; } }
