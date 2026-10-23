@@ -1,0 +1,10 @@
+.git
+.env
+.venv
+**/node_modules
+**/.next
+**/__pycache__
+runs
+.pdk
+.cache
+.artifacts

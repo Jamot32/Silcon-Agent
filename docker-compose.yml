@@ -1,0 +1,41 @@
+name: silicon-agent
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    user: "${SILICON_UID:-1000}:${SILICON_GID:-1000}"
+    environment:
+      DATABASE_URL: sqlite:////data/silicon-agent.db
+      RUNS_DIR: /data
+      META_API_KEY: ${META_API_KEY:-}
+      META_BASE_URL: ${META_BASE_URL:-https://api.meta.ai/v1}
+      META_MODEL: ${META_MODEL:-muse-spark-1.3}
+      META_REASONING_EFFORT: ${META_REASONING_EFFORT:-medium}
+      RUN_BUDGET_USD: ${RUN_BUDGET_USD:-2}
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./runs:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+  web:
+    build:
+      context: ./frontend
+      target: development
+    environment:
+      API_INTERNAL_URL: http://api:8000
+      NEXT_TELEMETRY_DISABLED: "1"
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy

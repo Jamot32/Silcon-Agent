@@ -1,0 +1,7 @@
+[
+  {"id":"counter","name":"Counter","spec_text":"An 8-bit up/down counter with enable, synchronous load, and synchronous active-low reset. Load takes priority over enable. Wrap on overflow and underflow."},
+  {"id":"pwm","name":"PWM","spec_text":"An 8-bit PWM generator with duty-cycle input, configurable period, and synchronous active-low reset. The output is high while the counter is below the duty cycle."},
+  {"id":"uart","name":"UART TX","spec_text":"A UART transmitter using 8N1 framing, an 8-bit data input, a start input, a busy output, and a baud divider parameter. Use synchronous active-low reset and idle high."},
+  {"id":"alu","name":"4-bit ALU","spec_text":"A combinational 4-bit ALU supporting add, subtract, AND, OR, XOR, and logical shifts with zero and carry flags. Define carry on addition and no-borrow on subtraction."},
+  {"id":"traffic","name":"Traffic light","spec_text":"A traffic-light controller FSM with a pedestrian request button, safe red/yellow/green sequencing, a synchronous active-low reset, and a pedestrian walk output."}
+]
