@@ -88,9 +88,9 @@ export function NewDesign() {
   const valid = spec.trim().length >= 10 && Number(clock) >= 1 && Number(clock) <= 1000;
   const checks = [
     { name: "API", label: apiState, detail: apiState === "Ready" ? "Backend API is reachable." : undefined, ready: apiState === "Ready" },
-    { name: "Database", label: checkLabel(health?.checks.database, "Checking"), detail: health?.checks.database.detail, ready: health?.checks.database.status === "ok" },
-    { name: "EDA", label: checkLabel(health?.checks.eda, "Not verified"), detail: health?.checks.eda.detail, ready: health?.checks.eda.status === "ok" },
-    { name: health?.llm_provider === "codex" ? "Codex" : "Meta", label: checkLabel(health?.checks.llm, "Checking"), detail: health?.checks.llm.detail, ready: health?.checks.llm.status === "ok" },
+    { name: "Database", label: checkLabel(health?.checks.database, apiState === "Unavailable" ? "Unavailable" : "Checking"), detail: health?.checks.database.detail, ready: health?.checks.database.status === "ok" },
+    { name: "EDA", label: checkLabel(health?.checks.eda, apiState === "Unavailable" ? "Unavailable" : "Not verified"), detail: health?.checks.eda.detail, ready: health?.checks.eda.status === "ok" },
+    { name: health ? health.llm_provider === "codex" ? "Codex" : "Meta" : "Model", label: checkLabel(health?.checks.llm, apiState === "Unavailable" ? "Unavailable" : "Checking"), detail: health?.checks.llm.detail, ready: health?.checks.llm.status === "ok" },
   ];
 
   return (

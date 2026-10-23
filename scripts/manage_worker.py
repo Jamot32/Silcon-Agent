@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Start or stop only this repository's detached host worker process group."""
 
+from __future__ import annotations
+
 import argparse
 import fcntl
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import signal
 import subprocess
@@ -13,6 +16,7 @@ import time
 from uuid import uuid4
 
 ROOT = Path(__file__).resolve().parents[1]
+STOP_GRACE_SECONDS = 40
 
 
 def _owned(metadata: dict, root: Path) -> bool:
@@ -35,6 +39,40 @@ def _metadata(root: Path) -> dict:
         return value if isinstance(value, dict) else {}
     except (OSError, ValueError):
         return {}
+
+
+def _worker_pid(metadata: dict, root: Path) -> int | None:
+    """Find only the verified Python worker, leaving uv and tool CLIs alone."""
+    if not _owned(metadata, root):
+        return None
+    leader = metadata["pid"]
+    try:
+        table = subprocess.run(["ps", "-axo", "pid=,ppid="], capture_output=True, text=True, timeout=3)
+        children = []
+        for line in table.stdout.splitlines():
+            parts = line.split()
+            if len(parts) == 2 and parts[1] == str(leader):
+                children.append(int(parts[0]))
+        matches = []
+        for pid in [leader, *children]:
+            if os.getpgid(pid) != leader:
+                continue
+            # On macOS comm is truncated when followed by another column. Read
+            # it separately so both BSD and GNU ps return the whole executable.
+            executable = subprocess.run(["ps", "-p", str(pid), "-o", "comm="], capture_output=True, text=True, timeout=3).stdout.strip()
+            result = subprocess.run(["ps", "-p", str(pid), "-o", "uid=,command="], capture_output=True, text=True, timeout=3)
+            parts = result.stdout.strip().split(maxsplit=1)
+            if len(parts) != 2:
+                continue
+            uid, command = parts
+            if (uid == str(os.getuid()) and Path(executable).name.lower().startswith("python")
+                    and re.search(r"(?:^|\s)-m\s+app\.worker(?:\s|$)", command)
+                    and re.search(r"--owner-token\s+" + re.escape(metadata["token"]) + r"(?:\s|$)", command)
+                    and str(root) in command):
+                matches.append(pid)
+        return matches[0] if len(matches) == 1 else None
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        return None
 
 
 def start(root: Path) -> int:
@@ -69,8 +107,17 @@ def stop(root: Path) -> int:
         print("No owned host worker is running.")
         return 0
     pid = metadata["pid"]
-    os.killpg(pid, signal.SIGTERM)
-    deadline = time.monotonic() + 20
+    target = _worker_pid(metadata, root)
+    if target is None:
+        print("Could not verify the owned Python worker; no process was signalled.")
+        return 2
+    try:
+        os.kill(target, signal.SIGTERM)
+    except ProcessLookupError:
+        pass
+    # Allow bounded worker RPC settlement (5s), EDA removal (10s), and the
+    # terminal write to finish before the process-group fallback is necessary.
+    deadline = time.monotonic() + STOP_GRACE_SECONDS
     while _owned(metadata, root) and time.monotonic() < deadline:
         time.sleep(0.1)
     if _owned(metadata, root):

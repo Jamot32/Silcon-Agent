@@ -6,7 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import create_engine
 
-from app import main
+from app import main, worker_api
 
 TOKEN = "unit-worker-token-" + "a" * 32
 AUTH = {"Authorization": f"Bearer {TOKEN}"}
@@ -28,6 +28,30 @@ def test_private_control_requires_credential_and_never_returns_it(client):
     assert client.post(f"{BASE}/claim", headers=AUTH).json() is None
     assert TOKEN not in client.get("/api/health").text
     assert "/api/internal" not in client.get("/openapi.json").text
+
+
+def test_worker_health_requires_recent_authenticated_contact_without_paid_checks(client, monkeypatch):
+    clock = [100.0]
+    monkeypatch.setattr(worker_api, "monotonic", lambda: clock[0])
+    monkeypatch.setattr(main, "monotonic", lambda: clock[0])
+    monkeypatch.setattr(main, "eda_health", lambda: main.Check(status="ok", detail="Unit cached EDA check"))
+    monkeypatch.setattr(main, "llm_health", lambda: main.Check(status="ok", detail="Unit cached LLM check"))
+    health = client.get("/api/health").json()
+    assert health["milestone"] == "M11"
+    assert "worker_recovery" in health["capabilities"] and "recorded_replay" in health["capabilities"]
+    assert health["status"] == "degraded" and health["checks"]["worker"]["status"] == "not_verified"
+    assert client.get(f"{BASE}/heartbeat", headers={"Authorization": "Bearer wrong"}).status_code == 403
+    assert client.get("/api/health").json()["checks"]["worker"]["status"] == "not_verified"
+    assert client.get(f"{BASE}/heartbeat", headers=AUTH).json() == {}
+    assert client.get("/api/health").json()["status"] == "ok"
+    clock[0] += main.WORKER_HEARTBEAT_TTL + 1
+    assert client.get("/api/health").json()["checks"]["worker"]["status"] == "error"
+    assert client.get(f"{BASE}/heartbeat").status_code == 403
+    assert client.get("/api/health").json()["checks"]["worker"]["status"] == "error"
+    assert client.post(f"{BASE}/claim", headers=AUTH).json() is None
+    health = client.get("/api/health")
+    assert health.json()["checks"]["worker"]["status"] == "ok"
+    assert TOKEN not in health.text
 
 
 def test_http_worker_claim_event_cancel_and_terminal_state(client, tmp_path):

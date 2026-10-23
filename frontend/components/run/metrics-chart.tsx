@@ -4,7 +4,7 @@ import { Area, CartesianGrid, ComposedChart, LabelList, Line, ReferenceLine, Res
 import type { Metric } from "@/lib/api";
 import { number } from "./format";
 
-export default function MetricsChart({ metrics }: { metrics: Metric[] }) {
+export default function MetricsChart({ metrics, finished = false }: { metrics: Metric[]; finished?: boolean }) {
   const areaMax = Math.max(1, ...metrics.map((metric) => metric.area_um2 ?? 0));
   const slack = metrics.flatMap((metric) => metric.wns_ns == null ? [] : [metric.wns_ns]);
   const slackMin = Math.min(-1, ...slack);
@@ -23,6 +23,6 @@ export default function MetricsChart({ metrics }: { metrics: Metric[] }) {
         </Area>
         <Line yAxisId="slack" type="linear" dataKey="wns_ns" name="WNS (ns)" stroke="#C3CCD4" strokeWidth={2} dot={{ r: 3, fill: "#C3CCD4", strokeWidth: 0 }} isAnimationActive={false} connectNulls={false} />
       </ComposedChart>
-    </ResponsiveContainer> : <p className="panel-empty">Physical metrics appear after the first flow completes.</p>}
+    </ResponsiveContainer> : <p className="panel-empty">{finished ? "No physical metrics were recorded before this run ended." : "Physical metrics appear after the first flow completes."}</p>}
   </div>;
 }

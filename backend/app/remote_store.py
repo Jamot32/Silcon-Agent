@@ -12,6 +12,7 @@ from app.models import Run
 from app.schemas import Outcome
 
 RUN_ID = re.compile(r"[0-9a-f]{32}\Z")
+RPC_TIMEOUT = 5
 
 
 class RemoteStoreError(RuntimeError):
@@ -34,7 +35,7 @@ class HTTPRunStore:
         self.base_url = str(url).rstrip("/")
         # Redirects and proxy environment variables must not forward the worker token.
         # The default transport makes one attempt; mutation retries are never added.
-        self.client = client if client is not None else httpx.Client(timeout=30, follow_redirects=False, trust_env=False)
+        self.client = client if client is not None else httpx.Client(timeout=RPC_TIMEOUT, follow_redirects=False, trust_env=False)
 
     @staticmethod
     def _id(run_id: str) -> str:
@@ -47,7 +48,9 @@ class HTTPRunStore:
             response = self.client.request(
                 method, f"{self.base_url}/api/internal/worker/{path}",
                 json=body, headers={"Authorization": f"Bearer {self.token}"},
-                timeout=30, follow_redirects=False,
+                # These local control-plane operations only update SQLite or
+                # register paths. Bound ambiguous requests and shutdown latency.
+                timeout=RPC_TIMEOUT, follow_redirects=False,
             )
             response.raise_for_status()
         except httpx.HTTPStatusError as error:
@@ -81,6 +84,9 @@ class HTTPRunStore:
 
     def recover_interrupted(self) -> None:
         self._request("POST", "recover", {})
+
+    def heartbeat(self) -> None:
+        self._request("GET", "heartbeat")
 
     def emit(self, run_id: str, event_type: str, payload: dict[str, JsonValue]) -> None:
         run_id = self._id(run_id)

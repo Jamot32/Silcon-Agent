@@ -3,6 +3,7 @@
 import os
 import secrets
 from pathlib import PurePosixPath
+from time import monotonic
 from typing import Literal
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
@@ -12,12 +13,13 @@ from app.models import Run
 from app.storage import RunStore
 
 
-def authorized(authorization: str | None = Header(default=None)) -> None:
+def authorized(request: Request, authorization: str | None = Header(default=None)) -> None:
     token = os.getenv("WORKER_TOKEN", "")
     if len(token) < 32:
         raise HTTPException(503, "Worker control is not configured; run make setup")
     if authorization is None or not secrets.compare_digest(authorization.encode(), f"Bearer {token}".encode()):
         raise HTTPException(403, "Worker authorization required")
+    request.app.state.worker_last_seen = monotonic()
 
 
 router = APIRouter(prefix="/api/internal/worker", dependencies=[Depends(authorized)], include_in_schema=False)
@@ -58,6 +60,11 @@ class Registration(_Body):
     kind: Literal["gds", "lef", "netlist", "metrics", "layout", "config", "bundle"]
     path: str = Field(min_length=1, max_length=2048)
     run_tag: str | None = Field(default=None, pattern=r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,95}$")
+
+
+@router.get("/heartbeat")
+def heartbeat():
+    return {}
 
 
 @router.post("/claim", response_model=Run | None)

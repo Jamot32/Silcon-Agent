@@ -1,0 +1,110 @@
+{
+  "design": "alu",
+  "top_module": "alu4",
+  "clock_port": null,
+  "check_started_at_utc": "2026-10-23T22:55:41.299578+00:00",
+  "argv": [
+    "python",
+    "scripts/check_golden.py",
+    "pwm",
+    "alu",
+    "traffic",
+    "--flow",
+    "--write-verification"
+  ],
+  "check_kind": "full_flow",
+  "is_model_run": false,
+  "status": "passed",
+  "source_sha256": {
+    "src/alu4.v": "15fc96ac70a2f4ad0d5601c2c587744fde5ad69dbd7350e29ef4e156f893ccc2",
+    "test/test_alu.py": "9528a7f817a4ea5c453b1ebdedfb2aab12dd41866695ead46ab565f3702667c7"
+  },
+  "reference_config_sha256": "8c19b1c25356efe6def6984f78cb5b9fb1f4ebd9f4fa4c78c7526826da981559",
+  "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+  "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+  "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+  "flow_overrides": {
+    "CLOCK_PERIOD": 20,
+    "DIE_AREA": [
+      0,
+      0,
+      100,
+      100
+    ],
+    "FP_CORE_UTIL": 40,
+    "PL_TARGET_DENSITY_PCT": 45
+  },
+  "artifacts": {
+    "gds": {
+      "path": "runs/golden-check/20261023T225505Z_8001460c/alu/work/.eda/flow_7b2e0ec1f0394334825281de17f0696e/output/runs/flow_ac1bf07397904bbd/final/gds/alu4.gds",
+      "bytes": 542498,
+      "sha256": "2c6f6450d05085674343743678419b7725850a128fd28dab9f7247f93dca3a16"
+    },
+    "lef": {
+      "path": "runs/golden-check/20261023T225505Z_8001460c/alu/work/.eda/flow_7b2e0ec1f0394334825281de17f0696e/output/runs/flow_ac1bf07397904bbd/final/lef/alu4.lef",
+      "bytes": 5329,
+      "sha256": "a6eaeab5c0caec1cc13faef6b9dc69176cebc43b07f067eb5180a60072d867b6"
+    },
+    "netlist": {
+      "path": "runs/golden-check/20261023T225505Z_8001460c/alu/work/.eda/flow_7b2e0ec1f0394334825281de17f0696e/output/runs/flow_ac1bf07397904bbd/final/nl/alu4.nl.v",
+      "bytes": 84575,
+      "sha256": "4c3762949599cf21ca8ac11f6d64381716c11214a66cc00a9faa9cf3bda10d0e"
+    },
+    "metrics": {
+      "path": "runs/golden-check/20261023T225505Z_8001460c/alu/work/.eda/flow_7b2e0ec1f0394334825281de17f0696e/output/runs/flow_ac1bf07397904bbd/final/metrics.json",
+      "bytes": 16342,
+      "sha256": "7e61f59d68653af1338ab0fabf9d799425b56d6e91e6aef1e02cd01ab9342bdd"
+    },
+    "layout": {
+      "path": "runs/golden-check/20261023T225505Z_8001460c/alu/work/.eda/flow_7b2e0ec1f0394334825281de17f0696e/output/runs/flow_ac1bf07397904bbd/final/render/alu4.png",
+      "bytes": 141725,
+      "sha256": "241911077fabfebfc46c4f15b9dca1c773c900b157a9f9c20054a0db70b54313"
+    },
+    "config": {
+      "path": "runs/golden-check/20261023T225505Z_8001460c/alu/work/.eda/flow_7b2e0ec1f0394334825281de17f0696e/output/runs/flow_ac1bf07397904bbd/resolved.json",
+      "bytes": 94249,
+      "sha256": "f1bf247f9b367f3fb874ba1825a4415a5939fa38b1e2f8328eef807c22328996"
+    }
+  },
+  "raw_evidence_dir": "runs/golden-check/20261023T225505Z_8001460c/alu",
+  "lint": {
+    "ok": true,
+    "warnings": [],
+    "errors": []
+  },
+  "tests": {
+    "ok": true,
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0
+  },
+  "synthesis": {
+    "ok": true,
+    "cell_count": 131,
+    "area_estimate": null
+  },
+  "metrics": {
+    "flow_index": 1,
+    "clock_mhz": 50.0,
+    "area_um2": 859.574,
+    "wns_ns": 0.0,
+    "tns_ns": 0.0,
+    "power_mw": 0.025701439881231636,
+    "cell_count": 173,
+    "drc_ok": true,
+    "lvs_ok": true
+  },
+  "run_tag": "flow_ac1bf07397904bbd",
+  "render": {
+    "ok": true,
+    "width": 1000,
+    "height": 1000
+  },
+  "limitations": [
+    "Generic synthesis reports no area estimate without a mapped library.",
+    "Full-flow clock_mhz is a configured timing constraint, not measured Fmax; combinational ALU has no clock port.",
+    "Power is flow-reported; no worst-corner or nominal-corner claim.",
+    "Standalone DRC/LVS does not establish Tiny Tapeout wrapper or shuttle readiness."
+  ],
+  "timing_constraint_source": "https://github.com/librelane/librelane/blob/3.0.16/librelane/scripts/base.sdc"
+}

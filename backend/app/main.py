@@ -4,6 +4,7 @@ import os
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
+from time import monotonic
 from typing import Literal
 
 from fastapi import FastAPI, Header, HTTPException, Query, Request
@@ -22,12 +23,16 @@ RUNS_DIR = Path(os.getenv("RUNS_DIR", "runs"))
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{RUNS_DIR}/silicon-agent.db")
 RECORDINGS_DIR = Path(os.getenv("RECORDINGS_DIR", "/demo_recordings"))
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+CURRENT_MILESTONE = "M11"
+WORKER_HEARTBEAT_TTL = 15
+CAPABILITIES = ["live_runs", "sse_resume", "real_eda_artifacts", "optimization", "bundle_download", "recorded_replay", "worker_recovery"]
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
     app.state.store = RunStore(RUNS_DIR, engine=engine)
+    app.state.worker_last_seen = None
     yield
 
 
@@ -45,6 +50,7 @@ class Health(BaseModel):
     milestone: str
     checks: dict[str, Check]
     llm_provider: str
+    capabilities: list[str]
 
 
 class Preset(BaseModel):
@@ -120,6 +126,16 @@ def eda_health() -> Check:
         return Check(status="error", detail="Golden-check cache is invalid or artifacts are missing; rerun make eda-check")
 
 
+def worker_health() -> Check:
+    last_seen = getattr(app.state, "worker_last_seen", None)
+    if last_seen is None:
+        return Check(status="not_verified", detail="No authenticated worker contact since API startup")
+    age = max(0, monotonic() - last_seen)
+    if age > WORKER_HEARTBEAT_TTL:
+        return Check(status="error", detail=f"Authenticated worker contact is stale ({age:.1f}s ago)")
+    return Check(status="ok", detail=f"Authenticated worker contact {age:.1f}s ago")
+
+
 @app.get("/api/health", response_model=Health)
 def health() -> Health:
     try:
@@ -133,8 +149,9 @@ def health() -> Health:
         "database": database,
         "eda": eda_health(),
         "llm": llm_health(),
+        "worker": worker_health(),
     }
-    return Health(status="ok" if all(check.status == "ok" for check in checks.values()) else "degraded", milestone="M3" if checks["llm"].status == "ok" else "M1" if checks["eda"].status == "ok" else "M0", checks=checks, llm_provider=os.getenv("LLM_PROVIDER", "codex"))
+    return Health(status="ok" if all(check.status == "ok" for check in checks.values()) else "degraded", milestone=CURRENT_MILESTONE, capabilities=CAPABILITIES, checks=checks, llm_provider=os.getenv("LLM_PROVIDER", "codex"))
 
 
 @app.get("/api/presets", response_model=list[Preset])

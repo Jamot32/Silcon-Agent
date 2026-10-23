@@ -2,7 +2,7 @@
 
 Describe a small digital chip. Follow the agent's Verilog, independent tests, synthesis, sky130 physical design, measured comparisons, and downloadable GDS bundle. Every displayed EDA result comes from a real tool run. Recorded playback always carries a **REPLAY** label.
 
-Requires Docker Desktop/Compose and [uv](https://docs.astral.sh/uv/). Node/npm is also required for browser tests. Start the app with two commands:
+Requires Docker Desktop/Compose and [uv](https://docs.astral.sh/uv/). Node 24/npm is also required for browser tests. Start the app with two commands:
 
 ```sh
 cp .env.example .env
@@ -24,14 +24,16 @@ Choose a preset or type a spec, then click **Build my chip**. A small build take
 ```sh
 make test             # idle app required; offline units + actual replay E2E, no LLM/EDA
 make eda-tools-check  # explicit real Docker integration checks
+make golden-check     # lint/sim/synthesis of all five hand-written references
+make golden-flow-check # add full sky130 flows serially; keep live builds idle
 make record-repair    # explicit REAL model build from a disclosed faulty UART starter
 make down
 ```
 
-`make dev` restarts the host worker to apply code/environment changes. An interrupted run is marked failed with its partial evidence retained. One build/playback is allowed at a time. Per-run limits are 50 model calls, 300,000 tokens, six physical-flow attempts, and three concurrent flows; known Meta cost is capped by `RUN_BUDGET_USD` (default $2). Live tools run without network, with immutable inputs and CPU/memory/time/output limits.
+`make dev` restarts the host worker to apply code/environment changes. An interrupted run is marked failed with its partial evidence retained. The worker reconnects after API outages; an ambiguous in-flight job is never automatically repeated. One build/playback is allowed at a time. Per-run limits are 50 model calls, 300,000 tokens, six physical-flow attempts, and three concurrent flows; known Meta cost is capped by `RUN_BUDGET_USD` (default $2). Live tools run without network, with immutable inputs and CPU/memory/time/output limits.
 
-The API alone owns SQLite. The host worker uses private authenticated HTTP; `make setup` creates a server-only worker token without printing it. Real source snapshots, logs, metrics, events and images remain in ignored `runs/<id>/`. [Recording manifests](demo_recordings/README.md) hash every committed playback asset. API health at http://localhost:8000/api/health reports cached real smoke/tool checks without paid requests.
+The API alone owns SQLite. The host worker uses private authenticated HTTP; `make setup` creates a server-only worker token without printing it. Real source snapshots, logs, metrics, events and images remain in ignored `runs/<id>/`. [Recording manifests](demo_recordings/README.md) hash every committed playback asset. API health at http://localhost:8000/api/health reports cached real smoke/tool checks and fresh authenticated worker contact without paid requests.
 
 Bundles contain selected-flow GDS, LEF, Verilog, preserved tests, raw/canonical metrics, design log, checksums, and Tiny Tapeout-style metadata. **Clean block DRC/LVS does not establish Tiny Tapeout wrapper, tile fit, or shuttle readiness.** The metadata draft and bundle explain the remaining integration work. No shuttle submission is performed.
 
-See [milestone evidence](docs/PROGRESS.md), [decisions](docs/DECISIONS.md), [architecture](docs/ARCHITECTURE.md), and [visual verification](docs/design/VERIFICATION.md).
+All five presets have completed real model-to-layout builds; all five independent golden references passed real simulation and physical checks. See [milestone evidence](docs/PROGRESS.md), [decisions](docs/DECISIONS.md), [architecture](docs/ARCHITECTURE.md), and [visual verification](docs/design/VERIFICATION.md).

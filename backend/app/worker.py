@@ -19,6 +19,7 @@ from app.agent.tools import ToolRunner
 from app.llm.factory import create_llm
 from app.llm.types import LLMError
 from app.packaging import package_design
+from app.remote_store import RemoteStoreError
 from app.schemas import Outcome
 
 if TYPE_CHECKING:
@@ -41,38 +42,81 @@ class WorkerStore(Protocol):
 
 
 class Worker:
-    def __init__(self, store: WorkerStore, *, poll_interval: float = 0.5, orchestrator_factory: Callable[..., Orchestrator] | None = None):
+    def __init__(self, store: WorkerStore, *, poll_interval: float = 0.5, reconnect_max_delay: float = 10, orchestrator_factory: Callable[..., Orchestrator] | None = None):
         if not math.isfinite(poll_interval) or poll_interval <= 0:
             raise ValueError("Worker polling interval must be positive")
         self.store = store
         self.poll_interval = poll_interval
+        if not math.isfinite(reconnect_max_delay) or reconnect_max_delay <= 0:
+            raise ValueError("Worker reconnect delay must be positive")
+        self.reconnect_max_delay = reconnect_max_delay
         self.orchestrator_factory = orchestrator_factory
         self.stop_event = asyncio.Event()
         self.current_task: asyncio.Task[Outcome] | None = None
 
     def request_stop(self) -> None:
         self.stop_event.set()
-        if self.current_task:
+        if self.current_task and not self.current_task.cancelling():
             self.current_task.cancel()
 
-    async def run(self) -> None:
-        await asyncio.to_thread(self.store.recover_interrupted)
-        while not self.stop_event.is_set():
-            pending = await asyncio.to_thread(self.store.claim_pending)
-            if pending is not None:
-                if self.stop_event.is_set():
-                    await asyncio.to_thread(self.store.fail, pending.id, "Worker stopped before execution")
+    async def _call(self, method, *args, **kwargs):
+        # Cancelling a to_thread await does not stop its HTTP request. Wait for
+        # that single attempt to settle before recovery can mark the job failed.
+        request = asyncio.create_task(asyncio.to_thread(method, *args, **kwargs))
+        try:
+            return await asyncio.shield(request)
+        except asyncio.CancelledError:
+            while not request.done():
+                try:
+                    await asyncio.shield(request)
+                except asyncio.CancelledError:
+                    continue
+                except Exception:
                     break
-                await self.execute(pending)
-                continue
+            if not request.cancelled():
+                request.exception()
+            raise
+
+    async def _wait(self, delay: float) -> None:
+        try:
+            await asyncio.wait_for(self.stop_event.wait(), delay)
+        except TimeoutError:
+            pass
+
+    async def run(self) -> None:
+        recovery_needed = True
+        failures = 0
+        while not self.stop_event.is_set():
             try:
-                await asyncio.wait_for(self.stop_event.wait(), self.poll_interval)
-            except TimeoutError:
-                pass
+                if recovery_needed:
+                    heartbeat = getattr(self.store, "heartbeat", None)
+                    if heartbeat is not None:
+                        await self._call(heartbeat)
+                    if self.stop_event.is_set():
+                        break
+                    # A lost claim ACK may own a running job whose ID was never
+                    # received. Fail abandoned jobs; never reset them to pending.
+                    await self._call(self.store.recover_interrupted)
+                    recovery_needed = False
+                pending = await self._call(self.store.claim_pending)
+                if pending is not None:
+                    if self.stop_event.is_set():
+                        await self._call(self.store.fail, pending.id, "Worker stopped before execution")
+                        break
+                    await self.execute(pending)
+                failures = 0
+                await self._wait(self.poll_interval)
+            except RemoteStoreError:
+                # execute() has already awaited owned task/subprocess and RPC
+                # cleanup. No failed mutation is retried or job re-executed.
+                recovery_needed = True
+                failures = min(failures + 1, 10)
+                delay = min(self.reconnect_max_delay, self.poll_interval * 2 ** (failures - 1))
+                logger.warning("worker_api_disconnected reconnect_delay_seconds=%.3f", delay)
+                await self._wait(delay)
 
     async def execute(self, run: Run) -> None:
         llm = None
-        monitor: asyncio.Task[None] | None = None
         try:
             if run.is_replay:
                 self.current_task = asyncio.create_task(self._replay(run))
@@ -94,12 +138,12 @@ class Worker:
                 if isinstance(tag, str) and (event_type == "layout_rendered" or (event_type == "tool_finished" and payload.get("tool") == "run_flow")):
                     for kind, path in tools.eda.flow_artifacts(tag).items():
                         if kind not in {"logs_dir", "source_dir", "tests_dir"} and path.is_file():
-                            await asyncio.to_thread(self.store.register_artifact, run.id, kind, path, run_tag=tag)
-                await asyncio.to_thread(self.store.emit, run.id, event_type, payload)
+                            await self._call(self.store.register_artifact, run.id, kind, path, run_tag=tag)
+                await self._call(self.store.emit, run.id, event_type, payload)
 
-            work_dir = await asyncio.to_thread(self.store.work_dir, run.id)
+            work_dir = await self._call(self.store.work_dir, run.id)
             if self.stop_event.is_set():
-                await asyncio.to_thread(self.store.fail, run.id, "Worker stopped before execution")
+                await self._call(self.store.fail, run.id, "Worker stopped before execution")
                 return
             tools = ToolRunner(work_dir, run_id=run.id, event_callback=publish)
 
@@ -107,7 +151,7 @@ class Worker:
                 if orchestrator.design_spec is None:
                     raise ValueError("A validated design spec is required for packaging")
                 path = await package_design(tools, best_run_tag, orchestrator.design_spec)
-                await asyncio.to_thread(self.store.register_artifact, run.id, "bundle", path)
+                await self._call(self.store.register_artifact, run.id, "bundle", path)
                 return path
 
             factory = self.orchestrator_factory
@@ -120,20 +164,20 @@ class Worker:
             orchestrator = factory(llm, tools, spec_text=run.spec_text, targets=targets, package_callback=package, event_callback=publish, **starter)
             self.current_task = asyncio.create_task(orchestrator.run())
             await self._complete_task(run)
+        except RemoteStoreError:
+            raise
         except asyncio.CancelledError:
-            cancelled = await asyncio.to_thread(self.store.cancel_requested, run.id)
-            await asyncio.to_thread(self.store.fail, run.id, "Run cancelled by the user" if cancelled else "Worker stopped during the run", status="cancelled" if cancelled else "failed")
+            cancelled = await self._call(self.store.cancel_requested, run.id)
+            await self._call(self.store.fail, run.id, "Run cancelled by the user" if cancelled else "Worker stopped during the run", status="cancelled" if cancelled else "failed")
         except Exception as error:
             # Provider errors already exclude credentials; unexpected exceptions expose only their class.
             detail = str(error) if isinstance(error, LLMError) else f"Worker failed ({type(error).__name__})"
             logger.error("run_failed run_id=%s error_type=%s", run.id, type(error).__name__)
-            await asyncio.to_thread(self.store.fail, run.id, detail)
+            await self._call(self.store.fail, run.id, detail)
         finally:
-            if monitor:
-                monitor.cancel()
-                await asyncio.gather(monitor, return_exceptions=True)
             if self.current_task and not self.current_task.done():
-                self.current_task.cancel()
+                if not self.current_task.cancelling():
+                    self.current_task.cancel()
                 await asyncio.gather(self.current_task, return_exceptions=True)
             self.current_task = None
             close = getattr(llm, "aclose", None)
@@ -146,21 +190,31 @@ class Worker:
     async def _complete_task(self, run: Run) -> None:
         async def watch_cancellation() -> None:
             while self.current_task and not self.current_task.done():
-                if await asyncio.to_thread(self.store.cancel_requested, run.id):
-                    self.current_task.cancel()
+                if await self._call(self.store.cancel_requested, run.id):
+                    if not self.current_task.cancelling():
+                        self.current_task.cancel()
                     return
                 await asyncio.sleep(self.poll_interval)
         monitor = asyncio.create_task(watch_cancellation())
         try:
             assert self.current_task is not None
+            done, _ = await asyncio.wait({self.current_task, monitor}, return_when=asyncio.FIRST_COMPLETED)
+            if monitor in done:
+                # A failed cancellation check is a failed control plane, not a
+                # background exception that permits an unmonitored design run.
+                await monitor
             outcome = await self.current_task
-            if await asyncio.to_thread(self.store.cancel_requested, run.id):
-                await asyncio.to_thread(self.store.fail, run.id, "Run cancelled by the user", status="cancelled")
+            if await self._call(self.store.cancel_requested, run.id):
+                await self._call(self.store.fail, run.id, "Run cancelled by the user", status="cancelled")
             else:
-                await asyncio.to_thread(self.store.finish, run.id, outcome)
+                await self._call(self.store.finish, run.id, outcome)
         finally:
             monitor.cancel()
             await asyncio.gather(monitor, return_exceptions=True)
+            if self.current_task and not self.current_task.done():
+                if not self.current_task.cancelling():
+                    self.current_task.cancel()
+                await asyncio.gather(self.current_task, return_exceptions=True)
 
     async def _replay(self, run: Run) -> Outcome:
         from app.replay import load_recording, play_recording
@@ -170,11 +224,11 @@ class Worker:
             recording = await asyncio.to_thread(load_recording, catalog, run.recording_id)
         except (ValueError, OSError, TypeError, KeyError):
             raise LLMError("Recording failed integrity validation; no replay events were emitted") from None
-        work = await asyncio.to_thread(self.store.work_dir, run.id)
+        work = await self._call(self.store.work_dir, run.id)
         async def emit(kind: str, payload: dict[str, JsonValue]) -> None:
-            await asyncio.to_thread(self.store.emit, run.id, kind, payload)
+            await self._call(self.store.emit, run.id, kind, payload)
         async def register(kind: str, path: Path, tag: str | None) -> None:
-            await asyncio.to_thread(self.store.register_artifact, run.id, kind, path, tag)
+            await self._call(self.store.register_artifact, run.id, kind, path, tag)
         return await play_recording(recording, run.id, run.replay_speed, work, emit=emit, register=register)
 
 

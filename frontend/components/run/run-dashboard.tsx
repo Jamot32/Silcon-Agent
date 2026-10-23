@@ -46,8 +46,8 @@ export function RunDashboard({ id }: { id: string }) {
     <StarterNotice starterId={run.starter_id} />
     <StageTimeline stage={run.stage} status={run.status} />
     {error || run.error || cancelError ? <div className="run-error" role="alert">{cancelError || run.error || error}</div> : null}
-    <div className="dashboard-grid"><AgentLog events={events} title={run.is_replay ? "Recorded agent log" : "Agent log"} /><SourcePanel files={files} diffs={latestDiffs} isReplay={run.is_replay} /><RunInspection tests={testResults} metrics={metrics} bestTag={run.best_run_tag} targetClock={run.design_spec?.targets.clock_mhz ?? run.targets.clock_mhz} isReplay={run.is_replay} /></div>
-    <LayoutViewer key={latestLayout?.run_tag ?? "waiting"} layout={latestLayout} metrics={metrics} runId={run.id} emptyMessage={run.is_replay ? "The recorded GDS render appears during playback." : undefined} />
+    <div className="dashboard-grid"><AgentLog events={events} title={run.is_replay ? "Recorded agent log" : "Agent log"} /><SourcePanel files={files} diffs={latestDiffs} isReplay={run.is_replay} finished={!active} /><RunInspection tests={testResults} metrics={metrics} bestTag={run.best_run_tag} targetClock={run.design_spec?.targets.clock_mhz ?? run.targets.clock_mhz} isReplay={run.is_replay} finished={!active} /></div>
+    <LayoutViewer key={latestLayout?.run_tag ?? "waiting"} layout={latestLayout} metrics={metrics} runId={run.id} emptyMessage={!active ? "No layout was produced before this run ended." : run.is_replay ? "The recorded GDS render appears during playback." : undefined} />
     <FlowComparison metrics={metrics} bestTag={run.best_run_tag} />
     <p className="integration-note">{run.tapeout_ready ? "Block signoff complete." : "Tiny Tapeout wrapper and shuttle integration require separate verification."}</p>
   </div>;

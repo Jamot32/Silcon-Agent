@@ -240,6 +240,36 @@ def test_first_optimization_round_runs_three_parallel_configuration_variants(tmp
     assert outcome.best_run_tag == "recorded_1"  # Equal recorded metrics do not prove improvement.
 
 
+def test_parallel_flow_rpc_failure_awaits_sibling_cleanup_before_returning(tmp_path, monkeypatch):
+    from app.remote_store import RemoteStoreError
+
+    requests = [call("run_flow", top="counter", config_overrides={}) for _ in range(2)]
+    orchestrator, _, _, _ = build_run(tmp_path, [response(*requests)])
+    orchestrator.design_spec = DesignSpec.model_validate(spec_data())
+    cleaned = []
+
+    async def scenario():
+        started = asyncio.Event()
+
+        async def execute(stage, request):
+            if request.id == requests[0].id:
+                await started.wait()
+                raise RemoteStoreError("Worker API is unavailable")
+            started.set()
+            try:
+                await asyncio.sleep(100)
+            finally:
+                await asyncio.sleep(0.01)
+                cleaned.append(True)
+
+        monkeypatch.setattr(orchestrator, "_execute", execute)
+        with pytest.raises(RemoteStoreError):
+            await orchestrator._optimize_round()
+        assert cleaned == [True]
+
+    asyncio.run(scenario())
+
+
 @pytest.mark.parametrize("first_round,remaining", [(False, 5), (True, 2), (True, 0)])
 def test_three_variant_prompt_does_not_exceed_remaining_budget(first_round, remaining):
     prompt = json.loads(stage_prompt(

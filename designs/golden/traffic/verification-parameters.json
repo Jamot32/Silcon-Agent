@@ -1,0 +1,37 @@
+{
+  "is_model_run": false,
+  "status": "passed",
+  "cases": [
+    {
+      "top_module": "traffic_one",
+      "parameters": {
+        "GREEN_CYCLES": 1,
+        "YELLOW_CYCLES": 1,
+        "RED_CYCLES": 1,
+        "WALK_CYCLES": 1
+      },
+      "raw_evidence_dir": "runs/golden-check/parameter-cases/20261023T225144Z/traffic_one",
+      "source_sha256": {
+        "src/traffic_light.v": "d9e0433986fda9240e94ba049466647cfbf53e33cb963c6d050ac03cfe7d91d9",
+        "test/test_traffic.py": "584c270c4ffe6a9f6fc7e4f5ded9cdc04c292cd7b2d01648ba0ec36d80fd533a"
+      },
+      "wrapper_sha256": "278ecb19798d3108d2f73c34f289f90702efdb89a9e46445676de193498b965e",
+      "lint": {
+        "ok": true,
+        "warnings": [],
+        "errors": []
+      },
+      "tests": {
+        "ok": true,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0
+      },
+      "synthesis": {
+        "ok": true,
+        "cell_count": 66,
+        "area_estimate": null
+      }
+    }
+  ]
+}

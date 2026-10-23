@@ -1,0 +1,1008 @@
+{
+  "presets": [
+    {
+      "preset": "counter",
+      "run_id": "fe6f7664848840b596784df0f499cc10",
+      "status": "done",
+      "stage": "DONE",
+      "provider": "codex",
+      "is_replay": false,
+      "test_cycles": [
+        {
+          "ok": true,
+          "passed": 6,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "ok": true,
+          "passed": 6,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "acceptance": {
+        "run_id": "fe6f7664848840b596784df0f499cc10",
+        "status": "passed",
+        "provider": "codex",
+        "call_count": 15,
+        "input_tokens": 150489,
+        "output_tokens": 4473,
+        "cost_usd": null,
+        "flow_points": 2,
+        "best": {
+          "id": "9c235f866f8744fb9324810d80a3268a",
+          "run_tag": "flow_0f4fe995bdf7430a",
+          "clock_mhz": 50.0,
+          "wns_ns": 0.0,
+          "power_mw": 0.07993645704118535,
+          "drc_ok": true,
+          "run_id": "fe6f7664848840b596784df0f499cc10",
+          "flow_index": 2,
+          "iteration_id": "eb97e4fac4a24e93853fc9cb6d1c0674",
+          "area_um2": 980.941,
+          "tns_ns": 0.0,
+          "cell_count": 170,
+          "lvs_ok": true
+        },
+        "layout_dimensions": [
+          1000,
+          1000
+        ],
+        "layout_sha256": "c6175a238d80bc07ee316a7af65e4690dce904ed1c47a47bd6f6b80b193e44fd",
+        "bundle_sha256": "b96305d0ecf2dba891fff178d6f1bf52682393e00979969db3caa6a59d3c8126",
+        "tiny_tapeout_ready": false
+      }
+    },
+    {
+      "preset": "uart",
+      "run_id": "caf95489e137445a963de920048a3961",
+      "status": "done",
+      "stage": "DONE",
+      "provider": "codex",
+      "is_replay": false,
+      "test_cycles": [
+        {
+          "ok": true,
+          "passed": 6,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "acceptance": {
+        "run_id": "caf95489e137445a963de920048a3961",
+        "status": "passed",
+        "provider": "codex",
+        "call_count": 13,
+        "input_tokens": 136098,
+        "output_tokens": 4703,
+        "cost_usd": null,
+        "flow_points": 4,
+        "best": {
+          "id": "e5653331246d4510835efa5f3b623ce2",
+          "run_tag": "flow_41725ad89a984a1f",
+          "clock_mhz": 50.0,
+          "wns_ns": 0.0,
+          "power_mw": 0.1349642116110772,
+          "drc_ok": true,
+          "run_id": "caf95489e137445a963de920048a3961",
+          "flow_index": 1,
+          "iteration_id": "053041f3998c44f58a46f79cd5fe2014",
+          "area_um2": 1368.81,
+          "tns_ns": 0.0,
+          "cell_count": 198,
+          "lvs_ok": true
+        },
+        "metrics": [
+          {
+            "id": "e5653331246d4510835efa5f3b623ce2",
+            "run_tag": "flow_41725ad89a984a1f",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.1349642116110772,
+            "drc_ok": true,
+            "run_id": "caf95489e137445a963de920048a3961",
+            "flow_index": 1,
+            "iteration_id": "053041f3998c44f58a46f79cd5fe2014",
+            "area_um2": 1368.81,
+            "tns_ns": 0.0,
+            "cell_count": 198,
+            "lvs_ok": true
+          },
+          {
+            "id": "ddaa3a282bb44ecfa401da01d297a73e",
+            "run_tag": "flow_177da4e0565c4bdc",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.13426700024865568,
+            "drc_ok": true,
+            "run_id": "caf95489e137445a963de920048a3961",
+            "flow_index": 2,
+            "iteration_id": "e0064ead0b1249d1bc3d1f0d95134fc4",
+            "area_um2": 1378.82,
+            "tns_ns": 0.0,
+            "cell_count": 199,
+            "lvs_ok": true
+          },
+          {
+            "id": "745d6e2481a7404fa79c7d7c8122956c",
+            "run_tag": "flow_c361273d7bdb4413",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.12668396811932325,
+            "drc_ok": true,
+            "run_id": "caf95489e137445a963de920048a3961",
+            "flow_index": 3,
+            "iteration_id": "e0064ead0b1249d1bc3d1f0d95134fc4",
+            "area_um2": 1680.36,
+            "tns_ns": 0.0,
+            "cell_count": 246,
+            "lvs_ok": true
+          },
+          {
+            "id": "0d11fef78c6a4f779673f3208ef2c2f1",
+            "run_tag": "flow_c0c9886dede04b46",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.14242752513382584,
+            "drc_ok": true,
+            "run_id": "caf95489e137445a963de920048a3961",
+            "flow_index": 4,
+            "iteration_id": "e0064ead0b1249d1bc3d1f0d95134fc4",
+            "area_um2": 1538.98,
+            "tns_ns": 0.0,
+            "cell_count": 207,
+            "lvs_ok": true
+          }
+        ],
+        "layout_dimensions": [
+          1000,
+          1000
+        ],
+        "layout_sha256": "01c0dbbc99e008ff0bf869157aa89340dc4466e96cb6f6e7c16668cb73193566",
+        "bundle_sha256": "748c5358f63abe2f45f867b35b63898e2f21446e780214bd4ae4dbc2b2bb1f57",
+        "tiny_tapeout_ready": false,
+        "max_overlapping_flow_calls": 3
+      }
+    },
+    {
+      "preset": "pwm",
+      "run_id": "74326de8678944b7b313c7741c5ec254",
+      "status": "done",
+      "stage": "DONE",
+      "provider": "codex",
+      "is_replay": false,
+      "test_cycles": [
+        {
+          "ok": true,
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "acceptance": {
+        "run_id": "74326de8678944b7b313c7741c5ec254",
+        "status": "passed",
+        "provider": "codex",
+        "call_count": 13,
+        "input_tokens": 135080,
+        "output_tokens": 4329,
+        "cost_usd": null,
+        "flow_points": 4,
+        "best": {
+          "iteration_id": "d473c1cbb4064f299b70555c76f8b9bc",
+          "flow_index": 2,
+          "run_id": "74326de8678944b7b313c7741c5ec254",
+          "area_um2": 1152.36,
+          "tns_ns": 0.0,
+          "cell_count": 187,
+          "lvs_ok": true,
+          "run_tag": "flow_0a36e6fe43b146a4",
+          "id": "4fe745d1c2d447c29fc396c027021411",
+          "clock_mhz": 50.0,
+          "wns_ns": 0.0,
+          "power_mw": 0.06987091182963923,
+          "drc_ok": true
+        },
+        "metrics": [
+          {
+            "iteration_id": "1de96478824346d4ae7c6778edcdcc89",
+            "flow_index": 1,
+            "run_id": "74326de8678944b7b313c7741c5ec254",
+            "area_um2": 1152.36,
+            "tns_ns": 0.0,
+            "cell_count": 187,
+            "lvs_ok": true,
+            "run_tag": "flow_a8dd17656f7449d7",
+            "id": "5a562642a89c477fba6cba1edc9211d8",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.07024412479950115,
+            "drc_ok": true
+          },
+          {
+            "iteration_id": "d473c1cbb4064f299b70555c76f8b9bc",
+            "flow_index": 2,
+            "run_id": "74326de8678944b7b313c7741c5ec254",
+            "area_um2": 1152.36,
+            "tns_ns": 0.0,
+            "cell_count": 187,
+            "lvs_ok": true,
+            "run_tag": "flow_0a36e6fe43b146a4",
+            "id": "4fe745d1c2d447c29fc396c027021411",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.06987091182963923,
+            "drc_ok": true
+          },
+          {
+            "iteration_id": "d473c1cbb4064f299b70555c76f8b9bc",
+            "flow_index": 3,
+            "run_id": "74326de8678944b7b313c7741c5ec254",
+            "area_um2": 1152.36,
+            "tns_ns": 0.0,
+            "cell_count": 191,
+            "lvs_ok": true,
+            "run_tag": "flow_59430414cada4f16",
+            "id": "c0443ae8fd594879ae673868648158c3",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.07033769361441955,
+            "drc_ok": true
+          },
+          {
+            "iteration_id": "d473c1cbb4064f299b70555c76f8b9bc",
+            "flow_index": 4,
+            "run_id": "74326de8678944b7b313c7741c5ec254",
+            "area_um2": 1332.53,
+            "tns_ns": 0.0,
+            "cell_count": 212,
+            "lvs_ok": true,
+            "run_tag": "flow_584420a890e743d6",
+            "id": "294ac8fa76aa4ee68867bba749395b39",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.07483571243938059,
+            "drc_ok": true
+          }
+        ],
+        "layout_dimensions": [
+          1000,
+          1000
+        ],
+        "layout_sha256": "43c921161a155422554ccd41a55e4c6d3c5f181f0df406f660ff0e395e614c0c",
+        "bundle_sha256": "5682baf0a95db2d9a0ad84a0e384845fd9b1172bd2a99dd85d3845f90f5a4d1f",
+        "tiny_tapeout_ready": false,
+        "max_overlapping_flow_calls": 3,
+        "repair": null
+      }
+    },
+    {
+      "preset": "alu",
+      "run_id": "a918bb71bdf54af8836fffe057c5ddc6",
+      "status": "done",
+      "stage": "DONE",
+      "provider": "codex",
+      "is_replay": false,
+      "test_cycles": [
+        {
+          "ok": true,
+          "passed": 6,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "acceptance": {
+        "run_id": "a918bb71bdf54af8836fffe057c5ddc6",
+        "status": "passed",
+        "provider": "codex",
+        "call_count": 13,
+        "input_tokens": 133608,
+        "output_tokens": 3466,
+        "cost_usd": null,
+        "flow_points": 4,
+        "best": {
+          "iteration_id": "cebc4a878bb1488c8f5c2bdfd74ce88d",
+          "flow_index": 1,
+          "run_id": "a918bb71bdf54af8836fffe057c5ddc6",
+          "area_um2": 823.29,
+          "tns_ns": 0.0,
+          "cell_count": 167,
+          "lvs_ok": true,
+          "run_tag": "flow_2f0d9f0cbace4f44",
+          "id": "4674eecb2a7f403199f7b69de2d3169d",
+          "clock_mhz": 50.0,
+          "wns_ns": 0.0,
+          "power_mw": 0.024488219423801638,
+          "drc_ok": true
+        },
+        "metrics": [
+          {
+            "iteration_id": "cebc4a878bb1488c8f5c2bdfd74ce88d",
+            "flow_index": 1,
+            "run_id": "a918bb71bdf54af8836fffe057c5ddc6",
+            "area_um2": 823.29,
+            "tns_ns": 0.0,
+            "cell_count": 167,
+            "lvs_ok": true,
+            "run_tag": "flow_2f0d9f0cbace4f44",
+            "id": "4674eecb2a7f403199f7b69de2d3169d",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.024488219423801638,
+            "drc_ok": true
+          },
+          {
+            "iteration_id": "1321be8382a241edad36ac526b84d047",
+            "flow_index": 2,
+            "run_id": "a918bb71bdf54af8836fffe057c5ddc6",
+            "area_um2": 823.29,
+            "tns_ns": 0.0,
+            "cell_count": 167,
+            "lvs_ok": true,
+            "run_tag": "flow_6e6c9a1e990a47bd",
+            "id": "491f45381ea1468c8eaf1c49e0db274e",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.024862438294803724,
+            "drc_ok": true
+          },
+          {
+            "iteration_id": "1321be8382a241edad36ac526b84d047",
+            "flow_index": 3,
+            "run_id": "a918bb71bdf54af8836fffe057c5ddc6",
+            "area_um2": 1103.56,
+            "tns_ns": 0.0,
+            "cell_count": 211,
+            "lvs_ok": true,
+            "run_tag": "flow_7488f85180bd44e7",
+            "id": "cf925531b02f474c89678885fb959727",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.03251257658121176,
+            "drc_ok": true
+          },
+          {
+            "iteration_id": "1321be8382a241edad36ac526b84d047",
+            "flow_index": 4,
+            "run_id": "a918bb71bdf54af8836fffe057c5ddc6",
+            "area_um2": 1035.99,
+            "tns_ns": 0.0,
+            "cell_count": 187,
+            "lvs_ok": true,
+            "run_tag": "flow_58c0ebf32a3a4f20",
+            "id": "365ba24de4334cc2b80019d35713b57d",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.02823598333634436,
+            "drc_ok": true
+          }
+        ],
+        "layout_dimensions": [
+          1000,
+          1000
+        ],
+        "layout_sha256": "4f72bfc92337c24a701e6100026dcc8bb975ed31d9622f0f0047e6bd0af18b68",
+        "bundle_sha256": "84539bd5f96dcb059b092576b2b74900a231ce6e12d6d68116a0e9da7aef0465",
+        "tiny_tapeout_ready": false,
+        "max_overlapping_flow_calls": 3,
+        "repair": null
+      }
+    },
+    {
+      "preset": "traffic",
+      "run_id": "398551a29925430fb705956f5584cb2d",
+      "status": "done",
+      "stage": "DONE",
+      "provider": "codex",
+      "is_replay": false,
+      "test_cycles": [
+        {
+          "ok": true,
+          "passed": 6,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "acceptance": {
+        "run_id": "398551a29925430fb705956f5584cb2d",
+        "status": "passed",
+        "provider": "codex",
+        "call_count": 13,
+        "input_tokens": 139036,
+        "output_tokens": 5087,
+        "cost_usd": null,
+        "flow_points": 4,
+        "best": {
+          "iteration_id": "be897e5eb25842519f2bf06eb438012f",
+          "flow_index": 2,
+          "run_id": "398551a29925430fb705956f5584cb2d",
+          "area_um2": 750.72,
+          "tns_ns": 0.0,
+          "cell_count": 144,
+          "lvs_ok": true,
+          "run_tag": "flow_2678f4ec96334604",
+          "id": "1304ddb599e948cdb5573bfdd2c04901",
+          "clock_mhz": 50.0,
+          "wns_ns": 0.0,
+          "power_mw": 0.0851496442919597,
+          "drc_ok": true
+        },
+        "metrics": [
+          {
+            "iteration_id": "d2d229baedf64c3bbb87c19b92a6e622",
+            "flow_index": 1,
+            "run_id": "398551a29925430fb705956f5584cb2d",
+            "area_um2": 760.73,
+            "tns_ns": 0.0,
+            "cell_count": 145,
+            "lvs_ok": true,
+            "run_tag": "flow_ad11564035604bc7",
+            "id": "33acbd054d764ee0acbb70f6f9247cdc",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.08467222505714744,
+            "drc_ok": true
+          },
+          {
+            "iteration_id": "be897e5eb25842519f2bf06eb438012f",
+            "flow_index": 2,
+            "run_id": "398551a29925430fb705956f5584cb2d",
+            "area_um2": 750.72,
+            "tns_ns": 0.0,
+            "cell_count": 144,
+            "lvs_ok": true,
+            "run_tag": "flow_2678f4ec96334604",
+            "id": "1304ddb599e948cdb5573bfdd2c04901",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.0851496442919597,
+            "drc_ok": true
+          },
+          {
+            "iteration_id": "be897e5eb25842519f2bf06eb438012f",
+            "flow_index": 3,
+            "run_id": "398551a29925430fb705956f5584cb2d",
+            "area_um2": 808.275,
+            "tns_ns": 0.0,
+            "cell_count": 152,
+            "lvs_ok": true,
+            "run_tag": "flow_d72e0ad651cf49be",
+            "id": "91111969f62f4f6da850c128e477c00e",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.12051433441229165,
+            "drc_ok": true
+          },
+          {
+            "iteration_id": "be897e5eb25842519f2bf06eb438012f",
+            "flow_index": 4,
+            "run_id": "398551a29925430fb705956f5584cb2d",
+            "area_um2": 935.898,
+            "tns_ns": 0.0,
+            "cell_count": 166,
+            "lvs_ok": true,
+            "run_tag": "flow_a2b75ab3462a42f3",
+            "id": "15a29576dbe24906abc370d0545e0cbd",
+            "clock_mhz": 50.0,
+            "wns_ns": 0.0,
+            "power_mw": 0.13601449609268457,
+            "drc_ok": true
+          }
+        ],
+        "layout_dimensions": [
+          1000,
+          1000
+        ],
+        "layout_sha256": "93bda29fca4c607b25a2d46407076833c026f65262e13778165295d1264a3404",
+        "bundle_sha256": "07b2c06d485c5da6dc18b2b84f75e9f1761e7085eaba50845195e27f150e30a2",
+        "tiny_tapeout_ready": false,
+        "max_overlapping_flow_calls": 3,
+        "repair": null
+      }
+    }
+  ],
+  "golden_quick_check": "runs/golden-check/20261023T225011Z_e47c9653/summary.json",
+  "golden_new_full_flows": [
+    {
+      "design": "pwm",
+      "top_module": "pwm",
+      "clock_port": "clk",
+      "check_started_at_utc": "2026-10-23T22:55:05.290663+00:00",
+      "argv": [
+        "python",
+        "scripts/check_golden.py",
+        "pwm",
+        "alu",
+        "traffic",
+        "--flow",
+        "--write-verification"
+      ],
+      "check_kind": "full_flow",
+      "is_model_run": false,
+      "status": "passed",
+      "source_sha256": {
+        "src/pwm.v": "245b49db628ba8733f6e56ea88be88c5217d6220eb8445aaf062a996ae2b04e4",
+        "test/test_pwm.py": "7a5d0e12cdf695986eb120afd0390dd1f0bba2931132e93e00a55a9ce1e02cb2"
+      },
+      "reference_config_sha256": "8dc44797096ab6e51145d57537a5316e5d3410278c8c02143ece7b2d3453ef1c",
+      "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+      "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+      "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+      "flow_overrides": {
+        "CLOCK_PERIOD": 20,
+        "DIE_AREA": [
+          0,
+          0,
+          100,
+          100
+        ],
+        "FP_CORE_UTIL": 40,
+        "PL_TARGET_DENSITY_PCT": 45
+      },
+      "artifacts": {
+        "gds": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/pwm/work/.eda/flow_a374cf58ff5f42d9be2bf7e8b06c8300/output/runs/flow_9a5279a9aae04fa4/final/gds/pwm.gds",
+          "bytes": 465688,
+          "sha256": "eaf7191a96478a504dfe7e390848a8f8bc78e54d213146f5446259bad851ec34"
+        },
+        "lef": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/pwm/work/.eda/flow_a374cf58ff5f42d9be2bf7e8b06c8300/output/runs/flow_9a5279a9aae04fa4/final/lef/pwm.lef",
+          "bytes": 4173,
+          "sha256": "8775f6991abc7cfed79bd6dab703032b8868901d10f06f90033e4599f59d4dd7"
+        },
+        "netlist": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/pwm/work/.eda/flow_a374cf58ff5f42d9be2bf7e8b06c8300/output/runs/flow_9a5279a9aae04fa4/final/nl/pwm.nl.v",
+          "bytes": 82710,
+          "sha256": "ff0fdf8a6b1ad51c0c3f2183dd0a2e22debffeed21d8e1d4ac28de240a1f0915"
+        },
+        "metrics": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/pwm/work/.eda/flow_a374cf58ff5f42d9be2bf7e8b06c8300/output/runs/flow_9a5279a9aae04fa4/final/metrics.json",
+          "bytes": 16961,
+          "sha256": "3dfdd07ca0260354d3a6a54ad3324c216caa5cdc4add8a81bb66a42ca865ec99"
+        },
+        "layout": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/pwm/work/.eda/flow_a374cf58ff5f42d9be2bf7e8b06c8300/output/runs/flow_9a5279a9aae04fa4/final/render/pwm.png",
+          "bytes": 142986,
+          "sha256": "5423dd12dda1a09bf8052f7332811d33374cfbf3436ded0bdadb7a7100a4c3af"
+        },
+        "config": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/pwm/work/.eda/flow_a374cf58ff5f42d9be2bf7e8b06c8300/output/runs/flow_9a5279a9aae04fa4/resolved.json",
+          "bytes": 94248,
+          "sha256": "bcaa936187a96cf7ffa4d997a62fbd985873bc3d80e2bd63f53df550306bd923"
+        }
+      },
+      "raw_evidence_dir": "runs/golden-check/20261023T225505Z_8001460c/pwm",
+      "lint": {
+        "ok": true,
+        "warnings": [],
+        "errors": []
+      },
+      "tests": {
+        "ok": true,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0
+      },
+      "synthesis": {
+        "ok": true,
+        "cell_count": 62,
+        "area_estimate": null
+      },
+      "metrics": {
+        "flow_index": 1,
+        "clock_mhz": 50.0,
+        "area_um2": 859.574,
+        "wns_ns": 0.0,
+        "tns_ns": 0.0,
+        "power_mw": 0.07137138891266659,
+        "cell_count": 157,
+        "drc_ok": true,
+        "lvs_ok": true
+      },
+      "run_tag": "flow_9a5279a9aae04fa4",
+      "render": {
+        "ok": true,
+        "width": 1000,
+        "height": 1000
+      },
+      "limitations": [
+        "Generic synthesis reports no area estimate without a mapped library.",
+        "Full-flow clock_mhz is a configured timing constraint, not measured Fmax; combinational ALU has no clock port.",
+        "Power is flow-reported; no worst-corner or nominal-corner claim.",
+        "Standalone DRC/LVS does not establish Tiny Tapeout wrapper or shuttle readiness."
+      ]
+    },
+    {
+      "design": "alu",
+      "top_module": "alu4",
+      "clock_port": null,
+      "check_started_at_utc": "2026-10-23T22:55:41.299578+00:00",
+      "argv": [
+        "python",
+        "scripts/check_golden.py",
+        "pwm",
+        "alu",
+        "traffic",
+        "--flow",
+        "--write-verification"
+      ],
+      "check_kind": "full_flow",
+      "is_model_run": false,
+      "status": "passed",
+      "source_sha256": {
+        "src/alu4.v": "15fc96ac70a2f4ad0d5601c2c587744fde5ad69dbd7350e29ef4e156f893ccc2",
+        "test/test_alu.py": "9528a7f817a4ea5c453b1ebdedfb2aab12dd41866695ead46ab565f3702667c7"
+      },
+      "reference_config_sha256": "8c19b1c25356efe6def6984f78cb5b9fb1f4ebd9f4fa4c78c7526826da981559",
+      "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+      "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+      "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+      "flow_overrides": {
+        "CLOCK_PERIOD": 20,
+        "DIE_AREA": [
+          0,
+          0,
+          100,
+          100
+        ],
+        "FP_CORE_UTIL": 40,
+        "PL_TARGET_DENSITY_PCT": 45
+      },
+      "artifacts": {
+        "gds": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/alu/work/.eda/flow_7b2e0ec1f0394334825281de17f0696e/output/runs/flow_ac1bf07397904bbd/final/gds/alu4.gds",
+          "bytes": 542498,
+          "sha256": "2c6f6450d05085674343743678419b7725850a128fd28dab9f7247f93dca3a16"
+        },
+        "lef": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/alu/work/.eda/flow_7b2e0ec1f0394334825281de17f0696e/output/runs/flow_ac1bf07397904bbd/final/lef/alu4.lef",
+          "bytes": 5329,
+          "sha256": "a6eaeab5c0caec1cc13faef6b9dc69176cebc43b07f067eb5180a60072d867b6"
+        },
+        "netlist": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/alu/work/.eda/flow_7b2e0ec1f0394334825281de17f0696e/output/runs/flow_ac1bf07397904bbd/final/nl/alu4.nl.v",
+          "bytes": 84575,
+          "sha256": "4c3762949599cf21ca8ac11f6d64381716c11214a66cc00a9faa9cf3bda10d0e"
+        },
+        "metrics": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/alu/work/.eda/flow_7b2e0ec1f0394334825281de17f0696e/output/runs/flow_ac1bf07397904bbd/final/metrics.json",
+          "bytes": 16342,
+          "sha256": "7e61f59d68653af1338ab0fabf9d799425b56d6e91e6aef1e02cd01ab9342bdd"
+        },
+        "layout": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/alu/work/.eda/flow_7b2e0ec1f0394334825281de17f0696e/output/runs/flow_ac1bf07397904bbd/final/render/alu4.png",
+          "bytes": 141725,
+          "sha256": "241911077fabfebfc46c4f15b9dca1c773c900b157a9f9c20054a0db70b54313"
+        },
+        "config": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/alu/work/.eda/flow_7b2e0ec1f0394334825281de17f0696e/output/runs/flow_ac1bf07397904bbd/resolved.json",
+          "bytes": 94249,
+          "sha256": "f1bf247f9b367f3fb874ba1825a4415a5939fa38b1e2f8328eef807c22328996"
+        }
+      },
+      "raw_evidence_dir": "runs/golden-check/20261023T225505Z_8001460c/alu",
+      "lint": {
+        "ok": true,
+        "warnings": [],
+        "errors": []
+      },
+      "tests": {
+        "ok": true,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0
+      },
+      "synthesis": {
+        "ok": true,
+        "cell_count": 131,
+        "area_estimate": null
+      },
+      "metrics": {
+        "flow_index": 1,
+        "clock_mhz": 50.0,
+        "area_um2": 859.574,
+        "wns_ns": 0.0,
+        "tns_ns": 0.0,
+        "power_mw": 0.025701439881231636,
+        "cell_count": 173,
+        "drc_ok": true,
+        "lvs_ok": true
+      },
+      "run_tag": "flow_ac1bf07397904bbd",
+      "render": {
+        "ok": true,
+        "width": 1000,
+        "height": 1000
+      },
+      "limitations": [
+        "Generic synthesis reports no area estimate without a mapped library.",
+        "Full-flow clock_mhz is a configured timing constraint, not measured Fmax; combinational ALU has no clock port.",
+        "Power is flow-reported; no worst-corner or nominal-corner claim.",
+        "Standalone DRC/LVS does not establish Tiny Tapeout wrapper or shuttle readiness."
+      ],
+      "timing_constraint_source": "https://github.com/librelane/librelane/blob/3.0.16/librelane/scripts/base.sdc"
+    },
+    {
+      "design": "traffic",
+      "top_module": "traffic_light",
+      "clock_port": "clk",
+      "check_started_at_utc": "2026-10-23T22:56:13.706192+00:00",
+      "argv": [
+        "python",
+        "scripts/check_golden.py",
+        "pwm",
+        "alu",
+        "traffic",
+        "--flow",
+        "--write-verification"
+      ],
+      "check_kind": "full_flow",
+      "is_model_run": false,
+      "status": "passed",
+      "source_sha256": {
+        "src/traffic_light.v": "d9e0433986fda9240e94ba049466647cfbf53e33cb963c6d050ac03cfe7d91d9",
+        "test/test_traffic.py": "584c270c4ffe6a9f6fc7e4f5ded9cdc04c292cd7b2d01648ba0ec36d80fd533a"
+      },
+      "reference_config_sha256": "553c0ec110f126d594d5d38c3e7072c33709eea5479608d2217bc8627a23fd55",
+      "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+      "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+      "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+      "flow_overrides": {
+        "CLOCK_PERIOD": 20,
+        "DIE_AREA": [
+          0,
+          0,
+          100,
+          100
+        ],
+        "FP_CORE_UTIL": 40,
+        "PL_TARGET_DENSITY_PCT": 45
+      },
+      "artifacts": {
+        "gds": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/traffic/work/.eda/flow_759e2c52c10b4615a8a6dfdec9f3cfff/output/runs/flow_c0f01a684ae04eb3/final/gds/traffic_light.gds",
+          "bytes": 600432,
+          "sha256": "378988c35b6071343399f91bec55f349e4a3de841f48c42e7d8b51454fdf4aea"
+        },
+        "lef": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/traffic/work/.eda/flow_759e2c52c10b4615a8a6dfdec9f3cfff/output/runs/flow_c0f01a684ae04eb3/final/lef/traffic_light.lef",
+          "bytes": 3268,
+          "sha256": "f6a60166cdc232003d7f552853822e268e5492949fdc89062432aa9196819ca6"
+        },
+        "netlist": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/traffic/work/.eda/flow_759e2c52c10b4615a8a6dfdec9f3cfff/output/runs/flow_c0f01a684ae04eb3/final/nl/traffic_light.nl.v",
+          "bytes": 82570,
+          "sha256": "5b8008182d8387d6695f35a57da0a48788cd437b76a443df5bb419eb7ef2c333"
+        },
+        "metrics": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/traffic/work/.eda/flow_759e2c52c10b4615a8a6dfdec9f3cfff/output/runs/flow_c0f01a684ae04eb3/final/metrics.json",
+          "bytes": 16948,
+          "sha256": "ba75cefcc7fb9a391262f680010cb00a027c63035c4c843bf8f240b7b42e353b"
+        },
+        "layout": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/traffic/work/.eda/flow_759e2c52c10b4615a8a6dfdec9f3cfff/output/runs/flow_c0f01a684ae04eb3/final/render/traffic_light.png",
+          "bytes": 146825,
+          "sha256": "e71117af07d3ed14b21670b4d2c4c13e6b41a5cc314af9f732659faf6ccfc9a5"
+        },
+        "config": {
+          "path": "runs/golden-check/20261023T225505Z_8001460c/traffic/work/.eda/flow_759e2c52c10b4615a8a6dfdec9f3cfff/output/runs/flow_c0f01a684ae04eb3/resolved.json",
+          "bytes": 94268,
+          "sha256": "44868dc906cb5b834f75701e9ab8d7e359d6525687dbbcd00e5bd4a9e48fbb8e"
+        }
+      },
+      "raw_evidence_dir": "runs/golden-check/20261023T225505Z_8001460c/traffic",
+      "lint": {
+        "ok": true,
+        "warnings": [],
+        "errors": []
+      },
+      "tests": {
+        "ok": true,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0
+      },
+      "synthesis": {
+        "ok": true,
+        "cell_count": 134,
+        "area_estimate": null
+      },
+      "metrics": {
+        "flow_index": 1,
+        "clock_mhz": 50.0,
+        "area_um2": 1132.34,
+        "wns_ns": 0.0,
+        "tns_ns": 0.0,
+        "power_mw": 0.0988035390037112,
+        "cell_count": 179,
+        "drc_ok": true,
+        "lvs_ok": true
+      },
+      "run_tag": "flow_c0f01a684ae04eb3",
+      "render": {
+        "ok": true,
+        "width": 1000,
+        "height": 1000
+      },
+      "limitations": [
+        "Generic synthesis reports no area estimate without a mapped library.",
+        "Full-flow clock_mhz is a configured timing constraint, not measured Fmax; combinational ALU has no clock port.",
+        "Power is flow-reported; no worst-corner or nominal-corner claim.",
+        "Standalone DRC/LVS does not establish Tiny Tapeout wrapper or shuttle readiness."
+      ]
+    }
+  ],
+  "clean_clone": {
+    "commit": "2e1d0e7",
+    "changed_only": [
+      "compose project name/loopback ports",
+      "ignored .env: unconfigured Meta, isolated worker URL"
+    ],
+    "no_model_credentials": true,
+    "no_pdk": true,
+    "browser_replay_check": "1 passed (56.2s)",
+    "run": {
+      "id": "49d1c0fff20541e69118b121b9129e22",
+      "spec_text": "A UART transmitter using 8N1 framing, an 8-bit data input, a start input, a busy output, and a baud divider parameter. Use synchronous active-low reset and idle high.",
+      "design_spec": {
+        "top_module": "uart_tx",
+        "summary": "Small synchronous UART transmitter with 8N1 framing, idle-high serial output, and a configurable integer baud divider.",
+        "ports": [
+          {
+            "name": "clk",
+            "direction": "input",
+            "width": 1,
+            "description": "System clock; all state changes occur on rising edges."
+          },
+          {
+            "name": "rst_n",
+            "direction": "input",
+            "width": 1,
+            "description": "Synchronous active-low reset, sampled on rising clock edges."
+          },
+          {
+            "name": "data_in",
+            "direction": "input",
+            "width": 8,
+            "description": "Byte captured when start is accepted."
+          },
+          {
+            "name": "start",
+            "direction": "input",
+            "width": 1,
+            "description": "Level-sensitive transmit request accepted only while idle."
+          },
+          {
+            "name": "tx",
+            "direction": "output",
+            "width": 1,
+            "description": "UART serial output, idle high."
+          },
+          {
+            "name": "busy",
+            "direction": "output",
+            "width": 1,
+            "description": "High throughout the complete start, data, and stop frame."
+          }
+        ],
+        "behavior": [
+          "1. Provide an integer parameter BAUD_DIV with default 16. Supported values are integers greater than or equal to 1; each serial bit lasts exactly BAUD_DIV rising-clock intervals. Baud rate equals clock frequency divided by BAUD_DIV.",
+          "2. On any rising edge with rst_n low, synchronously abort transmission, set tx high and busy low, clear transmission state, and ignore start. Reset takes priority over every other operation. Between rising edges, changes to rst_n do not change outputs.",
+          "3. On a rising edge with rst_n high, busy low, and start high, capture data_in, assert busy, and drive tx low to begin the start bit immediately after that edge.",
+          "4. Transmit exactly ten bits: one low start bit, eight captured data bits least significant bit first, then one high stop bit. Each bit occupies exactly BAUD_DIV clock intervals, including when adjacent bits have equal values.",
+          "5. If acceptance occurs at edge k, bit index j begins at edge k+j*BAUD_DIV for j from 0 through 9. At edge k+10*BAUD_DIV, deassert busy and retain tx high. The entire stop bit must complete before busy deasserts.",
+          "6. Ignore start and data_in changes while busy is high; requests are neither queued nor used to modify the captured byte. A request present at the frame-completion edge is ignored because busy was high before that edge.",
+          "7. While idle, tx stays high and busy stays low. A continuously asserted start initiates another frame on the first rising edge after busy deasserts, capturing data_in again. No falling edge of start is required.",
+          "8. Implement synthesizable Verilog-2005 using synchronous state, no initial blocks, RTL delays, or inferred latches. Keep the design suitable for a single Tiny Tapeout tile; physical fit requires backend verification."
+        ],
+        "targets": {
+          "clock_mhz": 50.0,
+          "max_area_um2": null,
+          "fit": "tt_1x1_tile"
+        },
+        "test_plan": [
+          "Verify synchronous reset from idle and mid-frame: assertion between edges has no immediate effect; the next rising edge sets tx high and busy low, overrides start, and aborts the frame. Verify a subsequent complete transmission.",
+          "With BAUD_DIV=4, transmit 0xA5 and check every clock interval of the start bit, eight LSB-first data bits, stop bit, and exact busy duration.",
+          "Transmit 0x00 and 0xFF to check long runs of equal bits, start and stop boundaries, and idle-high behavior over multiple idle clocks.",
+          "Change data_in and pulse start repeatedly while busy; verify the captured byte remains intact and no extra transmission is queued after completion.",
+          "Hold start high across completion, change data_in before the next acceptance, and verify one idle clock interval followed by a new frame containing the newly captured byte.",
+          "Repeat timing and framing checks with BAUD_DIV=1 and BAUD_DIV=3 to cover minimum and non-power-of-two counter boundaries, and check one frame using the default divider of 16."
+        ],
+        "purely_combinational": false
+      },
+      "targets": {
+        "clock_mhz": 50.0
+      },
+      "preset_id": "uart",
+      "status": "done",
+      "stage": "DONE",
+      "created_at": "2026-10-23T22:45:58.041990Z",
+      "cost_usd": null,
+      "input_tokens": 136098,
+      "output_tokens": 4703,
+      "call_count": 13,
+      "llm_provider": "codex",
+      "is_replay": true,
+      "summary": "REPLAY of caf95489e137445a963de920048a3961. Selected flow_41725ad89a984a1f; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+      "error": null,
+      "best_run_tag": "flow_41725ad89a984a1f",
+      "tapeout_ready": false,
+      "recording_id": "uart-optimization",
+      "replay_speed": 4,
+      "starter_id": null
+    }
+  },
+  "limitations": [
+    "User-selected Codex/ChatGPT-plan provider; live Meta acceptance deferred until competition credentials.",
+    "Plan USD cost unknown.",
+    "Block DRC/LVS clean; Tiny Tapeout wrapper/tile/shuttle integration unverified.",
+    "ALU uses a virtual timing constraint, not a physical clock input or measured Fmax."
+  ],
+  "api_restart": {
+    "status": "passed",
+    "checks": {
+      "same_worker_pid": true,
+      "same_run_count": true,
+      "no_new_model_call": true,
+      "fresh_authenticated_worker": true,
+      "healthy": true
+    },
+    "pid": 68516,
+    "health": {
+      "status": "ok",
+      "milestone": "M11",
+      "checks": {
+        "database": {
+          "status": "ok",
+          "detail": "SQLite reachable"
+        },
+        "eda": {
+          "status": "ok",
+          "detail": "Cached golden check passed at 2026-10-23T17:24:32.357359+00:00 (LibreLane 3.0.16, DRC/LVS clean)"
+        },
+        "llm": {
+          "status": "ok",
+          "detail": "Cached Codex/ChatGPT-plan smoke passed at 2026-10-23T17:39:17.734423+00:00; USD cost unavailable"
+        },
+        "worker": {
+          "status": "ok",
+          "detail": "Authenticated worker contact 0.3s ago"
+        }
+      },
+      "llm_provider": "codex",
+      "capabilities": [
+        "live_runs",
+        "sse_resume",
+        "real_eda_artifacts",
+        "optimization",
+        "bundle_download",
+        "recorded_replay",
+        "worker_recovery"
+      ]
+    }
+  },
+  "browser_cancellation": {
+    "run_id": "5827d07b8fad40549c33facadccf2e66",
+    "status": "cancelled",
+    "error": "Run cancelled by the user",
+    "is_replay": true,
+    "metric_count": 0,
+    "browser_observed": "REPLAY 1\u00d7 \u2192 Stop replay \u2192 cancellation; terminal missing-evidence wording; no bundle/layout"
+  },
+  "final_checks": {
+    "command": "/usr/bin/time -p make test",
+    "backend_passed": 338,
+    "integration_deselected": 2,
+    "backend_seconds": 2.94,
+    "frontend_unit_passed": 15,
+    "typecheck": "passed",
+    "browser_passed": 4,
+    "browser_seconds": 56.7,
+    "total_seconds": 62.08,
+    "production_build": "passed",
+    "read_only_browser_passed": 8,
+    "read_only_browser_seconds": 6.7,
+    "make_demo": "API and web healthy; authenticated host worker fresh"
+  }
+}

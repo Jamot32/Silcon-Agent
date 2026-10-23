@@ -1,0 +1,62 @@
+{
+  "is_model_run": false,
+  "status": "passed",
+  "cases": [
+    {
+      "top_module": "pwm_period1",
+      "parameters": {
+        "PERIOD": 1
+      },
+      "raw_evidence_dir": "runs/golden-check/parameter-cases/20261023T225144Z/pwm_period1",
+      "source_sha256": {
+        "src/pwm.v": "245b49db628ba8733f6e56ea88be88c5217d6220eb8445aaf062a996ae2b04e4",
+        "test/test_pwm.py": "7a5d0e12cdf695986eb120afd0390dd1f0bba2931132e93e00a55a9ce1e02cb2"
+      },
+      "wrapper_sha256": "ab8da9fcff59e0a2281b67c30ee0b893f5dfecfc99f4e89c9245582f7b659f0e",
+      "lint": {
+        "ok": true,
+        "warnings": [],
+        "errors": []
+      },
+      "tests": {
+        "ok": true,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0
+      },
+      "synthesis": {
+        "ok": true,
+        "cell_count": 66,
+        "area_estimate": null
+      }
+    },
+    {
+      "top_module": "pwm_period5",
+      "parameters": {
+        "PERIOD": 5
+      },
+      "raw_evidence_dir": "runs/golden-check/parameter-cases/20261023T225144Z/pwm_period5",
+      "source_sha256": {
+        "src/pwm.v": "245b49db628ba8733f6e56ea88be88c5217d6220eb8445aaf062a996ae2b04e4",
+        "test/test_pwm.py": "7a5d0e12cdf695986eb120afd0390dd1f0bba2931132e93e00a55a9ce1e02cb2"
+      },
+      "wrapper_sha256": "f6a5f7acbac342866f5904f431a330bf4aa01bc139c942f23e0bc74b9059aad9",
+      "lint": {
+        "ok": true,
+        "warnings": [],
+        "errors": []
+      },
+      "tests": {
+        "ok": true,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0
+      },
+      "synthesis": {
+        "ok": true,
+        "cell_count": 66,
+        "area_estimate": null
+      }
+    }
+  ]
+}

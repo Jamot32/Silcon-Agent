@@ -1,4 +1,4 @@
-.PHONY: setup dev demo down test test-unit test-e2e record-repair eda-setup eda-check eda-tools-check llm-smoke meta-smoke logs
+.PHONY: setup dev demo down test test-unit test-e2e record-repair eda-setup eda-check eda-tools-check golden-check golden-flow-check llm-smoke meta-smoke logs
 
 export SILICON_UID := $(shell id -u)
 export SILICON_GID := $(shell id -g)
@@ -33,7 +33,7 @@ frontend/node_modules/.package-lock.json: frontend/package.json frontend/package
 
 test-e2e: frontend/node_modules/.package-lock.json
 	cd frontend && npx playwright install chromium
-	cd frontend && npm run test:e2e -- e2e/replay.spec.ts
+	cd frontend && npm run test:e2e -- e2e/replay.spec.ts e2e/run-failure.spec.ts
 
 record-repair:
 	uv run --python 3.12 --with-requirements backend/requirements.txt python scripts/start_repair_demo.py
@@ -46,6 +46,12 @@ eda-check:
 
 eda-tools-check:
 	uv run --env-file .env --python 3.12 --with-requirements backend/requirements.txt python -m pytest -q -m integration backend/tests/integration
+
+golden-check:
+	uv run --python 3.12 --with-requirements backend/requirements.txt python scripts/check_golden.py
+
+golden-flow-check:
+	uv run --python 3.12 --with-requirements backend/requirements.txt python scripts/check_golden.py --flow
 
 llm-smoke: setup
 	uv run --env-file .env --python 3.12 --with-requirements backend/requirements.txt python scripts/provider_smoke_test.py

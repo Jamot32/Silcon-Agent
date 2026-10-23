@@ -1,0 +1,5 @@
+Hand-written traffic-light reference with inputs `clk`, synchronous active-low `rst_n`, and synchronized `ped_request`; outputs `green`, `yellow`, `red`, and `walk`.
+
+Reset starts a safe red clearance phase with no pending request. Normal sequencing is red → green → yellow → red. A rising pedestrian request is latched while not walking. At the end of red clearance, a pending or newly rising request starts walk while vehicle red stays on. Walk is followed by another complete red clearance before green. Requests during walk are ignored, and holding the button serves it once until release and another press. Exactly one vehicle color is active; walk only coexists with red.
+
+Duration parameters are 1 through 255 clock periods: GREEN_CYCLES=4, YELLOW_CYCLES=2, RED_CYCLES=3, WALK_CYCLES=3 by default. Six independent cocotb tests cover synchronous safe reset, exact phase lengths, latched pulses, held requests, ignored walk-time requests, and a deterministic randomized reference based only on public outputs and parameters. Clock-domain synchronization and physical button debouncing are outside this small reference's contract.

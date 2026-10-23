@@ -1,0 +1,109 @@
+{
+  "design": "traffic",
+  "top_module": "traffic_light",
+  "clock_port": "clk",
+  "check_started_at_utc": "2026-10-23T22:56:13.706192+00:00",
+  "argv": [
+    "python",
+    "scripts/check_golden.py",
+    "pwm",
+    "alu",
+    "traffic",
+    "--flow",
+    "--write-verification"
+  ],
+  "check_kind": "full_flow",
+  "is_model_run": false,
+  "status": "passed",
+  "source_sha256": {
+    "src/traffic_light.v": "d9e0433986fda9240e94ba049466647cfbf53e33cb963c6d050ac03cfe7d91d9",
+    "test/test_traffic.py": "584c270c4ffe6a9f6fc7e4f5ded9cdc04c292cd7b2d01648ba0ec36d80fd533a"
+  },
+  "reference_config_sha256": "553c0ec110f126d594d5d38c3e7072c33709eea5479608d2217bc8627a23fd55",
+  "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+  "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+  "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+  "flow_overrides": {
+    "CLOCK_PERIOD": 20,
+    "DIE_AREA": [
+      0,
+      0,
+      100,
+      100
+    ],
+    "FP_CORE_UTIL": 40,
+    "PL_TARGET_DENSITY_PCT": 45
+  },
+  "artifacts": {
+    "gds": {
+      "path": "runs/golden-check/20261023T225505Z_8001460c/traffic/work/.eda/flow_759e2c52c10b4615a8a6dfdec9f3cfff/output/runs/flow_c0f01a684ae04eb3/final/gds/traffic_light.gds",
+      "bytes": 600432,
+      "sha256": "378988c35b6071343399f91bec55f349e4a3de841f48c42e7d8b51454fdf4aea"
+    },
+    "lef": {
+      "path": "runs/golden-check/20261023T225505Z_8001460c/traffic/work/.eda/flow_759e2c52c10b4615a8a6dfdec9f3cfff/output/runs/flow_c0f01a684ae04eb3/final/lef/traffic_light.lef",
+      "bytes": 3268,
+      "sha256": "f6a60166cdc232003d7f552853822e268e5492949fdc89062432aa9196819ca6"
+    },
+    "netlist": {
+      "path": "runs/golden-check/20261023T225505Z_8001460c/traffic/work/.eda/flow_759e2c52c10b4615a8a6dfdec9f3cfff/output/runs/flow_c0f01a684ae04eb3/final/nl/traffic_light.nl.v",
+      "bytes": 82570,
+      "sha256": "5b8008182d8387d6695f35a57da0a48788cd437b76a443df5bb419eb7ef2c333"
+    },
+    "metrics": {
+      "path": "runs/golden-check/20261023T225505Z_8001460c/traffic/work/.eda/flow_759e2c52c10b4615a8a6dfdec9f3cfff/output/runs/flow_c0f01a684ae04eb3/final/metrics.json",
+      "bytes": 16948,
+      "sha256": "ba75cefcc7fb9a391262f680010cb00a027c63035c4c843bf8f240b7b42e353b"
+    },
+    "layout": {
+      "path": "runs/golden-check/20261023T225505Z_8001460c/traffic/work/.eda/flow_759e2c52c10b4615a8a6dfdec9f3cfff/output/runs/flow_c0f01a684ae04eb3/final/render/traffic_light.png",
+      "bytes": 146825,
+      "sha256": "e71117af07d3ed14b21670b4d2c4c13e6b41a5cc314af9f732659faf6ccfc9a5"
+    },
+    "config": {
+      "path": "runs/golden-check/20261023T225505Z_8001460c/traffic/work/.eda/flow_759e2c52c10b4615a8a6dfdec9f3cfff/output/runs/flow_c0f01a684ae04eb3/resolved.json",
+      "bytes": 94268,
+      "sha256": "44868dc906cb5b834f75701e9ab8d7e359d6525687dbbcd00e5bd4a9e48fbb8e"
+    }
+  },
+  "raw_evidence_dir": "runs/golden-check/20261023T225505Z_8001460c/traffic",
+  "lint": {
+    "ok": true,
+    "warnings": [],
+    "errors": []
+  },
+  "tests": {
+    "ok": true,
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0
+  },
+  "synthesis": {
+    "ok": true,
+    "cell_count": 134,
+    "area_estimate": null
+  },
+  "metrics": {
+    "flow_index": 1,
+    "clock_mhz": 50.0,
+    "area_um2": 1132.34,
+    "wns_ns": 0.0,
+    "tns_ns": 0.0,
+    "power_mw": 0.0988035390037112,
+    "cell_count": 179,
+    "drc_ok": true,
+    "lvs_ok": true
+  },
+  "run_tag": "flow_c0f01a684ae04eb3",
+  "render": {
+    "ok": true,
+    "width": 1000,
+    "height": 1000
+  },
+  "limitations": [
+    "Generic synthesis reports no area estimate without a mapped library.",
+    "Full-flow clock_mhz is a configured timing constraint, not measured Fmax; combinational ALU has no clock port.",
+    "Power is flow-reported; no worst-corner or nominal-corner claim.",
+    "Standalone DRC/LVS does not establish Tiny Tapeout wrapper or shuttle readiness."
+  ]
+}

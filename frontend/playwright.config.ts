@@ -1,6 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
-// Run against an explicitly started app. Tests never launch the worker or a job.
+// Use an explicitly started app. Offline checks create only a labeled replay;
+// real model/EDA builds require the separate opt-in live test.
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,

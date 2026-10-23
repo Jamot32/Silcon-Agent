@@ -16,6 +16,9 @@ def test_bootstrap_health_is_honest(tmp_path, monkeypatch):
         assert checks["database"]["status"] == "ok"
         assert checks["eda"]["status"] == "not_verified"
         assert checks["llm"]["status"] in {"not_configured", "not_verified"}
+        assert checks["worker"]["status"] == "not_verified"
+        assert response.json()["milestone"] == "M11"
+        assert "recorded_replay" in response.json()["capabilities"]
         assert client.get("/api/runs").json() == []
         assert client.get("/api/recordings").json() == []
 

@@ -65,6 +65,22 @@ def test_empty_claim_is_none(tmp_path):
     store.close()
 
 
+def test_heartbeat_is_authenticated_read_only_and_control_requests_are_bounded(tmp_path):
+    calls = []
+
+    def handler(request):
+        calls.append(request)
+        assert request.headers["Authorization"] == f"Bearer {TOKEN}"
+        assert set(request.extensions["timeout"].values()) == {5}
+        return httpx.Response(200, json={})
+
+    store = adapter(tmp_path, handler)
+    store.heartbeat()
+    store.recover_interrupted()
+    assert [(call.method, call.url.path.rsplit("/", 1)[-1]) for call in calls] == [("GET", "heartbeat"), ("POST", "recover")]
+    store.close()
+
+
 @pytest.mark.parametrize("method", ["claim", "emit", "finish", "fail", "recover"])
 def test_mutations_are_not_retried_and_errors_hide_auth_and_body(tmp_path, method):
     calls = []

@@ -388,7 +388,18 @@ class Orchestrator:
                         result = await self._reject(call, "Use a pure batch of at most three flow calls within the remaining budget")
                         messages.append(self._tool_reply(call, result))
                     continue
-                results = await asyncio.gather(*(self._execute("OPTIMIZE", call) for call in flows))
+                tasks = [asyncio.create_task(self._execute("OPTIMIZE", call)) for call in flows]
+                try:
+                    results = await asyncio.gather(*tasks)
+                except BaseException:
+                    # gather propagates a sibling's exception without stopping
+                    # the other flows. Await their container/RPC cleanup before
+                    # the worker can recover an ambiguous interrupted build.
+                    for task in tasks:
+                        if not task.done() and not task.cancelling():
+                            task.cancel()
+                    await asyncio.gather(*tasks, return_exceptions=True)
+                    raise
                 for result in results:
                     await self._accept_flow(result)
                 return "compared"
