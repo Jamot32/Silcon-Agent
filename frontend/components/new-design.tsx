@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getJson, type Check, type Health, type Preset, type Recording } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { createRun, getJson, type Check, type Health, type Preset, type Recording } from "@/lib/api";
 
 const initialSpec = "An 8-bit up/down counter with enable, synchronous load, and active-low reset.";
 const shortNames: Record<string, string> = {
@@ -18,6 +19,10 @@ function checkLabel(check: Check | undefined, fallback: string) {
 }
 
 export function NewDesign() {
+  const router = useRouter();
+  const [selectedPreset, setSelectedPreset] = useState<string | undefined>("counter");
+  const [building, setBuilding] = useState(false);
+  const [buildError, setBuildError] = useState("");
   const [spec, setSpec] = useState(initialSpec);
   const [clock, setClock] = useState("50");
   const [fit, setFit] = useState(false);
@@ -51,6 +56,20 @@ export function NewDesign() {
     return () => controller.abort();
   }, []);
 
+  async function build(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (building) return;
+    setBuilding(true);
+    setBuildError("");
+    try {
+      const result = await createRun({ spec_text: spec, preset_id: selectedPreset, targets: { clock_mhz: Number(clock), ...(fit ? { fit: "tt_1x1_tile" as const } : {}) } });
+      router.push(`/runs/${result.run_id}`);
+    } catch (reason) {
+      setBuildError(reason instanceof Error ? reason.message : "The build could not be queued.");
+      setBuilding(false);
+    }
+  }
+  const valid = spec.trim().length >= 10 && Number(clock) >= 1 && Number(clock) <= 1000;
   const checks = [
     { name: "API", label: apiState, detail: apiState === "Ready" ? "Backend API is reachable." : undefined, ready: apiState === "Ready" },
     { name: "Database", label: checkLabel(health?.checks.database, "Checking"), detail: health?.checks.database.detail, ready: health?.checks.database.status === "ok" },
@@ -63,12 +82,12 @@ export function NewDesign() {
       <div className="design-grid">
         <section className="panel design-panel" aria-labelledby="design-title">
           <h2 id="design-title">Design specification</h2>
-          <form onSubmit={(event) => event.preventDefault()}>
+          <form onSubmit={build}>
             <label className="sr-only" htmlFor="design-spec">Describe your chip</label>
-            <textarea id="design-spec" value={spec} onChange={(event) => setSpec(event.target.value)} spellCheck={false} />
+            <textarea id="design-spec" value={spec} onChange={(event) => { setSpec(event.target.value); setSelectedPreset(undefined); }} spellCheck={false} />
             <div className="preset-row" aria-label="Example chip specifications">
               {presets.map((preset) => (
-                <button key={preset.id} type="button" className="preset-button" onClick={() => setSpec(preset.spec_text)}>
+                <button key={preset.id} type="button" className="preset-button" aria-pressed={selectedPreset === preset.id} onClick={() => { setSpec(preset.spec_text); setSelectedPreset(preset.id); }}>
                   {shortNames[preset.id] ?? preset.name}
                 </button>
               ))}
@@ -85,9 +104,10 @@ export function NewDesign() {
               </label>
             </div>
             <div className="build-row">
-              <button className="build-button" type="submit" disabled aria-describedby="build-explanation">Build my chip</button>
-              <p id="build-explanation">Live builds unlock after the agent workflow is verified.</p>
+              <button className="build-button" type="submit" disabled={building || !valid} aria-describedby="build-explanation">{building ? "Queuing your chip…" : "Build my chip"}</button>
+              <p id="build-explanation">The agent writes Verilog, verifies it, then builds a real sky130 layout.</p>
             </div>
+            {buildError ? <p className="form-error" role="alert">{buildError}</p> : null}
           </form>
         </section>
         <section className="panel toolchain-panel" aria-labelledby="toolchain-title">

@@ -1,0 +1,32 @@
+{
+  "run_id": "fe6f7664848840b596784df0f499cc10",
+  "status": "passed",
+  "provider": "codex",
+  "call_count": 15,
+  "input_tokens": 150489,
+  "output_tokens": 4473,
+  "cost_usd": null,
+  "flow_points": 2,
+  "best": {
+    "id": "9c235f866f8744fb9324810d80a3268a",
+    "run_tag": "flow_0f4fe995bdf7430a",
+    "clock_mhz": 50.0,
+    "wns_ns": 0.0,
+    "power_mw": 0.07993645704118535,
+    "drc_ok": true,
+    "run_id": "fe6f7664848840b596784df0f499cc10",
+    "flow_index": 2,
+    "iteration_id": "eb97e4fac4a24e93853fc9cb6d1c0674",
+    "area_um2": 980.941,
+    "tns_ns": 0.0,
+    "cell_count": 170,
+    "lvs_ok": true
+  },
+  "layout_dimensions": [
+    1000,
+    1000
+  ],
+  "layout_sha256": "c6175a238d80bc07ee316a7af65e4690dce904ed1c47a47bd6f6b80b193e44fd",
+  "bundle_sha256": "b96305d0ecf2dba891fff178d6f1bf52682393e00979969db3caa6a59d3c8126",
+  "tiny_tapeout_ready": false
+}

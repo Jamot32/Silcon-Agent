@@ -104,7 +104,7 @@ def _bounded_result(result: dict[str, JsonValue]) -> dict[str, JsonValue]:
         return result
     compact: dict[str, JsonValue] = {
         key: result[key] for key in (
-            "ok", "bytes", "passed", "failed", "cell_count", "area_estimate",
+            "ok", "bytes", "passed", "failed", "skipped", "cases", "cell_count", "area_estimate",
             "run_tag", "drc_ok", "lvs_ok", "image_url", "best_run_tag", "metrics",
             "log_path", "results_path", "stats_path",
         ) if key in result

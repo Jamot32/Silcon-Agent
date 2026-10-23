@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // Proxied SSE must flush each event instead of waiting in a gzip buffer.
+  compress: false,
   devIndicators: false,
   async rewrites() {
     return [{
