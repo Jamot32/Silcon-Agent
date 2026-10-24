@@ -1,0 +1,37 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.sv"
+  ],
+  "reference_hashes": {
+    "golden/ref.sv": "10d722d88869ebf98ca6087c372aca6dd27f109f900982da7b84def44f60f42a"
+  },
+  "reference_top": "divu_int",
+  "reference_parameters": {
+    "WIDTH": 8
+  },
+  "port_mapping": {
+    "clk": "clk",
+    "start": "start",
+    "busy": "busy",
+    "done": "done",
+    "valid": "valid",
+    "dbz": "dbz",
+    "a": "a",
+    "b": "b",
+    "val": "val",
+    "rem": "rem",
+    "rst": "~rst_n"
+  },
+  "scenario": "arithmetic",
+  "seed": 24897633,
+  "output_guards": {
+    "val": "valid",
+    "rem": "valid"
+  },
+  "reference_origins": {
+    "golden/ref.sv": "lib/maths/divu_int.sv"
+  },
+  "test_style": "transaction",
+  "operation": "unsigned_divide"
+}

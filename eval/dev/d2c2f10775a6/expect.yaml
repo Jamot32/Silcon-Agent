@@ -1,0 +1,23 @@
+{
+  "id": "d2c2f10775a6",
+  "tier": 2,
+  "expected_outcome": "build",
+  "behaviors": [
+    "An 8-bit full-duplex SPI master, mode 0, MSB first, with 2 input clocks per SCLK half-period. Pulse tx_valid for one clock while tx_ready is high to latch tx_data and start a byte. Begin SCLK within 72 clocks, generate exactly 16 edges with the configured half-period, change MOSI only on the non-sampling edge after initial setup, and capture MISO on the proper sampling edge for CPOL/CPHA. A start-latency offset is acceptable. tx_ready is low during the active edges and becomes high within 144 clocks after acceptance. Pulse rx_valid for exactly one clock with the complete rx_data; data is otherwise unspecified. Asynchronous active-low rst_n clears receive-valid and restores idle SCLK. No chip-select pin is required."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/nandland/spi-master/blob/1ab581969f8ea2f794072a144b55cd74e5a54f34/Verilog/source/SPI_Master.v",
+      "commit": "1ab581969f8ea2f794072a144b55cd74e5a54f34",
+      "path": "Verilog/source/SPI_Master.v",
+      "license": "MIT",
+      "sha256": "61bcaf5c4f81ef1f6bb247114ac51155e32ed714eca371f207a0793928771842"
+    }
+  ],
+  "oracle_kind": "differential"
+}

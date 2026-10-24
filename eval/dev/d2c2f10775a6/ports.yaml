@@ -1,0 +1,59 @@
+{
+  "top_module": "chip",
+  "ports": [
+    {
+      "name": "clk",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "tx_data",
+      "direction": "input",
+      "width": 8
+    },
+    {
+      "name": "tx_valid",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "tx_ready",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "rx_valid",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "rx_data",
+      "direction": "output",
+      "width": 8
+    },
+    {
+      "name": "sclk",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "miso",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "mosi",
+      "direction": "output",
+      "width": 1
+    }
+  ],
+  "parameters": {
+    "SPI_MODE": 0,
+    "CLKS_PER_HALF_BIT": 2
+  }
+}

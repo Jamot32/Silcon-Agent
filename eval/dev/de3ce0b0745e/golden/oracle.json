@@ -1,0 +1,29 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.sv"
+  ],
+  "reference_hashes": {
+    "golden/ref.sv": "f5a25764de883c636b06856ea7e6a4628c1c5b69b004025da10e3ae205adcac4"
+  },
+  "reference_top": "RefModule",
+  "reference_parameters": {},
+  "port_mapping": {
+    "clk": "clk",
+    "reset": "~rst_n",
+    "ena": "ena",
+    "pm": "pm",
+    "hh": "hh",
+    "mm": "mm",
+    "ss": "ss"
+  },
+  "scenario": "generic",
+  "seed": 92782724,
+  "input_defaults": {
+    "ena": 1
+  },
+  "cycles": 44000,
+  "reference_origins": {
+    "golden/ref.sv": "dataset_spec-to-rtl/Prob141_count_clock_ref.sv"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref_0.v",
+    "golden/ref_1.v"
+  ],
+  "reference_hashes": {
+    "golden/ref_0.v": "5502c8203b0dfc7246c1a2de93e60c199ded3c1d7840b106350d714f72a9a079",
+    "golden/ref_1.v": "ca48c6fc36df735aa6cfb7fb228a61f78736668ac95f426fdbfdf59c786a8497"
+  },
+  "reference_top": "lfsr_crc",
+  "reference_parameters": {
+    "LFSR_WIDTH": 32,
+    "LFSR_POLY": "32'h04c11db7",
+    "LFSR_INIT": "32'hffffffff",
+    "LFSR_CONFIG": "\"GALOIS\"",
+    "REVERSE": 1,
+    "INVERT": 1,
+    "DATA_WIDTH": 8,
+    "STYLE": "\"REDUCTION\""
+  },
+  "port_mapping": {
+    "clk": "clk",
+    "data_in": "data_in",
+    "data_in_valid": "data_in_valid",
+    "crc_out": "crc_out",
+    "rst": "~rst_n"
+  },
+  "scenario": "generic",
+  "seed": 144881975,
+  "cycles": 900,
+  "reference_origins": {
+    "golden/ref_0.v": "rtl/lfsr.v",
+    "golden/ref_1.v": "rtl/lfsr_crc.v"
+  }
+}

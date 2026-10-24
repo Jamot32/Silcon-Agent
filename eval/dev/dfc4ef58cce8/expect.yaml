@@ -1,0 +1,30 @@
+{
+  "id": "dfc4ef58cce8",
+  "tier": 1,
+  "expected_outcome": "build",
+  "behaviors": [
+    "A 10-bit countdown timer: when load=1 load data; otherwise decrement each clock until zero and saturate at zero. tc is combinational high exactly when the stored count is zero. The rst_n input is reserved and has no effect; initial internal state is unspecified until enough input samples or a load establish it."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob080_timer_ref.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob080_timer_ref.sv",
+      "license": "MIT",
+      "sha256": "14b34884220ceb1058f834d04d86cdd7b2798163f8e816ad7ed3ea146cf05f41"
+    },
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob080_timer_test.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob080_timer_test.sv",
+      "license": "MIT",
+      "sha256": "86c79e899dcab371d0e244e8775b36c4f0f16259496911bfc41c4d20b8ae2e87"
+    }
+  ],
+  "oracle_kind": "differential"
+}

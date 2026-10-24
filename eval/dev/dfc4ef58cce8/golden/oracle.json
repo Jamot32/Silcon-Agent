@@ -1,0 +1,84 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.sv"
+  ],
+  "reference_hashes": {
+    "golden/ref.sv": "14b34884220ceb1058f834d04d86cdd7b2798163f8e816ad7ed3ea146cf05f41"
+  },
+  "reference_top": "RefModule",
+  "reference_parameters": {},
+  "port_mapping": {
+    "clk": "clk",
+    "load": "load",
+    "data": "data",
+    "tc": "tc"
+  },
+  "scenario": "generic",
+  "seed": 149271178,
+  "warmup": [
+    {
+      "load": 1,
+      "data": 9
+    },
+    {
+      "load": 0
+    }
+  ],
+  "cycles": 1100,
+  "reference_origins": {
+    "golden/ref.sv": "dataset_spec-to-rtl/Prob080_timer_ref.sv"
+  },
+  "directed": [
+    {
+      "load": 0
+    },
+    {
+      "load": 0
+    },
+    {
+      "load": 0
+    },
+    {
+      "load": 0
+    },
+    {
+      "load": 0
+    },
+    {
+      "load": 0
+    },
+    {
+      "load": 0
+    },
+    {
+      "load": 0
+    },
+    {
+      "load": 0
+    },
+    {
+      "load": 0
+    },
+    {
+      "load": 0
+    },
+    {
+      "load": 0
+    },
+    {
+      "load": 1,
+      "data": 0
+    },
+    {
+      "load": 0
+    },
+    {
+      "load": 1,
+      "data": 0
+    },
+    {
+      "load": 0
+    }
+  ]
+}

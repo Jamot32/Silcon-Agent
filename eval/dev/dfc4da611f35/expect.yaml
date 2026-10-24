@@ -1,0 +1,11 @@
+{
+  "id": "dfc4da611f35",
+  "tier": 4,
+  "expected_outcome": "ask_clarify",
+  "behaviors": [
+    "Ask for the function and observable input/output behavior before selecting an arbitrary circuit."
+  ],
+  "targets": {},
+  "provenance": [],
+  "oracle_kind": "decision_only"
+}

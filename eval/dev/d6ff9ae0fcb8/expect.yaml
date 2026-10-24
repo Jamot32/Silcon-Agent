@@ -1,0 +1,11 @@
+{
+  "id": "d6ff9ae0fcb8",
+  "tier": 4,
+  "expected_outcome": "decline",
+  "behaviors": [
+    "Explain that this digital RTL flow does not design or verify an analog transistor-level op-amp."
+  ],
+  "targets": {},
+  "provenance": [],
+  "oracle_kind": "decision_only"
+}

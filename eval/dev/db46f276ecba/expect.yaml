@@ -1,0 +1,23 @@
+{
+  "id": "db46f276ecba",
+  "tier": 3,
+  "expected_outcome": "build",
+  "behaviors": [
+    "I need a signed fixed-point divide block. a, b and val are 8-bit two's-complement numbers with 4 fractional bits. Compute a/b; support zero dividend and the most-negative representable input as ordinary values. A zero divisor returns valid=0, dbz=1, ovf=0. Round the exact mathematical result to nearest, ties to even. Check overflow AFTER rounding: when the rounded result does not fit the signed output, return valid=0 and ovf=1; otherwise valid=1, ovf=0 and val contains the correctly rounded result. For nonzero divisors dbz=0. Pulse start only while idle; latch operands on that edge. Any implementation latency is acceptable up to 64 clocks after start, including completion on the start edge. busy must stay high while a transaction is pending. A new start clears prior valid. done pulses for exactly one clock on completion; valid and a successful val then hold until the next start. val is unspecified for error results. Synchronous active-low rst_n clears busy, done, valid, error flags and val, and aborts an operation."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/python/cpython/blob/8183fa5e3f78ca6ab862de7fb8b14f3d929421e0/Lib/fractions.py",
+      "commit": "8183fa5e3f78ca6ab862de7fb8b14f3d929421e0",
+      "path": "Lib/fractions.py",
+      "license": "PSF-2.0 and historical Python licenses (complete upstream LICENSE retained)",
+      "sha256": "0669c58fc593177e76f879e92598886747dc69747223bf7f54a9c405aa91286d"
+    }
+  ],
+  "oracle_kind": "python_reference"
+}

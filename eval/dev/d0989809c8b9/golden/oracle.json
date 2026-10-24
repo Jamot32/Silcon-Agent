@@ -1,0 +1,22 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.sv"
+  ],
+  "reference_hashes": {
+    "golden/ref.sv": "0370512ff67ccc07b5159d1516972c5875b5c2d73bbe25349fb223978bc944f6"
+  },
+  "reference_top": "RefModule",
+  "reference_parameters": {},
+  "port_mapping": {
+    "clk": "clk",
+    "slowena": "slowena",
+    "reset": "~rst_n",
+    "q": "q"
+  },
+  "scenario": "generic",
+  "seed": 189420339,
+  "reference_origins": {
+    "golden/ref.sv": "dataset_spec-to-rtl/Prob067_countslow_ref.sv"
+  }
+}

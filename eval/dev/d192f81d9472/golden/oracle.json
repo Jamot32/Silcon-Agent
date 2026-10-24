@@ -1,0 +1,67 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.sv"
+  ],
+  "reference_hashes": {
+    "golden/ref.sv": "530a38bea8b90455f64bf9cf022b417e02dbdbe7ef2a5bfa61a7c3c38f52f208"
+  },
+  "reference_top": "RefModule",
+  "reference_parameters": {},
+  "port_mapping": {
+    "clk": "clk",
+    "in": "in",
+    "reset": "~rst_n",
+    "out_byte": "out_byte",
+    "done": "done"
+  },
+  "scenario": "generic",
+  "seed": 228837085,
+  "output_guards": {
+    "out_byte": "done"
+  },
+  "reference_origins": {
+    "golden/ref.sv": "dataset_spec-to-rtl/Prob146_fsm_serialdata_ref.sv"
+  },
+  "directed": [
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 0
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 0
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 0
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 0
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 0
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    }
+  ]
+}

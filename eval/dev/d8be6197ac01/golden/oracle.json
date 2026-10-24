@@ -1,0 +1,42 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.v"
+  ],
+  "reference_hashes": {
+    "golden/ref.v": "e686104e5ff2d25fa1504e8d08259cef508f2ec9c9e8cfa63364f3fcb39b9f5c"
+  },
+  "reference_top": "uart_rx",
+  "reference_parameters": {
+    "DATA_WIDTH": 8
+  },
+  "port_mapping": {
+    "clk": "clk",
+    "m_axis_tdata": "m_axis_tdata",
+    "m_axis_tvalid": "m_axis_tvalid",
+    "m_axis_tready": "m_axis_tready",
+    "rxd": "rxd",
+    "busy": "busy",
+    "overrun_error": "overrun_error",
+    "frame_error": "frame_error",
+    "prescale": "16'd2",
+    "rst": "~rst_n"
+  },
+  "scenario": "uart_rx",
+  "seed": 222360313,
+  "input_defaults": {
+    "prescale": 2,
+    "rxd": 1,
+    "m_axis_tready": 1
+  },
+  "output_guards": {
+    "m_axis_tdata": "m_axis_tvalid"
+  },
+  "reference_origins": {
+    "golden/ref.v": "rtl/uart_rx.v"
+  },
+  "driven_constants": {
+    "prescale": 2
+  },
+  "test_style": "transaction"
+}

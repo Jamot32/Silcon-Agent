@@ -1,0 +1,26 @@
+{
+  "top_module": "chip",
+  "ports": [
+    {
+      "name": "clk",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "in",
+      "direction": "input",
+      "width": 8
+    },
+    {
+      "name": "pedge",
+      "direction": "output",
+      "width": 8
+    }
+  ],
+  "parameters": {}
+}

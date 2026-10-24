@@ -1,0 +1,30 @@
+{
+  "id": "d397c61538d7",
+  "tier": 1,
+  "expected_outcome": "build",
+  "behaviors": [
+    "For each bit of the 8-bit input in, pedge is a registered one-cycle pulse on a sampled 0-to-1 transition only. The rst_n input is reserved and has no effect; initial internal state is unspecified until enough input samples or a load establish it."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob054_edgedetect_ref.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob054_edgedetect_ref.sv",
+      "license": "MIT",
+      "sha256": "85fac5a17004cf8c6ae544ba6a3410eb38e66672c4e41cf980ac5fbe24197096"
+    },
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob054_edgedetect_test.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob054_edgedetect_test.sv",
+      "license": "MIT",
+      "sha256": "4ea66c1ef410c5104bec84d51211da7f26aa9b320da1ce446e6a2fbff6d1742b"
+    }
+  ],
+  "oracle_kind": "differential"
+}

@@ -1,0 +1,4 @@
+A byte-wide synchronous FIFO with capacity at least 8 complete beats and at most 10 beats (up to two optional pipeline slots). Accept input on s_axis_tvalid AND s_axis_tready, preserve exact byte order and never duplicate or invent data. Output valid/data must hold unchanged while output ready is low. Backpressure input when full; do not silently discard accepted bytes. Any pipeline latency up to 64 clocks without downstream backpressure is acceptable. Synchronous active-low rst_n flushes all stored/pipelined beats and clears output valid on the reset edge. There are no frame or side-channel signals.
+
+Exact interface: module `chip`, rising-edge `clk`, active-low `rst_n`; input s_axis_tdata[7:0], input s_axis_tvalid, output s_axis_tready, output m_axis_tdata[7:0], output m_axis_tvalid, input m_axis_tready.
+Use synthesizable Verilog-2005. Target 25 MHz.

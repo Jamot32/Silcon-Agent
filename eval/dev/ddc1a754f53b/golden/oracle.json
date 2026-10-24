@@ -1,0 +1,21 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.sv"
+  ],
+  "reference_hashes": {
+    "golden/ref.sv": "f2e92f3eb73c77bfdcf81b00cbc032cea78d888428e11235c4eae04897d8ac6f"
+  },
+  "reference_top": "RefModule",
+  "reference_parameters": {},
+  "port_mapping": {
+    "clk": "clk",
+    "reset": "~rst_n",
+    "q": "q"
+  },
+  "scenario": "generic",
+  "seed": 222206775,
+  "reference_origins": {
+    "golden/ref.sv": "dataset_spec-to-rtl/Prob086_lfsr5_ref.sv"
+  }
+}

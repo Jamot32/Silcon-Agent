@@ -1,0 +1,23 @@
+{
+  "id": "d8be6197ac01",
+  "tier": 2,
+  "expected_outcome": "build",
+  "behaviors": [
+    "An 8-data-bit UART receiver: low start bit, LSB-first data, high stop bit, no parity, 16 clocks per bit. Reject false starts shorter than a quarter bit. Deliver a correctly sampled byte with m_axis_tvalid after the stop sample, no later than 40 clocks after the complete frame, and hold valid/data until a ready handshake. busy must cover data reception and clear within 40 clocks after a valid frame. A bad low stop produces exactly one one-clock frame_error pulse and no accepted bad byte. Recovery after a framing error without reset is unspecified; the caller resets before resuming traffic. If a second complete byte arrives while the previous byte is still pending, replace it with the latest byte and pulse overrun_error for one clock. Do not report overrun for ordinary already-consumed bytes. Synchronous active-low rst_n clears valid, busy, errors and data, discards a partial frame, and returns to idle-high input search. No configurable baud input is needed."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/alexforencich/verilog-uart/blob/1b867e53af738e4a8bc7c839ca2f1c07f40382dc/rtl/uart_rx.v",
+      "commit": "1b867e53af738e4a8bc7c839ca2f1c07f40382dc",
+      "path": "rtl/uart_rx.v",
+      "license": "MIT",
+      "sha256": "e686104e5ff2d25fa1504e8d08259cef508f2ec9c9e8cfa63364f3fcb39b9f5c"
+    }
+  ],
+  "oracle_kind": "differential"
+}

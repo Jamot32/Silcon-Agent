@@ -1,0 +1,30 @@
+{
+  "id": "d335f496651d",
+  "tier": 1,
+  "expected_outcome": "build",
+  "behaviors": [
+    "For each bit of the 8-bit input in, anyedge reports whether that bit changed since the preceding clock sample. Register the pulse; both rising and falling edges count. The rst_n input is reserved and has no effect; initial internal state is unspecified until enough input samples or a load establish it."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob045_edgedetect2_ref.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob045_edgedetect2_ref.sv",
+      "license": "MIT",
+      "sha256": "8b54c0faa026c483b2eb6fdd30f131e954366022d5d951a1ccd343e057f58df8"
+    },
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob045_edgedetect2_test.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob045_edgedetect2_test.sv",
+      "license": "MIT",
+      "sha256": "e1e1fb847dd0b234e26387f1fe6786149daf5553f6ca335e05fd392374deb3fe"
+    }
+  ],
+  "oracle_kind": "differential"
+}

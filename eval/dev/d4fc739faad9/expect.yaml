@@ -1,0 +1,30 @@
+{
+  "id": "d4fc739faad9",
+  "tier": 1,
+  "expected_outcome": "build",
+  "behaviors": [
+    "A 4-bit right shift register: asynchronous rst_n=0 clears q. Otherwise load has priority over ena; load data when load=1; else shift right filling the MSB with zero when ena=1; otherwise hold."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob085_shift4_ref.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob085_shift4_ref.sv",
+      "license": "MIT",
+      "sha256": "35074d1c6ac73241a4acdcc48712e78e83f571f4016949c7de33c0f6ed3c4564"
+    },
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob085_shift4_test.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob085_shift4_test.sv",
+      "license": "MIT",
+      "sha256": "2fc7f7077688eefa5c27026c348b6b22d25d5f23f79fec3610fd358c9ce344f6"
+    }
+  ],
+  "oracle_kind": "differential"
+}

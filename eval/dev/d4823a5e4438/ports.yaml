@@ -1,0 +1,58 @@
+{
+  "top_module": "chip",
+  "ports": [
+    {
+      "name": "clk",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "s_axis_tdata",
+      "direction": "input",
+      "width": 8
+    },
+    {
+      "name": "s_axis_tvalid",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "s_axis_tready",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "m_axis_tdata",
+      "direction": "output",
+      "width": 8
+    },
+    {
+      "name": "m_axis_tvalid",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "m_axis_tready",
+      "direction": "input",
+      "width": 1
+    }
+  ],
+  "parameters": {
+    "DEPTH": 8,
+    "DATA_WIDTH": 8,
+    "KEEP_ENABLE": 0,
+    "KEEP_WIDTH": 1,
+    "LAST_ENABLE": 0,
+    "ID_ENABLE": 0,
+    "DEST_ENABLE": 0,
+    "USER_ENABLE": 0,
+    "RAM_PIPELINE": 1,
+    "OUTPUT_FIFO_ENABLE": 0,
+    "FRAME_FIFO": 0
+  }
+}

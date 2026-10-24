@@ -1,0 +1,30 @@
+{
+  "id": "ddc1a754f53b",
+  "tier": 2,
+  "expected_outcome": "build",
+  "behaviors": [
+    "A 5-bit maximal-length Galois LFSR. Synchronous rst_n=0 seeds q=1. Each clock q_next[4]=q[0], q_next[3]=q[4], q_next[2]=q[3] XOR q[0], q_next[1]=q[2], q_next[0]=q[1]."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob086_lfsr5_ref.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob086_lfsr5_ref.sv",
+      "license": "MIT",
+      "sha256": "f2e92f3eb73c77bfdcf81b00cbc032cea78d888428e11235c4eae04897d8ac6f"
+    },
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob086_lfsr5_test.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob086_lfsr5_test.sv",
+      "license": "MIT",
+      "sha256": "e17dd6b4ee5387085ecac2fba94676ad53cb4bfd55fb116b246fadd2fecd04ac"
+    }
+  ],
+  "oracle_kind": "differential"
+}

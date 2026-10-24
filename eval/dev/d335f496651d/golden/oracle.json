@@ -1,0 +1,21 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.sv"
+  ],
+  "reference_hashes": {
+    "golden/ref.sv": "8b54c0faa026c483b2eb6fdd30f131e954366022d5d951a1ccd343e057f58df8"
+  },
+  "reference_top": "RefModule",
+  "reference_parameters": {},
+  "port_mapping": {
+    "clk": "clk",
+    "in": "in",
+    "anyedge": "anyedge"
+  },
+  "scenario": "generic",
+  "seed": 201943821,
+  "reference_origins": {
+    "golden/ref.sv": "dataset_spec-to-rtl/Prob045_edgedetect2_ref.sv"
+  }
+}

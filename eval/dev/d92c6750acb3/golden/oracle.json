@@ -1,0 +1,26 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.sv"
+  ],
+  "reference_hashes": {
+    "golden/ref.sv": "d12d0d89d1ca10c260297a0b5e01e619272eb817d3aa18da9528008d9a34db70"
+  },
+  "reference_top": "RefModule",
+  "reference_parameters": {},
+  "port_mapping": {
+    "clk": "clk",
+    "areset": "~rst_n",
+    "bump_left": "bump_left",
+    "bump_right": "bump_right",
+    "ground": "ground",
+    "walk_left": "walk_left",
+    "walk_right": "walk_right",
+    "aaah": "aaah"
+  },
+  "scenario": "generic",
+  "seed": 152631582,
+  "reference_origins": {
+    "golden/ref.sv": "dataset_spec-to-rtl/Prob142_lemmings2_ref.sv"
+  }
+}

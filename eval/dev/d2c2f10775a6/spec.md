@@ -1,0 +1,4 @@
+An 8-bit full-duplex SPI master, mode 0, MSB first, with 2 input clocks per SCLK half-period. Pulse tx_valid for one clock while tx_ready is high to latch tx_data and start a byte. Begin SCLK within 72 clocks, generate exactly 16 edges with the configured half-period, change MOSI only on the non-sampling edge after initial setup, and capture MISO on the proper sampling edge for CPOL/CPHA. A start-latency offset is acceptable. tx_ready is low during the active edges and becomes high within 144 clocks after acceptance. Pulse rx_valid for exactly one clock with the complete rx_data; data is otherwise unspecified. Asynchronous active-low rst_n clears receive-valid and restores idle SCLK. No chip-select pin is required.
+
+Exact interface: module `chip`, rising-edge `clk`, active-low `rst_n`; input tx_data[7:0], input tx_valid, output tx_ready, output rx_valid, output rx_data[7:0], output sclk, input miso, output mosi.
+Use synthesizable Verilog-2005. Target 25 MHz.

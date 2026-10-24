@@ -1,0 +1,37 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.sv"
+  ],
+  "reference_hashes": {
+    "golden/ref.sv": "729b2a634735651925e37b02e3e51db035d149d035340c1c237c87e27ad68e50"
+  },
+  "reference_top": "display_480p",
+  "reference_parameters": {
+    "CORDW": 12,
+    "H_RES": 32,
+    "V_RES": 24,
+    "H_FP": 3,
+    "H_SYNC": 4,
+    "H_BP": 5,
+    "V_FP": 2,
+    "V_SYNC": 2,
+    "V_BP": 3,
+    "H_POL": 0,
+    "V_POL": 0
+  },
+  "port_mapping": {
+    "clk_pix": "clk",
+    "rst_pix": "~rst_n",
+    "hsync": "hsync",
+    "vsync": "vsync",
+    "de": "de",
+    "frame": "frame",
+    "line": "line"
+  },
+  "scenario": "vga",
+  "seed": 258180925,
+  "reference_origins": {
+    "golden/ref.sv": "lib/display/display_480p.sv"
+  }
+}

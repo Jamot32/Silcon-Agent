@@ -1,0 +1,53 @@
+{
+  "top_module": "chip",
+  "ports": [
+    {
+      "name": "clk",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "hsync",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "vsync",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "de",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "frame",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "line",
+      "direction": "output",
+      "width": 1
+    }
+  ],
+  "parameters": {
+    "CORDW": 12,
+    "H_RES": 32,
+    "V_RES": 24,
+    "H_FP": 3,
+    "H_SYNC": 4,
+    "H_BP": 5,
+    "V_FP": 2,
+    "V_SYNC": 2,
+    "V_BP": 3,
+    "H_POL": 0,
+    "V_POL": 0
+  }
+}

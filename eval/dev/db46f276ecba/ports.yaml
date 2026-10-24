@@ -1,0 +1,64 @@
+{
+  "top_module": "chip",
+  "ports": [
+    {
+      "name": "clk",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "start",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "busy",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "done",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "valid",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "dbz",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "ovf",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "a",
+      "direction": "input",
+      "width": 8
+    },
+    {
+      "name": "b",
+      "direction": "input",
+      "width": 8
+    },
+    {
+      "name": "val",
+      "direction": "output",
+      "width": 8
+    }
+  ],
+  "parameters": {
+    "WIDTH": 8,
+    "FBITS": 4
+  }
+}

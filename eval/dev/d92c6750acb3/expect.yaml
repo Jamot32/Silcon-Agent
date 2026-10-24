@@ -1,0 +1,30 @@
+{
+  "id": "d92c6750acb3",
+  "tier": 2,
+  "expected_outcome": "build",
+  "behaviors": [
+    "A Moore controller for a walking character. Asynchronous rst_n=0 starts walk_left. A left bump while walking left reverses to right; right bump while walking right reverses to left; both bumps still reverse. ground=0 takes priority and enters falling, asserting aaah with both walk outputs low. While falling ignore bumps and remember direction. On ground returning, resume the remembered direction; bumps in that landing cycle are ignored."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob142_lemmings2_ref.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob142_lemmings2_ref.sv",
+      "license": "MIT",
+      "sha256": "d12d0d89d1ca10c260297a0b5e01e619272eb817d3aa18da9528008d9a34db70"
+    },
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob142_lemmings2_test.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob142_lemmings2_test.sv",
+      "license": "MIT",
+      "sha256": "b5c82af5e3d74789a715c6c57d9f0f29020cf59d408978dc8ffae8bc471f37cf"
+    }
+  ],
+  "oracle_kind": "differential"
+}

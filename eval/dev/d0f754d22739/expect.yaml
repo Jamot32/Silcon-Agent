@@ -1,0 +1,26 @@
+{
+  "id": "d0f754d22739",
+  "tier": 1,
+  "expected_outcome": "build",
+  "behaviors": [
+    "A decimal digit counter q counts 0 through 9 then wraps to 0. Synchronous rst_n=0 clears q."
+  ],
+  "targets": {},
+  "provenance": [
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob040_count10_ref.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob040_count10_ref.sv",
+      "license": "MIT",
+      "sha256": "483155e5ba707375665d5f67910c053b1b3955db9b4aad743bf2d70f41da45c6"
+    },
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob040_count10_test.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob040_count10_test.sv",
+      "license": "MIT",
+      "sha256": "1aa97a4ea53514d8ef826fb74f85416cbd9df608bd9ae91ae734e0bb1ef2b844"
+    }
+  ],
+  "oracle_kind": "differential"
+}

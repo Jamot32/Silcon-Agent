@@ -1,0 +1,43 @@
+{
+  "top_module": "chip",
+  "ports": [
+    {
+      "name": "clk",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "s_axis_tdata",
+      "direction": "input",
+      "width": 8
+    },
+    {
+      "name": "s_axis_tvalid",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "s_axis_tready",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "txd",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "busy",
+      "direction": "output",
+      "width": 1
+    }
+  ],
+  "parameters": {
+    "DATA_WIDTH": 8
+  }
+}

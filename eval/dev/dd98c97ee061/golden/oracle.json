@@ -1,0 +1,60 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.v"
+  ],
+  "reference_hashes": {
+    "golden/ref.v": "9c4e05759f356e9ddd91af6981a1fcc10466cad0af6e5afb6553787fe9ea0328"
+  },
+  "reference_top": "i2c_master",
+  "reference_parameters": {},
+  "port_mapping": {
+    "clk": "clk",
+    "s_axis_cmd_address": "s_axis_cmd_address",
+    "s_axis_cmd_start": "s_axis_cmd_start",
+    "s_axis_cmd_read": "s_axis_cmd_read",
+    "s_axis_cmd_write": "s_axis_cmd_write",
+    "s_axis_cmd_write_multiple": "s_axis_cmd_write_multiple",
+    "s_axis_cmd_stop": "s_axis_cmd_stop",
+    "s_axis_cmd_valid": "s_axis_cmd_valid",
+    "s_axis_cmd_ready": "s_axis_cmd_ready",
+    "s_axis_data_tdata": "s_axis_data_tdata",
+    "s_axis_data_tvalid": "s_axis_data_tvalid",
+    "s_axis_data_tready": "s_axis_data_tready",
+    "s_axis_data_tlast": "s_axis_data_tlast",
+    "m_axis_data_tdata": "m_axis_data_tdata",
+    "m_axis_data_tvalid": "m_axis_data_tvalid",
+    "m_axis_data_tready": "m_axis_data_tready",
+    "m_axis_data_tlast": "m_axis_data_tlast",
+    "scl_i": "scl_i",
+    "scl_o": "scl_o",
+    "scl_t": "scl_t",
+    "sda_i": "sda_i",
+    "sda_o": "sda_o",
+    "sda_t": "sda_t",
+    "busy": "busy",
+    "bus_control": "bus_control",
+    "bus_active": "bus_active",
+    "missed_ack": "missed_ack",
+    "prescale": "prescale",
+    "stop_on_idle": "stop_on_idle",
+    "rst": "~rst_n"
+  },
+  "scenario": "i2c",
+  "seed": 163027631,
+  "input_defaults": {
+    "prescale": 2,
+    "scl_i": 1,
+    "sda_i": 1,
+    "m_axis_data_tready": 1,
+    "stop_on_idle": 1,
+    "s_axis_cmd_write_multiple": 0
+  },
+  "output_guards": {
+    "m_axis_data_tdata": "m_axis_data_tvalid",
+    "m_axis_data_tlast": "m_axis_data_tvalid"
+  },
+  "reference_origins": {
+    "golden/ref.v": "rtl/i2c_master.v"
+  }
+}

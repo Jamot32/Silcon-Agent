@@ -1,0 +1,11 @@
+{
+  "id": "d900e087260c",
+  "tier": 4,
+  "expected_outcome": "decline",
+  "behaviors": [
+    "Clearly decline the non-hardware request in this chip-design product; do not silently build an unrelated chip."
+  ],
+  "targets": {},
+  "provenance": [],
+  "oracle_kind": "decision_only"
+}

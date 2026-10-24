@@ -146,3 +146,28 @@ Real read-only browser QA found that terminal failures still promised future tes
 
 
 The managed PID is an observed uv launcher with a direct Python child. Graceful stop validates the worker's UID, process group, module, owner token and run path, then signals only that Python process so it can clean up its Docker/Codex children. The owned group receives SIGKILL only after the grace deadline. Refuse unverifiable targets. The actual host check caught macOS Python3.9 annotation compatibility and BSD ps truncation of non-final comm columns; use deferred annotations and query comm separately. Unit regressions cover both forms and reject mismatched ownership without sending any signal.
+
+## 2026-10-23 — Reliability measurement before pipeline changes
+
+Follow the new reliability brief's Phase 1 first. Freeze the exact current
+runtime, including pre-existing user changes, and commit the dev baseline before
+editing the design pipeline. The headless benchmark uses the unchanged
+`Worker.execute` and public request validation in separate local stores; it
+bypasses only the public single-active-job admission policy to permit four
+concurrent benchmark designs. The application keeps its existing admission
+policy. Hidden checks run after completion and cannot influence design repair.
+
+Keep the explicitly authorized ChatGPT-plan provider. Record real tokens,
+calls and wall time with finite benchmark limits; USD remains unknown. Preserve
+the user's unlimited-token app default outside the evaluator. Held-out data
+is separately provisioned, owner-only and Git-ignored; public count/hash
+manifests support integrity without publishing private specs or tests.
+
+An independent source audit found arithmetic bugs and undocumented protocol
+timing in otherwise useful upstream references. Use exact rational arithmetic
+and transaction-level checks for the affected cases rather than requiring bug
+compatibility or unspecified cycle timing. Generated oracle qualification
+fixtures are explicitly evaluator fixtures, never app results. Preserve raw
+external reference bytes with Git attributes. Corpus limitations, provenance,
+qualification evidence and subsequent before/after measurements live in
+`eval/SOURCES.md` and `docs/RELIABILITY_LOG.md`.

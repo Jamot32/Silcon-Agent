@@ -1,0 +1,4 @@
+An 8-data-bit UART transmitter: one low start bit, LSB-first data bits, at least one high stop bit, no parity, idle-high txd. Start and data bits each last exactly 16 input clocks; stop/idle may be longer. Accept a byte on a rising edge where s_axis_tvalid and s_axis_tready are both high, latch the byte then, and transmit it once. The start bit must begin within 32 clocks of acceptance. busy must cover the complete start/data/one-stop-bit interval and clear afterward; become ready again within 64 clocks of completing that interval. Ready may vary during a transfer but is used only for new-byte acceptance. Synchronous active-low rst_n aborts a frame, sets txd=1 and busy=0. No configurable baud input is needed.
+
+Exact interface: module `chip`, rising-edge `clk`, active-low `rst_n`; input s_axis_tdata[7:0], input s_axis_tvalid, output s_axis_tready, output txd, output busy.
+Use synthesizable Verilog-2005. Target 25 MHz.

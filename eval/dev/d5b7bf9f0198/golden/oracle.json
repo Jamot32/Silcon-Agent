@@ -1,0 +1,89 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.sv"
+  ],
+  "reference_hashes": {
+    "golden/ref.sv": "3479ed45a237f4997354f47f7ac7fabd149346dcea6da5be7e6bfb9fd0c3453c"
+  },
+  "reference_top": "RefModule",
+  "reference_parameters": {},
+  "port_mapping": {
+    "clk": "clk",
+    "reset": "~rst_n",
+    "in": "in",
+    "disc": "disc",
+    "flag": "flag",
+    "err": "err"
+  },
+  "scenario": "generic",
+  "seed": 187547632,
+  "reference_origins": {
+    "golden/ref.sv": "dataset_spec-to-rtl/Prob140_fsm_hdlc_ref.sv"
+  },
+  "directed": [
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 0
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 0
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 1
+    },
+    {
+      "in": 0
+    }
+  ]
+}

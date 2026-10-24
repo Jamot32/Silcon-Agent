@@ -1,4 +1,9 @@
-.PHONY: setup dev demo down test test-unit test-e2e record-repair eda-setup eda-check eda-tools-check golden-check golden-flow-check llm-smoke meta-smoke logs
+.PHONY: setup dev demo down test test-unit test-e2e record-repair eda-setup eda-check eda-tools-check golden-check golden-flow-check llm-smoke meta-smoke logs eval eval-compare eval-test eval-validate eval-selfcheck
+
+SET ?= dev
+TIER ?= 1,2,3,4
+N ?= 1
+EVAL_JOBS ?= 1
 
 export SILICON_UID := $(shell id -u)
 export SILICON_GID := $(shell id -g)
@@ -61,3 +66,18 @@ meta-smoke: setup
 
 logs:
 	docker compose logs -f --tail=100
+
+eval:
+	uv run --env-file .env --python 3.12 --with-requirements backend/requirements.txt python -m eval run --set "$(SET)" --tiers "$(TIER)" --repeat "$(N)" --jobs "$(EVAL_JOBS)"
+
+eval-compare:
+	uv run --python 3.12 --with-requirements backend/requirements.txt python -m eval compare "$(A)" "$(B)"
+
+eval-test:
+	uv run --python 3.12 --with-requirements backend/requirements.txt python -m pytest -q eval/tests scripts/tests
+
+eval-validate:
+	uv run --python 3.12 --with-requirements backend/requirements.txt python -m eval validate --set "$(SET)"
+
+eval-selfcheck:
+	PYTHONPATH=backend uv run --python 3.12 --with-requirements backend/requirements.txt python -m eval selfcheck --set "$(SET)"

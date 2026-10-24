@@ -1,0 +1,52 @@
+{
+  "schema_version": 2,
+  "checked_at": "2026-10-24T01:03:23.573312+00:00",
+  "status": "pass",
+  "model_calls": 0,
+  "case_counts": {
+    "dev": 30,
+    "heldout": 30
+  },
+  "build_oracle_selfchecks_passed": 48,
+  "upstream_rtl_positive_cases": 44,
+  "python_reference_response_fixture_cases": 4,
+  "deliberate_mutant_cases_failed": 48,
+  "decision_only_not_applicable": 12,
+  "implementation_compatibility_cases": 2,
+  "positive_test_counts": {
+    "passed": 192,
+    "failed": 0,
+    "skipped": 0
+  },
+  "negative_test_counts": {
+    "passed": 0,
+    "failed": 192,
+    "skipped": 0
+  },
+  "nvidia_upstream_testbench_cases": 28,
+  "nvidia_upstream_reference_zero_mismatch": 28,
+  "nvidia_upstream_mutant_nonzero_mismatch": 28,
+  "nvidia_compile_view_transformation": "Remove waveform-only $dumpfile/$dumpvars calls for Icarus 13 compatibility; upstream corpus files unchanged",
+  "semantic_control_evidence": {
+    "path": "eval/results/semantic-qualification-controls",
+    "retired_buggy_arithmetic_designs_rejected": 2,
+    "retired_buggy_arithmetic_failed_tests": 8,
+    "twenty_cycle_arithmetic_response_fixture_passed_tests": 4
+  },
+  "oracle_engine_sha256": "dbb7d7e1d06b9f0699f45a474612e6e20723f6e57025156b4aba2d8c6dad6f4e",
+  "harness_sha256": "0fe4707087d57ef4a979f8db7fca367e318909eb734c5703dabcd1a6e620e35c",
+  "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+  "private_admission_index_sha256": "8b11e11582de2dfa59c6147cc6e3fc7287bbe5e4e7fa24c705718c0c1d9ba39a",
+  "corpus_sha256": {
+    "dev": "6e6625b9d6b9702064e83db48099843af9aa541c5a9b2d521dddb0de102ba55d",
+    "heldout": "95d56d3819f182166558c02fb5ab28fcc06c509eabe99dc3fe9e726f463f9dd2"
+  },
+  "commands": [
+    "python -m eval selfcheck --set dev",
+    "python -m eval selfcheck --set heldout"
+  ],
+  "qualification_evidence": {
+    "dev": "eval/results/20261024T010236Z_bd65c9e9",
+    "heldout": "eval/results/20261024T010256Z_ee9d1aaa"
+  }
+}

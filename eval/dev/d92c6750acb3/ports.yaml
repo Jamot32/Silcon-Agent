@@ -1,0 +1,46 @@
+{
+  "top_module": "chip",
+  "ports": [
+    {
+      "name": "clk",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "bump_left",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "bump_right",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "ground",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "walk_left",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "walk_right",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "aaah",
+      "direction": "output",
+      "width": 1
+    }
+  ],
+  "parameters": {}
+}

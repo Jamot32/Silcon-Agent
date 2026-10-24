@@ -1,0 +1,41 @@
+{
+  "top_module": "chip",
+  "ports": [
+    {
+      "name": "clk",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "ena",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "pm",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "hh",
+      "direction": "output",
+      "width": 8
+    },
+    {
+      "name": "mm",
+      "direction": "output",
+      "width": 8
+    },
+    {
+      "name": "ss",
+      "direction": "output",
+      "width": 8
+    }
+  ],
+  "parameters": {}
+}

@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "total_cases": 60,
+  "build_cases": 48,
+  "decision_cases": 12,
+  "splits": {
+    "dev": {
+      "counts": {
+        "1": 8,
+        "2": 10,
+        "3": 6,
+        "4": 6
+      },
+      "manifest_sha256": "654599ffb424170cf27be4a61ee8ef8991018a2016a97a041ea88f26ac3a2061"
+    },
+    "heldout": {
+      "counts": {
+        "1": 8,
+        "2": 10,
+        "3": 6,
+        "4": 6
+      },
+      "manifest_sha256": "2740a7bd845838aa6a130a521ee81ffbc5bbefc7a09773ab43da158bf3967580"
+    }
+  },
+  "source_pins": [
+    {
+      "name": "verilog-eval",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6"
+    },
+    {
+      "name": "verilog-uart",
+      "commit": "1b867e53af738e4a8bc7c839ca2f1c07f40382dc"
+    },
+    {
+      "name": "verilog-axis",
+      "commit": "48ff7a7e2ef782cf778d47910cf85835c64b1bce"
+    },
+    {
+      "name": "verilog-i2c",
+      "commit": "a65be4045e898a52e791c6ee71f8f79a7cd2e129"
+    },
+    {
+      "name": "verilog-lfsr",
+      "commit": "c1f86d036745935f3812ec6ddc7821c70ef4c9de"
+    },
+    {
+      "name": "projf-explore",
+      "commit": "dd212c2e5e0e0d8bdcf93ba077630dbfd49ae708"
+    },
+    {
+      "name": "spi-master",
+      "commit": "1ab581969f8ea2f794072a144b55cd74e5a54f34"
+    },
+    {
+      "name": "cpython",
+      "commit": "8183fa5e3f78ca6ab862de7fb8b14f3d929421e0"
+    }
+  ],
+  "quality": {
+    "omitted_top_and_exact_interface_build_cases": 8,
+    "omitted_clock_reset_names_build_cases": 8,
+    "omitted_reset_polarity_synchrony_build_cases": 8,
+    "omitted_reset_behavior_build_cases": 1,
+    "no_explicit_output_bit_count_build_cases": 5,
+    "omitted_frequency_target_build_cases": 4,
+    "light_spelling_mistakes_build_cases": 4,
+    "tt_pin_budget_exceeded_standalone_build_cases": 18,
+    "hard_families": 5,
+    "cpu_or_matmul_cases": 0,
+    "implementation_compatibility_cases": 2,
+    "python_reference_cases": 4,
+    "transaction_checked_cases": 14
+  }
+}

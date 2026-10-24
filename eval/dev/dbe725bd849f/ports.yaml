@@ -1,0 +1,40 @@
+{
+  "top_module": "chip",
+  "ports": [
+    {
+      "name": "clk",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "data_in",
+      "direction": "input",
+      "width": 8
+    },
+    {
+      "name": "data_in_valid",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "crc_out",
+      "direction": "output",
+      "width": 32
+    }
+  ],
+  "parameters": {
+    "LFSR_WIDTH": 32,
+    "LFSR_POLY": "32'h04c11db7",
+    "LFSR_INIT": "32'hffffffff",
+    "LFSR_CONFIG": "\"GALOIS\"",
+    "REVERSE": 1,
+    "INVERT": 1,
+    "DATA_WIDTH": 8,
+    "STYLE": "\"REDUCTION\""
+  }
+}

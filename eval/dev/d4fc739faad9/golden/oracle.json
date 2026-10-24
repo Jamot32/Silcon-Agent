@@ -1,0 +1,24 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.sv"
+  ],
+  "reference_hashes": {
+    "golden/ref.sv": "35074d1c6ac73241a4acdcc48712e78e83f571f4016949c7de33c0f6ed3c4564"
+  },
+  "reference_top": "RefModule",
+  "reference_parameters": {},
+  "port_mapping": {
+    "clk": "clk",
+    "areset": "~rst_n",
+    "load": "load",
+    "ena": "ena",
+    "data": "data",
+    "q": "q"
+  },
+  "scenario": "generic",
+  "seed": 157900274,
+  "reference_origins": {
+    "golden/ref.sv": "dataset_spec-to-rtl/Prob085_shift4_ref.sv"
+  }
+}

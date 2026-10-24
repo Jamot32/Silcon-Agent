@@ -1,0 +1,156 @@
+{
+  "top_module": "chip",
+  "ports": [
+    {
+      "name": "clk",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "s_axis_cmd_address",
+      "direction": "input",
+      "width": 7
+    },
+    {
+      "name": "s_axis_cmd_start",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "s_axis_cmd_read",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "s_axis_cmd_write",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "s_axis_cmd_write_multiple",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "s_axis_cmd_stop",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "s_axis_cmd_valid",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "s_axis_cmd_ready",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "s_axis_data_tdata",
+      "direction": "input",
+      "width": 8
+    },
+    {
+      "name": "s_axis_data_tvalid",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "s_axis_data_tready",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "s_axis_data_tlast",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "m_axis_data_tdata",
+      "direction": "output",
+      "width": 8
+    },
+    {
+      "name": "m_axis_data_tvalid",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "m_axis_data_tready",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "m_axis_data_tlast",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "scl_i",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "scl_o",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "scl_t",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "sda_i",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "sda_o",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "sda_t",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "busy",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "bus_control",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "bus_active",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "missed_ack",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "prescale",
+      "direction": "input",
+      "width": 16
+    },
+    {
+      "name": "stop_on_idle",
+      "direction": "input",
+      "width": 1
+    }
+  ],
+  "parameters": {}
+}

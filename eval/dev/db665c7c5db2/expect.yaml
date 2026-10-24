@@ -1,0 +1,30 @@
+{
+  "id": "db665c7c5db2",
+  "tier": 2,
+  "expected_outcome": "build",
+  "behaviors": [
+    "Find three-byte packet boundaries in the input byte stream in. Discard bytes until a byte with bit3=1 appears; it is byte1. Accept the next two bytes regardless of bit3. done is high in the cycle immediately following the third sampled byte, and a new packet can start on the next byte. Synchronous rst_n=0 returns to searching."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob128_fsm_ps2_ref.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob128_fsm_ps2_ref.sv",
+      "license": "MIT",
+      "sha256": "88fd53ff936047b70a0407ec1c4eb55d74d05a80ef4fa45997a288daae8d4d6d"
+    },
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob128_fsm_ps2_test.sv",
+      "license": "MIT",
+      "sha256": "03461424196e1d977774f4e603118291e3cccf0cfce1e693b3119833b6cb84a6"
+    }
+  ],
+  "oracle_kind": "differential"
+}

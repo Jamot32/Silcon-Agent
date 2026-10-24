@@ -1,0 +1,11 @@
+{
+  "id": "d4f3aad5788c",
+  "tier": 4,
+  "expected_outcome": "ask_clarify",
+  "behaviors": [
+    "Identify contradictory behavior and ask which rule should apply."
+  ],
+  "targets": {},
+  "provenance": [],
+  "oracle_kind": "decision_only"
+}

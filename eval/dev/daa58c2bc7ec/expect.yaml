@@ -1,0 +1,23 @@
+{
+  "id": "daa58c2bc7ec",
+  "tier": 3,
+  "expected_outcome": "build",
+  "behaviors": [
+    "An unsigned 8-bit integer divider with remainder. Pulse start only while idle and latch a,b then. For b!=0 produce val=a//b, rem=a%b, valid=1 and dbz=0. For b=0 produce valid=0, dbz=1; val/rem are unspecified. busy is high while pending, done pulses for one clock on completion, and valid plus successful results hold until the next start. A new start clears valid. Any latency up to 64 clocks after start is acceptable, including immediate completion. Synchronous active-low rst_n clears flags/results and aborts an operation."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/projf/projf-explore/blob/dd212c2e5e0e0d8bdcf93ba077630dbfd49ae708/lib/maths/divu_int.sv",
+      "commit": "dd212c2e5e0e0d8bdcf93ba077630dbfd49ae708",
+      "path": "lib/maths/divu_int.sv",
+      "license": "MIT",
+      "sha256": "10d722d88869ebf98ca6087c372aca6dd27f109f900982da7b84def44f60f42a"
+    }
+  ],
+  "oracle_kind": "differential"
+}

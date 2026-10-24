@@ -1,0 +1,23 @@
+{
+  "id": "d4823a5e4438",
+  "tier": 2,
+  "expected_outcome": "build",
+  "behaviors": [
+    "A byte-wide synchronous FIFO with capacity at least 8 complete beats and at most 10 beats (up to two optional pipeline slots). Accept input on s_axis_tvalid AND s_axis_tready, preserve exact byte order and never duplicate or invent data. Output valid/data must hold unchanged while output ready is low. Backpressure input when full; do not silently discard accepted bytes. Any pipeline latency up to 64 clocks without downstream backpressure is acceptable. Synchronous active-low rst_n flushes all stored/pipelined beats and clears output valid on the reset edge. There are no frame or side-channel signals."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/alexforencich/verilog-axis/blob/48ff7a7e2ef782cf778d47910cf85835c64b1bce/rtl/axis_fifo.v",
+      "commit": "48ff7a7e2ef782cf778d47910cf85835c64b1bce",
+      "path": "rtl/axis_fifo.v",
+      "license": "MIT",
+      "sha256": "aefddc67fc3552d919280424606fc6b048e61d7df9ee7ee0f8801c082c1cfc39"
+    }
+  ],
+  "oracle_kind": "differential"
+}

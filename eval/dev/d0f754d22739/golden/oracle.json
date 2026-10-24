@@ -1,0 +1,21 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.sv"
+  ],
+  "reference_hashes": {
+    "golden/ref.sv": "483155e5ba707375665d5f67910c053b1b3955db9b4aad743bf2d70f41da45c6"
+  },
+  "reference_top": "RefModule",
+  "reference_parameters": {},
+  "port_mapping": {
+    "clk": "clk",
+    "reset": "~rst_n",
+    "q": "q"
+  },
+  "scenario": "generic",
+  "seed": 176589919,
+  "reference_origins": {
+    "golden/ref.sv": "dataset_spec-to-rtl/Prob040_count10_ref.sv"
+  }
+}

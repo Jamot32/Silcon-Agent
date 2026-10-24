@@ -1,0 +1,35 @@
+{
+  "kind": "differential",
+  "reference_files": [
+    "golden/ref.v"
+  ],
+  "reference_hashes": {
+    "golden/ref.v": "61bcaf5c4f81ef1f6bb247114ac51155e32ed714eca371f207a0793928771842"
+  },
+  "reference_top": "SPI_Master",
+  "reference_parameters": {
+    "SPI_MODE": 0,
+    "CLKS_PER_HALF_BIT": 2
+  },
+  "port_mapping": {
+    "i_Clk": "clk",
+    "i_Rst_L": "rst_n",
+    "i_TX_Byte": "tx_data",
+    "i_TX_DV": "tx_valid",
+    "o_TX_Ready": "tx_ready",
+    "o_RX_DV": "rx_valid",
+    "o_RX_Byte": "rx_data",
+    "o_SPI_Clk": "sclk",
+    "i_SPI_MISO": "miso",
+    "o_SPI_MOSI": "mosi"
+  },
+  "scenario": "spi",
+  "seed": 9332238,
+  "output_guards": {
+    "rx_data": "rx_valid"
+  },
+  "reference_origins": {
+    "golden/ref.v": "Verilog/source/SPI_Master.v"
+  },
+  "test_style": "transaction"
+}

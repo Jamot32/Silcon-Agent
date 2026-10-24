@@ -1,0 +1,70 @@
+{
+  "top_module": "chip",
+  "ports": [
+    {
+      "name": "clk",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "slowena",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "q",
+      "direction": "output",
+      "width": 4
+    }
+  ],
+  "parameters": {},
+  "infer_unique": true,
+  "aliases": {
+    "q": [
+      "count",
+      "counter",
+      "value",
+      "out",
+      "result",
+      "data_out",
+      "count_out"
+    ],
+    "clk": [
+      "clock",
+      "clk_i"
+    ],
+    "rst_n": [
+      "reset_n",
+      "resetn",
+      "reset_ni"
+    ],
+    "slowena": [
+      "enable",
+      "en",
+      "count_enable"
+    ],
+    "d": [
+      "data",
+      "data_in",
+      "input_data"
+    ],
+    "byteena": [
+      "byte_enable",
+      "byte_en",
+      "write_enable"
+    ],
+    "ena": [
+      "enables",
+      "carry_enable",
+      "carry_en"
+    ]
+  },
+  "allow_wider_outputs": [
+    "q"
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "top_module": "chip",
+  "ports": [
+    {
+      "name": "clk",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "rst_n",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "in",
+      "direction": "input",
+      "width": 1
+    },
+    {
+      "name": "disc",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "flag",
+      "direction": "output",
+      "width": 1
+    },
+    {
+      "name": "err",
+      "direction": "output",
+      "width": 1
+    }
+  ],
+  "parameters": {}
+}

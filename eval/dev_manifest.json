@@ -1,0 +1,1405 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "d0989809c8b9",
+      "tier": 1,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1168,
+          "sha256": "46b5e0c3cc52d0b92de6c2597241c4b6276ad891cc500e925fbee3010d43771c"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 505,
+          "sha256": "19ff995c026a5dc67ca9231574d95507fb425d388e17c3e7577fd15fe314371b"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 254,
+          "sha256": "0370512ff67ccc07b5159d1516972c5875b5c2d73bbe25349fb223978bc944f6"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 4236,
+          "sha256": "3a54596a1fc3579f795d741ed77ce2cde54f6b3773bcb3aaa59bc3eb5e09cf83"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 1019,
+          "sha256": "08ecbb37f7cc9e0fcab3202abeda07c1fc26fb372b2990911536c34c11cbf50b"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 176,
+          "sha256": "9fbd309d5a6313a8c5404b7986325f4b0c146f6d9e1a8d501701c008e79120c6"
+        }
+      ]
+    },
+    {
+      "id": "d0f754d22739",
+      "tier": 1,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1047,
+          "sha256": "078422e684db2f0fc9f6669392a30d469a67744a49be93b5b98f2984599dfb4c"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 477,
+          "sha256": "81845f4e931f3c706c7b450fd145fac8da0f457777acb4881576ec07b2a08740"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 173,
+          "sha256": "483155e5ba707375665d5f67910c053b1b3955db9b4aad743bf2d70f41da45c6"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 3575,
+          "sha256": "1aa97a4ea53514d8ef826fb74f85416cbd9df608bd9ae91ae734e0bb1ef2b844"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 936,
+          "sha256": "3fc157719211741af19233ff7374d553b20290f6542fc3c533109efcdae12ee8"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 186,
+          "sha256": "484f8a5c981e2e37b93b731f4eb592d5ffa7bd6b3a4b9b1f8aadc70d6b84b0d0"
+        }
+      ]
+    },
+    {
+      "id": "d164886b7e30",
+      "tier": 2,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1298,
+          "sha256": "62a1e38ce397c4991b22e5093f19763bada6e449eb06b4a5568f3e4f5dffac02"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 1064,
+          "sha256": "e976f1560229f2e4259c993745637435e2d8f969c91bf73651443aea4438d142"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 425,
+          "sha256": "29f9f2aea4afabc5a97888d7ecae7ea503e673d6f34b532a9166ca8b68f23741"
+        },
+        {
+          "path": "golden/arithmetic_oracle.py",
+          "bytes": 2377,
+          "sha256": "9d5a0e2431892f448a7fae638d2dbf8054e3b4fd1d1fafdd92152f72c1e5e373"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 795,
+          "sha256": "4a1a1727ed9ffe3d83e1cab1dde4ca63ae476596756ca352cdc71e480fd810d1"
+        },
+        {
+          "path": "golden/ref.v",
+          "bytes": 3077,
+          "sha256": "e9559ddebf124f8fbface06bf7091296baa78c7acab95a36b40a919663349d34"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 15769,
+          "sha256": "e77d2e155c1d26ada765db33736cd6462607c25829d0650141c98cabf0d33aeb"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 675,
+          "sha256": "eef9498bf2f9ba5fe74503af6effe22a9d601b10a7981283da0af0e5321cdd6a"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 931,
+          "sha256": "43be4314048c14290d50003216df90d4889ae44d7a9ad78a24596ee5662958d9"
+        }
+      ]
+    },
+    {
+      "id": "d176f5069564",
+      "tier": 4,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 303,
+          "sha256": "9961e012979a35e63e369146f6c9c69cee73dfa5864a26ceaf760797aec48d28"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 170,
+          "sha256": "a71a14a310b57dfac4c00170dda4979ae507ac2e4f40f7f5498d1913f89fce93"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 74,
+          "sha256": "3090c6626eb3d0f9b28d504b3877c802a850123c37af604216ebe1cde495be2a"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 60,
+          "sha256": "ed3b5456084c6ebafe9a312a71be36f8cd9fa50539b0d0fc0d772f4a588a1987"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 187,
+          "sha256": "c59d14dcef6e5b46baabcc9f11f25333cd99cc4f5c9b2bf29625ae110f5ed600"
+        }
+      ]
+    },
+    {
+      "id": "d192f81d9472",
+      "tier": 2,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1437,
+          "sha256": "ff6031c603d628582dacbb917b55c146bc9e751dd50e2decfa7f7ad40fbb2d9d"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 954,
+          "sha256": "9130d7540e858a41d379b419413504ec84a718b8e8cdd2b2a72109392b2176ed"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 936,
+          "sha256": "530a38bea8b90455f64bf9cf022b417e02dbdbe7ef2a5bfa61a7c3c38f52f208"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 3647,
+          "sha256": "327ed68f9dcd3c6ff453b4d7a3d5c326c80fb338c099aa49ff4d82f3339b81b2"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 468,
+          "sha256": "7a0ac3a3ab8cfaa7c5f8dfdf41e467cc5a6c0efdcbe96badc36924a39ad2fda9"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 631,
+          "sha256": "036f6674b65961533f751660163a21cc492edd89a3cbbddccf79ec16fcab61c6"
+        }
+      ]
+    },
+    {
+      "id": "d2c2f10775a6",
+      "tier": 2,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1325,
+          "sha256": "601c51c9507be6b35db75de937b85e755cc318110528706895d407cd39cbfd87"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 1071,
+          "sha256": "48bb6b06b9973cb687ebee134c2490fed477305aa656e73ed53a7f1bab8212d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "71286c5e71e4dec38fbcc47d8505345e51b74d90055fe45b75ee3d54b8276393"
+        },
+        {
+          "path": "golden/arithmetic_oracle.py",
+          "bytes": 2377,
+          "sha256": "9d5a0e2431892f448a7fae638d2dbf8054e3b4fd1d1fafdd92152f72c1e5e373"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 792,
+          "sha256": "462c1347b4e51e547ca225b7531e8af8e4299f4f26139b78893e1c7203379881"
+        },
+        {
+          "path": "golden/ref.v",
+          "bytes": 7398,
+          "sha256": "61bcaf5c4f81ef1f6bb247114ac51155e32ed714eca371f207a0793928771842"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 15769,
+          "sha256": "e77d2e155c1d26ada765db33736cd6462607c25829d0650141c98cabf0d33aeb"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 936,
+          "sha256": "8292442078f4d6042a82f6ca352143fe09529a238637a934da634d6d018ac70d"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 973,
+          "sha256": "026e23ace964d49cc404a2d9a380ad3ce43bf9629e710ddb90c93528258cd927"
+        }
+      ]
+    },
+    {
+      "id": "d335f496651d",
+      "tier": 1,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1343,
+          "sha256": "f023e0c1112a437c5dfee6691d498fcae6177dba643d28b9cb4774f7ab14dce8"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 486,
+          "sha256": "d3af9a78a4d1daea280574d4b6ab54ce4025977448e7f9a7daba639bdc401231"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 197,
+          "sha256": "8b54c0faa026c483b2eb6fdd30f131e954366022d5d951a1ccd343e057f58df8"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 3113,
+          "sha256": "e1e1fb847dd0b234e26387f1fe6786149daf5553f6ca335e05fd392374deb3fe"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 386,
+          "sha256": "1f85ec3c1af39ec300af4b9663b5a1a5a19d126bce86bbb0e283f72285a165c0"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 538,
+          "sha256": "161601c75a9dd513faeb091e44b2abed55a43442ab953da70056b7337ca270d8"
+        }
+      ]
+    },
+    {
+      "id": "d397c61538d7",
+      "tier": 1,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1282,
+          "sha256": "e7b215df5b7f6712e0b86f08ba5d37e7c625e8b3ec1f966d5b325299d6597473"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 480,
+          "sha256": "9527b8ad90e3c4d85d9bcf268d965c4dc74a330eebc0e21c8333a6311f49470f"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 194,
+          "sha256": "85fac5a17004cf8c6ae544ba6a3410eb38e66672c4e41cf980ac5fbe24197096"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 3024,
+          "sha256": "4ea66c1ef410c5104bec84d51211da7f26aa9b320da1ce446e6a2fbff6d1742b"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 384,
+          "sha256": "59021259becefdf26febe5f5af8326e7204053707ff8b35de4b67402480c6adf"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 478,
+          "sha256": "5388b85c178749c5a4d862bfc00fa588c216deff7f53edd3305ba212754ffe8e"
+        }
+      ]
+    },
+    {
+      "id": "d421b77f6235",
+      "tier": 3,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1418,
+          "sha256": "ddadd5c598e8ab1cffc9aab6dc754d317c371287202eaaad0ecf383a1d0475d1"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 1078,
+          "sha256": "1868eca3c32690b3abb79311a30c5158afa1c9c5560972baf9315f62d805152c"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "bb2fc76657444e8bbb5870426c7d9f8cfd4356f2b69b76548e9bad66542076ad"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 734,
+          "sha256": "d63d7c426a6675884f4082957a84a80ddbac49f9f5e2db10af3b4879db0111e5"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 3494,
+          "sha256": "729b2a634735651925e37b02e3e51db035d149d035340c1c237c87e27ad68e50"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 809,
+          "sha256": "0c2429d5b9cf851fe2e99d3a9cc91ee2b2a95e2db13fd5bd4356f89f38acc445"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 1314,
+          "sha256": "0a813acda1d2f8623f76ea763941fb02898fd1e491e9011c81ecae83665b2966"
+        }
+      ]
+    },
+    {
+      "id": "d4823a5e4438",
+      "tier": 2,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1191,
+          "sha256": "1e73e0772664e491b57f03520cc29b542e487362a1451bd6d81c6e92a1fd3ccf"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 1062,
+          "sha256": "8ea57f95365e9b16a5b516f422b71269183a1ae53bab5878ae6d69039e58fe77"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 425,
+          "sha256": "8aac19d9c622deaef8a2df62d2e8dc2afc82268da032a2c504c2efc8b0401637"
+        },
+        {
+          "path": "golden/arithmetic_oracle.py",
+          "bytes": 2377,
+          "sha256": "9d5a0e2431892f448a7fae638d2dbf8054e3b4fd1d1fafdd92152f72c1e5e373"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 1149,
+          "sha256": "4060af896bb4732f0f72f03fe4ca41b7f1132a86e880c414a2e24b990683b642"
+        },
+        {
+          "path": "golden/ref.v",
+          "bytes": 21692,
+          "sha256": "aefddc67fc3552d919280424606fc6b048e61d7df9ee7ee0f8801c082c1cfc39"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 15769,
+          "sha256": "e77d2e155c1d26ada765db33736cd6462607c25829d0650141c98cabf0d33aeb"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 1000,
+          "sha256": "4501386ebfd5b9f5dd520ad91790254678c0eb24da817a0b9e4fdaea490e620e"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 864,
+          "sha256": "deae78cf2e9d1ac168dd1952bdb2be7512263748e4e06829c40a48a1c55cc648"
+        }
+      ]
+    },
+    {
+      "id": "d4f3aad5788c",
+      "tier": 4,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 241,
+          "sha256": "0a77b847c6a513084012a8ea72767f75a2169a29e44b808bb622e5401c25716e"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 170,
+          "sha256": "a71a14a310b57dfac4c00170dda4979ae507ac2e4f40f7f5498d1913f89fce93"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 74,
+          "sha256": "3090c6626eb3d0f9b28d504b3877c802a850123c37af604216ebe1cde495be2a"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 60,
+          "sha256": "ed3b5456084c6ebafe9a312a71be36f8cd9fa50539b0d0fc0d772f4a588a1987"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 181,
+          "sha256": "1c0dd07abb7fdbf752bd64b0fe49de1b77045e629851a32aab7a00446c673a1c"
+        }
+      ]
+    },
+    {
+      "id": "d4fc739faad9",
+      "tier": 1,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1212,
+          "sha256": "842f8037be749906a6f570534ba0107328f6b7ab49a666d7f6662a6ff38729ae"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 535,
+          "sha256": "ff0458b2f071742a907bb2dec81d371e9116afa87ce04aff1c753afe02514c16"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 288,
+          "sha256": "35074d1c6ac73241a4acdcc48712e78e83f571f4016949c7de33c0f6ed3c4564"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 4139,
+          "sha256": "2fc7f7077688eefa5c27026c348b6b22d25d5f23f79fec3610fd358c9ce344f6"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 541,
+          "sha256": "f7c9b84b8ab637b1b8a725ad6ed9a42c8a2c52aab628ecc18b8aa6e29fc16838"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 431,
+          "sha256": "a32c41ac2e9fd0944ab6f2e96663ace30b09bdd5727f59baa76a983510de9128"
+        }
+      ]
+    },
+    {
+      "id": "d5b7bf9f0198",
+      "tier": 2,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1529,
+          "sha256": "77abc05feb8cded824b25d99792da07e73cf4ad87d2abdfd7051319acdfab2c4"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 1125,
+          "sha256": "b2c8caa9ecf7443ed4c39b66d882399965eed31dcdef4b77a71ccd238e3e27d5"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 796,
+          "sha256": "3479ed45a237f4997354f47f7ac7fabd149346dcea6da5be7e6bfb9fd0c3453c"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 3704,
+          "sha256": "382792d3e904af5f5189988368b299ea04604313a0325a70f0b442927a8a4dd9"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 544,
+          "sha256": "4cbccbcac6938b4a4a566deb1bed47a193ddeabd0c0446d6342907780dfe6683"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 747,
+          "sha256": "de0ef2047a572c5664c9d18dfb613f1082a0902452cc5048154d2279d54d68df"
+        }
+      ]
+    },
+    {
+      "id": "d6ff9ae0fcb8",
+      "tier": 4,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 268,
+          "sha256": "4b477499a8e72ed9f0e16d2d751f40ccbf9ecb6539a4b5feceadc3278fa964e7"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 170,
+          "sha256": "a71a14a310b57dfac4c00170dda4979ae507ac2e4f40f7f5498d1913f89fce93"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 70,
+          "sha256": "52a873427b555f1d39191bbf1eca022b526d9396879622f21bc1bb171784c52c"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 60,
+          "sha256": "ed3b5456084c6ebafe9a312a71be36f8cd9fa50539b0d0fc0d772f4a588a1987"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 133,
+          "sha256": "c64f4323db6832cc52cead941d0f7f7dff57e8ab0663e7d02e4e8f01c47aa903"
+        }
+      ]
+    },
+    {
+      "id": "d816cb95bbaf",
+      "tier": 1,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1060,
+          "sha256": "e1f6ff210755e9cbdf9c64edd95a61ce91f3572be97903a79856d13409437a03"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 480,
+          "sha256": "b93231ef71b24b3644d50eba884dd9140b0f5953811e7752bb1da3f1dfd3a95e"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 174,
+          "sha256": "16a12abd3a6d1fef7f92b3e13af89c47560f9f7ec5a529270312854946784655"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 3578,
+          "sha256": "299c2512ac7f00c02c569ded0ebbbbf2f332edb708b97fda73be45be589df2be"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 936,
+          "sha256": "3fc157719211741af19233ff7374d553b20290f6542fc3c533109efcdae12ee8"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 186,
+          "sha256": "f11fa9b03b8e9bfbbe54a7827d99ee93c65090a0ed8ed8f75c481f31a56211ae"
+        }
+      ]
+    },
+    {
+      "id": "d87d5554d0da",
+      "tier": 1,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1098,
+          "sha256": "73db61c562ff589be4a3a8569ed152e87abd13e6dbbf18ff9bdc35e2c953c354"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 477,
+          "sha256": "4b8fcbec55dcf56085813646c45d2ab90d7f088415187767d8ad4f1dd16fc2ff"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 163,
+          "sha256": "189870e9a4af7d545ae06dfff5284ef5a61595f48cb469dabaf473bbccb95872"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 3541,
+          "sha256": "f1438d994a34216bc2732869299f704bdab6f43e65ecbe55b33a165cc1a75966"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 896,
+          "sha256": "4af28388143d1902748177a83c20a2c1ebf116d694f97b72b417b0fb3c81138b"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 147,
+          "sha256": "28256910be60103c891079fdc487e8fdf948129de7a59de7a89906e2fcbedfc2"
+        }
+      ]
+    },
+    {
+      "id": "d8be6197ac01",
+      "tier": 2,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1550,
+          "sha256": "97a11ea5c9b37fef9f473a3807fb22b6c27ffabdb77e9e7bbe75e97b5014d1b2"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 1064,
+          "sha256": "e976f1560229f2e4259c993745637435e2d8f969c91bf73651443aea4438d142"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 425,
+          "sha256": "29f9f2aea4afabc5a97888d7ecae7ea503e673d6f34b532a9166ca8b68f23741"
+        },
+        {
+          "path": "golden/arithmetic_oracle.py",
+          "bytes": 2377,
+          "sha256": "9d5a0e2431892f448a7fae638d2dbf8054e3b4fd1d1fafdd92152f72c1e5e373"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 920,
+          "sha256": "b88267a78dade2f91331a3d5e1d5a40e088e8ec3aebfe4bcb2bae5a632a4d9c1"
+        },
+        {
+          "path": "golden/ref.v",
+          "bytes": 3989,
+          "sha256": "e686104e5ff2d25fa1504e8d08259cef508f2ec9c9e8cfa63364f3fcb39b9f5c"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 15769,
+          "sha256": "e77d2e155c1d26ada765db33736cd6462607c25829d0650141c98cabf0d33aeb"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 853,
+          "sha256": "d82479a5e770d2c9cb9a3d755f051867fe83215a2eb393e27267f1fee61082fd"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 1225,
+          "sha256": "7dc78e1bbd5da0d00031dd49db144ecc21cf288a2c21aab7482be703d0073d17"
+        }
+      ]
+    },
+    {
+      "id": "d900e087260c",
+      "tier": 4,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 283,
+          "sha256": "f9d2c1ee3a49b73313830d70db1bfbec0ffb3fa6984e7006660672b11b1faa73"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 170,
+          "sha256": "a71a14a310b57dfac4c00170dda4979ae507ac2e4f40f7f5498d1913f89fce93"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 70,
+          "sha256": "52a873427b555f1d39191bbf1eca022b526d9396879622f21bc1bb171784c52c"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 60,
+          "sha256": "ed3b5456084c6ebafe9a312a71be36f8cd9fa50539b0d0fc0d772f4a588a1987"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 69,
+          "sha256": "01083d7eeb1663261407d6fd02f2cd8e356634e3bad22f2dba9065d493789f09"
+        }
+      ]
+    },
+    {
+      "id": "d92c6750acb3",
+      "tier": 2,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1472,
+          "sha256": "445d46a4435d4cf0adef5d4d37bf3622af0d1d2935ee433b7627d3b198863f6a"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 634,
+          "sha256": "42a12018b2fde4e0a460d6c96755942cd4a40db1521070d1d1c2c38d4cc657eb"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 738,
+          "sha256": "d12d0d89d1ca10c260297a0b5e01e619272eb817d3aa18da9528008d9a34db70"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 5836,
+          "sha256": "b5c82af5e3d74789a715c6c57d9f0f29020cf59d408978dc8ffae8bc471f37cf"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 731,
+          "sha256": "37f65ca1b405109208f0e6a6fe016de6291cdcaa35cd7bc9b703ae17ac951a12"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 738,
+          "sha256": "b3d57706a61aafb067044d7d5c28a78ed8fb66d98c996b1e268a07f24f014a43"
+        }
+      ]
+    },
+    {
+      "id": "daa58c2bc7ec",
+      "tier": 3,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1116,
+          "sha256": "b38df9516ea0929e08e7ef4bbce2deb8858c870084d8bda8de8fede14159af43"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 1078,
+          "sha256": "1868eca3c32690b3abb79311a30c5158afa1c9c5560972baf9315f62d805152c"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "bb2fc76657444e8bbb5870426c7d9f8cfd4356f2b69b76548e9bad66542076ad"
+        },
+        {
+          "path": "golden/arithmetic_oracle.py",
+          "bytes": 2377,
+          "sha256": "9d5a0e2431892f448a7fae638d2dbf8054e3b4fd1d1fafdd92152f72c1e5e373"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 755,
+          "sha256": "e826837a4b36131f4dee51b436a5e08a1663d8af73fe39d57ff61a5f79124dce"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 2794,
+          "sha256": "10d722d88869ebf98ca6087c372aca6dd27f109f900982da7b84def44f60f42a"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 15769,
+          "sha256": "e77d2e155c1d26ada765db33736cd6462607c25829d0650141c98cabf0d33aeb"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 961,
+          "sha256": "2e005d588136ad65779cf151243492a164f6062fc3ee365033f68308e28b16d5"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 999,
+          "sha256": "d7a8806a23e0f3760c1d3989e23332662eb84f65cef45a31c9aa68f03fed203f"
+        }
+      ]
+    },
+    {
+      "id": "dab0b0719d10",
+      "tier": 3,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1524,
+          "sha256": "c0a124701aaa4c4373f5ffaeb64f649af963adad68796462b2c15155dd1510f2"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 13809,
+          "sha256": "78b12c3a81360b357002334f0e70ea0e92eebf7a9b358805c03c48484945f3bb"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 751,
+          "sha256": "65b6892b172fc21205546401c2b89322faad9b6a458a44cbc19556620a6f639d"
+        },
+        {
+          "path": "golden/arithmetic_oracle.py",
+          "bytes": 2377,
+          "sha256": "9d5a0e2431892f448a7fae638d2dbf8054e3b4fd1d1fafdd92152f72c1e5e373"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 469,
+          "sha256": "f7fa808f8bcb7b2097617629ef0951d60564f18464b0c61cd9226325824c72fe"
+        },
+        {
+          "path": "golden/ref.py",
+          "bytes": 40090,
+          "sha256": "0669c58fc593177e76f879e92598886747dc69747223bf7f54a9c405aa91286d"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 15769,
+          "sha256": "e77d2e155c1d26ada765db33736cd6462607c25829d0650141c98cabf0d33aeb"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 897,
+          "sha256": "84d8d1044ae7a97e904fa0d78cf2193c62f182cdc074432f073b82a180852bb5"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 1329,
+          "sha256": "5206c024dcd09d994d51132a3403809beb9da4adacd5fd4cfa4ef99b675d2fdb"
+        }
+      ]
+    },
+    {
+      "id": "db46f276ecba",
+      "tier": 3,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1680,
+          "sha256": "9023f67bb708ef823a366d9ca54b5274851b93599c2ce51fc9aaaef662257e7a"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 13809,
+          "sha256": "78b12c3a81360b357002334f0e70ea0e92eebf7a9b358805c03c48484945f3bb"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 751,
+          "sha256": "65b6892b172fc21205546401c2b89322faad9b6a458a44cbc19556620a6f639d"
+        },
+        {
+          "path": "golden/arithmetic_oracle.py",
+          "bytes": 2377,
+          "sha256": "9d5a0e2431892f448a7fae638d2dbf8054e3b4fd1d1fafdd92152f72c1e5e373"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 466,
+          "sha256": "9046b21e5f2b2792e3c8032d3114835d825204be2c1799a5334e6df09013733e"
+        },
+        {
+          "path": "golden/ref.py",
+          "bytes": 40090,
+          "sha256": "0669c58fc593177e76f879e92598886747dc69747223bf7f54a9c405aa91286d"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 15769,
+          "sha256": "e77d2e155c1d26ada765db33736cd6462607c25829d0650141c98cabf0d33aeb"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 977,
+          "sha256": "db128584869f6e8e3f448ba6a9c756d182d9394f8989aeb7e44154ce379a1d92"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 1497,
+          "sha256": "5bfa3d51225c696c1bf54e68309b15feb08cb3bb193664963cdc9d1828e2084e"
+        }
+      ]
+    },
+    {
+      "id": "db665c7c5db2",
+      "tier": 2,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1352,
+          "sha256": "3f1486fe7e4ff2435cb32d4eb29e9ac28434976d05e71c57c7cdd0401b25bcb4"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 499,
+          "sha256": "5a2ceedd7b9af061ac6f559c0dc882d71ff717fcd22cefb7dda2b6458eecc627"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 517,
+          "sha256": "88fd53ff936047b70a0407ec1c4eb55d74d05a80ef4fa45997a288daae8d4d6d"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 2541,
+          "sha256": "03461424196e1d977774f4e603118291e3cccf0cfce1e693b3119833b6cb84a6"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 383,
+          "sha256": "64fa0a5d7be348ecc32a19ee2ef059e9b87fa1bf4623fe515dd3339f8c88fb5e"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 540,
+          "sha256": "8a2057d7a91760264847a378e3118042c1245a3e5df642bc381df1071eab1a79"
+        }
+      ]
+    },
+    {
+      "id": "dbe725bd849f",
+      "tier": 3,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1345,
+          "sha256": "d401d0cca7c99690a058b7116be9029f32ed681f89ebeb04edda15c065ff1db0"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 1057,
+          "sha256": "38eab06c306519820a2ab0cf84fc4788ed7c43aa04829c8fcf3104a6307fb1cc"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 425,
+          "sha256": "d68c15b86e6b2ca68b94c60fd3a867929a594794eece37d38e653c07d3bda436"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 899,
+          "sha256": "40c9d206b627ea8683b81e48d686a35fa1434420a81ed27d1f027d98e5c69ee4"
+        },
+        {
+          "path": "golden/ref_0.v",
+          "bytes": 16327,
+          "sha256": "5502c8203b0dfc7246c1a2de93e60c199ded3c1d7840b106350d714f72a9a079"
+        },
+        {
+          "path": "golden/ref_1.v",
+          "bytes": 6390,
+          "sha256": "ca48c6fc36df735aa6cfb7fb228a61f78736668ac95f426fdbfdf59c786a8497"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 690,
+          "sha256": "1f7e17541d50891d4f424b60c9eb0d866b42d563e5a5a173b3eb19331bbcdbe1"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 1146,
+          "sha256": "cebf1bfe306729eda38f17f0f613ec6abf0c7960229f197b9b603f022ebfd959"
+        }
+      ]
+    },
+    {
+      "id": "dd98c97ee061",
+      "tier": 3,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1771,
+          "sha256": "55c4a705a5c60cd3ab63475f92877394701792ac2240ec5344375db431b7c730"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 1064,
+          "sha256": "9a3d2d9df500459598f939d20f659191c73881eb8d88fd24d0f81a12438320ea"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 424,
+          "sha256": "51de32bd375ab094c50bfadd37764e644533b2d7262b96c708edf73412614984"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 1773,
+          "sha256": "cc36bcf9d50341b2a97e33b232f536eb537dcc93bd5cc6497331012d560ed9e0"
+        },
+        {
+          "path": "golden/ref.v",
+          "bytes": 30518,
+          "sha256": "9c4e05759f356e9ddd91af6981a1fcc10466cad0af6e5afb6553787fe9ea0328"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 2728,
+          "sha256": "fa55ce7b243080dfe70826e8ddf8684230acbbf81dd4bd1cbd1c337c05a9b236"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 2175,
+          "sha256": "fe81ca513543929261e76b795b4f1591fd9602c4b84a68cf1787290a2434b818"
+        }
+      ]
+    },
+    {
+      "id": "ddc1a754f53b",
+      "tier": 2,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1182,
+          "sha256": "f662fb52e3411788d8fee7e3f7f33e333485329a0a777cd91aa07126d05ffc78"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 475,
+          "sha256": "731650edd428a21ae07715e00729a0f7e608f169ce3eeac0c7cef7f5a87088ad"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 296,
+          "sha256": "f2e92f3eb73c77bfdcf81b00cbc032cea78d888428e11235c4eae04897d8ac6f"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 3665,
+          "sha256": "e17dd6b4ee5387085ecac2fba94676ad53cb4bfd55fb116b246fadd2fecd04ac"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 302,
+          "sha256": "db4a6390926cefc106195132b4db77f426add0b7994da94295b9af9e68cc9cb9"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 380,
+          "sha256": "f37cf970304e062c8ff68831df12b1741da7d83726211eca03ad203d29bd48b6"
+        }
+      ]
+    },
+    {
+      "id": "de3ce0b0745e",
+      "tier": 2,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1314,
+          "sha256": "3ccb976c60625576b69ea3f92f5ed9e93d94d34007b265f28c12eff8b53eb594"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 607,
+          "sha256": "8270bff85c81fc4f400c1180d5f2972d5fedd9cb4bade7a4d8e814ce614ccb53"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 1156,
+          "sha256": "f5a25764de883c636b06856ea7e6a4628c1c5b69b004025da10e3ae205adcac4"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 6844,
+          "sha256": "c2243460c30cb617d1d6f76181c39d80cf784dccc74134533a5be553a535d63a"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 619,
+          "sha256": "7aa45c593fe1d31c52da3c6e592883b65820305570fe495dc77c8c0e78b9a98c"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 767,
+          "sha256": "5b48b4d52817d9ac27f4af4f2f2a1d33842e80827fe26dc1de3396175b905084"
+        }
+      ]
+    },
+    {
+      "id": "df69dce93fea",
+      "tier": 4,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 290,
+          "sha256": "190012d3ae0fb4d9a0d4bd3a9ad0f8f92fb0d6ae61d17cdb639758af3aa12de8"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 170,
+          "sha256": "a71a14a310b57dfac4c00170dda4979ae507ac2e4f40f7f5498d1913f89fce93"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 73,
+          "sha256": "7a5b252277b1722143cf00f4cab9e493d3ef905051d5171fd7e5d0008cd12ce2"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 60,
+          "sha256": "ed3b5456084c6ebafe9a312a71be36f8cd9fa50539b0d0fc0d772f4a588a1987"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 133,
+          "sha256": "c23f5e2cec881f1b49b57fac8ac13ab75a0329e16a9896eba4f71d4b3f8f78b9"
+        }
+      ]
+    },
+    {
+      "id": "dfc4da611f35",
+      "tier": 4,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 273,
+          "sha256": "3c12266c1ea9e25ff741270aded89112cb5c2057e59c0abaab4ee441c0d2427d"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 170,
+          "sha256": "a71a14a310b57dfac4c00170dda4979ae507ac2e4f40f7f5498d1913f89fce93"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 74,
+          "sha256": "3090c6626eb3d0f9b28d504b3877c802a850123c37af604216ebe1cde495be2a"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 60,
+          "sha256": "ed3b5456084c6ebafe9a312a71be36f8cd9fa50539b0d0fc0d772f4a588a1987"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 39,
+          "sha256": "e7450a3dbecb3b69a424818561e3f47e96b5eee66e923d139f56b8b6a886d4f1"
+        }
+      ]
+    },
+    {
+      "id": "dfc4ef58cce8",
+      "tier": 1,
+      "files": [
+        {
+          "path": "expect.yaml",
+          "bytes": 1328,
+          "sha256": "7cf259e9c3d31a2c2969854ca95fad4ba0ccc32de878161cf31ea7848d8da56e"
+        },
+        {
+          "path": "golden/LICENSE.upstream",
+          "bytes": 2257,
+          "sha256": "57ba983be500462670e5e6de0655ed6fb0a30b4b17be8030ec935bb514b562d1"
+        },
+        {
+          "path": "golden/REFERENCE.md",
+          "bytes": 418,
+          "sha256": "af1f1d40f619408acde20d3adb19c927420683436e0fddec7169c1087bd668a2"
+        },
+        {
+          "path": "golden/oracle.json",
+          "bytes": 1123,
+          "sha256": "7c9719539780f3f6fbdb14ca2f3349ca256bb96110d9faa292d44faa70f45448"
+        },
+        {
+          "path": "golden/ref.sv",
+          "bytes": 276,
+          "sha256": "14b34884220ceb1058f834d04d86cdd7b2798163f8e816ad7ed3ea146cf05f41"
+        },
+        {
+          "path": "golden/test_hidden.py",
+          "bytes": 9866,
+          "sha256": "b18c68445b2bd2e6f01386e8e8966508aa611b79afaf39c3e6b58df3a1097d1d"
+        },
+        {
+          "path": "golden/upstream_test.sv",
+          "bytes": 3540,
+          "sha256": "86c79e899dcab371d0e244e8775b36c4f0f16259496911bfc41c4d20b8ae2e87"
+        },
+        {
+          "path": "ports.yaml",
+          "bytes": 464,
+          "sha256": "fdd33253c7e6a6b427f14ba93f62e4e181be8b17f1d44a500cae329e619e2b12"
+        },
+        {
+          "path": "spec.md",
+          "bytes": 553,
+          "sha256": "61f5bb55b1bb7b7021436dc4e0314585f24516219a869cc46afc248b46ca285a"
+        }
+      ]
+    }
+  ]
+}

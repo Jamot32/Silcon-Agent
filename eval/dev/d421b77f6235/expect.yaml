@@ -1,0 +1,23 @@
+{
+  "id": "d421b77f6235",
+  "tier": 3,
+  "expected_outcome": "build",
+  "behaviors": [
+    "A VGA-style reduced-resolution raster timing generator with signed 12-bit coordinates. Active area 32x24; horizontal front/sync/back porches 3/4/5 pixels, vertical 2/2/3 lines. Coordinates run from negative blanking through active coordinate 0 to H_RES-1/V_RES-1, then wrap. Register sx,sy,hsync,vsync,de,frame,line from the same previous internal coordinate each clock (one pipeline stage). de is 1 only in active area, line pulses on first coordinate of each complete line, frame pulses at first coordinate of a frame. Sync polarity is 0: hsync active for negative x in the sync interval after the front porch; likewise vsync for negative y. Synchronous rst_n=0 sets coordinates to start of negative blanking, de/frame/line=0 and sync inactive. This is a small custom raster, not a claim of standard 640x480 output."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/projf/projf-explore/blob/dd212c2e5e0e0d8bdcf93ba077630dbfd49ae708/lib/display/display_480p.sv",
+      "commit": "dd212c2e5e0e0d8bdcf93ba077630dbfd49ae708",
+      "path": "lib/display/display_480p.sv",
+      "license": "MIT",
+      "sha256": "729b2a634735651925e37b02e3e51db035d149d035340c1c237c87e27ad68e50"
+    }
+  ],
+  "oracle_kind": "differential"
+}

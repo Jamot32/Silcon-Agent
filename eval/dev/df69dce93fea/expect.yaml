@@ -1,0 +1,11 @@
+{
+  "id": "df69dce93fea",
+  "tier": 4,
+  "expected_outcome": "scope_down",
+  "behaviors": [
+    "Explain that performance, scope and tile limit cannot all be met; offer a small CPU subset or relaxed constraints."
+  ],
+  "targets": {},
+  "provenance": [],
+  "oracle_kind": "decision_only"
+}

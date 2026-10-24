@@ -1,0 +1,30 @@
+{
+  "id": "de3ce0b0745e",
+  "tier": 2,
+  "expected_outcome": "build",
+  "behaviors": [
+    "A 12-hour BCD clock. Each ena=1 clock increments one second; ena=0 holds. hh,mm,ss are packed BCD; hours run 01 through 12, minutes/seconds 00 through 59. pm toggles on 11:59:59 -> 12:00:00, not on 12:59:59 -> 01:00:00. Synchronous rst_n=0 sets 12:00:00 AM and has priority."
+  ],
+  "targets": {
+    "clock_mhz": 25.0,
+    "max_area_um2": null,
+    "fit": null
+  },
+  "provenance": [
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob141_count_clock_ref.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob141_count_clock_ref.sv",
+      "license": "MIT",
+      "sha256": "f5a25764de883c636b06856ea7e6a4628c1c5b69b004025da10e3ae205adcac4"
+    },
+    {
+      "source_url": "https://github.com/NVlabs/verilog-eval/blob/c498220d0a52248f8e3fdffe279075215bde2da6/dataset_spec-to-rtl/Prob141_count_clock_test.sv",
+      "commit": "c498220d0a52248f8e3fdffe279075215bde2da6",
+      "path": "dataset_spec-to-rtl/Prob141_count_clock_test.sv",
+      "license": "MIT",
+      "sha256": "c2243460c30cb617d1d6f76181c39d80cf784dccc74134533a5be553a535d63a"
+    }
+  ],
+  "oracle_kind": "differential"
+}

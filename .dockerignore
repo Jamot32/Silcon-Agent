@@ -8,3 +8,5 @@ runs
 .pdk
 .cache
 .artifacts
+# Evaluation data and independent oracles stay out of app/EDA build contexts.
+eval

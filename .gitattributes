@@ -3,3 +3,8 @@ backend/tests/fixtures/golden_counter/** -text -whitespace
 backend/tests/fixtures/counter_increment_bug/** -text -whitespace
 backend/tests/fixtures/uart_off_by_one/** -text -whitespace
 demo_recordings/** -text -whitespace
+# Upstream oracle sources are hash-pinned; preserve their original bytes.
+eval/dev/**/golden/ref* -text -whitespace
+eval/dev/**/golden/upstream_test.sv -text -whitespace
+eval/dev/**/golden/LICENSE.upstream -text -whitespace
+eval/results/**/pipeline/working-tree.patch -text -whitespace
