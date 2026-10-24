@@ -344,3 +344,20 @@ transport Budget/model/callback binding and normal-return actual-response checks
 Typed fixed host diagnoses replace the unhelpful generic message. No evaluator
 class/namespace whitelist or special preset route is permitted. R5b remains a
 candidate until a new complete frozen DEV3× improves the kept baseline.
+
+## Preserve the quota-affected R5b result and rerun unchanged after restoration
+
+The complete R5b cohort scores9/90 against kept R3's86/90. Keep every original
+row and grade, including53 terminal quota failures and28 separately unknown
+fatalities. Do not infer that the unknown failures were quota errors, substitute
+offline answers, filter availability failures, or adopt the candidate from a
+small smoke. Preserve unknown OAuth USD. Seal, independently audit and publish
+the complete cohort; retain R3 as the comparison baseline.
+
+The user's restored-usage reply authorizes resuming actual Codex-plan evaluation.
+A new full DEV3× availability cohort uses the exact same R5b source bytes and
+unchanged G1/corpus/toolchain/caps. R6 drafts remain in a separate worktree and
+their real provider/EDA qualification waits until that cohort is complete.
+The restored-access smoke's fixture-overwrite behavior was corrected by retaining
+its new capture separately and restoring the historical fixture from HEAD;
+subsequent qualification utilities must create unique output directories.

@@ -1,0 +1,625 @@
+{
+  "actual_provider_trace_totals": {
+    "attempt_kinds": {
+      "completed": 54,
+      "quota": 54,
+      "unknown_fatal": 29
+    },
+    "cli_invocations": 137,
+    "cost_usd": null,
+    "input_tokens": 622941,
+    "nonterminal_provider_failure_kinds_in_successful_builds": {
+      "quota": 1,
+      "unknown_fatal": 1
+    },
+    "output_tokens": 31987,
+    "responses": 54,
+    "terminal_provider_failure_kinds": {
+      "quota": 53,
+      "unknown_fatal": 28
+    }
+  },
+  "adoption": {
+    "after_successes": 9,
+    "before_successes": 86,
+    "decision": "not_kept",
+    "interpretation": "Complete unfiltered cohort includes53 explicit quota and28 unknown-fatal terminal provider failures. No causal hardware/pipeline improvement established. Unknown failures are not relabeled quota.",
+    "kept_baseline": "20261024T064347Z_d341c794",
+    "next": "Fresh90trial cohort20261024T213704Z_5bf06a02 uses identical snapshot22474c39492bd4de9fdce6f9ad0f12cbd5981be0680985109a928f8088a4d816 after user-reported restored usage and an actual successful OAuth smoke.",
+    "planned_each": 90
+  },
+  "aggregate": {
+    "comparison_conditions": {
+      "cli_version": "codex-cli 0.163.0",
+      "config": {
+        "concurrency": 4,
+        "max_calls": 32,
+        "max_tokens": 300000,
+        "max_usd": 1.0,
+        "repeats": 3,
+        "time_limit_seconds": 900.0
+      },
+      "corpus_sha256": "6e6625b9d6b9702064e83db48099843af9aa541c5a9b2d521dddb0de102ba55d",
+      "grader_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669",
+      "model": "gpt-6.1-sol",
+      "plan_sha256": "f1a10de56bb01764b985f5e5254d84e1795d895ade4c97c0e610a3d85ff2b3c9",
+      "provider": "codex",
+      "tool_versions": {
+        "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+        "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+        "openai": "3.37.0",
+        "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+        "pydantic": "2.14.1",
+        "python": "3.12.13",
+        "sqlmodel": "0.0.48"
+      }
+    },
+    "comparison_group_sha256": "acd4eb4928e10a47b10d6788683f23c5142a46e8536075ecfa24f179bc18b3d6",
+    "complete": true,
+    "corpus_sha256": "6e6625b9d6b9702064e83db48099843af9aa541c5a9b2d521dddb0de102ba55d",
+    "cost": {
+      "assessable": false,
+      "known_subset": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "min": null,
+        "total_usd": null
+      },
+      "known_trials": 0,
+      "median_usd": null,
+      "total_usd": null,
+      "unknown_attempted_trials": 90
+    },
+    "failure_count_definition": "Original automated grader classes; manual root-cause audits are separate evidence.",
+    "failure_counts": {
+      "pipeline_failed": 64,
+      "scope_decision_missing_or_incorrect": 17
+    },
+    "funnel_definition": "Build tiers only; cumulative intersection of real passing checks, followed by source-bound hidden status. Scope outcomes excluded.",
+    "grader_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669",
+    "hardware_survival_funnel": [
+      {
+        "check": "planned_hardware",
+        "count": 72
+      },
+      {
+        "check": "rtl_generated",
+        "count": 8
+      },
+      {
+        "check": "lint",
+        "count": 8
+      },
+      {
+        "check": "self_tests",
+        "count": 8
+      },
+      {
+        "check": "synthesis",
+        "count": 8
+      },
+      {
+        "check": "flow",
+        "count": 8
+      },
+      {
+        "check": "drc",
+        "count": 8
+      },
+      {
+        "check": "lvs",
+        "count": 8
+      },
+      {
+        "check": "package",
+        "count": 8
+      },
+      {
+        "check": "bound_hidden_pass",
+        "count": 8
+      }
+    ],
+    "hidden_correctness_on_reported_success": {
+      "bound_passes": 8,
+      "denominator": 8,
+      "false_positive_count": 0,
+      "hidden_failure_count": 0,
+      "rate": 1.0,
+      "unverified_count": 0
+    },
+    "independent_stage_checks": {
+      "drc": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 82,
+        "pass": 8,
+        "unknown": 0
+      },
+      "flow": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 82,
+        "pass": 8,
+        "unknown": 0
+      },
+      "hidden": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 18,
+        "not_run": 64,
+        "pass": 8,
+        "unknown": 0
+      },
+      "lint": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 82,
+        "pass": 8,
+        "unknown": 0
+      },
+      "lvs": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 82,
+        "pass": 8,
+        "unknown": 0
+      },
+      "package": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 82,
+        "pass": 8,
+        "unknown": 0
+      },
+      "rtl_generated": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 82,
+        "pass": 8,
+        "unknown": 0
+      },
+      "self_tests": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 82,
+        "pass": 8,
+        "unknown": 0
+      },
+      "synthesis": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 82,
+        "pass": 8,
+        "unknown": 0
+      }
+    },
+    "known_cost_distribution_usd": [],
+    "model": "gpt-6.1-sol",
+    "pipeline_sha256": "22474c39492bd4de9fdce6f9ad0f12cbd5981be0680985109a928f8088a4d816",
+    "pipeline_time_seconds": {
+      "count": 90,
+      "max": 305.4997368339682,
+      "mean": 21.487624484735232,
+      "median": 1.7407634585397318,
+      "min": 1.4087250420125201
+    },
+    "planned": 90,
+    "provider": "codex",
+    "recorded_reliability": {
+      "crash_count": 0,
+      "crash_hang_or_unclear_count": 0,
+      "crash_or_hang_count": 0,
+      "crash_rate": 0.0,
+      "denominator": 90,
+      "explanation_reviews": {
+        "clear": 0,
+        "not_applicable": 0,
+        "unclear": 0,
+        "unreviewed": 81
+      },
+      "hang_count": 0,
+      "hang_rate": 0.0,
+      "harness_error_count": 0,
+      "terminal_message_missing_count": 0,
+      "terminal_message_proxy_denominator": 90,
+      "terminal_message_unknown_count": 0
+    },
+    "reliability_definition": "Recorded proxy fields only. Unreviewed text is not proof of clear explanations.",
+    "repeats": 3,
+    "schema_version": 1,
+    "source_summary_sha256": "a7031802ae3cb236acfd68eed9fbe702bf287ce8be8afdff2a4d303f700346e4",
+    "split": "dev",
+    "success_rate": 0.1,
+    "successful": 9,
+    "target_assessment": {
+      "complete_baseline": true,
+      "targets": {
+        "hidden_correctness_on_reported_success": {
+          "comparison": ">=",
+          "observed": 1.0,
+          "reason": null,
+          "status": "met",
+          "threshold": 0.9
+        },
+        "median_usd_all_trials": {
+          "comparison": "<=",
+          "observed": null,
+          "reason": "Measurement is unavailable",
+          "status": "not_assessable",
+          "threshold": 1.0
+        },
+        "tier_1_success_rate": {
+          "comparison": ">=",
+          "observed": 0.16666666666666666,
+          "reason": null,
+          "status": "missed",
+          "threshold": 0.95
+        },
+        "tier_2_median_pipeline_seconds": {
+          "comparison": "<=",
+          "observed": 1.8075551044894382,
+          "reason": null,
+          "status": "met",
+          "threshold": 600.0
+        },
+        "tier_2_success_rate": {
+          "comparison": ">=",
+          "observed": 0.1,
+          "reason": null,
+          "status": "missed",
+          "threshold": 0.8
+        },
+        "tier_3_success_and_clear_failures": {
+          "comparison": ">=",
+          "observed": 0.05555555555555555,
+          "reason": null,
+          "status": "missed",
+          "threshold": 0.5
+        },
+        "tier_4_success_rate": {
+          "comparison": ">=",
+          "observed": 0.05555555555555555,
+          "reason": null,
+          "status": "missed",
+          "threshold": 1.0
+        },
+        "zero_crashes_hangs_or_unclear_failures": {
+          "comparison": "<=",
+          "observed": 0.0,
+          "reason": "Failure explanations require explicit manual clarity review",
+          "status": "not_assessable",
+          "threshold": 0.0
+        }
+      }
+    },
+    "tiers": {
+      "1": {
+        "attempted": 24,
+        "cases": 8,
+        "cost": {
+          "assessable": false,
+          "known_subset": {
+            "count": 0,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "total_usd": null
+          },
+          "known_trials": 0,
+          "median_usd": null,
+          "total_usd": null,
+          "unknown_attempted_trials": 24
+        },
+        "pipeline_time_seconds": {
+          "count": 24,
+          "max": 210.67678258300293,
+          "mean": 31.502134034672054,
+          "median": 1.8623054375639185,
+          "min": 1.4378746669972315
+        },
+        "planned": 24,
+        "recorded": 24,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 0.5,
+          "mean": 0.16666666666666666,
+          "median": 0.0,
+          "min": 0.0
+        },
+        "success_rate": 0.16666666666666666,
+        "successful": 4
+      },
+      "2": {
+        "attempted": 30,
+        "cases": 10,
+        "cost": {
+          "assessable": false,
+          "known_subset": {
+            "count": 0,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "total_usd": null
+          },
+          "known_trials": 0,
+          "median_usd": null,
+          "total_usd": null,
+          "unknown_attempted_trials": 30
+        },
+        "pipeline_time_seconds": {
+          "count": 30,
+          "max": 305.4997368339682,
+          "mean": 30.188830529141704,
+          "median": 1.8075551044894382,
+          "min": 1.4087250420125201
+        },
+        "planned": 30,
+        "recorded": 30,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 0.3,
+          "mean": 0.09999999999999999,
+          "median": 0.0,
+          "min": 0.0
+        },
+        "success_rate": 0.1,
+        "successful": 3
+      },
+      "3": {
+        "attempted": 18,
+        "cases": 6,
+        "cost": {
+          "assessable": false,
+          "known_subset": {
+            "count": 0,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "total_usd": null
+          },
+          "known_trials": 0,
+          "median_usd": null,
+          "total_usd": null,
+          "unknown_attempted_trials": 18
+        },
+        "pipeline_time_seconds": {
+          "count": 18,
+          "max": 178.2054805419175,
+          "mean": 12.979672328827697,
+          "median": 1.8238941045710817,
+          "min": 1.4815185000188649
+        },
+        "planned": 18,
+        "recorded": 18,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 0.16666666666666666,
+          "mean": 0.05555555555555555,
+          "median": 0.0,
+          "min": 0.0
+        },
+        "success_rate": 0.05555555555555555,
+        "successful": 1
+      },
+      "4": {
+        "attempted": 18,
+        "cases": 6,
+        "cost": {
+          "assessable": false,
+          "known_subset": {
+            "count": 0,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "total_usd": null
+          },
+          "known_trials": 0,
+          "median_usd": null,
+          "total_usd": null,
+          "unknown_attempted_trials": 18
+        },
+        "pipeline_time_seconds": {
+          "count": 18,
+          "max": 9.5929668340832,
+          "mean": 2.14088716671621,
+          "median": 1.6116975835175253,
+          "min": 1.4329712499165908
+        },
+        "planned": 18,
+        "recorded": 18,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 0.16666666666666666,
+          "mean": 0.05555555555555555,
+          "median": 0.0,
+          "min": 0.0
+        },
+        "success_rate": 0.05555555555555555,
+        "successful": 1
+      }
+    },
+    "time_distribution_seconds": [
+      199.96948550001252,
+      162.05934645805974,
+      305.4997368339682,
+      9.5929668340832,
+      254.74109258304816,
+      297.22825400007423,
+      210.67678258300293,
+      147.95428575004917,
+      178.2054805419175,
+      1.5189232089323923,
+      1.4928020830266178,
+      1.6907221250003204,
+      1.4087250420125201,
+      1.5670954589731991,
+      1.563383457949385,
+      1.6507232920266688,
+      1.7963740839622915,
+      1.6297288329806179,
+      1.6478918329812586,
+      1.7908047920791432,
+      1.6029776250943542,
+      1.5857625419739634,
+      1.569929749937728,
+      1.481893791933544,
+      26.507050209096633,
+      2.2567132910480723,
+      1.6230315830325708,
+      1.5949240420013666,
+      1.840450374991633,
+      2.055347708053887,
+      1.9037571250228211,
+      1.904228916973807,
+      1.6605829580221325,
+      1.7928292909637094,
+      2.2967208330519497,
+      1.891714166966267,
+      1.900456165894866,
+      2.066562792053446,
+      2.291123707895167,
+      2.0386692080646753,
+      2.6456644169520587,
+      2.125887917005457,
+      1.974190833978355,
+      2.0185639170231298,
+      1.8690049170982093,
+      2.482947540935129,
+      2.487366458051838,
+      2.1228275829926133,
+      2.114409292000346,
+      2.1813836669316515,
+      2.2768222079612315,
+      2.0876661249203607,
+      2.2807680420810357,
+      2.110976208001375,
+      1.8569834170630202,
+      1.6218416249612346,
+      1.818736125016585,
+      1.5492257089354098,
+      1.4783402079483494,
+      1.5237264171009883,
+      1.8556059580296278,
+      1.6817837909329683,
+      1.8985888749593869,
+      1.6656140830600634,
+      1.8601024580420926,
+      1.4955847499659285,
+      1.497636166983284,
+      1.4767499580048025,
+      1.5531893749721348,
+      1.4811029590200633,
+      1.515586042078212,
+      1.5141544999787584,
+      1.5726558329770342,
+      1.4329712499165908,
+      1.4378746669972315,
+      1.6738995829364285,
+      1.4417813330655918,
+      1.4546848749741912,
+      1.4244505000533536,
+      1.8682428750908002,
+      1.4815185000188649,
+      1.540096708922647,
+      1.5880867909872904,
+      1.5706283330218866,
+      1.64150129200425,
+      1.5509315410163254,
+      1.8759590829722583,
+      1.628471125033684,
+      1.5132228749571368,
+      1.5168635420268402
+    ],
+    "unknown_cost_trials": 90
+  },
+  "cohort_id": "20261024T115216Z_712ae55b",
+  "draft_version": 3,
+  "historical_sealer_verification": {
+    "command": "uv run --offline --no-project --python 3.12 --with-requirements backend/requirements.txt python scripts/seal_eval.py 20261024T115216Z_712ae55b --verify",
+    "exit_code": 0,
+    "seal_sha256": "d513bf1515f5578d29271c6dbe518c0f682d6c14d5c496b0680e01fb48056722",
+    "selected_success_sources_verified": 8,
+    "summary_sha256": "a7031802ae3cb236acfd68eed9fbe702bf287ce8be8afdff2a4d303f700346e4",
+    "terminal_records_sealed": 90
+  },
+  "kind": "derived_complete_dev_audit",
+  "manual_root_cause_and_clarity_audit": {
+    "known_inference_limit": "Quota restoration later does not establish that the28 unknown fatalities had the same cause.",
+    "quota": {
+      "clarity": "Specific usage-limit diagnosis and operational next action are visible. This is retained adapter classification, not an independent account-balance investigation.",
+      "count": 53,
+      "retained_adapter_kind": "quota"
+    },
+    "reviewed_terminal_provider_failures": 81,
+    "scope": {
+      "clarity": "Visible clarification question and next choice, no build claim. Original request not read, so semantic scope correctness is only the original grader report.",
+      "count": 1
+    },
+    "unknown_fatal": {
+      "clarity": "Uncertainty is explicit and not falsely relabeled quota. Recovery advice only says to inspect the already-sanitized kind; this is not a sufficiently concrete user next step or a supported ultimate cause.",
+      "count": 28,
+      "retained_adapter_kind": "unknown_fatal"
+    }
+  },
+  "measurement_limitations": [
+    "Unknown plan USD remains null.",
+    "Low all-trial time medians are dominated by early provider failures and do not demonstrate useful chip completion speed.",
+    "One independent CI checkout was provisioned using hardlinks to immutable R3 evidence while this cohort was running; no competing provider/EDA job was launched. This metadata I/O is not controlled performance evidence.",
+    "Held-out application evaluation remains unopened."
+  ],
+  "original_rows_and_grades_preserved": true,
+  "private_audits": {
+    "metadata-audit.json": "36f24b2cc955ac6101d8c087d65d46e97e1a4efa352514c44c68ce6ee14fecfd",
+    "success-audit.json": "064a05129e4670e2a92d1cdbe4cbb2421194b14436ccbb20fedb3fb0cb3a1c39",
+    "tool-audit.json": "9a7a201432c395642745a1209fc9dee930dc9b78024f0ad3de9389702d075750"
+  },
+  "publication_authority": "parent_verified_and_published",
+  "schema_version": 1,
+  "success_artifact_binding_audit": {
+    "all_passed": true,
+    "audited": 8,
+    "authority": "retained_parent_audit",
+    "source_sha256": "064a05129e4670e2a92d1cdbe4cbb2421194b14436ccbb20fedb3fb0cb3a1c39"
+  },
+  "tool_artifact_binding_audit": {
+    "authority": "retained_parent_frozen_parser_audit",
+    "command_returncodes": {
+      "0": 74
+    },
+    "evidence_events": {
+      "executed_tool": 57,
+      "no_execution": 92
+    },
+    "limits": [
+      "Process returncode0 does not prove functional correctness.",
+      "Four completed ledgers retain legitimate historical or earlier-input diagnostics; they are not silently erased or assumed to be current terminal failures.",
+      "Selected simulation8of8 source-bound pass and rawmetrics/layout/package binding are established by the separate retained success/tool audits."
+    ],
+    "sha256": "9a7a201432c395642745a1209fc9dee930dc9b78024f0ad3de9389702d075750",
+    "status": "passed",
+    "totals": {
+      "commands": 74,
+      "completed_with_historical_diagnostics": 4,
+      "envelopes": 149,
+      "launched": 74,
+      "receipts": 57,
+      "timeouts": 0,
+      "with_ledger": 8,
+      "without_ledger": 82
+    }
+  }
+}

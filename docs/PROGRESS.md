@@ -94,3 +94,7 @@ Next: qualify generic facade-bound R5b, commit a new snapshot and rerun DEV3×; 
 R5b admission: generic transport-bound facades replace rejected R5 identity guard; before0/90 (kept baseline R3 86/90), afterpending.
 Checks:2actual facade calls+independent final-source audit; make demo; make test1042backend+92subtests,34frontend,5E2E pass.
 Next: commit/freeze fresh fullDEV3× with sameG1/corpus/toolchain/caps; no held-out run or adoption claim.
+
+R5b result: NOT KEPT — full DEV3×9/90 versus R3 86/90;53 terminal quota failures and28 unknown fatalities retained separately. All8 completed hardware builds have bound hidden passes; one scope outcome is correct; USDunknown.
+Checks: original sealer verifies90 states/8 selected sources; independent all90 metadata and8 delivery audits;149 schema2 envelopes/57 receipts/74 actual commands reconcile; strict comparison−85.556points. Derived report: docs/evidence/reliability-r5b.json.
+Next: user-restored OAuth smoke passed; unchanged full90-trial cohort20261024T213704Z_5bf06a02 is running. R3 stays kept; R6 drafts stay isolated; held-out application evaluation remains unopened.

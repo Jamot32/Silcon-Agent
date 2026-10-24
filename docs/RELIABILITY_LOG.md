@@ -875,3 +875,55 @@ These controls qualify failure handling, not general design correctness.
 The next command is a new immutable full DEV3× with unchanged caps; R5's90
 failed trials stay sealed and published. Kept baseline remains R3 until a full
 candidate result warrants a keep decision. Held-out app measurement is unopened.
+
+## R5b complete — quota-affected cohort, not adopted
+
+Change → generic facade-bound provider/physical/observability candidate, with
+the already-qualified R5b transport recovery. Before → kept R3 **86/90**.
+After → full DEV3× **9/90**, repeats **9/0/0** (mean10%, range0–30%).
+Decision → **not kept**. An external availability failure prevents a causal
+pipeline-improvement claim; it does not license filtering or replacing rows.
+R3 remains the committed comparison baseline.
+
+`make eval SET=dev N=3 EVAL_JOBS=4` completed all90 attempts for
+`20261024T115216Z_712ae55b`, source
+`22474c39492bd4de9fdce6f9ad0f12cbd5981be0680985109a928f8088a4d816`.
+Tier1 is4/24, Tier2 is3/30, Tier3 is1/18, Tier4 is1/18. All8 app-completed
+hardware deliveries have source-bound recorded hidden passes and clean selected
+DRC/LVS; the ninth correct outcome is a clarification. The original grader
+retains64 pipeline failures and17 incorrect/missing scope outcomes.
+
+The81 terminal provider failures comprise53 retained `quota` classifications
+and28 `unknown_fatal` classifications. The latter remain unknown: later quota
+restoration does not establish their cause. Manual review finds the53 quota
+messages actionable, while the28 unknown-fatal messages expose uncertainty but
+give insufficient recovery guidance. Nonempty messages alone do not satisfy
+the clarity target. Two additional provider errors were nonterminal during
+completed designs; their usage and trace records remain included.
+
+Independent audits reconcile all90 live/sealed DB states, projections, events,
+traces and usage; all8 selected source/test/passing own-simulation/layout/metric/
+package bindings;149 schema2 tool envelopes,57 receipts and74 actual command
+observations. Historical diagnostics remain distinct from current blockers.
+There were137 actual CLI invocations,54 reported responses,622,941 input and
+31,987 output tokens. Plan USD remains unknown. The1.808s Tier2 median is
+dominated by immediate failures and is not a chip-build speed improvement.
+
+The unchanged original sealer verifies90 terminal records/8 successful sources.
+Summary SHA`a7031802ae3cb236acfd68eed9fbe702bf287ce8be8afdff2a4d303f700346e4`;
+seal SHA`d513bf1515f5578d29271c6dbe518c0f682d6c14d5c496b0680e01fb48056722`.
+Strict same-G1 comparison against R3 reports−85.556 points,77 regressions,
+zero improvements. All original rows and grades are published through the
+verified development aggregate export. [Derived evidence](evidence/reliability-r5b.json)
+records the audits and limits; no hidden test, golden source or hidden log was
+opened for this analysis.
+
+After the user reported restored usage, a fresh neutral OAuth tool-call smoke
+passed. Its runner rewrote a historical fixture; I preserved the new capture
+separately and restored both historical fixture files from HEAD. Their bytes
+and the pipeline fingerprint were verified unchanged. A new availability rerun,
+`20261024T213704Z_5bf06a02`, uses the exact same source hash, G1, corpus, model,
+CLI, image, PDK, caps and concurrency. It is still running; no partial score or
+adoption decision is reported. No held-out application evaluation has run.
+R6 work is isolated in a separate worktree; no new provider/EDA qualification
+competes with this measured cohort.
