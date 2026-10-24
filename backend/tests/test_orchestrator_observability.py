@@ -8,6 +8,8 @@ from app.agent.orchestrator import Orchestrator
 from app.llm.codex import ProviderError
 from app.llm.fake import FakeLLM
 from app.llm.types import Budget, BudgetExceeded, Completion, Message
+from app.observability import RunObserver
+from app.observability.errors import ObservationBindingError
 
 
 def controller(tmp_path, llm, *, observer=None, events=None):
@@ -25,6 +27,8 @@ def test_observer_receives_exact_call_and_transition(tmp_path):
         events.append((kind, payload))
 
     class Observer:
+        accounting_budget = llm.budget
+
         def transition(self, stage, *, previous_ok):
             observations.append((stage, previous_ok))
 
@@ -45,12 +49,17 @@ def test_observer_receives_exact_call_and_transition(tmp_path):
 
 
 @pytest.mark.parametrize("kind", ["provider", "budget", "cancel"])
-def test_cost_event_failure_cannot_mask_primary_exception(tmp_path, kind):
+@pytest.mark.parametrize("fault", ["event", "budget_lookup"])
+def test_cost_event_failure_cannot_mask_primary_exception(tmp_path, kind, fault):
     error = {"provider": ProviderError("timeout"), "budget": BudgetExceeded("limit"),
              "cancel": asyncio.CancelledError()}[kind]
 
     class FailingLLM:
-        budget = Budget()
+        @property
+        def budget(self):
+            if fault == "budget_lookup":
+                raise RuntimeError("SYNTHETIC unreadable facade budget")
+            return Budget()
 
         async def complete(self, messages, definitions):
             raise error
@@ -62,6 +71,30 @@ def test_cost_event_failure_cannot_mask_primary_exception(tmp_path, kind):
     with pytest.raises(type(error)) as raised:
         asyncio.run(runner._ask([], set()))
     assert raised.value is error
+
+
+def test_unreadable_facade_binding_keeps_typed_diagnosis_in_cost_finalizer(tmp_path):
+    class Transport:
+        budget = Budget()
+        callback = None
+        model = "synthetic-transport"
+
+    class Facade:
+        @property
+        def budget(self):
+            raise RuntimeError("PRIVATE_FAULT")
+
+    transport = Transport()
+    observer = RunObserver(tmp_path, "a" * 32)
+    observer.configure_llm(transport, "codex")
+    runner = controller(tmp_path, Facade(), observer=observer)
+    try:
+        with pytest.raises(ObservationBindingError) as raised:
+            asyncio.run(runner._ask([], set()))
+        assert raised.value.kind == "unreadable_binding"
+        assert "PRIVATE_FAULT" not in str(raised.value)
+    finally:
+        observer.close()
 
 
 def test_typed_provider_failure_does_not_use_previous_tool_recovery(tmp_path):

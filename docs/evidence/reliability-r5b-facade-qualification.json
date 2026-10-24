@@ -1,0 +1,57 @@
+{
+  "kind": "production_transport_facade_qualification",
+  "qualification_only": true,
+  "proof_eligible": false,
+  "run_id": "6d415022bd9b4cc0b2c3d90ade88530f",
+  "checked_at": "2026-10-24T11:42:42.717506+00:00",
+  "cli_version": "0.163.0",
+  "selected_model": "gpt-6.1-sol",
+  "serving_model_revision": null,
+  "cost_usd": null,
+  "cases": [
+    {
+      "facade_kind": "generic_recording_facade",
+      "requested_effort": null,
+      "parsed_tool_call": {
+        "id": "call_1",
+        "name": "add",
+        "arguments": {
+          "a": 2,
+          "b": 3
+        }
+      },
+      "input_tokens": 8626,
+      "cached_input_tokens": 0,
+      "output_tokens": 41,
+      "latency_ms": 3414.168291958049,
+      "cost_usd": null
+    },
+    {
+      "facade_kind": "unchanged_measurement_facade",
+      "requested_effort": null,
+      "parsed_tool_call": {
+        "id": "call_1",
+        "name": "add",
+        "arguments": {
+          "a": 2,
+          "b": 3
+        }
+      },
+      "input_tokens": 8630,
+      "cached_input_tokens": 0,
+      "output_tokens": 41,
+      "latency_ms": 4227.103957906365,
+      "cost_usd": null
+    }
+  ],
+  "status": "passed",
+  "calls": 2,
+  "reported_input_tokens": 17256,
+  "reported_output_tokens": 82,
+  "trace_sha256": "cc0ead16c3e49e13d8e08b6e3bac8b8e3389c5717eaf8b22b9176d762038ce9f",
+  "qualification_report_sha256": "fa2fab879e95fdcae36048f7f39c74b0f1a5bda847e2d7592fa9a9cede9f5ce1",
+  "independent_audit_sha256": "2d11e972917acfacb9c91ef3443ec0d91c42588360b9d3622f03e2a594ef3b4c",
+  "script_sha256": "a4d0950e8afc4a6d71a5b8d9c67b5e1b5131f6fd624f322f6f11a94f3d52f01f",
+  "scope": "Two actual calls through generic and unchanged measurement recording facades on final source; no corpus, EDA, hidden correctness or plan-dollar qualification.",
+  "final_source_configuration_verified": true
+}

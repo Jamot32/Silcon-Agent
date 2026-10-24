@@ -1,0 +1,565 @@
+{
+  "actual_cause_source_audit": {
+    "actual_rows_with_matching_pre_inference_error": 90,
+    "inference_from_exact_sources_and_terminal_metadata": true,
+    "kind": "host_observation_facade_identity_incompatibility",
+    "observed_guard_error": "Configure the actual request client before observing it",
+    "retained_completion_files": 0,
+    "scope": "No provider response, RTL/simulation/flow correctness, or recovery performance is inferred.",
+    "source_chain": [
+      "Worker.execute configures RunObserver with the original real client.",
+      "Unchanged measurement capture constructs CompletionObserver(real_client) and passes the facade into Orchestrator.",
+      "CompletionObserver.__getattr__ transparently forwards attributes and complete forwards the same messages/tools to the real client.",
+      "Orchestrator stores the facade as self.llm and calls RunObserver.ask(facade,...).",
+      "Frozen RunObserver.ask rejects llm is not self._client before opening inference scope or calling complete."
+    ],
+    "trigger_guard": "llm is not self._client or self._configuration is None"
+  },
+  "aggregate": {
+    "comparison_conditions": {
+      "cli_version": "codex-cli 0.163.0",
+      "config": {
+        "concurrency": 4,
+        "max_calls": 32,
+        "max_tokens": 300000,
+        "max_usd": 1.0,
+        "repeats": 3,
+        "time_limit_seconds": 900.0
+      },
+      "corpus_sha256": "6e6625b9d6b9702064e83db48099843af9aa541c5a9b2d521dddb0de102ba55d",
+      "grader_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669",
+      "model": "gpt-6.1-sol",
+      "plan_sha256": "f1a10de56bb01764b985f5e5254d84e1795d895ade4c97c0e610a3d85ff2b3c9",
+      "provider": "codex",
+      "tool_versions": {
+        "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+        "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+        "openai": "3.37.0",
+        "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+        "pydantic": "2.14.1",
+        "python": "3.12.13",
+        "sqlmodel": "0.0.48"
+      }
+    },
+    "comparison_group_sha256": "acd4eb4928e10a47b10d6788683f23c5142a46e8536075ecfa24f179bc18b3d6",
+    "complete": true,
+    "corpus_sha256": "6e6625b9d6b9702064e83db48099843af9aa541c5a9b2d521dddb0de102ba55d",
+    "cost": {
+      "assessable": false,
+      "known_subset": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "min": null,
+        "total_usd": null
+      },
+      "known_trials": 0,
+      "median_usd": null,
+      "total_usd": null,
+      "unknown_attempted_trials": 90
+    },
+    "failure_count_definition": "Original automated grader classes; manual root-cause audits are separate evidence.",
+    "failure_counts": {
+      "pipeline_failed": 72,
+      "scope_decision_missing_or_incorrect": 18
+    },
+    "funnel_definition": "Build tiers only; cumulative intersection of real passing checks, followed by source-bound hidden status. Scope outcomes excluded.",
+    "grader_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669",
+    "hardware_survival_funnel": [
+      {
+        "check": "planned_hardware",
+        "count": 72
+      },
+      {
+        "check": "rtl_generated",
+        "count": 0
+      },
+      {
+        "check": "lint",
+        "count": 0
+      },
+      {
+        "check": "self_tests",
+        "count": 0
+      },
+      {
+        "check": "synthesis",
+        "count": 0
+      },
+      {
+        "check": "flow",
+        "count": 0
+      },
+      {
+        "check": "drc",
+        "count": 0
+      },
+      {
+        "check": "lvs",
+        "count": 0
+      },
+      {
+        "check": "package",
+        "count": 0
+      },
+      {
+        "check": "bound_hidden_pass",
+        "count": 0
+      }
+    ],
+    "hidden_correctness_on_reported_success": {
+      "bound_passes": 0,
+      "denominator": 0,
+      "false_positive_count": 0,
+      "hidden_failure_count": 0,
+      "rate": null,
+      "unverified_count": 0
+    },
+    "independent_stage_checks": {
+      "drc": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 90,
+        "pass": 0,
+        "unknown": 0
+      },
+      "flow": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 90,
+        "pass": 0,
+        "unknown": 0
+      },
+      "hidden": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 18,
+        "not_run": 72,
+        "pass": 0,
+        "unknown": 0
+      },
+      "lint": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 90,
+        "pass": 0,
+        "unknown": 0
+      },
+      "lvs": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 90,
+        "pass": 0,
+        "unknown": 0
+      },
+      "package": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 90,
+        "pass": 0,
+        "unknown": 0
+      },
+      "rtl_generated": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 90,
+        "pass": 0,
+        "unknown": 0
+      },
+      "self_tests": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 90,
+        "pass": 0,
+        "unknown": 0
+      },
+      "synthesis": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 90,
+        "pass": 0,
+        "unknown": 0
+      }
+    },
+    "known_cost_distribution_usd": [],
+    "model": "gpt-6.1-sol",
+    "pipeline_sha256": "33b413f59ee1d1413dacb445ebca863e67696df837ea00f51c73e64371b8af34",
+    "pipeline_time_seconds": {
+      "count": 90,
+      "max": 0.10944354196544737,
+      "mean": 0.07824479815446668,
+      "median": 0.07704189547803253,
+      "min": 0.027689791982993484
+    },
+    "planned": 90,
+    "provider": "codex",
+    "recorded_reliability": {
+      "crash_count": 0,
+      "crash_hang_or_unclear_count": 0,
+      "crash_or_hang_count": 0,
+      "crash_rate": 0.0,
+      "denominator": 90,
+      "explanation_reviews": {
+        "clear": 0,
+        "not_applicable": 0,
+        "unclear": 0,
+        "unreviewed": 90
+      },
+      "hang_count": 0,
+      "hang_rate": 0.0,
+      "harness_error_count": 0,
+      "terminal_message_missing_count": 0,
+      "terminal_message_proxy_denominator": 90,
+      "terminal_message_unknown_count": 0
+    },
+    "reliability_definition": "Recorded proxy fields only. Unreviewed text is not proof of clear explanations.",
+    "repeats": 3,
+    "schema_version": 1,
+    "source_summary_sha256": "30beb5b36acdc5d447d02d8cf156ccba62c265a2ba5eb0158cdab99daa06e4c7",
+    "split": "dev",
+    "success_rate": 0.0,
+    "successful": 0,
+    "target_assessment": {
+      "complete_baseline": true,
+      "targets": {
+        "hidden_correctness_on_reported_success": {
+          "comparison": ">=",
+          "observed": null,
+          "reason": "Measurement is unavailable",
+          "status": "not_assessable",
+          "threshold": 0.9
+        },
+        "median_usd_all_trials": {
+          "comparison": "<=",
+          "observed": null,
+          "reason": "Measurement is unavailable",
+          "status": "not_assessable",
+          "threshold": 1.0
+        },
+        "tier_1_success_rate": {
+          "comparison": ">=",
+          "observed": 0.0,
+          "reason": null,
+          "status": "missed",
+          "threshold": 0.95
+        },
+        "tier_2_median_pipeline_seconds": {
+          "comparison": "<=",
+          "observed": 0.07581333350390196,
+          "reason": null,
+          "status": "met",
+          "threshold": 600.0
+        },
+        "tier_2_success_rate": {
+          "comparison": ">=",
+          "observed": 0.0,
+          "reason": null,
+          "status": "missed",
+          "threshold": 0.8
+        },
+        "tier_3_success_and_clear_failures": {
+          "comparison": ">=",
+          "observed": 0.0,
+          "reason": null,
+          "status": "missed",
+          "threshold": 0.5
+        },
+        "tier_4_success_rate": {
+          "comparison": ">=",
+          "observed": 0.0,
+          "reason": null,
+          "status": "missed",
+          "threshold": 1.0
+        },
+        "zero_crashes_hangs_or_unclear_failures": {
+          "comparison": "<=",
+          "observed": 0.0,
+          "reason": "Failure explanations require explicit manual clarity review",
+          "status": "not_assessable",
+          "threshold": 0.0
+        }
+      }
+    },
+    "tiers": {
+      "1": {
+        "attempted": 24,
+        "cases": 8,
+        "cost": {
+          "assessable": false,
+          "known_subset": {
+            "count": 0,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "total_usd": null
+          },
+          "known_trials": 0,
+          "median_usd": null,
+          "total_usd": null,
+          "unknown_attempted_trials": 24
+        },
+        "pipeline_time_seconds": {
+          "count": 24,
+          "max": 0.10944354196544737,
+          "mean": 0.07915711799675289,
+          "median": 0.07589677051873878,
+          "min": 0.027689791982993484
+        },
+        "planned": 24,
+        "recorded": 24,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 0.0,
+          "mean": 0.0,
+          "median": 0.0,
+          "min": 0.0
+        },
+        "success_rate": 0.0,
+        "successful": 0
+      },
+      "2": {
+        "attempted": 30,
+        "cases": 10,
+        "cost": {
+          "assessable": false,
+          "known_subset": {
+            "count": 0,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "total_usd": null
+          },
+          "known_trials": 0,
+          "median_usd": null,
+          "total_usd": null,
+          "unknown_attempted_trials": 30
+        },
+        "pipeline_time_seconds": {
+          "count": 30,
+          "max": 0.10250875004567206,
+          "mean": 0.07839595557112868,
+          "median": 0.07581333350390196,
+          "min": 0.06204420898575336
+        },
+        "planned": 30,
+        "recorded": 30,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 0.0,
+          "mean": 0.0,
+          "median": 0.0,
+          "min": 0.0
+        },
+        "success_rate": 0.0,
+        "successful": 0
+      },
+      "3": {
+        "attempted": 18,
+        "cases": 6,
+        "cost": {
+          "assessable": false,
+          "known_subset": {
+            "count": 0,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "total_usd": null
+          },
+          "known_trials": 0,
+          "median_usd": null,
+          "total_usd": null,
+          "unknown_attempted_trials": 18
+        },
+        "pipeline_time_seconds": {
+          "count": 18,
+          "max": 0.09459462505765259,
+          "mean": 0.07844400942687774,
+          "median": 0.07748310401802883,
+          "min": 0.0697493749903515
+        },
+        "planned": 18,
+        "recorded": 18,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 0.0,
+          "mean": 0.0,
+          "median": 0.0,
+          "min": 0.0
+        },
+        "success_rate": 0.0,
+        "successful": 0
+      },
+      "4": {
+        "attempted": 18,
+        "cases": 6,
+        "cost": {
+          "assessable": false,
+          "known_subset": {
+            "count": 0,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "total_usd": null
+          },
+          "known_trials": 0,
+          "median_usd": null,
+          "total_usd": null,
+          "unknown_attempted_trials": 18
+        },
+        "pipeline_time_seconds": {
+          "count": 18,
+          "max": 0.09232133300974965,
+          "mean": 0.07657723139790404,
+          "median": 0.0765100204735063,
+          "min": 0.04655870795249939
+        },
+        "planned": 18,
+        "recorded": 18,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 0.0,
+          "mean": 0.0,
+          "median": 0.0,
+          "min": 0.0
+        },
+        "success_rate": 0.0,
+        "successful": 0
+      }
+    },
+    "time_distribution_seconds": [
+      0.0703915839549154,
+      0.10944354196544737,
+      0.06458737491630018,
+      0.07015379099175334,
+      0.09432058304082602,
+      0.06257825007196516,
+      0.07935058302246034,
+      0.08928770793136209,
+      0.08116383396554738,
+      0.07974662503693253,
+      0.07905270904302597,
+      0.07540037506259978,
+      0.0741731250891462,
+      0.07694004103541374,
+      0.10264908394310623,
+      0.09858950006309897,
+      0.09715749998576939,
+      0.08733320899773389,
+      0.09066912496928126,
+      0.09408045909367502,
+      0.07972641696687788,
+      0.07883374998345971,
+      0.07482091605197638,
+      0.06999804195947945,
+      0.07767100003547966,
+      0.07556870800908655,
+      0.07381883298512548,
+      0.06927745800931007,
+      0.075683334027417,
+      0.07542358303908259,
+      0.0728419580264017,
+      0.0737447920255363,
+      0.0733805000782013,
+      0.07607999991159886,
+      0.07778599997982383,
+      0.07846537500154227,
+      0.07636995799839497,
+      0.07314291701186448,
+      0.09459462505765259,
+      0.09165254200343043,
+      0.09232133300974965,
+      0.09617170807905495,
+      0.07113537495024502,
+      0.07758520799688995,
+      0.07777820806950331,
+      0.07720449997577816,
+      0.08381758304312825,
+      0.08572962507605553,
+      0.08309575007297099,
+      0.08151195792015642,
+      0.07729520800057799,
+      0.07872895896434784,
+      0.07160954095888883,
+      0.07459874998312443,
+      0.073192875017412,
+      0.07273770892061293,
+      0.07211304199881852,
+      0.07796662498731166,
+      0.075865791994147,
+      0.07725524995476007,
+      0.07190404098946601,
+      0.07399837498087436,
+      0.07352845801506191,
+      0.0727067079860717,
+      0.10250875004567206,
+      0.09623562498018146,
+      0.0953890000237152,
+      0.09997062489856035,
+      0.07552887499332428,
+      0.07605795899871737,
+      0.06977387506049126,
+      0.07249320799019188,
+      0.07309016701765358,
+      0.08968070801347494,
+      0.061687457957305014,
+      0.07159308297559619,
+      0.0717479579616338,
+      0.09099870803765953,
+      0.06204420898575336,
+      0.07878262491431087,
+      0.07212358398828655,
+      0.0697493749903515,
+      0.07724833290558308,
+      0.07726808392908424,
+      0.07714374992065132,
+      0.07830966706387699,
+      0.07787308399565518,
+      0.06468233303166926,
+      0.04655870795249939,
+      0.027689791982993484
+    ],
+    "unknown_cost_trials": 90
+  },
+  "cohort_id": "20261024T112122Z_11ac6a9d",
+  "historical_sealer_verification": {
+    "verified": true,
+    "terminal_records_sealed": 90,
+    "selected_success_sources_verified": 0,
+    "summary_sha256": "30beb5b36acdc5d447d02d8cf156ccba62c265a2ba5eb0158cdab99daa06e4c7",
+    "seal_sha256": "9dd6500499d38c02f8829f2d24a7bc7254c5023a5f02a30b6dc90491b86bda9c",
+    "sealer_sha256": "9c60031f75c06a4de5025ca81b51a33d0c19675bdd9d8fe8c2807e6b51a26049"
+  },
+  "kind": "derived_complete_dev_audit",
+  "manual_root_cause_audit": {
+    "actual_cause": "Host observation rejected a transparent measurement facade by Python object identity before inference.",
+    "assessment": "Message presence is not explanation clarity. The text names an observer client precondition but omits the transparent host facade incompatibility and directs users to tool logs that do not exist. No user RTL repair can resolve this pre-inference host failure.",
+    "clear_actionable_explanation": 0,
+    "flow_attempts": 0,
+    "provider_calls": 0,
+    "reviewed": 90,
+    "same_pre_inference_cause": 90,
+    "terminal_text_present": 90,
+    "tool_commands": 0
+  },
+  "original_rows_preserved": true,
+  "publication_authority": "parent_verified_and_published",
+  "schema_version": 1,
+  "private_audit_sha256": "f52ccd77e7c8e9b1c69d36438dc78b75ba3078706af236acb60d9f5d4150b88e",
+  "decision": "reject",
+  "kept_baseline": "20261024T064347Z_d341c794",
+  "replacement_candidate": "R5b: generic transport-bound facade composition; not measured yet",
+  "audit_version": 2
+}

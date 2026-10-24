@@ -333,3 +333,14 @@ Strict Budget validation accepts an explicit optional token ceiling while
 rejecting bool/nonfinite limits. The user's unlimited app-default preference,
 factory/environment/README edits, and nonempty-metrics guard remain present;
 unrelated default-preference hunks are kept separate from this admission.
+
+## R5 rejected; qualify facade composition as R5b
+
+The complete R5 DEV3× fails0/90 before inference because my observer enforced
+exact client identity, rejecting the unchanged runner's transparent logging
+facade. Preserve and seal every failure; do not change the evaluator or discard
+this cohort. Kept baseline stays R3. R5b replaces that rule with generic shared
+transport Budget/model/callback binding and normal-return actual-response checks.
+Typed fixed host diagnoses replace the unhelpful generic message. No evaluator
+class/namespace whitelist or special preset route is permitted. R5b remains a
+candidate until a new complete frozen DEV3× improves the kept baseline.

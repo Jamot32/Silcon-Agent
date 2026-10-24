@@ -17,6 +17,7 @@ from uuid import uuid4
 
 from app.observability.trace import TraceWriter, canonical, prompt_hash, usage_delta
 from app.observability.configuration import public_configuration
+from app.observability.errors import ObservationBindingError
 
 
 SHA = re.compile(r"[a-f0-9]{64}\Z")
@@ -109,6 +110,9 @@ class RunObserver:
         self.budget_exceptions = budget_exceptions
         self._client = None
         self._configuration = None
+        self._transport_budget = None
+        self._transport_model = None
+        self._transport_hooked = False
         self._provider_callback = self.provider_event
 
     def configure_llm(self, llm, provider: str) -> None:
@@ -117,14 +121,61 @@ class RunObserver:
             raise ValueError("Request observer is already configured")
         configuration = public_configuration(llm, provider)
         if hasattr(llm, "callback"):
-            if llm.callback not in (None, self._provider_callback):
+            if llm.callback is not None and llm.callback is not self._provider_callback:
                 raise ValueError("Provider callback already has a different owner")
             llm.callback = self._provider_callback
+            self._transport_hooked = True
+        self._transport_budget = getattr(llm, "budget", None)
+        self._transport_model = getattr(llm, "model", "unknown")
         self._configuration, self._client = configuration, llm
 
+    def _binding_error(self, kind):
+        self.failure = self.failure or {"phase": "request_binding", "exception_type": "ObservationBindingError", "kind": kind}
+        raise ObservationBindingError(kind) from None
+
+    def _validate_dispatch(self, llm):
+        if self._client is None or self._configuration is None:
+            self._binding_error("not_configured")
+        try:
+            model = getattr(llm, "model", "unknown")
+            budget = getattr(llm, "budget", None)
+            transport_model = getattr(self._client, "model", "unknown")
+            transport_budget = getattr(self._client, "budget", None)
+            callback_matches = (not self._transport_hooked or
+                getattr(llm, "callback", None) is self._provider_callback
+                and getattr(self._client, "callback", None) is self._provider_callback)
+        except Exception:
+            self._binding_error("unreadable_binding")
+        if (model != self._transport_model or transport_model != self._transport_model
+                or budget is not self._transport_budget or transport_budget is not self._transport_budget):
+            self._binding_error("transport_binding")
+        if not callback_matches:
+            self._binding_error("callback_ownership")
+        if llm is not self._client and (self._transport_budget is None or not self._transport_hooked):
+            self._binding_error("unobservable_facade")
+
+    def _validate_returned_response(self, result):
+        if not self._transport_hooked or self._configuration["provider"] != "codex":
+            return
+        scope = self._llm.get()
+        attempts = scope["attempts"]
+        if (not attempts or not all(a.get("finished") for a in attempts)
+                or attempts[-1].get("kind") != "completed" or attempts[-1]["usage"] is None):
+            self._binding_error("response_missing")
+        usage = attempts[-1]["usage"]
+        from app.llm.types import Completion
+        if not isinstance(result, Completion) or any(getattr(result, key) != value for key, value in {
+                "model": self._transport_model, "provider": "codex",
+                **{name: usage[name] for name in ("input_tokens", "cached_input_tokens", "output_tokens", "cost_usd", "latency_ms")}}.items()):
+            self._binding_error("response_mismatch")
+
+    @property
+    def accounting_budget(self):
+        """Captured transport accounting owner; facade replacements cannot erase it."""
+        return self._transport_budget
+
     @staticmethod
-    def _budget(llm):
-        budget = getattr(llm, "budget", None)
+    def _budget(budget):
         if budget is None:
             return None
         return {"calls": budget.calls, "input_tokens": budget.input_tokens,
@@ -132,14 +183,11 @@ class RunObserver:
 
     async def ask(self, llm, messages, tools, options=None):
         """Hash actual inputs, attribute only provider-reported response usage."""
-        if llm is not self._client or self._configuration is None:
-            raise ValueError("Configure the actual request client before observing it")
-        if hasattr(llm, "callback") and llm.callback != self._provider_callback:
-            raise ValueError("Provider callback ownership changed")
+        self._validate_dispatch(llm)
         plain = lambda values: [v if type(v) is dict else v.model_dump(mode="json") for v in values]
         effort = (getattr(options, "reasoning_effort", None) if options is not None else
-                  getattr(llm, "reasoning_effort", None) if self._configuration["provider"] == "meta" else None)
-        selected = getattr(llm, "model", "unknown")
+                  getattr(self._client, "reasoning_effort", None) if self._configuration["provider"] == "meta" else None)
+        selected = self._transport_model
         configuration = {**self._configuration, "selected_model": selected,
                          "requested_effort": effort,
                          "diversity_label": getattr(options, "diversity_label", None)}
@@ -147,9 +195,12 @@ class RunObserver:
                                    hashlib.sha256(canonical(configuration)).hexdigest(), effort,
                                    "requested" if effort is not None else "unknown")
         with self.inference(plain(messages), plain(tools), metadata,
-                            budget_snapshot=lambda: self._budget(llm)):
-            return (await llm.complete(messages, tools) if options is None else
-                    await llm.complete(messages, tools, options=options))
+                            budget_snapshot=lambda: self._budget(self.accounting_budget)):
+            result = (await llm.complete(messages, tools) if options is None else
+                      await llm.complete(messages, tools, options=options))
+            self._validate_dispatch(llm)
+            self._validate_returned_response(result)
+            return result
 
     def provider_event(self, payload):
         """Project the owned Codex callback; never serialize provider error bodies."""
@@ -220,10 +271,11 @@ class RunObserver:
                         ("input_tokens", "cached_input_tokens", "output_tokens", "cost_usd")})
             if supplied != expected:
                 raise ValueError("Completion usage differs from the observed response")
+            kind = _name(payload.get("kind"))
             self._append("llm_call", scope["stage"], {"phase": event, **common,
-                "kind": _name(payload.get("kind")), "usage": expected,
+                "kind": kind, "usage": expected,
                 "duration_seconds": _duration(payload.get("duration_seconds"))})
-            attempt["finished"] = True
+            attempt.update(finished=True, kind=kind)
         elif event == "provider_warning":
             if attempt["finished"] or payload.get("kind") != "nonfatal_error_item":
                 raise ValueError("Unexpected provider warning")
@@ -296,7 +348,9 @@ class RunObserver:
                     "phase": "finished", "call_id": scope["id"], "prompt_sha256": scope["prompt_sha256"],
                     **scope["metadata"], "status": ("budget_exceeded" if error is not None and
                         isinstance(error, self.budget_exceptions) else "exception" if error is not None else "completed"),
-                    "exception_type": _exception(error), "duration_seconds": _duration(self.clock() - scope["started"]),
+                    "exception_type": _exception(error),
+                    "exception_kind": error.kind if isinstance(error, ObservationBindingError) else None,
+                    "duration_seconds": _duration(self.clock() - scope["started"]),
                     "recorded_budget_delta": delta, "usage": usage,
                     # Shared Budget counters can include overlapping requests.
                     # Only actual response hooks may attribute per-call usage.

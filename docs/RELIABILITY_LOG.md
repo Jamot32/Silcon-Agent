@@ -787,3 +787,91 @@ sealer hashes and EDA image9b62eb4f…f3cc8 verify unchanged. Next: freeze and r
 `make eval SET=dev N=3 EVAL_JOBS=4` with32calls/300,000tokens/$1known-cost guard/
 900s per trial. The result remains pending until all90 trials are recorded and
 sealed. Only isolated outside-production drafts may advance during measurement.
+
+## R5 result — reject the observer identity restriction
+
+Change → combined R5 physical/provider/trace candidate. Before → kept R3
+**86/90 (95.56%)**. After → complete frozen
+`20261024T112122Z_11ac6a9d` **0/90**, repeats0/0/0 and0% in every tier.
+Decision → **reject**. Revert the exact-object identity restriction in a new
+R5b replacement candidate; no R5 component is adopted on this measurement.
+The committed kept-baseline pointer remains R3. The failed cohort remains
+visible in the verified aggregate history, with its original grades unchanged.
+
+The new RunObserver was configured with the actual provider client, while the
+unchanged runner correctly supplied a transparent completion-recording facade
+to Orchestrator. My exact-client guard rejected that facade before opening an
+inference scope. This was an application integration bug, not provider failure
+or an evaluator defect. The same ordinary logging-decorator composition could
+fail in another host integration. The frozen source and facade methods establish
+the cause without inspecting user designs or hidden tests.
+
+All90 rows are reconciled against live and sealed SQLite, canonical terminal
+events, projections and270 actual trace rows. Every row fails at SPEC, with no
+inference/tool/command trace, completion file, model attempt, token, flow,
+metric, artifact, selected source or package. Hardware hidden status is not_run
+for72rows;18scope rows are not_applicable. Hidden correctness has denominator0
+and rate null, never100%. Original classes remain72pipeline_failed plus
+18scope_decision_missing_or_incorrect; the separately audited common root cause
+is host observation facade binding. Automated crashes/hangs/evaluator errors
+are0. Manual review finds all90 messages insufficiently actionable: they omit
+the recording-facade fault and suggest saved tool logs although no tool ran.
+Presence of a terminal message did not satisfy the clarity requirement.
+
+The corpus, G1 grader, plan, provider/model/CLI, tools and caps match R3 exactly.
+The original sealer verifies90terminal records/0successful sources. Summary SHA
+`30beb5b36acdc5d447d02d8cf156ccba62c265a2ba5eb0158cdab99daa06e4c7`;
+seal SHA`9dd6500499d38c02f8829f2d24a7bc7254c5023a5f02a30b6dc90491b86bda9c`.
+The source-bound private audit SHA is
+`f52ccd77e7c8e9b1c69d36438dc78b75ba3078706af236acb60d9f5d4150b88e`.
+See [derived evidence](evidence/reliability-r5.json). The initial seal command
+used system Python without Pydantic; rerunning the unchanged sealer in the
+pinned requirements environment creates and verifies the seal. This tooling
+failure is separate from the completed failed cohort.
+
+R5b binds the real transport once, permits generic host facades sharing its
+Budget/model/callback, and checks a normal hooked return against an actually
+completed response. No evaluator-class whitelist, source shortcut or grader
+change is allowed. Fixed typed binding failures expose their real host cause
+and action. Default two-argument calls remain unchanged; future per-stage effort
+through two-argument decorators still needs a separate task-local option seam.
+R5b's full DEV3× is pending. Fast pre-inference failures do not demonstrate time
+or cost improvement; plan USD remains unknown. Held-out app evaluation has not
+run. Outside-production reference/static/spec drafts remain inactive.
+
+## R5b admission — generic facade compatibility
+
+Change → replace the failed exact-client restriction with host facade composition
+bound to the configured real transport, shared Budget, selected model and owned
+callback. Before → rejected R5 **0/90**; kept comparison baseline remains R3
+**86/90**. After → **pending** fresh full DEV3×. Decision → candidate only.
+No other physical/provider policy, ordinary prompt, model, corpus, grader, EDA
+image, cap or concurrency is changed from R5.
+
+Normal returns must have an actual completed hooked response with matching
+Completion usage/model/provider/latency, and must retain the bindings after the
+await. Failed/cancelled/budget-limited operations preserve their primary cause.
+Both cost-finalizer lookup and emission are guarded; accounting uses the captured
+principal Budget instead of a facade property or a replacement object. Fixed
+ObservationBindingError diagnoses identify host binding faults and supply usable
+host recovery guidance without blaming earlier RTL/tool failures. No evaluator
+class/module whitelist is used. Hookless provider facades are not claimed as
+qualified; current production evaluation uses Codex as requested.
+
+Final-source qualification makes2real OAuth calls: a neutral two-argument
+recording facade and the unchanged measurement CompletionObserver. Both return
+the expected add(2,3) proposal. Independent audit recomputes trace configuration
+hashes from current sources and limits and reconciles2actual CLI invocations,
+17,256 input/82 output tokens, null USD, response/latency/counter records and
+separate context/provider prompt representations. Earlier pre-hardening smoke
+artifacts remain distinct and are not relabeled. No corpus/oracle was invoked.
+[Final qualification](evidence/reliability-r5b-facade-qualification.json).
+
+`make demo` starts healthy API/web/host Worker. Final `make test` passes1,042
+backend tests plus92subtests (36integration excluded), TypeScript,34frontend
+units and5replay/failure browser checks in59.4s. Peers reproduce and resolve
+unreadable finalizer properties and post-response Budget/callback/model swaps.
+These controls qualify failure handling, not general design correctness.
+The next command is a new immutable full DEV3× with unchanged caps; R5's90
+failed trials stay sealed and published. Kept baseline remains R3 until a full
+candidate result warrants a keep decision. Held-out app measurement is unopened.

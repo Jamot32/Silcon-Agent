@@ -9,6 +9,7 @@ import pytest
 from app.agent.failures import FailureClass, FailureStage, classify_failure
 from app.llm.types import BudgetExceeded, LLMError
 from app.llm.codex import MalformedProposal, ProviderError
+from app.observability.errors import ObservationBindingError
 
 
 @pytest.mark.parametrize(("stage", "tool", "log", "expected"), [
@@ -75,6 +76,15 @@ def test_provider_claim_in_arbitrary_exception_or_model_dict_is_untrusted():
                             result={"ok": False, "failure_hint": error.failure_hint}).failure_class == "verification_failed"
     malformed = MalformedProposal("tool_calls[0].arguments_json", "json_object_required")
     assert classify_failure(stage="RTL", error=malformed).failure_class == "llm_bad_tool_call"
+
+
+def test_host_observer_binding_failure_has_its_own_action_before_stale_tools():
+    error = ObservationBindingError("transport_binding")
+    failure = classify_failure(stage="VERIFY", tool="run_tests", error=error,
+                               result={"ok": False, "first_error": "AssertionError: q != 0"})
+    assert failure.failure_class == "observability_incomplete"
+    assert failure.evidence == "transport_binding"
+    assert failure.suggested_action == error.failure_hint.suggested_action
 
 
 @pytest.mark.parametrize("tool,stage,expected", [("run_flow", "OPTIMIZE", "flow_timeout"),

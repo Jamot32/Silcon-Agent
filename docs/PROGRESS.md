@@ -86,3 +86,11 @@ Next: qualification of isolated generic components, then a separately admitted f
 R5 admission: provider/physical/trace/ACK candidate qualified; dev before R3 86/90, after pending full DEV3×.
 Checks: make demo; make test (1010 backend +92subtests,34frontend,5E2E); eval tests355+15subtests; original QA3 pass.
 Next: commit/freeze and run90 real dev trials with unchanged G1/toolchain/caps; held-out remains unopened.
+
+R5 result: REJECT, full DEV3× 0/90 versus R3 86/90; all90 fail before inference at an overly strict observer-client identity guard.
+Checks: unchanged sealer verifies90terminal rows/0sources; independent DB/event/trace audit; original grader/corpus/toolchain/caps preserved.
+Next: qualify generic facade-bound R5b, commit a new snapshot and rerun DEV3×; R3 remains the kept baseline, held-out unopened.
+
+R5b admission: generic transport-bound facades replace rejected R5 identity guard; before0/90 (kept baseline R3 86/90), afterpending.
+Checks:2actual facade calls+independent final-source audit; make demo; make test1042backend+92subtests,34frontend,5E2E pass.
+Next: commit/freeze fresh fullDEV3× with sameG1/corpus/toolchain/caps; no held-out run or adoption claim.

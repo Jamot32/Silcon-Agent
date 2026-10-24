@@ -114,10 +114,11 @@ def test_retry_records_unknown_failed_attempt_usage_and_true_response_only():
             self.budget.input_tokens += 11
             self.budget.output_tokens += 7
             self.callback({**second, "event": "attempt_finished", "usage": usage, "kind": "completed", "duration_seconds": 0.3})
-            return "opaque"
+            return Completion(content="opaque", model=self.model, input_tokens=11, cached_input_tokens=3,
+                output_tokens=7, latency_ms=0.25, cost_usd=None, provider="codex")
     client = Retrying()
     observer, writer = configured(client)
-    assert asyncio.run(observer.ask(client, [], [])) == "opaque"
+    assert asyncio.run(observer.ask(client, [], [])).content == "opaque"
     end = finished(writer)[0]
     assert end["observed_provider_attempts"] == 2
     assert end["attempts_without_reported_usage"] == 1
@@ -139,7 +140,8 @@ def test_concurrent_callback_scopes_attribute_twenty_two_inputs_not_forty_four()
             self.budget.output_tokens += 7
             await asyncio.sleep(0)
             self.callback({**base, "event": "attempt_finished", "usage": usage, "kind": "completed", "duration_seconds": 0.01})
-            return "opaque"
+            return Completion(content="opaque", model=self.model, input_tokens=11, cached_input_tokens=3,
+                output_tokens=7, latency_ms=0.25, cost_usd=None, provider="codex")
     client = Concurrent()
     observer, writer = configured(client)
     async def run():

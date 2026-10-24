@@ -19,6 +19,7 @@ from app.agent.starters import load_starter
 from app.agent.tools import ToolRunner, tool_definitions
 from app.llm.types import Budget, Completion, LLM, LLMError, Message, ToolCall
 from app.llm.codex import MalformedProposal, ProviderError
+from app.observability.errors import ObservationBindingError
 from app.models import Metric
 from app.schemas import DesignSpec, Outcome
 
@@ -108,16 +109,17 @@ class Orchestrator:
             primary = error
             raise
         finally:
-            budget = getattr(self.llm, "budget", None)
-            if isinstance(budget, Budget):
-                try:
+            try:
+                budget = (self.observer.accounting_budget if self.observer is not None
+                          else getattr(self.llm, "budget", None))
+                if isinstance(budget, Budget):
                     await self._emit("cost_update", {
                         "cost_usd": budget.cost_usd, "input_tokens": budget.input_tokens,
                         "output_tokens": budget.output_tokens, "calls": budget.calls,
                     })
-                except BaseException:
-                    if primary is None:
-                        raise
+            except BaseException:
+                if primary is None:
+                    raise
 
     def _files(self, stage: str) -> list[dict[str, str]]:
         files: list[dict[str, str]] = []
@@ -543,7 +545,7 @@ class Orchestrator:
             await self._emit("note", {"text": "Optimization attempts produced no successful comparison; preserving the measured initial design."})
 
     def _failure_details(self, error: Exception, message: str) -> tuple[str, str, str, dict[str, JsonValue] | None]:
-        if isinstance(error, (ProviderError, MalformedProposal)):
+        if isinstance(error, (ProviderError, MalformedProposal, ObservationBindingError)):
             # A stale tool failure must not hide the provider operation that
             # actually terminated this stage or supply its recovery advice.
             terminal = classify_failure(stage=self.stage, error=error)

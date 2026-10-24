@@ -14,6 +14,7 @@ import re
 from app.llm.types import BudgetExceeded
 from app.llm.codex import MalformedProposal, ProviderError
 from app.llm.policy import ProviderFailureHint
+from app.observability.errors import ObservationBindingError
 
 
 class FailureStage(StrEnum):
@@ -226,7 +227,7 @@ def classify_failure(
     # Only exceptions created by the host provider adapter carry this authority.
     # A model's result dictionary, log string or arbitrary exception attribute
     # cannot override the current operation with a claimed provider diagnosis.
-    if isinstance(error, (ProviderError, MalformedProposal)):
+    if isinstance(error, (ProviderError, MalformedProposal, ObservationBindingError)):
         hint = error.failure_hint
         if type(hint) is ProviderFailureHint:
             return Failure(failure_stage, FailureClass(hint.failure_class), hint.cause,
