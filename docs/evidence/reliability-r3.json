@@ -1,0 +1,1494 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "post_measurement_manual_analysis",
+  "cohort": "20261024T064347Z_d341c794",
+  "comparison_cohort": "20261024T030824Z_b4b21326",
+  "split": "dev",
+  "repeats": 3,
+  "planned": 90,
+  "no_measurement_or_rubric_changes": true,
+  "provenance": {
+    "summary_sha256": "f8eb019d74c23aa4c015160aa13a317551b49b023f35894a19df20f40b61c9e1",
+    "sealed_evidence_sha256": "e0d5a398c327bafa50e3094b0de551ad2b8e5cce90225316081985543ceab0eb",
+    "before_summary_sha256": "c715a8dc66fd646cc19dd72c4cd2b026d95d10d76689411bb654e0b25cdbac2e",
+    "pipeline_sha256": "8951f86e7b3bd2148ace26b20dcadfc46cf46435426aaf368e21e818ee2ab72a",
+    "measurement_harness_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669",
+    "corpus_sha256": "6e6625b9d6b9702064e83db48099843af9aa541c5a9b2d521dddb0de102ba55d",
+    "provider": "codex",
+    "model": "gpt-6.1-sol",
+    "cli_version": "codex-cli 0.163.0",
+    "tool_versions": {
+      "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+      "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+      "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+      "python": "3.12.13",
+      "openai": "3.37.0",
+      "pydantic": "2.14.1",
+      "sqlmodel": "0.0.48"
+    },
+    "private_audits": {
+      "full-failure-audit.json": {
+        "path": "eval/results/20261024T064347Z_d341c794/analysis/full-failure-audit.json",
+        "sha256": "62cfd8ec06ceb1bd758d6bc8696f32a6c58d8842bfdc3b4912c2500d3c4ea0cd"
+      },
+      "full-success-audit.json": {
+        "path": "eval/results/20261024T064347Z_d341c794/analysis/full-success-audit.json",
+        "sha256": "e1eeb5f633a56cc1c80d6a6267b54a6f9d4b593461d16052cf91f285b9e73caa"
+      }
+    }
+  },
+  "comparison": {
+    "before_successful": 81,
+    "after_successful": 86,
+    "delta_percentage_points": 5.555555555555558,
+    "before_hardware_successful": 63,
+    "after_hardware_successful": 68,
+    "repeat_successes": [
+      29,
+      28,
+      29
+    ],
+    "tiers": [
+      {
+        "tier": 1,
+        "planned": 24,
+        "before_successful": 24,
+        "after_successful": 24,
+        "before_rate": 1.0,
+        "after_rate": 1.0,
+        "delta_percentage_points": 0.0,
+        "repeat_mean": 1.0,
+        "repeat_min": 1.0,
+        "repeat_max": 1.0
+      },
+      {
+        "tier": 2,
+        "planned": 30,
+        "before_successful": 25,
+        "after_successful": 30,
+        "before_rate": 0.8333333333333334,
+        "after_rate": 1.0,
+        "delta_percentage_points": 16.666666666666664,
+        "repeat_mean": 1.0,
+        "repeat_min": 1.0,
+        "repeat_max": 1.0
+      },
+      {
+        "tier": 3,
+        "planned": 18,
+        "before_successful": 14,
+        "after_successful": 14,
+        "before_rate": 0.7777777777777778,
+        "after_rate": 0.7777777777777778,
+        "delta_percentage_points": 0.0,
+        "repeat_mean": 0.7777777777777778,
+        "repeat_min": 0.6666666666666666,
+        "repeat_max": 0.8333333333333334
+      },
+      {
+        "tier": 4,
+        "planned": 18,
+        "before_successful": 18,
+        "after_successful": 18,
+        "before_rate": 1.0,
+        "after_rate": 1.0,
+        "delta_percentage_points": 0.0,
+        "repeat_mean": 1.0,
+        "repeat_min": 1.0,
+        "repeat_max": 1.0
+      }
+    ],
+    "paired_improvements": 6,
+    "paired_regressions": 1,
+    "paired_changes": [
+      {
+        "trial_id": "dev/d164886b7e30/repeat-03",
+        "tier": 2,
+        "before": false,
+        "after": true
+      },
+      {
+        "trial_id": "dev/d4823a5e4438/repeat-02",
+        "tier": 2,
+        "before": false,
+        "after": true
+      },
+      {
+        "trial_id": "dev/d4823a5e4438/repeat-03",
+        "tier": 2,
+        "before": false,
+        "after": true
+      },
+      {
+        "trial_id": "dev/d8be6197ac01/repeat-01",
+        "tier": 2,
+        "before": false,
+        "after": true
+      },
+      {
+        "trial_id": "dev/dab0b0719d10/repeat-02",
+        "tier": 3,
+        "before": true,
+        "after": false
+      },
+      {
+        "trial_id": "dev/dab0b0719d10/repeat-03",
+        "tier": 3,
+        "before": false,
+        "after": true
+      },
+      {
+        "trial_id": "dev/ddc1a754f53b/repeat-01",
+        "tier": 2,
+        "before": false,
+        "after": true
+      }
+    ]
+  },
+  "usage": {
+    "before": {
+      "calls": 1142,
+      "input_tokens": 12211263,
+      "output_tokens": 365934,
+      "flow_attempts": 257,
+      "fix_loops": 38
+    },
+    "after": {
+      "calls": 511,
+      "input_tokens": 5962654,
+      "output_tokens": 328668,
+      "flow_attempts": 288,
+      "fix_loops": 13
+    },
+    "post_first_physical_blocker_observed": {
+      "calls": 15,
+      "input_tokens": 251358,
+      "output_tokens": 2945
+    },
+    "cost_usd": null,
+    "cost_assessable": false,
+    "tier2_median_seconds_before": 242.20094668748789,
+    "tier2_median_seconds_after": 227.86001858348027,
+    "median_pipeline_seconds_after": 216.46195004152833,
+    "no_counterfactual_savings_claim": true
+  },
+  "failure_taxonomy": {
+    "physical_placement_failure_then_invalid_repair_configuration": 3,
+    "physical_placement_failure_then_token_budget_stop": 1
+  },
+  "manual_hardware_failure_clarity": {
+    "partially_clear": 4
+  },
+  "incomplete_hardware_hidden_status_counts": {
+    "fail": 3,
+    "pass": 1
+  },
+  "manual_hardware_success_clarity": {
+    "clear": 68,
+    "review_method": "Canonical template meaning reviewed; every tag, target comparison, real selected signoff and explicit TT limitation checked against actual source/test/simulation/flow/package artifacts."
+  },
+  "scope_clarity_reviews": [
+    {
+      "trial_id": "dev/d176f5069564/repeat-01",
+      "case_id": "d176f5069564",
+      "tier": 4,
+      "repeat": 1,
+      "run_id": "0287f3b48e3545e9b3a5b67e045a0353",
+      "expected_decision": "ask_clarify",
+      "actual_public_decision": "ask_clarify",
+      "reason": "The request mentions building a chip but specifies no observable hardware function. A hidden benchmark reference does not define its behavior.\nNext action: Choose a concrete digital function or provide the intended input/output behavior.\nQuestion 1: What observable function should the chip implement?\n  1. 8-bit counter with enable and an observable count output\n  2. A custom digital function whose inputs and outputs I will describe\nSuggested default: 8-bit counter with enable and an observable count output",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The actual request supplies no observable chip behavior. The reason identifies the missing specification rather than treating a hidden reference as available design data, and asks the user for a real function/interface with usable choices. It makes no secret-access or fabricated-tool claim.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10523,
+        "output_tokens": 140,
+        "cost_usd": null,
+        "elapsed_seconds": 5.336480124969967
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/d176f5069564/spec.md",
+          "sha256": "c59d14dcef6e5b46baabcc9f11f25333cd99cc4f5c9b2bf29625ae110f5ed600"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/d176f5069564/expect.yaml",
+          "sha256": "9961e012979a35e63e369146f6c9c69cee73dfa5864a26ceaf760797aec48d28"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d176f5069564/repeat-01/result.json",
+          "sha256": "a60810c9f758bf2605c299cb0d635cf28156334d0aa4e83eb59c0fb1095b7581"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d176f5069564/repeat-01/pipeline/0287f3b48e3545e9b3a5b67e045a0353/run.json",
+          "sha256": "76d42871c388c3b19d2e5fe42999b41b6f5e17aaf163dd4d7b609d9bad6db010"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d176f5069564/repeat-01/pipeline/0287f3b48e3545e9b3a5b67e045a0353/events.jsonl",
+          "sha256": "65130357cb5d45fdd7a60a834734239b9908d377e6bc3e0761f8f10728541339"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/d176f5069564/repeat-02",
+      "case_id": "d176f5069564",
+      "tier": 4,
+      "repeat": 2,
+      "run_id": "9599f18a260841c0b0ae1366f936719f",
+      "expected_decision": "ask_clarify",
+      "actual_public_decision": "ask_clarify",
+      "reason": "The request expresses hardware-design intent but provides no observable chip function. A reference to a hidden solution does not specify behavior.\nNext action: Choose an observable digital function or provide the intended inputs, outputs, and behavior.\nQuestion 1: What should the chip do?\n  1. 8-bit enabled counter with an observable count output (suggested default)\n  2. Serial receiver that outputs each received 8-bit byte\n  3. A custom function; provide its inputs, outputs, and behavior\nSuggested default: 8-bit enabled counter with an observable count output (suggested default)",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The actual request supplies no observable chip behavior. The reason identifies the missing specification rather than treating a hidden reference as available design data, and asks the user for a real function/interface with usable choices. It makes no secret-access or fabricated-tool claim.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10519,
+        "output_tokens": 202,
+        "cost_usd": null,
+        "elapsed_seconds": 8.383346916991286
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/d176f5069564/spec.md",
+          "sha256": "c59d14dcef6e5b46baabcc9f11f25333cd99cc4f5c9b2bf29625ae110f5ed600"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/d176f5069564/expect.yaml",
+          "sha256": "9961e012979a35e63e369146f6c9c69cee73dfa5864a26ceaf760797aec48d28"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d176f5069564/repeat-02/result.json",
+          "sha256": "e5a1dc7ff071d154d6d27b62b70f44f9bbb25b45cdaee111942fd00d0a9340ff"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d176f5069564/repeat-02/pipeline/9599f18a260841c0b0ae1366f936719f/run.json",
+          "sha256": "8207c7b44991778e0f2451a9413ad8a030a116da2723324d8eb952bccaca94c9"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d176f5069564/repeat-02/pipeline/9599f18a260841c0b0ae1366f936719f/events.jsonl",
+          "sha256": "efb6f0de257d731437d4e9bd94bd61124eb4ab9e8f380b0402ab2af665a16dd4"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/d176f5069564/repeat-03",
+      "case_id": "d176f5069564",
+      "tier": 4,
+      "repeat": 3,
+      "run_id": "2070f8c138674ef2b881c6c7beb990b0",
+      "expected_decision": "ask_clarify",
+      "actual_public_decision": "ask_clarify",
+      "reason": "The request mentions building a chip but provides no observable hardware function. No hidden benchmark specification is available to assess.\nNext action: Select an intended digital function and provide its required input/output behavior.\nQuestion 1: What observable function should the chip implement?\n  1. Provide the intended chip specification\n  2. An 8-bit enabled counter with an observable count output\n  3. An 8-bit adder with two inputs and a sum output\nSuggested default: Provide the intended chip specification",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The actual request supplies no observable chip behavior. The reason identifies the missing specification rather than treating a hidden reference as available design data, and asks the user for a real function/interface with usable choices. It makes no secret-access or fabricated-tool claim.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10521,
+        "output_tokens": 210,
+        "cost_usd": null,
+        "elapsed_seconds": 12.563928083982319
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/d176f5069564/spec.md",
+          "sha256": "c59d14dcef6e5b46baabcc9f11f25333cd99cc4f5c9b2bf29625ae110f5ed600"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/d176f5069564/expect.yaml",
+          "sha256": "9961e012979a35e63e369146f6c9c69cee73dfa5864a26ceaf760797aec48d28"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d176f5069564/repeat-03/result.json",
+          "sha256": "3790269653e7c14b47b8db5df4c70790a1df50ccb9a0165e3b78077f32335e04"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d176f5069564/repeat-03/pipeline/2070f8c138674ef2b881c6c7beb990b0/run.json",
+          "sha256": "4a2ee417486a4c1630388ffe76a45787e6ecdffbcaeb3c36916dc42fc2c979a3"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d176f5069564/repeat-03/pipeline/2070f8c138674ef2b881c6c7beb990b0/events.jsonl",
+          "sha256": "13d582390f7b0350f5da29559f3c0bd4f451c662a22aaf99d77b75507791bc20"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/d4f3aad5788c/repeat-01",
+      "case_id": "d4f3aad5788c",
+      "tier": 4,
+      "repeat": 1,
+      "run_id": "48130da532274b3898ff424165c8f9c5",
+      "expected_decision": "ask_clarify",
+      "actual_public_decision": "ask_clarify",
+      "reason": "A single q cannot simultaneously become q+1 and q-1 on the same clock edge: at q=3 these require distinct values, 4 and 2. The mandatory behaviors conflict.\nNext action: Choose a revised update rule to resolve the contradiction before design proceeds.\nQuestion 1: Which revised behavior should the counter implement?\n  1. Add a direction input selecting increment or decrement on each enabled clock.\n  2. Treat simultaneous increment and decrement as cancellation, holding q unchanged.\n  3. Use two counters and outputs, one incrementing and one decrementing.\nSuggested default: Add a direction input selecting increment or decrement on each enabled clock.",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies the precise impossible single-output update at q=3 (4 versus2), then asks the user to choose a revised rule. Direction control, cancellation and separate counters are explicitly proposals changing the requirement, not silently implemented priorities.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10527,
+        "output_tokens": 184,
+        "cost_usd": null,
+        "elapsed_seconds": 8.26350670796819
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/d4f3aad5788c/spec.md",
+          "sha256": "1c0dd07abb7fdbf752bd64b0fe49de1b77045e629851a32aab7a00446c673a1c"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/d4f3aad5788c/expect.yaml",
+          "sha256": "0a77b847c6a513084012a8ea72767f75a2169a29e44b808bb622e5401c25716e"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d4f3aad5788c/repeat-01/result.json",
+          "sha256": "25ed0ab798974727898636d6d8a4de9beb817a48ea13b2da5bf4b5e04b25e087"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d4f3aad5788c/repeat-01/pipeline/48130da532274b3898ff424165c8f9c5/run.json",
+          "sha256": "ea5704251f59cc87b05806fe6483fde9e4ebc8c644487baa273b53b09575b6ec"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d4f3aad5788c/repeat-01/pipeline/48130da532274b3898ff424165c8f9c5/events.jsonl",
+          "sha256": "ee4b3159f242f5194a050bbcc1aa863636d6393da90b847f871fd881f3faee78"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/d4f3aad5788c/repeat-02",
+      "case_id": "d4f3aad5788c",
+      "tier": 4,
+      "repeat": 2,
+      "run_id": "2fd1f3c0b01c4dfe9cb8a9441ca66dbc",
+      "expected_decision": "ask_clarify",
+      "actual_public_decision": "ask_clarify",
+      "reason": "The required next values conflict: at q=3, incrementing requires q=4 while decrementing requires q=2. A single output cannot take both values on the same clock edge without changing the requirements.\nNext action: Choose a revised update rule to resolve the conflicting requirements.\nQuestion 1: Which revised behavior should apply on each enabled clock?\n  1. Use a direction input to select increment or decrement.\n  2. Apply both operations as a net zero change; q holds its value.\n  3. Use two counters with separate outputs, one increasing and one decreasing.\nSuggested default: Use a direction input to select increment or decrement.",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies the precise impossible single-output update at q=3 (4 versus2), then asks the user to choose a revised rule. Direction control, cancellation and separate counters are explicitly proposals changing the requirement, not silently implemented priorities.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10525,
+        "output_tokens": 185,
+        "cost_usd": null,
+        "elapsed_seconds": 9.965799666941166
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/d4f3aad5788c/spec.md",
+          "sha256": "1c0dd07abb7fdbf752bd64b0fe49de1b77045e629851a32aab7a00446c673a1c"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/d4f3aad5788c/expect.yaml",
+          "sha256": "0a77b847c6a513084012a8ea72767f75a2169a29e44b808bb622e5401c25716e"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d4f3aad5788c/repeat-02/result.json",
+          "sha256": "59c1744f367f2691b11be891227946a7f3019f86d7989edd76858c57af11b69f"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d4f3aad5788c/repeat-02/pipeline/2fd1f3c0b01c4dfe9cb8a9441ca66dbc/run.json",
+          "sha256": "a203079d762bf8acb30ab5c663374a9e8713ebb109d0c1acfdc85ca86b1143fc"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d4f3aad5788c/repeat-02/pipeline/2fd1f3c0b01c4dfe9cb8a9441ca66dbc/events.jsonl",
+          "sha256": "d6ea24805899de67e5ed5a98196100c26bcca5496bcccc030fe1fab7c5a5f34a"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/d4f3aad5788c/repeat-03",
+      "case_id": "d4f3aad5788c",
+      "tier": 4,
+      "repeat": 3,
+      "run_id": "0320e98a2a9144788e64812e002bfa31",
+      "expected_decision": "ask_clarify",
+      "actual_public_decision": "ask_clarify",
+      "reason": "The required updates contradict each other: at q=3, incrementing requires q=4 while decrementing requires q=2 on the same clock. A single output cannot satisfy both simultaneously.\nNext action: Choose a revised update rule so the counter has one defined result per enabled clock.\nQuestion 1: Which replacement behavior should the counter implement?\n  1. Add a direction input to select increment or decrement each enabled clock.\n  2. Combine +1 and -1 into a net zero update, holding q unchanged.\n  3. Use two counters and outputs: one increments while the other decrements.\nSuggested default: Add a direction input to select increment or decrement each enabled clock.",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies the precise impossible single-output update at q=3 (4 versus2), then asks the user to choose a revised rule. Direction control, cancellation and separate counters are explicitly proposals changing the requirement, not silently implemented priorities.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10525,
+        "output_tokens": 191,
+        "cost_usd": null,
+        "elapsed_seconds": 8.21296033298131
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/d4f3aad5788c/spec.md",
+          "sha256": "1c0dd07abb7fdbf752bd64b0fe49de1b77045e629851a32aab7a00446c673a1c"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/d4f3aad5788c/expect.yaml",
+          "sha256": "0a77b847c6a513084012a8ea72767f75a2169a29e44b808bb622e5401c25716e"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d4f3aad5788c/repeat-03/result.json",
+          "sha256": "fc6b022c1861ec395addfc153d8f0bcd0a62ab96b6c786a41e945bc99ed3585a"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d4f3aad5788c/repeat-03/pipeline/0320e98a2a9144788e64812e002bfa31/run.json",
+          "sha256": "eaa05265f13df0193344051a4857e22ee88e35aaf1c1370eb414adec0c6943eb"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d4f3aad5788c/repeat-03/pipeline/0320e98a2a9144788e64812e002bfa31/events.jsonl",
+          "sha256": "beaa9fda0d257cd42526cdc67926b47decdfd073a99783568afea1bbca4307c2"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/d6ff9ae0fcb8/repeat-01",
+      "case_id": "d6ff9ae0fcb8",
+      "tier": 4,
+      "repeat": 1,
+      "run_id": "547831d5ad1d40c6b34db07316986f87",
+      "expected_decision": "decline",
+      "actual_public_decision": "decline",
+      "reason": "A low-noise operational amplifier requires analog transistor design and verification. Synthesizable Verilog and this digital sky130 flow cannot implement or verify the requested analog amplifier and layout.\nNext action: Use a sky130 analog design flow to define gain, bandwidth, noise, supply, and load requirements, then perform transistor-level simulation and layout verification.",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies analog transistor-level design/verification as unsupported by this digital synthesizable flow, then gives a usable analog-workflow redirect with concrete gain/bandwidth/noise/supply/load specification and simulation/layout activities.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10508,
+        "output_tokens": 97,
+        "cost_usd": null,
+        "elapsed_seconds": 5.204793707933277
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/d6ff9ae0fcb8/spec.md",
+          "sha256": "c64f4323db6832cc52cead941d0f7f7dff57e8ab0663e7d02e4e8f01c47aa903"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/d6ff9ae0fcb8/expect.yaml",
+          "sha256": "4b477499a8e72ed9f0e16d2d751f40ccbf9ecb6539a4b5feceadc3278fa964e7"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d6ff9ae0fcb8/repeat-01/result.json",
+          "sha256": "ce069cfa7abc84cd4426b2cfe85880cca4687f22c1b602d9a80b09eae13adc8a"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d6ff9ae0fcb8/repeat-01/pipeline/547831d5ad1d40c6b34db07316986f87/run.json",
+          "sha256": "d2cd4c3fcf87f2e6a2cb4df608cf2a73f21d7fcf98e9a504b4a3708381e3162d"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d6ff9ae0fcb8/repeat-01/pipeline/547831d5ad1d40c6b34db07316986f87/events.jsonl",
+          "sha256": "6e89fc6e03555b566496182e9b8b04c1df97e901930e8ec32f34a70e0b279eda"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/d6ff9ae0fcb8/repeat-02",
+      "case_id": "d6ff9ae0fcb8",
+      "tier": 4,
+      "repeat": 2,
+      "run_id": "63f9fb82fb6c4871abcb5fb2108c7279",
+      "expected_decision": "decline",
+      "actual_public_decision": "decline",
+      "reason": "A low-noise operational amplifier and verified transistor-level analog layout require analog circuit design and verification, which this synthesizable digital sky130 flow does not support. Synthesizable Verilog cannot implement the requested analog amplifier behavior.\nNext action: Use a sky130 analog design workflow to specify amplifier gain, bandwidth, noise, supply voltage, and load, then perform transistor-level simulation and layout verification.",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies analog transistor-level design/verification as unsupported by this digital synthesizable flow, then gives a usable analog-workflow redirect with concrete gain/bandwidth/noise/supply/load specification and simulation/layout activities.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10510,
+        "output_tokens": 107,
+        "cost_usd": null,
+        "elapsed_seconds": 5.482507416978478
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/d6ff9ae0fcb8/spec.md",
+          "sha256": "c64f4323db6832cc52cead941d0f7f7dff57e8ab0663e7d02e4e8f01c47aa903"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/d6ff9ae0fcb8/expect.yaml",
+          "sha256": "4b477499a8e72ed9f0e16d2d751f40ccbf9ecb6539a4b5feceadc3278fa964e7"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d6ff9ae0fcb8/repeat-02/result.json",
+          "sha256": "6c3ce7ed94e076df77ac8f2bbee8e005bcb8e059e871f0ddf2a9e18a2e39b957"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d6ff9ae0fcb8/repeat-02/pipeline/63f9fb82fb6c4871abcb5fb2108c7279/run.json",
+          "sha256": "d24105dea144ade98d4e765337f7a80391c60627ffe52bd09a4b006603ea2462"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d6ff9ae0fcb8/repeat-02/pipeline/63f9fb82fb6c4871abcb5fb2108c7279/events.jsonl",
+          "sha256": "424151a0e61f87d0fdefb6bc171dc4ed20590c2f3dcbf365682b7dea833ce220"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/d6ff9ae0fcb8/repeat-03",
+      "case_id": "d6ff9ae0fcb8",
+      "tier": 4,
+      "repeat": 3,
+      "run_id": "b15c50ac242940c5bc90615bf3641082",
+      "expected_decision": "decline",
+      "actual_public_decision": "decline",
+      "reason": "A low-noise operational amplifier requires analog transistor design and analog layout verification. Synthesizable Verilog and this digital design flow cannot implement or verify the requested analog behavior.\nNext action: Use a sky130 analog design flow to specify gain, bandwidth, noise, supply voltage, and load, then develop and simulate the transistor-level amplifier and verify its layout.",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies analog transistor-level design/verification as unsupported by this digital synthesizable flow, then gives a usable analog-workflow redirect with concrete gain/bandwidth/noise/supply/load specification and simulation/layout activities.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10508,
+        "output_tokens": 100,
+        "cost_usd": null,
+        "elapsed_seconds": 6.858410666929558
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/d6ff9ae0fcb8/spec.md",
+          "sha256": "c64f4323db6832cc52cead941d0f7f7dff57e8ab0663e7d02e4e8f01c47aa903"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/d6ff9ae0fcb8/expect.yaml",
+          "sha256": "4b477499a8e72ed9f0e16d2d751f40ccbf9ecb6539a4b5feceadc3278fa964e7"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d6ff9ae0fcb8/repeat-03/result.json",
+          "sha256": "a1693f067fa4ca47c7ea3669af40d4e8ab62867829a630fd41005e528f295f2c"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d6ff9ae0fcb8/repeat-03/pipeline/b15c50ac242940c5bc90615bf3641082/run.json",
+          "sha256": "6cb7200c6c06d0148107abb1e35a34773b4a307ed090d6ab5c74450d6b2504f4"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d6ff9ae0fcb8/repeat-03/pipeline/b15c50ac242940c5bc90615bf3641082/events.jsonl",
+          "sha256": "9a359e0d44a06126d2a34cce4fe2990c9b1aa13f2109f7a785e435ff291e6a7d"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/d900e087260c/repeat-01",
+      "case_id": "d900e087260c",
+      "tier": 4,
+      "repeat": 1,
+      "run_id": "0563b0b016ed418fbfffadc30cc3d834",
+      "expected_decision": "decline",
+      "actual_public_decision": "decline",
+      "reason": "The request is for a birthday poem and contains no hardware-design intent.\nNext action: Use a writing assistant to compose the poem, sharing your sister\u2019s name, interests, and preferred tone.",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies the writing request as outside hardware design and gives a directly usable writing-assistant redirect. Suggestions for name/interests/tone are appropriate optional inputs, not claims of chip work.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10497,
+        "output_tokens": 67,
+        "cost_usd": null,
+        "elapsed_seconds": 4.818715165951289
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/d900e087260c/spec.md",
+          "sha256": "01083d7eeb1663261407d6fd02f2cd8e356634e3bad22f2dba9065d493789f09"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/d900e087260c/expect.yaml",
+          "sha256": "f9d2c1ee3a49b73313830d70db1bfbec0ffb3fa6984e7006660672b11b1faa73"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d900e087260c/repeat-01/result.json",
+          "sha256": "84321dc8e7a641154145798a0c866e30bf5d48190c34d0a902f90bb3c28143b4"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d900e087260c/repeat-01/pipeline/0563b0b016ed418fbfffadc30cc3d834/run.json",
+          "sha256": "032436601cd5a577e3a79071f76112ecd4f7d80151957b078adc335eafeaf216"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d900e087260c/repeat-01/pipeline/0563b0b016ed418fbfffadc30cc3d834/events.jsonl",
+          "sha256": "7484e5fc3037a627a1fa3f0df5297f0cd7f8150b58831b6496da1988dee2ea22"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/d900e087260c/repeat-02",
+      "case_id": "d900e087260c",
+      "tier": 4,
+      "repeat": 2,
+      "run_id": "179179b3660c413bbb1128274a519e99",
+      "expected_decision": "decline",
+      "actual_public_decision": "decline",
+      "reason": "The request is for a birthday poem and contains no hardware-design intent, so it is outside this digital chip design service's capabilities.\nNext action: Use a general writing assistant to compose the birthday poem.",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies the writing request as outside hardware design and gives a directly usable writing-assistant redirect. Suggestions for name/interests/tone are appropriate optional inputs, not claims of chip work.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10503,
+        "output_tokens": 69,
+        "cost_usd": null,
+        "elapsed_seconds": 4.282167040975764
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/d900e087260c/spec.md",
+          "sha256": "01083d7eeb1663261407d6fd02f2cd8e356634e3bad22f2dba9065d493789f09"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/d900e087260c/expect.yaml",
+          "sha256": "f9d2c1ee3a49b73313830d70db1bfbec0ffb3fa6984e7006660672b11b1faa73"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d900e087260c/repeat-02/result.json",
+          "sha256": "99c1e3aa0ac9ebce5ad73563ada78f55b9ae66cf104110a09ae3ac629797a449"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d900e087260c/repeat-02/pipeline/179179b3660c413bbb1128274a519e99/run.json",
+          "sha256": "5b59517d3327481b6f3de7db9f11c05c42a504414f56077d015989eb242c44e7"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d900e087260c/repeat-02/pipeline/179179b3660c413bbb1128274a519e99/events.jsonl",
+          "sha256": "3ace658526316edabdaf04caab7f638fb46208b5fa75848ba0ce2a919e701242"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/d900e087260c/repeat-03",
+      "case_id": "d900e087260c",
+      "tier": 4,
+      "repeat": 3,
+      "run_id": "4234f2ee248c4111b6c1cf8ea38cf6d6",
+      "expected_decision": "decline",
+      "actual_public_decision": "decline",
+      "reason": "The request is for a birthday poem and contains no hardware-design intent, so it is outside this digital chip design service's capabilities.\nNext action: Use a writing assistant to compose the poem, providing your sister's name, interests, and preferred tone.",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies the writing request as outside hardware design and gives a directly usable writing-assistant redirect. Suggestions for name/interests/tone are appropriate optional inputs, not claims of chip work.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10499,
+        "output_tokens": 79,
+        "cost_usd": null,
+        "elapsed_seconds": 5.803024332970381
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/d900e087260c/spec.md",
+          "sha256": "01083d7eeb1663261407d6fd02f2cd8e356634e3bad22f2dba9065d493789f09"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/d900e087260c/expect.yaml",
+          "sha256": "f9d2c1ee3a49b73313830d70db1bfbec0ffb3fa6984e7006660672b11b1faa73"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d900e087260c/repeat-03/result.json",
+          "sha256": "f0aa10f6b77cd3e32d9e73e46cef6ef088db8f799a369403cc85f116ea95de94"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d900e087260c/repeat-03/pipeline/4234f2ee248c4111b6c1cf8ea38cf6d6/run.json",
+          "sha256": "a12d871601f00242c64e3866f9d8da49bcda5ddc1ddf6663c1487aababe70bb9"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/d900e087260c/repeat-03/pipeline/4234f2ee248c4111b6c1cf8ea38cf6d6/events.jsonl",
+          "sha256": "b652024479b8dbc05980bd4a3a8671c780e4f4a8de2f317641e02b56ada88aa9"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/df69dce93fea/repeat-01",
+      "case_id": "df69dce93fea",
+      "tier": 4,
+      "repeat": 1,
+      "run_id": "d25e4229fadc44b3924e2894fbf72ba7",
+      "expected_decision": "scope_down",
+      "actual_public_decision": "scope_down",
+      "reason": "A production 64-bit out-of-order CPU supporting Linux at 2 GHz is far beyond a single Tiny Tapeout sky130 tile and this small-design flow. Tapeout readiness today cannot be promised without implementation and verification.\nNext action: Confirm whether to adopt the reduced processor proposal before proceeding to interface definition and implementation.\nProposed reduced spec: Reduce to an 8-bit multicycle, in-order processor with four general-purpose registers, an 8-bit program counter, arithmetic, logic, load/store and conditional branch instructions, and 16 bytes of data RAM. Use a serial interface for program loading and observing execution, with at most 64 bytes of program storage. Target 50 MHz and one Tiny Tapeout tile, subject to tool validation. This removes 64-bit execution, out-of-order scheduling, Linux support, the 2 GHz requirement, and guaranteed same-day tapeout readiness.",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies the incompatible production architecture, Linux,2GHz, tile and same-day scope, then asks for confirmation of a concrete reduced8-bit multicycle proposal. It explicitly removes original capabilities and leaves timing/fit/readiness subject to real implementation checks, so the next action is usable without promising that the proposal already fits.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10518,
+        "output_tokens": 206,
+        "cost_usd": null,
+        "elapsed_seconds": 9.032087417086586
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/df69dce93fea/spec.md",
+          "sha256": "c23f5e2cec881f1b49b57fac8ac13ab75a0329e16a9896eba4f71d4b3f8f78b9"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/df69dce93fea/expect.yaml",
+          "sha256": "190012d3ae0fb4d9a0d4bd3a9ad0f8f92fb0d6ae61d17cdb639758af3aa12de8"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/df69dce93fea/repeat-01/result.json",
+          "sha256": "13091cfa23857a6cea6b9733ada307df785986ef26f42c8e1a8a28f67c28bcd2"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/df69dce93fea/repeat-01/pipeline/d25e4229fadc44b3924e2894fbf72ba7/run.json",
+          "sha256": "4efc61b4baa50e9197a49393cde8bed465e683262c6ecf1cdb92bca46c4f3ded"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/df69dce93fea/repeat-01/pipeline/d25e4229fadc44b3924e2894fbf72ba7/events.jsonl",
+          "sha256": "8cfe0e8c8359120aa636991adc0d6907ed9620c3387eb8baea4086f8fbd1527c"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/df69dce93fea/repeat-02",
+      "case_id": "df69dce93fea",
+      "tier": 4,
+      "repeat": 2,
+      "run_id": "b4b3886ca10643aeb14ca90dcd54ff27",
+      "expected_decision": "scope_down",
+      "actual_public_decision": "scope_down",
+      "reason": "A production 64-bit out-of-order CPU with Linux support at 2 GHz exceeds the scale and performance supported by this small sky130 flow and one Tiny Tapeout tile. Tapeout readiness today cannot be promised without implementation and verification.\nNext action: Confirm whether to proceed with the reduced processor proposal, or move the original requirements to a larger ASIC platform and a full CPU development program.\nProposed reduced spec: Propose an 8-bit multicycle in-order processor with four 8-bit registers, an 8-bit program counter, and load-immediate, add, subtract, bitwise, conditional-branch, and halt instructions. Use external program storage accessed through a serialized interface, with serial register readback for observable results. Use clk and synchronous active-low rst_n. Target 50 MHz and one Tiny Tapeout tile, subject to implementation checks. This replaces the 64-bit out-of-order architecture, removes Linux support, lowers the frequency target, and replaces the same-day production requirement with implementation and verification before readiness is assessed.",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies the incompatible production architecture, Linux,2GHz, tile and same-day scope, then asks for confirmation of a concrete reduced8-bit multicycle proposal. It explicitly removes original capabilities and leaves timing/fit/readiness subject to real implementation checks, so the next action is usable without promising that the proposal already fits.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10522,
+        "output_tokens": 235,
+        "cost_usd": null,
+        "elapsed_seconds": 11.40458958398085
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/df69dce93fea/spec.md",
+          "sha256": "c23f5e2cec881f1b49b57fac8ac13ab75a0329e16a9896eba4f71d4b3f8f78b9"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/df69dce93fea/expect.yaml",
+          "sha256": "190012d3ae0fb4d9a0d4bd3a9ad0f8f92fb0d6ae61d17cdb639758af3aa12de8"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/df69dce93fea/repeat-02/result.json",
+          "sha256": "15aec7122244043f36fc55933fcf0b56f630775a880813aae4d0a14ec5b87592"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/df69dce93fea/repeat-02/pipeline/b4b3886ca10643aeb14ca90dcd54ff27/run.json",
+          "sha256": "42cb4d87c25201790c435580e9d7d27ce0b72c3502248f3b1983e09d531960b5"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/df69dce93fea/repeat-02/pipeline/b4b3886ca10643aeb14ca90dcd54ff27/events.jsonl",
+          "sha256": "7faef8a4ba78c8193e3822ec8037552e85aac7b63e150bfd8018c6746dbf96dc"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/df69dce93fea/repeat-03",
+      "case_id": "df69dce93fea",
+      "tier": 4,
+      "repeat": 3,
+      "run_id": "e21c196e994f41fb85fd48065c31c317",
+      "expected_decision": "scope_down",
+      "actual_public_decision": "scope_down",
+      "reason": "A production 64-bit out-of-order Linux CPU at 2 GHz is far beyond the scale and performance supported by a single Tiny Tapeout sky130 tile. Tapeout readiness today cannot be promised without implementation and physical verification.\nNext action: Confirm whether to adopt the reduced processor scope before proceeding to interface definition and implementation.\nProposed reduced spec: Replace the requested CPU with an 8-bit multicycle in-order processor with four registers, an 8-bit program counter, arithmetic, load/store and conditional branch instructions, and external program/data memory accessed through a serialized interface. Use clk and synchronous active-low rst_n, with a 50 MHz target and one Tiny Tapeout tile as goals subject to verification. This removes 64-bit execution, out-of-order execution and Linux support, reduces the clock target, and replaces today's production tapeout deadline with implementation and verification milestones.",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies the incompatible production architecture, Linux,2GHz, tile and same-day scope, then asks for confirmation of a concrete reduced8-bit multicycle proposal. It explicitly removes original capabilities and leaves timing/fit/readiness subject to real implementation checks, so the next action is usable without promising that the proposal already fits.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10522,
+        "output_tokens": 202,
+        "cost_usd": null,
+        "elapsed_seconds": 12.445247583906166
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/df69dce93fea/spec.md",
+          "sha256": "c23f5e2cec881f1b49b57fac8ac13ab75a0329e16a9896eba4f71d4b3f8f78b9"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/df69dce93fea/expect.yaml",
+          "sha256": "190012d3ae0fb4d9a0d4bd3a9ad0f8f92fb0d6ae61d17cdb639758af3aa12de8"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/df69dce93fea/repeat-03/result.json",
+          "sha256": "907fd8c8d6ff799340ca92fe52c2c6361c4bb493d363a865e34f1e8e968cd63f"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/df69dce93fea/repeat-03/pipeline/e21c196e994f41fb85fd48065c31c317/run.json",
+          "sha256": "cf140a53b3a2f114f5d73f318cdcedf779103df90cfa273b8cc4c7a726a50681"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/df69dce93fea/repeat-03/pipeline/e21c196e994f41fb85fd48065c31c317/events.jsonl",
+          "sha256": "5e80a3b1b94ab357c00e190b9051a75240a342afc125f8f8878e4bec7506272b"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/dfc4da611f35/repeat-01",
+      "case_id": "dfc4da611f35",
+      "tier": 4,
+      "repeat": 1,
+      "run_id": "08e92daaff2a4622b44ba448b3c8af02",
+      "expected_decision": "ask_clarify",
+      "actual_public_decision": "ask_clarify",
+      "reason": "The request expresses hardware intent but does not specify an observable function.\nNext action: Choose a function below; the suggested default is a PWM controller for an external LED.\nQuestion 1: What useful function should the chip perform?\n  1. Generate adjustable PWM to control an external LED's brightness\n  2. Count external pulses and display an 8-bit count\n  3. Run a configurable countdown and assert an output when it finishes\nSuggested default: Generate adjustable PWM to control an external LED's brightness",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies the missing observable function and asks a concise function question with concrete digital choices and an explicit suggested default. The user can choose or clarify before anything is built.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10495,
+        "output_tokens": 159,
+        "cost_usd": null,
+        "elapsed_seconds": 7.481543457950465
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/dfc4da611f35/spec.md",
+          "sha256": "e7450a3dbecb3b69a424818561e3f47e96b5eee66e923d139f56b8b6a886d4f1"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/dfc4da611f35/expect.yaml",
+          "sha256": "3c12266c1ea9e25ff741270aded89112cb5c2057e59c0abaab4ee441c0d2427d"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/dfc4da611f35/repeat-01/result.json",
+          "sha256": "b1080d90c03e6466a98672b3eb67df9f90f54bd55298bf34589c0d656c38dcba"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/dfc4da611f35/repeat-01/pipeline/08e92daaff2a4622b44ba448b3c8af02/run.json",
+          "sha256": "e71b9188a30a0feda24d1d5ceb54f998ee3730ba8ee756bf32a320090bd0f95f"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/dfc4da611f35/repeat-01/pipeline/08e92daaff2a4622b44ba448b3c8af02/events.jsonl",
+          "sha256": "e41e1590f7a6a4665f9d02967579c360e3e10caac014a58beef1bc12335863da"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/dfc4da611f35/repeat-02",
+      "case_id": "dfc4da611f35",
+      "tier": 4,
+      "repeat": 2,
+      "run_id": "ddff857bb52c4db690585a5c0907ec16",
+      "expected_decision": "ask_clarify",
+      "actual_public_decision": "ask_clarify",
+      "reason": "The request expresses hardware intent but does not specify an observable function.\nNext action: Choose one proposed function so its behavior and interface can be defined.\nQuestion 1: Which useful function should the chip provide?\n  1. 8-bit PWM controller: set the duty cycle of a digital output\n  2. 8-bit event counter: count input pulses and expose the count\n  3. Button debouncer: turn switch activity into clean digital press pulses\nSuggested default: 8-bit PWM controller: set the duty cycle of a digital output",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies the missing observable function and asks a concise function question with concrete digital choices and an explicit suggested default. The user can choose or clarify before anything is built.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10493,
+        "output_tokens": 163,
+        "cost_usd": null,
+        "elapsed_seconds": 8.652188040898181
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/dfc4da611f35/spec.md",
+          "sha256": "e7450a3dbecb3b69a424818561e3f47e96b5eee66e923d139f56b8b6a886d4f1"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/dfc4da611f35/expect.yaml",
+          "sha256": "3c12266c1ea9e25ff741270aded89112cb5c2057e59c0abaab4ee441c0d2427d"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/dfc4da611f35/repeat-02/result.json",
+          "sha256": "9e51c66b0db1f5ab5df16d6e06b73c9cfcff25136c8bd8e1b991143cc58ff4a7"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/dfc4da611f35/repeat-02/pipeline/ddff857bb52c4db690585a5c0907ec16/run.json",
+          "sha256": "965d99ecfea7778ad960030829c72004b18e652a1709d7f9131f51a0a2da72fa"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/dfc4da611f35/repeat-02/pipeline/ddff857bb52c4db690585a5c0907ec16/events.jsonl",
+          "sha256": "9d65d3f0b141a36cf842150a6c37ccb9101ac16765e851f9cdfd946080370046"
+        }
+      ]
+    },
+    {
+      "trial_id": "dev/dfc4da611f35/repeat-03",
+      "case_id": "dfc4da611f35",
+      "tier": 4,
+      "repeat": 3,
+      "run_id": "f8ee4fe361d9483c9a6475dc07d388f5",
+      "expected_decision": "ask_clarify",
+      "actual_public_decision": "ask_clarify",
+      "reason": "The request expresses chip-design intent but does not specify an observable function.\nNext action: Choose a function below so its behavior and interface can be defined.\nQuestion 1: What useful function should the chip perform?\n  1. Adjust an LED's brightness using an 8-bit PWM duty-cycle input\n  2. Count input pulses and expose an 8-bit count\n  3. Convert a bouncing button input into a stable digital output\nSuggested default: Adjust an LED's brightness using an 8-bit PWM duty-cycle input",
+      "terminal_event_id": 6,
+      "public_reason_exactly_matches_canonical_run_and_trial": true,
+      "cause_identified": true,
+      "usable_action_specific_to_blocker": true,
+      "judgment": "clear",
+      "manual_judgment_reason": "The reason identifies the missing observable function and asks a concise function question with concrete digital choices and an explicit suggested default. The user can choose or clarify before anything is built.",
+      "no_rtl_or_eda_observed": true,
+      "usage": {
+        "calls": 1,
+        "input_tokens": 10493,
+        "output_tokens": 161,
+        "cost_usd": null,
+        "elapsed_seconds": 11.769148624967784
+      },
+      "evidence": [
+        {
+          "kind": "public_spec",
+          "path": "eval/dev/dfc4da611f35/spec.md",
+          "sha256": "e7450a3dbecb3b69a424818561e3f47e96b5eee66e923d139f56b8b6a886d4f1"
+        },
+        {
+          "kind": "public_expectation",
+          "path": "eval/dev/dfc4da611f35/expect.yaml",
+          "sha256": "3c12266c1ea9e25ff741270aded89112cb5c2057e59c0abaab4ee441c0d2427d"
+        },
+        {
+          "kind": "trial_result",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/dfc4da611f35/repeat-03/result.json",
+          "sha256": "d6a764857dd1a325e784d5ecb0b5ddb35389a95cd8ca83f0ecd0b69e45bb03ff"
+        },
+        {
+          "kind": "canonical_run",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/dfc4da611f35/repeat-03/pipeline/f8ee4fe361d9483c9a6475dc07d388f5/run.json",
+          "sha256": "1430a520d3fa54317a83496993d918cac3f6ac100c943a47aebef26f109f1af1"
+        },
+        {
+          "kind": "canonical_events",
+          "path": "eval/results/20261024T064347Z_d341c794/trials/dev/dfc4da611f35/repeat-03/pipeline/f8ee4fe361d9483c9a6475dc07d388f5/events.jsonl",
+          "sha256": "0717d88446f8afb2e3cb2bbdb9d42319c5cb2693684c84320dbfa6fbdbe3d985"
+        }
+      ]
+    }
+  ],
+  "hardware_failures": [
+    {
+      "trial_id": "dev/dd98c97ee061/repeat-01",
+      "tier": 3,
+      "stage": "OPTIMIZE",
+      "primary_class": "physical_placement_failure_then_invalid_repair_configuration",
+      "secondary_classes": [
+        "repaired_test_samples_before_synchronous_reset",
+        "unsupported_placement_density_alias",
+        "terminal_diagnostic_supersession"
+      ],
+      "precise_root_cause": "The first four self-tests all fail in setup because Bus.tick converts scl_o from X before any rising edge with rst_n low. The model supplies a leading TEST_SPEC_CONTRADICTION note and adds one actual reset edge before the bus sampler; all four original tests then pass with their assertions unchanged. Synthesis succeeds, but four real physical runs fail placement: initial and two parallel variants report DPL-0036, while another parallel variant reports GPL-0301 utilization109.521% exceeding100%. A proposed larger standalone floorplan repair is never run: both calls use unsupported PL_TARGET_DENSITY rather than the allowlisted PL_TARGET_DENSITY_PCT and are rejected. The final reason reports this last config validation error, superseding the physical diagnostics. No successful physical candidate exists.",
+      "terminal_stop": {
+        "event_id": 67,
+        "summary": "No successful physical-design run is available Last run_flow: ValueError: Only clock period, utilization, density, die area, and synthesis strategy overrides are allowed. Next: Correct the reported key or value using the pinned LibreLane configuration schema.",
+        "suggested_action": "Correct the reported key or value using the pinned LibreLane configuration schema.",
+        "last_diagnostic": {
+          "kind": "tool_error",
+          "message": "ValueError: Only clock period, utilization, density, die area, and synthesis strategy overrides are allowed"
+        },
+        "fix_loops": 1,
+        "flow_attempts": 4
+      },
+      "terminal_clarity_review": {
+        "cause_identified": true,
+        "usable_action_specific_to_blocker": false,
+        "judgment": "partially_clear",
+        "reason": "The final reason truthfully identifies a config allowlist rejection and absence of a successful physical run. It does not name PL_TARGET_DENSITY as the invalid key, the accepted PL_TARGET_DENSITY_PCT spelling/unit, or retain the underlying DPL/GPL evidence/log path. Its generic correct-key advice therefore gives no sufficiently concrete repair; preceding notes are more specific but cannot replace final clarity."
+      },
+      "usage": {
+        "calls": 11,
+        "input_tokens": 162249,
+        "output_tokens": 11673,
+        "cost_usd": null,
+        "elapsed_seconds": 341.92397212504875,
+        "per_stage": {
+          "SPEC": {
+            "calls": 2,
+            "input_tokens": 20952,
+            "output_tokens": 2437
+          },
+          "RTL": {
+            "calls": 2,
+            "input_tokens": 28747,
+            "output_tokens": 2953
+          },
+          "VERIFY": {
+            "calls": 3,
+            "input_tokens": 40663,
+            "output_tokens": 5497
+          },
+          "OPTIMIZE": {
+            "calls": 4,
+            "input_tokens": 71887,
+            "output_tokens": 786
+          }
+        },
+        "post_first_tool_failure": {
+          "calls": 7,
+          "input_tokens": 117939,
+          "output_tokens": 3710
+        },
+        "post_first_verification_blocker": {
+          "calls": 7,
+          "input_tokens": 117939,
+          "output_tokens": 3710
+        },
+        "rtl_stage_repair_after_verification_blocker": {
+          "calls": 1,
+          "input_tokens": 17103,
+          "output_tokens": 101
+        },
+        "actual_self_test_runs": 2,
+        "note": "Actual observed provider budget deltas; post-blocker excludes the failure-producing call. No counterfactual savings estimate.",
+        "post_first_physical_blocker": {
+          "calls": 4,
+          "input_tokens": 71887,
+          "output_tokens": 786
+        }
+      },
+      "post_first_physical_blocker_usage": {
+        "calls": 4,
+        "input_tokens": 71887,
+        "output_tokens": 786
+      },
+      "semantic_attribution": {
+        "initial_blocker": "Generated test bootstrap reads before synchronous initialization; actual repair is supported by public reset semantics",
+        "final_blocker": "No physically successful run, followed by unsupported configuration key in attempted repair",
+        "no_rtl_logic_bug_established_by_first_failure": true,
+        "limits": "Four passing own tests do not establish universal I2C/cycle compatibility; DPL-0036 alone does not prove a unique floorplan root cause. Only one variant explicitly establishes over100% utilization; no larger-die experiment executed."
+      },
+      "review_limits": "Terminal DEV/public spec/generated own code only; no hidden/golden source or logs, EDA/provider, regrading, source/result changes."
+    },
+    {
+      "trial_id": "dev/dab0b0719d10/repeat-02",
+      "tier": 3,
+      "stage": "OPTIMIZE",
+      "primary_class": "physical_placement_failure_then_invalid_repair_configuration",
+      "secondary_classes": [
+        "unsupported_floorplan_and_density_overrides",
+        "terminal_diagnostic_supersession"
+      ],
+      "precise_root_cause": "The initial RTL lints cleanly, all four own tests pass first time, and synthesis reports573cells. The first real flow fails DPL-0036. Three configuration-only physical variants are then executed: one fails GPL-0301 with119.974% utilization; two fail DPL-0036. The model next proposes larger200um/240um standalone dies, but both run_flow calls include disallowed FP_SIZING and PL_TARGET_DENSITY keys, so neither enlarged-die experiment executes. With no successful physical run and two nonimproving rounds, the pipeline terminates at OPTIMIZE. The terminal reports only the latest generic config allowlist rejection and loses the original placement diagnostic/log.",
+      "terminal_stop": {
+        "event_id": 51,
+        "summary": "No successful physical-design run is available Last run_flow: ValueError: Only clock period, utilization, density, die area, and synthesis strategy overrides are allowed. Next: Correct the reported key or value using the pinned LibreLane configuration schema.",
+        "suggested_action": "Correct the reported key or value using the pinned LibreLane configuration schema.",
+        "last_diagnostic": {
+          "kind": "tool_error",
+          "message": "ValueError: Only clock period, utilization, density, die area, and synthesis strategy overrides are allowed"
+        },
+        "fix_loops": 0,
+        "flow_attempts": 4
+      },
+      "terminal_clarity_review": {
+        "cause_identified": true,
+        "usable_action_specific_to_blocker": false,
+        "judgment": "partially_clear",
+        "reason": "The final reason identifies the immediate config category and no-success state, but neither names the two invalid keys nor the accepted density key/unit, and omits the physical DPL/GPL evidence and saved log. Generic instruction to correct a reported key does not identify which actual key requires correction or preserve the underlying physical blocker."
+      },
+      "usage": {
+        "calls": 8,
+        "input_tokens": 98020,
+        "output_tokens": 4655,
+        "cost_usd": null,
+        "elapsed_seconds": 217.06535962503403,
+        "per_stage": {
+          "SPEC": {
+            "calls": 2,
+            "input_tokens": 20546,
+            "output_tokens": 1313
+          },
+          "RTL": {
+            "calls": 1,
+            "input_tokens": 10542,
+            "output_tokens": 701
+          },
+          "VERIFY": {
+            "calls": 1,
+            "input_tokens": 10610,
+            "output_tokens": 1841
+          },
+          "OPTIMIZE": {
+            "calls": 4,
+            "input_tokens": 56322,
+            "output_tokens": 800
+          }
+        },
+        "post_first_tool_failure": {
+          "calls": 4,
+          "input_tokens": 56322,
+          "output_tokens": 800
+        },
+        "post_first_verification_blocker": null,
+        "rtl_stage_repair_after_verification_blocker": null,
+        "actual_self_test_runs": 1,
+        "note": "Actual observed provider budget deltas; post-blocker excludes the failure-producing call. No counterfactual savings estimate.",
+        "post_first_physical_blocker": {
+          "calls": 4,
+          "input_tokens": 56322,
+          "output_tokens": 800
+        }
+      },
+      "post_first_physical_blocker_usage": {
+        "calls": 4,
+        "input_tokens": 56322,
+        "output_tokens": 800
+      },
+      "semantic_attribution": {
+        "initial_blocker": "Actual physical placement failure, not a simulator assertion or generated-test bootstrap failure",
+        "later_blocker": "Repair proposal uses unsupported key names and never reaches enlarged-die placement",
+        "limits": "Four passing own tests are not universal signed-rounding/handshake correctness proof. DPL-0036 does not alone identify a unique placement root cause; only one variant reports explicit over100% utilization. No larger-die trial was executed."
+      },
+      "review_limits": "Terminal DEV/public spec/generated own code only; no hidden/golden source or logs, EDA/provider, regrading, source/result changes."
+    },
+    {
+      "trial_id": "dev/dd98c97ee061/repeat-02",
+      "tier": 3,
+      "stage": "OPTIMIZE",
+      "primary_class": "physical_placement_failure_then_token_budget_stop",
+      "secondary_classes": [
+        "repaired_test_samples_before_synchronous_reset",
+        "test_edit_prefix_policy_friction",
+        "repeated_unchanged_self_test_runs"
+      ],
+      "precise_root_cause": "The first four cases read uninitialized synchronous bus outputs in Bench.slice before any reset rising edge, so all four fail setup. Three proposed reset-bootstrap fixes are rejected solely because each contradiction marker follows a Hypothesis prefix; unchanged tests repeat0/4. A later leading marker in VERIFY admits a reset-edge-only additive correction, preserving all original assertions and adding reset checks; all four own tests then pass. Synthesis reports674cells. Four actual physical runs fail placement: three DPL-0036 and one GPL-0301 utilization117.611%. The following model response trips the real token guard after19calls, before any second-round physical repair can execute. The first test issue was repaired; the terminal blocker is budget exhaustion with still-failed placement.",
+      "terminal_stop": {
+        "event_id": 124,
+        "summary": "Model token budget exceeded Last run_flow: [07:34:53] [E] [DPL-0036] Detailed placement failed.             openroad.py:312. Next: Inspect the saved placement report; try more space within the selected size limit, or reduce the design for a fixed tile.",
+        "suggested_action": "Inspect the saved placement report; try more space within the selected size limit, or reduce the design for a fixed tile.",
+        "last_diagnostic": {
+          "kind": "tool_error",
+          "message": "[07:34:53] [E] [DPL-0036] Detailed placement failed.             openroad.py:312"
+        },
+        "fix_loops": 4,
+        "flow_attempts": 4
+      },
+      "terminal_clarity_review": {
+        "cause_identified": true,
+        "usable_action_specific_to_blocker": false,
+        "judgment": "partially_clear",
+        "physical_repair_direction_is_relevant": true,
+        "reason": "The final reason correctly retains both actual token exhaustion and DPL-0036, and more placement space is a relevant option for this standalone core. It does not give the saved report path, explain how to start a fresh run/checkpoint with sufficient remaining budget, or identify the required supported configuration route. The currently exhausted run cannot perform the suggested placement retry; a relevant engineering direction is credited separately from a complete usable recovery action."
+      },
+      "usage": {
+        "calls": 19,
+        "input_tokens": 292065,
+        "output_tokens": 22907,
+        "cost_usd": null,
+        "elapsed_seconds": 498.500284583075,
+        "per_stage": {
+          "SPEC": {
+            "calls": 2,
+            "input_tokens": 20952,
+            "output_tokens": 2226
+          },
+          "RTL": {
+            "calls": 5,
+            "input_tokens": 79172,
+            "output_tokens": 3655
+          },
+          "VERIFY": {
+            "calls": 9,
+            "input_tokens": 138721,
+            "output_tokens": 16405
+          },
+          "OPTIMIZE": {
+            "calls": 3,
+            "input_tokens": 53220,
+            "output_tokens": 621
+          }
+        },
+        "post_first_tool_failure": {
+          "calls": 15,
+          "input_tokens": 247997,
+          "output_tokens": 14750
+        },
+        "post_first_verification_blocker": {
+          "calls": 15,
+          "input_tokens": 247997,
+          "output_tokens": 14750
+        },
+        "rtl_stage_repair_after_verification_blocker": {
+          "calls": 4,
+          "input_tokens": 67647,
+          "output_tokens": 920
+        },
+        "actual_self_test_runs": 5,
+        "note": "Actual observed provider budget deltas; post-blocker excludes the failure-producing call. No counterfactual savings estimate.",
+        "post_first_physical_blocker": {
+          "calls": 3,
+          "input_tokens": 53220,
+          "output_tokens": 621
+        }
+      },
+      "post_first_physical_blocker_usage": {
+        "calls": 3,
+        "input_tokens": 53220,
+        "output_tokens": 621
+      },
+      "semantic_attribution": {
+        "initial_blocker": "Generated test reset ordering conflicts with the public synchronous-initialization contract",
+        "actual_partial_recovery": "All four own tests pass after a legitimate additive bootstrap correction; no RTL reset weakening is required or observed",
+        "terminal_blocker": "No physically successful run before remaining token budget is exhausted",
+        "limits": "No hidden/golden source or logs used. Passing own cases does not universally prove I2C compatibility. DPL-0036 alone is not a unique physical root cause; only one variant explicitly reports over100% utilization."
+      },
+      "review_limits": "Terminal DEV/public spec/generated own code only; no hidden/golden source or logs, EDA/provider, regrading, source/result changes."
+    },
+    {
+      "trial_id": "dev/dd98c97ee061/repeat-03",
+      "tier": 3,
+      "stage": "OPTIMIZE",
+      "primary_class": "physical_placement_failure_then_invalid_repair_configuration",
+      "secondary_classes": [
+        "repaired_test_samples_before_synchronous_reset",
+        "unsupported_floorplan_sizing_override",
+        "terminal_diagnostic_supersession"
+      ],
+      "precise_root_cause": "All six initial cases fail in setup because Bus.settle converts scl_o=X before the first reset rising edge. A leading contradiction note permits a4-line setup-only reset-edge insertion, retaining every original case/assertion; all six tests then pass. Synthesis reports1034cells. Four real flows fail placement: initial and two parallel variants DPL-0036; one parallel variant GPL-0301 utilization103.082%. The next proposed200um/250um standalone floorplans use the correct density percentage key but also FP_SIZING, which the allowlist rejects. Neither larger-die run executes. With no physically successful candidate, the run ends at OPTIMIZE reporting the latest config rejection instead of the placement diagnostics.",
+      "terminal_stop": {
+        "event_id": 74,
+        "summary": "No successful physical-design run is available Last run_flow: ValueError: Only clock period, utilization, density, die area, and synthesis strategy overrides are allowed. Next: Correct the reported key or value using the pinned LibreLane configuration schema.",
+        "suggested_action": "Correct the reported key or value using the pinned LibreLane configuration schema.",
+        "last_diagnostic": {
+          "kind": "tool_error",
+          "message": "ValueError: Only clock period, utilization, density, die area, and synthesis strategy overrides are allowed"
+        },
+        "fix_loops": 1,
+        "flow_attempts": 4
+      },
+      "terminal_clarity_review": {
+        "cause_identified": true,
+        "usable_action_specific_to_blocker": false,
+        "judgment": "partially_clear",
+        "reason": "The final reason truthfully reports a generic config error and no successful physical design, but omits that FP_SIZING is the rejected key and that the density percentage spelling is valid here. It also discards DPL/GPL evidence and saved logs. Generic correct-key advice without the offending key or preserved physical blocker is insufficiently actionable."
+      },
+      "usage": {
+        "calls": 11,
+        "input_tokens": 162488,
+        "output_tokens": 12060,
+        "cost_usd": null,
+        "elapsed_seconds": 332.93904479197226,
+        "per_stage": {
+          "SPEC": {
+            "calls": 2,
+            "input_tokens": 20956,
+            "output_tokens": 2361
+          },
+          "RTL": {
+            "calls": 2,
+            "input_tokens": 28173,
+            "output_tokens": 2464
+          },
+          "VERIFY": {
+            "calls": 3,
+            "input_tokens": 43430,
+            "output_tokens": 6497
+          },
+          "OPTIMIZE": {
+            "calls": 4,
+            "input_tokens": 69929,
+            "output_tokens": 738
+          }
+        },
+        "post_first_tool_failure": {
+          "calls": 7,
+          "input_tokens": 118450,
+          "output_tokens": 4138
+        },
+        "post_first_verification_blocker": {
+          "calls": 7,
+          "input_tokens": 118450,
+          "output_tokens": 4138
+        },
+        "rtl_stage_repair_after_verification_blocker": {
+          "calls": 1,
+          "input_tokens": 16667,
+          "output_tokens": 138
+        },
+        "actual_self_test_runs": 2,
+        "note": "Actual observed provider budget deltas; post-blocker excludes the failure-producing call. No counterfactual savings estimate.",
+        "post_first_physical_blocker": {
+          "calls": 4,
+          "input_tokens": 69929,
+          "output_tokens": 738
+        }
+      },
+      "post_first_physical_blocker_usage": {
+        "calls": 4,
+        "input_tokens": 69929,
+        "output_tokens": 738
+      },
+      "semantic_attribution": {
+        "initial_blocker": "Generated reset bootstrap samples before public synchronous initialization",
+        "actual_partial_recovery": "Legitimate setup-only repair passes all six original own cases",
+        "terminal_blocker": "Actual placement failures followed by an unexecuted larger-die proposal with unsupported sizing override",
+        "limits": "Passing own tests is not universal cycle-compatible I2C proof; DPL-0036 is not a unique physical root cause. Explicit103.082% utilization belongs to one actual variant. No larger-die result exists."
+      },
+      "review_limits": "Terminal DEV/public spec/generated own code only; no hidden/golden source or logs, EDA/provider, regrading, source/result changes."
+    }
+  ],
+  "failure_review_criterion": "The final public reason must identify the actual cause/blocker and a usable next action under current app policies. Intermediate notes do not replace the final reason.",
+  "binding_audit": {
+    "hardware_completions": 68,
+    "all_passed": true,
+    "selected_source_tests_matching_actual_simulation_and_package": true,
+    "recorded_hidden_status_hash_only_read_by_manual_auditor": true,
+    "frozen_source_files_rehashed": 51,
+    "frozen_source_tree_sha256": "8951f86e7b3bd2148ace26b20dcadfc46cf46435426aaf368e21e818ee2ab72a"
+  },
+  "decision": {
+    "treatment": "R3 ordinary cocotb with deterministic stage summaries and retained diagnostics",
+    "decision": "keep",
+    "next": "Use the complete failure ranking to declare the next independent production treatment. No mid-cohort fix or held-out tuning."
+  },
+  "limitations": [
+    "Fixed DEV30x3 only; stochastic paired differences do not isolate the two retained components or establish significance.",
+    "No held-out application evaluation has been opened.",
+    "Three incomplete I2C snapshots also have recorded hidden failures; a clean physical recovery alone cannot establish their behavioral correctness or recovered end-to-end success. No hidden contents are used for tuning.",
+    "USD remains unknown under the authorized ChatGPT-plan OAuth provider, so the dollar target is unassessable.",
+    "Finite hidden tests and clean standalone DRC/LVS do not establish universal correctness, actual tile fit or shuttle readiness.",
+    "Original recorded explanation fields remain unchanged; semantic review is separate derived evidence.",
+    "Dormant R2 generated-test/proof APIs remain qualification material and are inactive in ordinary R3 runs."
+  ]
+}

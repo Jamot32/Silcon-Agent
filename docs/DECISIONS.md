@@ -243,3 +243,24 @@ deterministic evidence summaries and diagnostic/terminal detail as a separately
 measured candidate against R1. Dormant helper/proof qualification remains in the
 codebase without being selected by ordinary runs. No reference-model, SPEC,
 physics, toolchain, corpus or grading changes enter this cohort.
+
+R3's completed fixed DEV3× cohort is kept:81/90→86/90, T2 25/30→30/30,
+68/68 reported builds pass bound hidden checks and real block signoff. Calls and
+tokens fall; T2 median242.201→227.860s. There are six paired improvements and one
+regression; the combined memory/diagnostic subset does not isolate a component's
+causal effect. Four physical failures still have partially usable final messages,
+and plan USD remains unknown. All90 records are sealed without changing scores.
+
+The next measured treatment prioritizes deterministic physics and actionable
+blocker retention before reference-first integration: all four current failures
+reach physical design after passing their own tests. In the pinned absolute
+floorplan mode, lowering FP_CORE_UTIL alone does not enlarge DIE_AREA. Use actual
+technology-mapped area and sourced site/config geometry; estimates remain distinct
+from measured layout metrics. Fixed footprints cannot silently grow, relaxed clocks
+cannot count as meeting the original target, and rejected repair proposals must
+not replace the underlying tool diagnostic. Qualify actual tools before enabling
+the new route and compare a new immutable DEV3× cohort against kept R3.
+Recorded hidden status also fails on the three incomplete I2C snapshots; no hidden
+contents are used for tuning. Physical qualification cannot establish recovery of
+their behavior. Reference-first verification remains required before claiming a
+general reliability result or proceeding to final held-out proof.

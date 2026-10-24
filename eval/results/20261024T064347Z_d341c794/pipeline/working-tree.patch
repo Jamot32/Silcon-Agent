@@ -1,0 +1,71 @@
+diff --git a/backend/app/agent/tools.py b/backend/app/agent/tools.py
+index dc4c7fb..ec36bc8 100644
+--- a/backend/app/agent/tools.py
++++ b/backend/app/agent/tools.py
+@@ -385,7 +385,8 @@ class ToolRunner:
+                                 else self.eda.run_flow(arguments.top, overrides))
+                 if proof is not None and isinstance(result.get("run_tag"), str):
+                     self._flow_proofs[result["run_tag"]] = proof
+-            if isinstance(result.get("metrics"), dict):
++            # A failed flow returns metrics={}; never record it as a measured row.
++            if isinstance(result.get("metrics"), dict) and result["metrics"]:
+                 result["metrics"]["flow_index"] = flow_index
+                 await self._emit("metric_recorded", {"run_tag": result.get("run_tag"), "flow_index": flow_index, "metrics": result["metrics"]})
+             return result
+diff --git a/backend/app/llm/factory.py b/backend/app/llm/factory.py
+index 175ecc6..e5fb68c 100644
+--- a/backend/app/llm/factory.py
++++ b/backend/app/llm/factory.py
+@@ -5,10 +5,11 @@ from app.llm.types import Budget, LLM, LLMError
+ 
+ def create_llm(*, budget: Budget | None = None) -> LLM:
+     provider = os.getenv("LLM_PROVIDER", "codex")
++    max_tokens = os.getenv("LLM_MAX_TOKENS", "").strip()
+     budget = budget if budget is not None else Budget(
+         max_usd=float(os.getenv("RUN_BUDGET_USD", "2")),
+         max_calls=int(os.getenv("LLM_MAX_CALLS", "50")),
+-        max_tokens=int(os.getenv("LLM_MAX_TOKENS", "300000")),
++        max_tokens=int(max_tokens) if max_tokens else None,
+     )
+     if provider == "codex":
+         from app.llm.codex import CodexCLIClient
+diff --git a/backend/app/llm/types.py b/backend/app/llm/types.py
+index 8e4892b..e2109d7 100644
+--- a/backend/app/llm/types.py
++++ b/backend/app/llm/types.py
+@@ -62,7 +62,7 @@ class LLM(Protocol):
+ class Budget:
+     max_usd: float = 2.0
+     max_calls: int = 50
+-    max_tokens: int = 300_000
++    max_tokens: int | None = None  # None = unlimited
+     calls: int = field(default=0, init=False)
+     input_tokens: int = field(default=0, init=False)
+     output_tokens: int = field(default=0, init=False)
+@@ -72,7 +72,7 @@ class Budget:
+     def __post_init__(self) -> None:
+         if not math.isfinite(self.max_usd) or self.max_usd < 0:
+             raise ValueError("max_usd must be finite and nonnegative")
+-        if self.max_calls < 1 or self.max_tokens < 1:
++        if self.max_calls < 1 or (self.max_tokens is not None and self.max_tokens < 1):
+             raise ValueError("Call and token limits must be positive")
+ 
+     @property
+@@ -86,7 +86,7 @@ class Budget:
+     def check(self) -> None:
+         if self._known_cost_usd > self.max_usd:
+             raise BudgetExceeded("Model dollar budget exceeded")
+-        if self.total_tokens > self.max_tokens:
++        if self.max_tokens is not None and self.total_tokens > self.max_tokens:
+             raise BudgetExceeded("Model token budget exceeded")
+ 
+     def reserve(self) -> None:
+@@ -94,7 +94,7 @@ class Budget:
+         self.check()
+         if self.calls >= self.max_calls:
+             raise BudgetExceeded("Model call budget exhausted")
+-        if self.total_tokens >= self.max_tokens:
++        if self.max_tokens is not None and self.total_tokens >= self.max_tokens:
+             raise BudgetExceeded("Model token budget exhausted")
+         self.calls += 1
+ 

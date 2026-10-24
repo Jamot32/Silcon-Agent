@@ -477,11 +477,11 @@ actual-capsule/tamper/ambiguity checks for the explicit historical adapter.
 The adapter and original sealer SHAs remain the values recorded in EVIDENCE.
 
 
-### R3 — ordinary cocotb plus diagnostics and deterministic summaries (PENDING)
+### R3 — ordinary cocotb plus diagnostics and deterministic summaries (KEEP)
 
 Primary before: R1 81/90 (T1 24/24, T2 25/30, T3 14/18, T4 18/18),
-Tier 2 median 242.201 s. Rejected combined R2:45/90. After:unmeasured; no keep
-decision. Restore R1 prompts byte-for-byte and stop configuring the generated
+Tier 2 median 242.201 s. Rejected combined R2:45/90. Restore R1 prompts
+byte-for-byte and stop configuring the generated
 adapter in ordinary runs. Retain R2 diagnostic/bookkeeping/failure fields as a
 new subset treatment. Existing helper/proof APIs and authentic qualification
 fixtures remain dormant and available for a later independently qualified route.
@@ -495,3 +495,55 @@ image, G1 grader, corpus and 32-call/300000-token/$1-known-cost/900s limits stay
 unchanged. Measure exactly dev3×/four workers, compare primarily to R1, and keep
 or revert only after all90 records. USD remains unknown; held-out app measurement
 remains unopened. Details:`docs/evidence/reliability-r3-admission.json`.
+
+Complete `make eval SET=dev N=3 EVAL_JOBS=4`: exit0, all90 attempted and recorded,
+**81/90 → 86/90** (+5.56 points); repeats29/28/29. T1 stays24/24, T2 improves
+25/30→30/30, T3 stays14/18 (repeat range66.7–83.3%), T4 stays18/18. Same-grader
+comparison records six improvements and one regression. Hardware completions
+rise63→68; all68 selected delivered sources pass their independent hidden tests
+and have clean standalone DRC/LVS. All68 source/test snapshots also match actual
+passing simulation XML/runtime records and the exact selected package/flow
+artifacts. Their terminal target/signoff claims and explicit TT limitation pass
+the separate success-template audit. All18 scope explanations are clear.
+
+Actual calls1142→511, input tokens12,211,263→5,962,654, output365,934→328,668.
+Tier2 median242.201→227.860s. No crash, deadline hang, evaluator error or missing
+terminal message. Unknown plan USD remains unknown on90/90; the dollar target is
+not assessed. These are whole-treatment observations, not isolated causal effects
+of memory or diagnostics or a counterfactual spend estimate.
+
+| Ranked remaining engineering mechanism | Failed trials |
+| --- | ---: |
+| Physical placement cannot complete in the initial footprint; recovery never executes a larger die | 4 |
+
+Those four trials pass their own original tests before16 actual placement
+failures (12DPL-0036,4GPL-0301). Six larger-die requests are rejected before
+execution. Canonical terminal categories are three config errors and one token
+stop. Three legitimate initial-reset test setup fixes pass; three note-prefix
+policy rejections are retained in the audit. All four final messages identify
+a cause but lack a complete usable recovery action. Therefore the full clarity
+target is still unmet, despite zero missing-message proxies. Official explanation
+fields remain unchanged/unreviewed; derived review is not a regrade.
+
+There is a separate correctness risk: the recorded independent hidden status is
+failed for all three incomplete I2C trials and passed for the incomplete multiplier
+trial. No hidden test/source/log is read or supplied to the model. These current
+RTL observations are not completed deliveries, so they do not change68/68 hidden
+correctness among reported successes. They do mean placement recovery alone
+cannot be claimed to recover all four end-to-end outcomes. Reference-first tests
+and the public-spec contract still require independent qualification and a later
+measured treatment before held-out proof.
+
+**Keep R3.** It improves the complete DEV result and Tier2 with lower observed
+token use and median time. Preserve its one paired regression and all four
+partially clear failures. The unchanged original sealer verifies90 terminal
+records/68 selected sources; raw summary SHA is
+`f8eb019d74c23aa4c015160aa13a317551b49b023f35894a19df20f40b61c9e1`.
+Full evidence: `docs/evidence/reliability-r3.json` and `.md`.
+
+Next treatment: deterministic mapped-area sizing, bounded physical recovery and
+preservation of the real blocker alongside rejected repair diagnostics. This
+changes the default section order because every current failed build reaches
+physical design; it does not bypass qualification or a fresh full DEV3× result.
+Reference/static/pattern/reporting prototypes remain isolated and unmeasured.
+No held-out application evaluation has been opened; no full-target claim.
