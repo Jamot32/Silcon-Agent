@@ -1,0 +1,549 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "read_only_r2_oracle_boundary_and_identity_audit",
+  "audited_at": "2026-10-24T05:09:27.250755+00:00",
+  "baseline_commit": "c1ba199e9aa2b3bdea1efda4893e9ac6981e1fa7",
+  "worktree_head": "c1ba199e9aa2b3bdea1efda4893e9ac6981e1fa7",
+  "audit_scope": "Current uncommitted R2 source, generic legacy routes, Git metadata for protected evaluator/corpus paths, and retained hand-authored qualification artifacts.",
+  "audit_commands": [
+    "git diff --name-status c1ba199 -- eval eda designs/golden",
+    "git ls-files --others --exclude-standard -- eval eda designs/golden",
+    "git ls-tree -r c1ba199 -- <protected-path>",
+    "Python ast.parse/get_source_segment/dump comparisons and SHA256 of allowed source/evidence bytes; no design execution"
+  ],
+  "no_new_eda_or_provider_calls": true,
+  "heldout_or_golden_contents_read": false,
+  "generic_eda_methods": {
+    "lint": {
+      "r1_source_sha256": "53d45c273e575da2fa1dbc04cd263992c04268ac6b12a8ea1b633cc8400e94dc",
+      "current_source_sha256": "53d45c273e575da2fa1dbc04cd263992c04268ac6b12a8ea1b633cc8400e94dc",
+      "byte_identical": true,
+      "ast_identical": true,
+      "ast_sha256": "daed32365c7176c90d24b45ed3a3ca91672d17e4afc53de456650a15d29038ea"
+    },
+    "run_tests": {
+      "r1_source_sha256": "1792e64eb40d27059252a698a393508ea1b72907946d814481797d8358180378",
+      "current_source_sha256": "1792e64eb40d27059252a698a393508ea1b72907946d814481797d8358180378",
+      "byte_identical": true,
+      "ast_identical": true,
+      "ast_sha256": "4f4a961e33c366f1c846bc7ec77627a7896c4e92569274e04c80f25cf24aa038"
+    },
+    "synth_stats": {
+      "r1_source_sha256": "1dd9ab5205d4ce0dd3865f67c2bae5a81d9d2de0086243290bb87fc7306fc241",
+      "current_source_sha256": "1dd9ab5205d4ce0dd3865f67c2bae5a81d9d2de0086243290bb87fc7306fc241",
+      "byte_identical": true,
+      "ast_identical": true,
+      "ast_sha256": "e8ec06121e7ef86722664524f38cfa20d4934a0e5a125b80716f01d6b46bfaca"
+    },
+    "run_flow": {
+      "r1_source_sha256": "12a46297542ae7f6858305dfbc6133206708d4f6dfef7f92716a493f54105afb",
+      "current_source_sha256": "12a46297542ae7f6858305dfbc6133206708d4f6dfef7f92716a493f54105afb",
+      "byte_identical": true,
+      "ast_identical": true,
+      "ast_sha256": "bab655349cc7f270d2bf38d4c83e658348dc0421b974fed7a43dbdf6e49b02fa"
+    },
+    "read_report": {
+      "r1_source_sha256": "b4003cf9b7025a70ac25a5c1aa9a6505626d9d846621ad19bdb56377daafcfbf",
+      "current_source_sha256": "b4003cf9b7025a70ac25a5c1aa9a6505626d9d846621ad19bdb56377daafcfbf",
+      "byte_identical": true,
+      "ast_identical": true,
+      "ast_sha256": "805568c9af31641b3c966119cfd640fdb15d3664fa7a5719685104c97cceae8e"
+    },
+    "render_layout": {
+      "r1_source_sha256": "6a3f860cb6319039e5a090082a9f98f9237be5d5dfcb626fa5a175116e2717eb",
+      "current_source_sha256": "6a3f860cb6319039e5a090082a9f98f9237be5d5dfcb626fa5a175116e2717eb",
+      "byte_identical": true,
+      "ast_identical": true,
+      "ast_sha256": "3e5a184e20789e31e42b1cc9d2e169a29c8f40f2b5cdcc4308ca69b380971e96"
+    },
+    "flow_artifacts": {
+      "r1_source_sha256": "ebb4639ff95ce63f0f15da891f2222f090fc1fe85f50ab8a62e509857bb4298d",
+      "current_source_sha256": "ebb4639ff95ce63f0f15da891f2222f090fc1fe85f50ab8a62e509857bb4298d",
+      "byte_identical": true,
+      "ast_identical": true,
+      "ast_sha256": "2bf05ab3a8b73db00bc7e0b89e22c2febddcaf092dda31981b90cfef01d4cc92"
+    }
+  },
+  "generic_eda_all_seven_byte_identical": true,
+  "generic_eda_private_methods": {
+    "_snapshot": {
+      "r1_source_sha256": "51ec112107429c717bdcff242a73a31b2591a8140a57b20f77819c1e3b20ac5d",
+      "current_source_sha256": "51ec112107429c717bdcff242a73a31b2591a8140a57b20f77819c1e3b20ac5d",
+      "byte_identical": true,
+      "ast_identical": true,
+      "ast_sha256": "22e7ee82c4b04e3fb011ef8645d5a8ca7fd95a007909d3b2945befe4de8f5394"
+    },
+    "_flow": {
+      "r1_source_sha256": "4dde2b919dfd9b27bd50402281d04901aeebfa9663f8d013ede30e2c5eb9e7e6",
+      "current_source_sha256": "4dde2b919dfd9b27bd50402281d04901aeebfa9663f8d013ede30e2c5eb9e7e6",
+      "byte_identical": true,
+      "ast_identical": true,
+      "ast_sha256": "2ae6bb30ad237a30721e6d7b4ba74ca7911a6530db6d41bbcbbc620cf2b2ca7c"
+    }
+  },
+  "eda_constructor_original_prefix_preserved": true,
+  "new_eda_entrypoints": [
+    "_prepare_harness_sandbox",
+    "configure_test_harness",
+    "flow_verification_artifacts",
+    "harness_artifacts",
+    "harness_context",
+    "harness_result",
+    "run_harness_flow",
+    "run_harness_tests"
+  ],
+  "sandbox_default_run_ast_equal_after_removing_opt_in": true,
+  "sandbox_helper_default_is_none": true,
+  "sandbox_helper_conditional_is_explicit": true,
+  "sandbox_default_argv_assignment": {
+    "r1_ast_sha256": "3f394fdf37cac5ac11344e75837d1b052af5d59f943517cb65f7fcfcf4e87db9",
+    "current_ast_sha256": "3f394fdf37cac5ac11344e75837d1b052af5d59f943517cb65f7fcfcf4e87db9",
+    "identical": true
+  },
+  "sandbox_original_common_helpers_ast_identical": {
+    "safe_artifact": true,
+    "log_tail": true,
+    "read_json_artifact": true,
+    "run_runtime": true,
+    "DockerSandbox.__init__": true
+  },
+  "unchanged_shared_eda_files": {
+    "backend/app/eda/sim.py": {
+      "r1_sha256": "068cf2de1b89dabc85aa5b87dbbcd93415dc1f66996397621a2e2ab2511467f3",
+      "current_sha256": "068cf2de1b89dabc85aa5b87dbbcd93415dc1f66996397621a2e2ab2511467f3",
+      "byte_identical": true
+    },
+    "backend/app/eda/lint.py": {
+      "r1_sha256": "61872c1bac36c4ebc0491f5b0b0f8cbed598db6b025caf26a627a3f64e8db661",
+      "current_sha256": "61872c1bac36c4ebc0491f5b0b0f8cbed598db6b025caf26a627a3f64e8db661",
+      "byte_identical": true
+    },
+    "backend/app/eda/flow.py": {
+      "r1_sha256": "bd20516f0f63e4afed9de78e97110f9ddcc4dede80fec2aa1e6ba0b68f3c1862",
+      "current_sha256": "bd20516f0f63e4afed9de78e97110f9ddcc4dede80fec2aa1e6ba0b68f3c1862",
+      "byte_identical": true
+    },
+    "backend/app/eda/synth.py": {
+      "r1_sha256": "3b872e2d81a09896ce0e5dad2c9c70b6aac26e766cbda21e23104a705280527d",
+      "current_sha256": "3b872e2d81a09896ce0e5dad2c9c70b6aac26e766cbda21e23104a705280527d",
+      "byte_identical": true
+    }
+  },
+  "protected_tracked_trees": {
+    "eval": {
+      "r1_git_tree_oid": "3a5b6f5af343b5f45f42d19649c53b73b1710637",
+      "object_id_algorithm": "git-sha1",
+      "r1_recursive_git_metadata_sha256": "f27c7434b106c6d1418d5154b2d59fe25a6a328b2a8aaac880565403cb1a2c55",
+      "tracked_diff_paths": [],
+      "nonignored_untracked_paths": [],
+      "content_access": "Git object/path metadata only for eval and designs/golden; no dataset, oracle golden, or heldout contents opened."
+    },
+    "eda": {
+      "r1_git_tree_oid": "ea1455103aa4eb6848136d6a0bbc1a2a52e3e11e",
+      "object_id_algorithm": "git-sha1",
+      "r1_recursive_git_metadata_sha256": "814aae875bcd0f5fbda2ea9603636f1b283d03c4171f121f7380578c873a12fa",
+      "tracked_diff_paths": [],
+      "nonignored_untracked_paths": [],
+      "content_access": "Git object/path metadata only for eval and designs/golden; no dataset, oracle golden, or heldout contents opened."
+    },
+    "designs/golden": {
+      "r1_git_tree_oid": "2e110f0727037ab62d52842748e40f05c60aba31",
+      "object_id_algorithm": "git-sha1",
+      "r1_recursive_git_metadata_sha256": "16364c907981b82fb37c663ca43f12f91a9d4b7b9721da6184e72cd6bd3a8251",
+      "tracked_diff_paths": [],
+      "nonignored_untracked_paths": [],
+      "content_access": "Git object/path metadata only for eval and designs/golden; no dataset, oracle golden, or heldout contents opened."
+    }
+  },
+  "protected_diff_paths": [],
+  "protected_nonignored_untracked_paths": [],
+  "eval_grader_oracle_corpus_git_identities": {
+    "eval/hidden.py": {
+      "r1_git_object_oid": "55d45ca7f2d4ccd0d2070db251e245403170d9a7",
+      "object_id_algorithm": "git-sha1",
+      "tracked_unchanged": true
+    },
+    "eval/scoring.py": {
+      "r1_git_object_oid": "add5dd36367353e4a6ae729d09c766f4adf0de3a",
+      "object_id_algorithm": "git-sha1",
+      "tracked_unchanged": true
+    },
+    "eval/contracts.py": {
+      "r1_git_object_oid": "92c81a599ce03736995f8ceb4df6eead65a743bc",
+      "object_id_algorithm": "git-sha1",
+      "tracked_unchanged": true
+    },
+    "eval/runner.py": {
+      "r1_git_object_oid": "caf2a5b715f552a17b017c944e13218993036b34",
+      "object_id_algorithm": "git-sha1",
+      "tracked_unchanged": true
+    },
+    "eval/oracles": {
+      "r1_git_object_oid": "9984e70955d11f72b59ea07f6862b3ada32cb9c4",
+      "object_id_algorithm": "git-sha1",
+      "tracked_unchanged": true
+    },
+    "eval/corpus.py": {
+      "r1_git_object_oid": "3fcebcb64f64f3e041f1148226e93392c013a9a2",
+      "object_id_algorithm": "git-sha1",
+      "tracked_unchanged": true
+    },
+    "eval/corpus_manifest.json": {
+      "r1_git_object_oid": "4f215cd969b98de20f4daaba4f5c0dac9d645c26",
+      "object_id_algorithm": "git-sha1",
+      "tracked_unchanged": true
+    },
+    "eval/dev_manifest.json": {
+      "r1_git_object_oid": "622736ec0181a3f535a334b356173f119c14428a",
+      "object_id_algorithm": "git-sha1",
+      "tracked_unchanged": true
+    },
+    "eval/dev": {
+      "r1_git_object_oid": "25d792356436fc860b6d95a3e1af772021d316c5",
+      "object_id_algorithm": "git-sha1",
+      "tracked_unchanged": true
+    }
+  },
+  "baked_runtime_identity": {
+    "path": "eda/runtime.py",
+    "r1_sha256": "5ba094045c25f71319dbf3ecd1b6e2cb2f9a9f025b33f678d2e154e42d7930f3",
+    "current_sha256": "5ba094045c25f71319dbf3ecd1b6e2cb2f9a9f025b33f678d2e154e42d7930f3",
+    "byte_identical": true
+  },
+  "eda_image_definition_identity": {
+    "path": "eda/Dockerfile",
+    "r1_sha256": "bf13b6aedaa11af6137dd3934c40dcf176e0cd92266e36c569bd610914107316",
+    "current_sha256": "bf13b6aedaa11af6137dd3934c40dcf176e0cd92266e36c569bd610914107316",
+    "byte_identical": true
+  },
+  "eda_versions_identity": {
+    "path": "eda/versions.env",
+    "r1_sha256": "b40a5017dd18b87a6b6457bbdbc476e915b8d8e4fa55f06a3ece21af858688cd",
+    "current_sha256": "b40a5017dd18b87a6b6457bbdbc476e915b8d8e4fa55f06a3ece21af858688cd",
+    "byte_identical": true
+  },
+  "recorded_image_identity": {
+    "image_ids": {
+      "mount": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+      "proof_flow": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+      "legacy": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+      "package": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8"
+    },
+    "all_equal": true,
+    "embedded_runtime_observed_sha256": "5ba094045c25f71319dbf3ecd1b6e2cb2f9a9f025b33f678d2e154e42d7930f3",
+    "matches_current_runtime": true,
+    "fresh_docker_inspection_in_this_audit": false
+  },
+  "helper_current_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+  "qualified_source_identities": {
+    "proof_flow_sources": {
+      "backend/app/eda/harness.py": {
+        "recorded_sha256": "246cd6ca1db38332098c11f1633e358cae1afdc87de922029b98a16a54c05e59",
+        "current_sha256": "246cd6ca1db38332098c11f1633e358cae1afdc87de922029b98a16a54c05e59",
+        "matches": true
+      },
+      "backend/app/eda/sa_tb.py": {
+        "recorded_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+        "current_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+        "matches": true
+      },
+      "backend/app/eda/verification.py": {
+        "recorded_sha256": "ba1ceace27502c6ace679c39004f49f78e3283f19190e1c43b70d0b96570ad70",
+        "current_sha256": "ba1ceace27502c6ace679c39004f49f78e3283f19190e1c43b70d0b96570ad70",
+        "matches": true
+      },
+      "backend/app/eda/service.py": {
+        "recorded_sha256": "98057201dbd923af041832a218fb0706d152f8c593b519e08210be989f88e29e",
+        "current_sha256": "98057201dbd923af041832a218fb0706d152f8c593b519e08210be989f88e29e",
+        "matches": true
+      },
+      "backend/app/eda/sandbox.py": {
+        "recorded_sha256": "f622ad612e1bd4b052e21c68e23398ea933bcbec7f341c582e992633def1bbb1",
+        "current_sha256": "f622ad612e1bd4b052e21c68e23398ea933bcbec7f341c582e992633def1bbb1",
+        "matches": true
+      },
+      "backend/app/eda/flow.py": {
+        "recorded_sha256": "bd20516f0f63e4afed9de78e97110f9ddcc4dede80fec2aa1e6ba0b68f3c1862",
+        "current_sha256": "bd20516f0f63e4afed9de78e97110f9ddcc4dede80fec2aa1e6ba0b68f3c1862",
+        "matches": true
+      },
+      "backend/app/agent/tools.py": {
+        "recorded_sha256": "4feb4e7986f0764470ee73182d1e1786608a15d0e03bab319d87e7924fe1be15",
+        "current_sha256": "4feb4e7986f0764470ee73182d1e1786608a15d0e03bab319d87e7924fe1be15",
+        "matches": true
+      },
+      "backend/app/packaging.py": {
+        "recorded_sha256": "b25f64b301c8e6632abaed58637fe1fdd40145aa73b164f67502322b5a041f25",
+        "current_sha256": "b25f64b301c8e6632abaed58637fe1fdd40145aa73b164f67502322b5a041f25",
+        "matches": true
+      },
+      "backend/app/schemas.py": {
+        "recorded_sha256": "6b16995da3c9df6f497b6a19187d96cdfc431a10484c6569402736d9886b563a",
+        "current_sha256": "6b16995da3c9df6f497b6a19187d96cdfc431a10484c6569402736d9886b563a",
+        "matches": true
+      },
+      "eda/runtime.py": {
+        "recorded_sha256": "5ba094045c25f71319dbf3ecd1b6e2cb2f9a9f025b33f678d2e154e42d7930f3",
+        "current_sha256": "5ba094045c25f71319dbf3ecd1b6e2cb2f9a9f025b33f678d2e154e42d7930f3",
+        "matches": true
+      },
+      "eda/versions.env": {
+        "recorded_sha256": "b40a5017dd18b87a6b6457bbdbc476e915b8d8e4fa55f06a3ece21af858688cd",
+        "current_sha256": "b40a5017dd18b87a6b6457bbdbc476e915b8d8e4fa55f06a3ece21af858688cd",
+        "matches": true
+      }
+    },
+    "all_proof_flow_sources_match_current": true,
+    "post_package_production_changes": {
+      "backend/app/agent/prompts.py": {
+        "recorded_sha256": "274782bfed89417480a45c431504e2deb4b8c702146daec3b5826d6ffa69fa7b",
+        "current_sha256": "c16ed2085c5f36028d112d9e0d9ccc6df234b066a9a9355f211d39042bac81a9"
+      }
+    }
+  },
+  "proof_source_identity": {
+    "proof_sha256": "5558285441af9a0336426e7423fcabb223d19a2e656d491a1be5f8f24eee8322",
+    "proof_digest_valid": true,
+    "host_result_digest_valid": true,
+    "context_digest_valid": true,
+    "context_sha256": "fa7f60777e83f2332ea737417e686bb59bd2882add5444aa85854d574223c8d5",
+    "artifacts": {
+      "context": {
+        "recorded_sha256": "18a22ce32c7721c13e352ce5540f2d524119e7da8d29648b778aa4e1447d3a72",
+        "actual_sha256": "18a22ce32c7721c13e352ce5540f2d524119e7da8d29648b778aa4e1447d3a72",
+        "matches": true
+      },
+      "helper": {
+        "recorded_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+        "actual_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+        "matches": true
+      },
+      "evidence": {
+        "recorded_sha256": "ee6a61e5c3162e37b8581a19745a748d8aebab40f5d730182a07c354a79f95e1",
+        "actual_sha256": "ee6a61e5c3162e37b8581a19745a748d8aebab40f5d730182a07c354a79f95e1",
+        "matches": true
+      },
+      "xml": {
+        "recorded_sha256": "9102ba3135bbd5420e4af83ab7d28160f22b0e0ff9134832f057a1e316846af0",
+        "actual_sha256": "9102ba3135bbd5420e4af83ab7d28160f22b0e0ff9134832f057a1e316846af0",
+        "matches": true
+      },
+      "runtime": {
+        "recorded_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1",
+        "actual_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1",
+        "matches": true
+      }
+    },
+    "helper_matches_current": true,
+    "helper_origin": "/opt/silicon-python/sa_tb.py",
+    "all_registered_cases_completed_passed": true,
+    "case_names_agree": true
+  },
+  "selected_capsule_checks": {
+    "work_dir": "runs/eda-harness-proof-flow/71013f0381e141e48c8f075186ab0d91",
+    "run_tag": "flow_89e8d99de7684902",
+    "materials": {
+      "context": {
+        "recorded_sha256": "18a22ce32c7721c13e352ce5540f2d524119e7da8d29648b778aa4e1447d3a72",
+        "actual_sha256": "18a22ce32c7721c13e352ce5540f2d524119e7da8d29648b778aa4e1447d3a72",
+        "matches": true
+      },
+      "helper": {
+        "recorded_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+        "actual_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+        "matches": true
+      },
+      "evidence": {
+        "recorded_sha256": "ee6a61e5c3162e37b8581a19745a748d8aebab40f5d730182a07c354a79f95e1",
+        "actual_sha256": "ee6a61e5c3162e37b8581a19745a748d8aebab40f5d730182a07c354a79f95e1",
+        "matches": true
+      },
+      "xml": {
+        "recorded_sha256": "9102ba3135bbd5420e4af83ab7d28160f22b0e0ff9134832f057a1e316846af0",
+        "actual_sha256": "9102ba3135bbd5420e4af83ab7d28160f22b0e0ff9134832f057a1e316846af0",
+        "matches": true
+      },
+      "runtime": {
+        "recorded_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1",
+        "actual_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1",
+        "matches": true
+      },
+      "host_result": {
+        "recorded_sha256": "a482fdbac957199f5f611283e0d018b3f8f55c22a9b87cb36612230fd540a672",
+        "actual_sha256": "a482fdbac957199f5f611283e0d018b3f8f55c22a9b87cb36612230fd540a672",
+        "matches": true
+      },
+      "proof": {
+        "recorded_sha256": "ac25ba3d9c41667ce54f9a40881c3747ee43dd1ef52292e43f6632327477b7b6",
+        "actual_sha256": "ac25ba3d9c41667ce54f9a40881c3747ee43dd1ef52292e43f6632327477b7b6",
+        "matches": true
+      }
+    },
+    "selected_source_digest_matches_proof": true,
+    "selected_tests_digest_matches_proof": true,
+    "physical_artifact_hashes_match": {
+      "gds": true,
+      "lef": true,
+      "netlist": true,
+      "metrics": true,
+      "config": true
+    },
+    "flow_ok": true,
+    "verification_valid": true,
+    "drc_ok": true,
+    "lvs_ok": true
+  },
+  "package_reproduction_checks": {
+    "evidence_path": "docs/evidence/reliability-r2-packaging.json",
+    "selected_run_tag": "flow_89e8d99de7684902",
+    "same_helper": true,
+    "same_proof": true,
+    "bundle_sha256": "f56297a3ebf6f1fe91e1efbb3a94364241e1d86762c0654ccaf66a14ef8f7a87",
+    "bundle_actual_sha256": "f56297a3ebf6f1fe91e1efbb3a94364241e1d86762c0654ccaf66a14ef8f7a87",
+    "retained_capsule_valid_without_original": true,
+    "original_snapshot_validation_after_deletion": {
+      "ok": false,
+      "error": "Required verification artifact is missing"
+    },
+    "input_bytes_unchanged": true,
+    "exact_generated_command_returncode": 0,
+    "reconciled_host_verdict": {
+      "ok": true,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "test": "test_reset",
+          "ok": true
+        },
+        {
+          "test": "test_increment",
+          "ok": true
+        },
+        {
+          "test": "test_hold",
+          "ok": true
+        },
+        {
+          "test": "test_wrap",
+          "ok": true
+        }
+      ],
+      "harness_evidence_valid": true,
+      "quality_gate_passed": true
+    }
+  },
+  "mount_qualification_scope": {
+    "evidence_path": "docs/evidence/reliability-r2-mount.json",
+    "ok": true,
+    "write_errnos": [
+      30,
+      30
+    ],
+    "helper_at_mount_probe_sha256": "2a7c4f354916bee777c07151e1224348832f92c0be5334ca3bb54dbbbf760f39",
+    "note": "Read-only mount mechanics were probed with an earlier helper; final helper bytes were subsequently exercised by proof-flow and exact packaged-command reproduction. This audit does not relabel the earlier probe as a d9e4 helper run."
+  },
+  "functional_qualification": {
+    "command": "uv run --python 3.12 --with-requirements backend/requirements.txt python -m pytest -q -s backend/tests/integration/test_trusted_harness.py -k 'not new_file_bind'",
+    "observed_exit_code": 0,
+    "observed_pytest_result": "33 passed, 1 deselected in 10.91s",
+    "artifact_root": "runs/eda-harness-check/c82fb0c77893461ab75a7fb9efd8ce0c",
+    "retained_control_results": 33,
+    "all_helper_hashes_match_current": true,
+    "integration_source_sha256": "a3f2f4f395de2a52a5ae7e5e1909d5027f82e8a13adbc7c942b49969e8e28630",
+    "scope": "Hand-authored positive/negative reset, optional-before/rst_n, adaptive protocol, masking, timing, wired-AND and infrastructure controls; not a provider or corpus score."
+  },
+  "legacy_qualification_summary": {
+    "evidence_path": "docs/evidence/reliability-r2-legacy.json",
+    "all_expected_outcomes_passed": true,
+    "controls": [
+      {
+        "label": "pass",
+        "lint_ok": true,
+        "lint_warnings": [],
+        "sim_ok": true,
+        "passed": 1,
+        "failed": 0
+      },
+      {
+        "label": "functional-fail",
+        "lint_ok": true,
+        "lint_warnings": [],
+        "sim_ok": false,
+        "passed": 0,
+        "failed": 1
+      },
+      {
+        "label": "pre-reset-fail",
+        "lint_ok": true,
+        "lint_warnings": [],
+        "sim_ok": false,
+        "passed": 0,
+        "failed": 1
+      },
+      {
+        "label": "compile-fail",
+        "lint_ok": false,
+        "lint_warnings": [],
+        "sim_ok": false,
+        "passed": null,
+        "failed": null
+      }
+    ]
+  },
+  "warning_status": {
+    "zero_warning_claim": false,
+    "final_flow_warning_summary_headers": [
+      "[OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not        flow.py:701",
+      "[OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is not    flow.py:701",
+      "[OpenROAD.RepairDesignPostGPL] [STA-1140]             flow.py:701",
+      "[OpenROAD.RepairDesignPostGPL] [RSZ-0020] found 2     flow.py:701",
+      "[OpenROAD.DetailedRouting] [DRT-0349] LEF58_ENCLOSURE flow.py:701",
+      "[Checker.WireLength] Threshold for                    flow.py:701",
+      "[OpenROAD.IRDropReport] 'VSRC_LOC_FILES' was not      flow.py:701"
+    ],
+    "known_categories": [
+      "generic fallback PNR_SDC_FILE",
+      "generic fallback SIGNOFF_SDC_FILE",
+      "duplicate timing library STA-1140",
+      "two floating nets RSZ-0020",
+      "unsupported LEF58_ENCLOSURE CUTCLASS handling DRT-0349",
+      "wire-length threshold checker skipped because threshold unset",
+      "IR-drop source locations unset; analysis accuracy limited"
+    ],
+    "legacy_lint_warning_counts": {
+      "pass": 0,
+      "functional-fail": 0,
+      "pre-reset-fail": 0,
+      "compile-fail": 0
+    },
+    "signoff_interpretation": "Recorded block DRC/LVS and GDS success coexist with these warnings; no shuttle or Tiny Tapeout readiness conclusion."
+  },
+  "source_boundary_review": {
+    "selection": "New helper mounting occurs only through the explicit configured run_harness_tests route; generic EDA.run_tests/lint retain original code and no helper mount.",
+    "proof": "Host reconciles exact source/test/helper/context/image identities, registered cases, XML/evidence/runtime and copied selected-flow material; current helper required before new flow and copied capsule rechecked after flow.",
+    "oracle_exception": "No run-ID, oracle-name, evaluator-path, or hidden-feedback bypass added to the shared generic EDA/sandbox route."
+  },
+  "conclusions": {
+    "audited_legacy_oracle_boundary_preserved": true,
+    "final_helper_and_selected_capsule_identities_match": true,
+    "performance_improvement_established": false,
+    "qualification_is_control_level_only": true
+  },
+  "limitations": [
+    "AST/byte and retained-artifact checks do not prove universal functional correctness or a development/heldout success-rate improvement.",
+    "Protected evaluator/corpus/golden checks use Git path/object metadata and tracked diffs only; no heldout or golden contents were opened. Ignored result/data content was not inspected.",
+    "No fresh Docker, EDA, provider, evaluator or oracle run occurred in this audit; image/runtime observations are the retained real qualification records.",
+    "The application runtime intentionally changes for R2. A later prompt-only production source change is reported above rather than claimed exercised by the hand-authored flow.",
+    "In purely combinational mode clk/rst_n can be driven as ordinary one-bit inputs, but remain reserved from edge_inputs declarations and the per-input declared-edge coverage gate in both modes. This is a bounded metadata policy, not proof their semantic edges are covered.",
+    "Requirement/edge declarations are authored metadata, not semantic coverage proof. The small fixed fixtures do not replace future controlled R2 reliability measurement."
+  ],
+  "evidence_documents": {
+    "docs/evidence/reliability-r2-mount.json": "37566c334314c88d5cad5cb3414c77d4330cdd8d13fc4c2ff6861ef624159a2c",
+    "docs/evidence/reliability-r2-proof-flow.json": "a23f6d3f1a8492f650e5b527c414479fb082c5360991260a0e4c644173ddb0c1",
+    "docs/evidence/reliability-r2-packaging.json": "1da60574fce9cb5839346790eba21f68ca2dbd2d7d31cb56a296912aece39889",
+    "docs/evidence/reliability-r2-legacy.json": "5797315f9d2f6376a40483eb23b66e23b6378ec40c9bd3d96d2a1f9af5d0fb2d"
+  },
+  "overall_boundary_status": "preserved_for_audited_legacy_paths_and_identity_bound_explicit_harness_route"
+}

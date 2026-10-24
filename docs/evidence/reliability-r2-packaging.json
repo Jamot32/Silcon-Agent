@@ -1,0 +1,174 @@
+{
+  "qualification": "Real selected bundle generation, retained capsule validation and exact generated-command reproduction; no new physical flow or provider/evaluation calls.",
+  "finished_at": "2026-10-24T05:04:52.958485+00:00",
+  "host_command": "PYTHONPATH=backend uv run --python 3.12 --with-requirements backend/requirements.txt python /tmp/silicon-r2-package.py",
+  "qualification_script_sha256": "72b7bea0b305ca6ae110de16789ea67b76551ca25f7e937070cf7f226e74f824",
+  "packaging_source_sha256": "b25f64b301c8e6632abaed58637fe1fdd40145aa73b164f67502322b5a041f25",
+  "final_production_source_identities": {
+    "backend/app/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "backend/app/agent/__init__.py": "486666084804852c8e9d2b070774fb052739917e80a01eab74314c47a1c53c77",
+    "backend/app/agent/diagnostics.py": "7d1356406f709620f5f47285d669f6f64bc8c76b953c9796b660a15a959069a2",
+    "backend/app/agent/failures.py": "2bc46d8dac116656ecc6ad5fb06a450194fcce74ab536e41e33eb47954fe21fd",
+    "backend/app/agent/memory.py": "a4e1c1d040243dbc0bd6f43ee9c46e51176d6b9287b19a1ce9049ce7c44f0f5c",
+    "backend/app/agent/orchestrator.py": "e7a57567ce65357c01ec157876661b7a5068f90c8bb12f3bfe3992697c903883",
+    "backend/app/agent/prompts.py": "274782bfed89417480a45c431504e2deb4b8c702146daec3b5826d6ffa69fa7b",
+    "backend/app/agent/scope.py": "b7983b97214c51ce82c34e5e68bb88ce9e48982fb0fe0996cc892fd9a3695e9c",
+    "backend/app/agent/scope_prompts.py": "8adf859c7b649e1f30cc0b34f5b401537a6f3ae092baf3185594c576f0f25733",
+    "backend/app/agent/starters.py": "2e2714a69eeffdc6dee6546d3aea38ae1b65160e69be7fac597780709b206ae3",
+    "backend/app/agent/tools.py": "4feb4e7986f0764470ee73182d1e1786608a15d0e03bab319d87e7924fe1be15",
+    "backend/app/api_schemas.py": "a0b89fb3e79ae0c676e6bf896d804c9a685be51c506685862e1ec50f6bd70fac",
+    "backend/app/eda/__init__.py": "0733986dba3d73e5a9c78878abee6a12d8a4b819dfd0bbeec853352bd49076d1",
+    "backend/app/eda/flow.py": "bd20516f0f63e4afed9de78e97110f9ddcc4dede80fec2aa1e6ba0b68f3c1862",
+    "backend/app/eda/harness.py": "246cd6ca1db38332098c11f1633e358cae1afdc87de922029b98a16a54c05e59",
+    "backend/app/eda/lint.py": "61872c1bac36c4ebc0491f5b0b0f8cbed598db6b025caf26a627a3f64e8db661",
+    "backend/app/eda/parsers.py": "231e9f12636829fc289586bf7921e2ed6494efe79304da6be3c688780b451a3e",
+    "backend/app/eda/render.py": "2a2afb05a1491719ff7f5170c8e5903f52865f3d38585084406958491fb26472",
+    "backend/app/eda/sa_tb.py": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+    "backend/app/eda/sandbox.py": "f622ad612e1bd4b052e21c68e23398ea933bcbec7f341c582e992633def1bbb1",
+    "backend/app/eda/service.py": "98057201dbd923af041832a218fb0706d152f8c593b519e08210be989f88e29e",
+    "backend/app/eda/sim.py": "068cf2de1b89dabc85aa5b87dbbcd93415dc1f66996397621a2e2ab2511467f3",
+    "backend/app/eda/synth.py": "3b872e2d81a09896ce0e5dad2c9c70b6aac26e766cbda21e23104a705280527d",
+    "backend/app/eda/verification.py": "ba1ceace27502c6ace679c39004f49f78e3283f19190e1c43b70d0b96570ad70",
+    "backend/app/llm/__init__.py": "76a14ea5c9c8375dfc750ed60245138c94e0ba5da093c15d67ac22c1baa1add7",
+    "backend/app/llm/client.py": "04a7f56e63400fec2cce0462f1b612b8662617b6deb478937bd0cfba88cb6877",
+    "backend/app/llm/codex.py": "d3706094810c6c974b64a02370a372408816c8c48c3ee6466e85d11c0792971d",
+    "backend/app/llm/factory.py": "91b0f1de435976e2a46188973242b71fe95ceb01d18589c9e86d8fe49cee1a85",
+    "backend/app/llm/fake.py": "cc6a27283be0979c9ecf5660831a3615b028987ce4768e0b268167a6e4b0df63",
+    "backend/app/llm/types.py": "9f2754ea3bbd1a25124b0e1a874c76f532fe4af164c8202ddf2f04f668bdd6c3",
+    "backend/app/main.py": "96fc6eeb9ec5bad2f00eba71c7852e9af51c03e59ae1165718510d807519ee23",
+    "backend/app/models.py": "ab3e1d67a309f51093c5c57bfd8319c6190382305903ffebd2ebfe4ccc65e5e9",
+    "backend/app/packaging.py": "b25f64b301c8e6632abaed58637fe1fdd40145aa73b164f67502322b5a041f25",
+    "backend/app/remote_store.py": "8f5034c0d44b6c8469a0bbab34d58cb0d9e60c7bff56b472564a22d98ce151e9",
+    "backend/app/replay.py": "b7b97a94053eef6a9e3beb4c7232fa5d565baf30c7ec131876b8cf8c834e506f",
+    "backend/app/schemas.py": "6b16995da3c9df6f497b6a19187d96cdfc431a10484c6569402736d9886b563a",
+    "backend/app/storage.py": "96f31e270ca09e0883124e22169e1fc25cd820ffe01df5beee98f1a36fb0fcaa",
+    "backend/app/worker.py": "a3fd07c477f9ba41d0bfc8a9ff28969549a865b84c52ff078f313a15b46aa69d",
+    "backend/app/worker_api.py": "f2a299c052629914e0827f34e8fcb13c26901d84c24f8e12dcc3f617ac95b8bd"
+  },
+  "prior_attempts": [
+    {
+      "path": "runs/eda-harness-packaging/90ed811d69d9490199770f5e0f726660",
+      "result": "Package validation correctly reached retained-capsule check; macOS /var vs /private/var temporary-root alias caused ValueError before bundle publication; resolved in packaging temporary-root construction"
+    }
+  ],
+  "origin_evidence": "docs/evidence/reliability-r2-proof-flow.json",
+  "origin_evidence_sha256": "a23f6d3f1a8492f650e5b527c414479fb082c5360991260a0e4c644173ddb0c1",
+  "work_dir": "runs/eda-harness-packaging/1de7171617ad4d9e9a77d1e9de594d4f/work",
+  "selected_run_tag": "flow_89e8d99de7684902",
+  "original_simulation_call_removed_from_disposable_work_copy": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1",
+  "original_snapshot_validation_after_deletion": {
+    "ok": false,
+    "error": "Required verification artifact is missing"
+  },
+  "retained_capsule_validated_without_original_snapshot": true,
+  "bundle": {
+    "path": "runs/eda-harness-packaging/1de7171617ad4d9e9a77d1e9de594d4f/bundle.zip",
+    "bytes": 95105,
+    "sha256": "f56297a3ebf6f1fe91e1efbb3a94364241e1d86762c0654ccaf66a14ef8f7a87",
+    "members": [
+      "layout/design.gds",
+      "layout/design.lef",
+      "raw_metrics.json",
+      "flow_config.json",
+      "src/proof_counter.v",
+      "test/test_proof_counter.py",
+      "netlist/design.nl.v",
+      "trusted/sa_tb.py",
+      "trusted/harness.json",
+      "trusted/sa_tb_evidence.json",
+      "trusted/test_results.xml",
+      "trusted/runtime_result.json",
+      "trusted/host_result.json",
+      "trusted/proof.json",
+      "metrics.json",
+      "design_spec.json",
+      "design.log",
+      "info.yaml",
+      "integration_notes.md",
+      "verification.json",
+      "test_instructions.md",
+      "manifest.json"
+    ]
+  },
+  "image_identity": {
+    "authority": "docker_image_inspect",
+    "image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+    "observed_at": "2026-10-24T05:04:01.887347+00:00",
+    "reference": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1"
+  },
+  "helper_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+  "context_sha256": "fa7f60777e83f2332ea737417e686bb59bd2882add5444aa85854d574223c8d5",
+  "proof_sha256": "5558285441af9a0336426e7423fcabb223d19a2e656d491a1be5f8f24eee8322",
+  "generated_fenced_command_executed_exactly": "bundle_dir=\"$(pwd)\"\noutput_dir=\"$(mktemp -d)\"\nmkdir -p \"$output_dir/home\" \"$output_dir/tmp\" \"$output_dir/cache\"\ndocker run --rm --init --network none --read-only --cap-drop ALL \\\n  --security-opt no-new-privileges --cpus 4 --memory 6g --pids-limit 512 \\\n  --user \"$(id -u):$(id -g)\" -e HOME=/output/home -e TMPDIR=/output/tmp \\\n  -e XDG_CACHE_HOME=/output/cache -e PYTHONDONTWRITEBYTECODE=1 \\\n  -e PYTHONPATH=/opt/silicon-python -v \"$bundle_dir:/input:ro\" -v \"$output_dir:/output\" \\\n  --mount \"type=bind,source=$bundle_dir/trusted/sa_tb.py,target=/opt/silicon-python/sa_tb.py,readonly\" \\\n  -w /output sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8 \\\n  python3 /opt/silicon-agent/runtime.py sim --top proof_counter --test-module test_proof_counter > \"$output_dir/tool.log\" 2>&1\ncat \"$output_dir/result.json\"\n",
+  "observation_only_postlude": "\nprintf '%s' \"$output_dir\" > \"../reproduction-output-location.txt\"\n",
+  "reproduction_process": {
+    "returncode": 0,
+    "stdout": "{\"ok\": true, \"passed\": 4, \"failed\": 0, \"skipped\": 0, \"failures\": []}\n",
+    "stderr": ""
+  },
+  "reproduction_output_original_path": "/var/folders/3f/tsb225r96554x3gbtr_t2qq80000gn/T/tmp.Kmr4uVm11V",
+  "reproduction_output_retained_path": "runs/eda-harness-packaging/1de7171617ad4d9e9a77d1e9de594d4f/reproduction-output",
+  "reproduced_runtime_result": {
+    "ok": true,
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "failures": []
+  },
+  "reconciled_host_verdict": {
+    "ok": true,
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "test": "test_reset",
+        "ok": true
+      },
+      {
+        "test": "test_increment",
+        "ok": true
+      },
+      {
+        "test": "test_hold",
+        "ok": true
+      },
+      {
+        "test": "test_wrap",
+        "ok": true
+      }
+    ],
+    "harness_evidence_valid": true,
+    "quality_gate_passed": true
+  },
+  "reproduction_artifacts": {
+    "tool.log": {
+      "bytes": 3129,
+      "sha256": "9629f686760657237cdaa9f437e3cea1bf0fb1f43cd36693fd84ed9c26cf785a"
+    },
+    "result.json": {
+      "bytes": 69,
+      "sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+    },
+    "test_results.xml": {
+      "bytes": 953,
+      "sha256": "403ebc2b3c7e84bacf9b3d83094da40be3cc5e4f417d13ca19203a39a04d4a39"
+    },
+    "sa_tb_evidence.json": {
+      "bytes": 3551,
+      "sha256": "ee6a61e5c3162e37b8581a19745a748d8aebab40f5d730182a07c354a79f95e1"
+    }
+  },
+  "all_extracted_input_bytes_unchanged": true,
+  "fixture": "backend/tests/fixtures/trusted_harness",
+  "fixture_provenance_sha256": "ec0bc76ee181a2adf00b9e8522d38a3cc9b11b2290625c7688e7ffe0aae92467",
+  "offline_package_checks": {
+    "command": "uv run --python 3.12 --with-requirements backend/requirements.txt python -m pytest -q backend/tests/test_harness_packaging.py backend/tests/test_packaging.py",
+    "passed": 33,
+    "test_source_sha256": "e74e395ba9a2e393dbbdda5e20e43d8a58a7afa63af0c0ab10b9c997e08775ec"
+  },
+  "offline_focused_harness_and_packaging_checks": {
+    "command": "uv run --python 3.12 --with-requirements backend/requirements.txt python -m pytest -q backend/tests/test_harness.py backend/tests/test_harness_packaging.py backend/tests/test_packaging.py backend/tests/test_sandbox.py backend/tests/test_harness_sandbox.py",
+    "passed": 163
+  }
+}

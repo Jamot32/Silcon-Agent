@@ -1,0 +1,2735 @@
+diff --git a/backend/app/agent/failures.py b/backend/app/agent/failures.py
+index 698b817..d5b1de3 100644
+--- a/backend/app/agent/failures.py
++++ b/backend/app/agent/failures.py
+@@ -41,6 +41,7 @@ class FailureClass(StrEnum):
+     UNDRIVEN_OUTPUT = "undriven_output"
+     COMB_DELAY = "comb_delay"
+     TB_BOILERPLATE_BUG = "tb_boilerplate_bug"
++    TEST_HARNESS_ERROR = "test_harness_error"
+     TB_WRONG_EXPECTATION = "tb_wrong_expectation"
+     RTL_LOGIC_BUG = "rtl_logic_bug"
+     FIX_LOOP_THRASH = "fix_loop_thrash"
+@@ -53,6 +54,7 @@ class FailureClass(StrEnum):
+     TOO_BIG = "too_big"
+     CONFIG_ERROR = "config_error"
+     DIE_TOO_SMALL = "die_too_small"
++    PLACEMENT_FAILED = "placement_failed"
+     ROUTING_CONGESTION = "routing_congestion"
+     TIMING_FAIL = "timing_fail"
+     DRC_FAIL = "drc_fail"
+@@ -80,6 +82,7 @@ class Failure:
+ 
+ 
+ _DETAILS: dict[FailureClass, tuple[str, str]] = {
++    FailureClass.TEST_HARNESS_ERROR: ("Verification stopped at a test-harness request or signal binding.", "Inspect the reported harness request or signal binding and rerun verification before changing RTL."),
+     FailureClass.SPEC_MISREAD: ("The parsed design disagrees with the requested behavior.", "Correct the structured specification before generating RTL."),
+     FailureClass.SPEC_INVALID: ("The model did not produce a valid design specification.", "Repair the reported schema field while preserving the user requirements."),
+     FailureClass.SCOPE_UNBOUNDED: ("The estimated design exceeds the supported size budget.", "Reduce widths or storage depth, or explicitly request more tiles."),
+@@ -105,6 +108,7 @@ _DETAILS: dict[FailureClass, tuple[str, str]] = {
+     FailureClass.TOO_BIG: ("Synthesis reports more cells than the supported budget.", "Reduce widths or storage depth, or choose a larger supported tile allocation."),
+     FailureClass.CONFIG_ERROR: ("The physical-design configuration was rejected.", "Correct the reported key or value using the pinned LibreLane configuration schema."),
+     FailureClass.DIE_TOO_SMALL: ("The floorplan cannot fit the required cells or power grid.", "Lower utilization and increase the die dimensions within the selected tile budget."),
++    FailureClass.PLACEMENT_FAILED: ("The physical cells could not be placed legally.", "Inspect the saved placement report; try more space within the selected size limit, or reduce the design for a fixed tile."),
+     FailureClass.ROUTING_CONGESTION: ("The router could not fit the required connections.", "Lower placement density, then grow the die within the selected size budget."),
+     FailureClass.TIMING_FAIL: ("The measured implementation misses its timing constraint.", "Try conservative flow settings or a permitted slower clock; then consider an RTL change."),
+     FailureClass.DRC_FAIL: ("The layout has design-rule violations.", "Retry conservative density settings; retain a not tapeout-ready status until clean."),
+@@ -134,7 +138,8 @@ _RTL_RULES = (
+ )
+ _FLOW_RULES = (
+     (FailureClass.CONFIG_ERROR, r"\binvalid configuration\b|\bconfiguration (?:error|is invalid)\b|\bunknown configuration (?:key|variable)\b|Only clock period, utilization, density, die area"),
+-    (FailureClass.DIE_TOO_SMALL, r"\bdie (?:area |dimensions? )?(?:is |are )?too small\b|\binsufficient (?:width|height|area)\b|\bcore area (?:is )?too small\b"),
++    (FailureClass.DIE_TOO_SMALL, r"\bGPL-0301\b|\bdie (?:area |dimensions? )?(?:is |are )?too small\b|\binsufficient (?:width|height|area)\b|\bcore area (?:is )?too small\b"),
++    (FailureClass.PLACEMENT_FAILED, r"\bDPL-0036\b"),
+     (FailureClass.ROUTING_CONGESTION, r"\brouting congestion (?:is )?too high\b|\bcongestion overflow\b"),
+     (FailureClass.DRC_FAIL, r"\bDRC (?:check )?failed\b|\b(?:DRC violations|total DRC errors)\s*[:=]\s*[1-9]\d*\b"),
+     (FailureClass.LVS_FAIL, r"\bCircuits do not match\b|\bLVS (?:check )?failed\b|\bLVS mismatches\s*[:=]\s*[1-9]\d*\b"),
+@@ -230,6 +235,8 @@ def classify_failure(
+         return diagnosis(FailureClass.FIX_LOOP_THRASH, f"repeated_rtl_hash={result.get('repeated_rtl_hash')}; same_error_count={result.get('same_error_count')}")
+     if result.get("scope_decision_correct") is False:
+         return diagnosis(FailureClass.SCOPE_DECISION_WRONG, "Independent scope check: scope_decision_correct=false")
++    if result.get("ok") is False and result.get("error_kind") == "harness_error":
++        return diagnosis(FailureClass.TEST_HARNESS_ERROR, text or "Trusted test harness rejected execution")
+     cells = _number(result.get("estimated_cells" if failure_stage == FailureStage.SPEC else "cell_count"))
+     limit = _number(result.get("cell_budget"))
+     if cells is not None and limit is not None and cells > limit:
+diff --git a/backend/app/agent/memory.py b/backend/app/agent/memory.py
+index 541aeef..16803b6 100644
+--- a/backend/app/agent/memory.py
++++ b/backend/app/agent/memory.py
+@@ -1,6 +1,125 @@
+ import json
++import math
++from collections.abc import Mapping, Sequence
+ from pathlib import Path
+ 
++from pydantic import JsonValue
++
++
++def _text(value: object) -> str:
++    return " ".join(value.split()) if isinstance(value, str) else ""
++
++
++def _number(value: object) -> str | None:
++    if type(value) is int or (type(value) is float and math.isfinite(value)):
++        return str(value)
++    return None
++
++
++def summary_from_evidence(
++    stage: str, *, design_spec: Mapping[str, JsonValue] | None = None,
++    tool_results: Sequence[Mapping[str, JsonValue]] = (),
++    best_metrics: Mapping[str, JsonValue] | None = None,
++    bundle_name: str | None = None,
++) -> str:
++    """Five bounded lines of recorded facts; never inspect source or call a model."""
++    spec = design_spec or {}
++    requirements = _text(spec.get("summary")) or "Design requirements not recorded."
++    targets = spec.get("targets")
++    if isinstance(targets, Mapping):
++        clock = _number(targets.get("clock_mhz"))
++        if clock is not None:
++            requirements = f"Target {clock} MHz; {requirements}"
++
++    # A later result supersedes an earlier result for the same tool. VERIFY
++    # admits only its own test evidence, even if the caller supplies RTL facts.
++    latest = {}
++    for result in tool_results:
++        tool = result.get("tool")
++        if not isinstance(tool, str) or (stage == "VERIFY" and tool != "run_tests"):
++            continue
++        latest.pop(tool, None)
++        latest[tool] = result
++    evidence = list(latest.values())[-4:]
++    work = "; ".join(
++        f"{_text(result['tool'])} {'passed' if result.get('ok') is True else 'failed' if result.get('ok') is False else 'recorded'}"
++        for result in evidence
++    ) or "No tool results recorded."
++    if stage == "SPEC":
++        work = "Design specification recorded." if design_spec else "Design specification not recorded."
++
++    tests = latest.get("run_tests", {})
++    synth = latest.get("synth_stats", {})
++    physical_stage = stage in {"FLOW", "OPTIMIZE", "SIGNOFF", "PACKAGE"}
++    physical = best_metrics if physical_stage and best_metrics else {}
++    physical_label = "Best run" if physical else "Flow"
++    if physical_stage and not physical:
++        metrics = latest.get("run_flow", {}).get("metrics")
++        if isinstance(metrics, Mapping):
++            physical = metrics
++    measurements = []
++    if stage == "VERIFY":
++        for key in ("passed", "failed"):
++            value = _number(tests.get(key))
++            if value is not None:
++                measurements.append(f"tests {key}={value}")
++    elif stage == "SYNTH":
++        for key, label in (("cell_count", "cells"), ("area_estimate", "area estimate")):
++            value = _number(synth.get(key))
++            if value is not None:
++                measurements.append(f"{label}={value}")
++    elif physical_stage:
++        for key, label in (("clock_mhz", "MHz"), ("area_um2", "area um2"), ("wns_ns", "WNS ns"), ("power_mw", "power mW")):
++            value = _number(physical.get(key))
++            if value is not None:
++                measurements.append(f"{label}={value}")
++        for key, label in (("drc_ok", "DRC"), ("lvs_ok", "LVS")):
++            status = physical.get(key)
++            measurements.append(f"{label} {'clean' if status is True else 'failed' if status is False else 'unknown'}")
++        measurements.insert(0, physical_label)
++    elif stage == "RTL" and "lint" in latest:
++        status = latest["lint"].get("ok")
++        measurements.append(f"lint {'passed' if status is True else 'failed' if status is False else 'unknown'}")
++    measured = "; ".join(measurements) or "No measurements recorded."
++
++    unresolved = []
++    for result in evidence:
++        if result.get("ok") is False:
++            error = _text(result.get("first_error")) or _text(result.get("error"))
++            unresolved.append(error or f"{result['tool']} failed; cause not recorded.")
++    if physical_stage:
++        for key, label in (("drc_ok", "DRC"), ("lvs_ok", "LVS")):
++            if physical.get(key) is not True:
++                unresolved.append(f"{label} {'failed' if physical.get(key) is False else 'unknown'}")
++    bundle = Path(bundle_name).name if bundle_name else None
++    if stage == "PACKAGE":
++        if bundle:
++            work = f"Bundle recorded: {bundle}"
++        else:
++            unresolved.append("Required bundle not recorded.")
++    issue = "; ".join(unresolved) or "No issue recorded."
++    next_action = {
++        "SPEC": "Implement the recorded interface and behavior.",
++        "RTL": "Run independent specification tests.",
++        "VERIFY": ("Synthesize the verified design." if tests.get("ok") is True
++                   else "Resolve the recorded test failure against the spec and rerun verification." if tests.get("ok") is False
++                   else "Run the independent specification tests."),
++        "SYNTH": "Run the physical design flow after checking synthesis results.",
++        "FLOW": "Compare a measured optimization variant; inspect any flow failure.",
++        "OPTIMIZE": "Select the best verified physical run and inspect signoff.",
++        "SIGNOFF": "Package the selected run and disclose unverified integration.",
++        "PACKAGE": "Present the bundle and measured limitations." if bundle else "Create and validate the required bundle.",
++    }.get(stage, "Review recorded evidence before continuing.")
++    if stage == "RTL" and latest.get("lint", {}).get("ok") is False:
++        next_action = "Resolve the recorded lint failure before verification."
++    if stage == "SIGNOFF" and unresolved:
++        next_action = "Resolve or disclose recorded signoff issues before packaging."
++    return "\n".join(
++        f"{label}: {_text(value)}"[:160]
++        for label, value in (("Requirements", requirements), ("Work", work), ("Measured", measured),
++                             ("Unresolved", issue), ("Next action", next_action))
++    )
++
+ 
+ class Memory:
+     """Short stage summaries, with an independent verification context."""
+@@ -11,7 +130,7 @@ class Memory:
+ 
+     def record(self, stage: str, text: str) -> None:
+         lines = [line.strip()[:160] for line in text.splitlines() if line.strip()][:5]
+-        lines.extend(["Not provided by model."] * (5 - len(lines)))
++        lines.extend(["Not recorded."] * (5 - len(lines)))
+         self.summaries[stage] = "\n".join(lines)
+         self.path.write_text(json.dumps(self.summaries, indent=2) + "\n")
+ 
+diff --git a/backend/app/agent/orchestrator.py b/backend/app/agent/orchestrator.py
+index b465296..d05b734 100644
+--- a/backend/app/agent/orchestrator.py
++++ b/backend/app/agent/orchestrator.py
+@@ -7,8 +7,10 @@ from uuid import uuid4
+ 
+ from pydantic import JsonValue, ValidationError
+ 
+-from app.agent.memory import Memory
+-from app.agent.prompts import STAGE_GOALS, SUMMARY_PROMPT, SYSTEM_PROMPT, stage_prompt
++from app.agent.diagnostics import diagnostic_text, first_diagnostic, prefix
++from app.agent.failures import classify_failure
++from app.agent.memory import Memory, summary_from_evidence
++from app.agent.prompts import STAGE_GOALS, SYSTEM_PROMPT, stage_prompt
+ from app.agent.scope import ScopeAssessment, assess_scope, terminal_message
+ from app.agent.starters import load_starter
+ from app.agent.tools import ToolRunner, tool_definitions
+@@ -139,38 +141,26 @@ class Orchestrator:
+         return messages
+ 
+     async def _remember(self, stage: str) -> None:
+-        evidence = self.last_results[-4:]
+-        if stage == "VERIFY":
+-            evidence = [result for result in evidence if result.get("tool") == "run_tests"]
+-        response = await self._ask([
+-            Message(role="system", content=SYSTEM_PROMPT),
+-            Message(role="user", content=SUMMARY_PROMPT + "\n" + json.dumps({
+-                "stage": stage, "evidence": evidence,
+-                "design_spec": self.design_spec.model_dump(mode="json") if self.design_spec else None,
+-                "best_metrics": self.best.model_dump(mode="json", exclude={"id", "run_id", "iteration_id"}) if self.best else None,
+-                "bundle": self.bundle_path.name if self.bundle_path else None,
+-            })),
+-        ], set())
+-        if response.tool_calls:
+-            raise LLMError("Stage summaries cannot call tools")
+-        self.memory.record(stage, response.content)
++        self.memory.record(stage, summary_from_evidence(
++            stage,
++            design_spec=self.design_spec.model_dump(mode="json") if self.design_spec else None,
++            tool_results=self.last_results[-4:],
++            best_metrics=self.best.model_dump(mode="json") if self.best else None,
++            bundle_name=self.bundle_path.name if self.bundle_path else None,
++        ))
+ 
+     def _record_result(self, call: ToolCall, result: dict[str, JsonValue]) -> None:
+         summary: dict[str, JsonValue] = {"tool": call.name}
+-        for key in ("ok", "bytes", "passed", "failed", "cell_count", "area_estimate", "run_tag", "metrics", "drc_ok", "lvs_ok"):
++        for key in ("ok", "bytes", "passed", "failed", "skipped", "cell_count", "area_estimate", "run_tag", "metrics", "drc_ok", "lvs_ok",
++                    "log_path", "results_path", "evidence_path", "stats_path", "quality_gate_passed", "error_kind"):
+             if key in result:
+                 summary[key] = result[key]
+         if isinstance(call.arguments.get("path"), str):
+             summary["path"] = call.arguments["path"]
+-        error = result.get("error") or result.get("first_error")
+-        for key in ("errors", "failures"):
+-            values = result.get(key)
+-            if not error and isinstance(values, list) and values:
+-                error = json.dumps(values[0])
+-        if not error and result.get("ok") is False and isinstance(result.get("log_tail"), str):
+-            error = str(result["log_tail"])[-700:]
+-        if error:
+-            summary["first_error"] = str(error)[:400]
++        diagnostic = first_diagnostic(result)
++        if diagnostic is not None:
++            summary["first_diagnostic"] = diagnostic
++            summary["first_error"] = diagnostic_text(diagnostic)
+         self.last_results.append(summary)
+         self.last_results = self.last_results[-8:]
+ 
+@@ -225,13 +215,10 @@ class Orchestrator:
+         # ToolRunner already bounds source/report reads; logs and diffs stay out
+         # of model context. Numbers and the first failure are enough to act on.
+         trimmed = {key: value for key, value in result.items() if key not in {"diff", "log_tail", "failures", "errors"}}
+-        for key in ("errors", "failures"):
+-            values = result.get(key)
+-            if isinstance(values, list) and values:
+-                trimmed["first_error"] = str(values[0])[:700]
+-        if (not trimmed.get("first_error") and result.get("ok") is False
+-                and isinstance(result.get("log_tail"), str)):
+-            trimmed["first_error"] = str(result["log_tail"])[-700:]
++        diagnostic = first_diagnostic(result)
++        if diagnostic is not None:
++            trimmed["first_diagnostic"] = diagnostic
++            trimmed["first_error"] = diagnostic_text(diagnostic)
+         if isinstance(trimmed.get("text"), str):
+             trimmed["text"] = str(trimmed["text"])[:2000]
+         return Message(role="tool", tool_call_id=call.id, content=json.dumps(trimmed, allow_nan=False))
+@@ -491,6 +478,30 @@ class Orchestrator:
+         if len(self.candidates) < 2:
+             await self._emit("note", {"text": "Optimization attempts produced no successful comparison; preserving the measured initial design."})
+ 
++    def _failure_details(self, error: Exception, message: str) -> tuple[str, str, str, dict[str, JsonValue] | None]:
++        # A repaired failure must not be presented as the current blocker.
++        latest = {str(result["tool"]): result for result in self.last_results if "tool" in result}
++        relevant = {
++            "RTL": ("lint", "write_file", "run_tests"), "VERIFY": ("run_tests", "write_file"),
++            "SYNTH": ("synth_stats",), "FLOW": ("run_flow",),
++            "OPTIMIZE": ("run_flow", "run_tests", "lint"), "SIGNOFF": ("read_report",),
++        }.get(self.stage, ())
++        tool = next((name for name in relevant if latest.get(name, {}).get("ok") is False), None)
++        evidence = latest[tool] if tool is not None else None
++        terminal = classify_failure(stage=self.stage, error=error, tool=tool, result=evidence)
++        assert terminal is not None
++        detail = classify_failure(stage=self.stage, tool=tool, result=evidence) if evidence else None
++        action = detail.suggested_action if detail is not None else terminal.suggested_action
++        diagnostic = first_diagnostic(evidence) if evidence else None
++        text = prefix(message, 1000)
++        if diagnostic is not None:
++            text += f" Last {tool}: {diagnostic_text(diagnostic)}."
++        path = evidence.get("log_path") if evidence else None
++        if isinstance(path, str) and not Path(path).is_absolute():
++            text += f" Saved log: {prefix(path, 400)}."
++        text += f" Next: {action}"
++        return prefix(text, 3000), terminal.failure_class.value, action, diagnostic
++
+     async def run(self) -> Outcome:
+         try:
+             await self._stage("SPEC", previous_ok=None)
+@@ -499,6 +510,7 @@ class Orchestrator:
+                 return scoped
+             await self._spec()
+             assert self.design_spec is not None
++            self.tools.configure_test_harness(self.design_spec)
+             self.tools.eda.clock_port = None if self.design_spec.purely_combinational else "clk"
+             await self._remember("SPEC")
+             await self._rtl()
+@@ -531,7 +543,8 @@ class Orchestrator:
+                 raise LLMError("Packaging is not configured; a real bundle is required before DONE")
+             self.bundle_path = await self.package_callback(self.best.run_tag)
+             from app.packaging import validate_bundle
+-            validate_bundle(self.bundle_path, expected_run_tag=self.best.run_tag, expected_spec=self.design_spec)
++            validate_bundle(self.bundle_path, expected_run_tag=self.best.run_tag, expected_spec=self.design_spec,
++                            require_harness_verification=self.tools.requires_harness_verification)
+             await self._remember("PACKAGE")
+             await self._stage("DONE")
+             target_status = "numeric targets met" if targets_met(self.best, self.design_spec.targets) else "numeric targets missed"
+@@ -548,7 +561,11 @@ class Orchestrator:
+                 message = f"Invalid design or metric evidence at {first['loc']}: {first['msg']}"
+             else:
+                 message = str(error)[:1000] or type(error).__name__
+-            await self._emit("error", {"stage": self.stage, "message": message})
++            message, failure_class, action, diagnostic = self._failure_details(error, message)
++            await self._emit("error", {"stage": self.stage, "message": message,
++                                        "failure_class": failure_class, "suggested_action": action,
++                                        "last_diagnostic": diagnostic})
+             await self._stage("FAIL", previous_ok=False)
+             return Outcome(status="failed", summary=message, error=message, design_spec=self.design_spec,
+-                           best_run_tag=self.best.run_tag if self.best else None)
++                           best_run_tag=self.best.run_tag if self.best else None,
++                           failure_class=failure_class, suggested_action=action, last_diagnostic=diagnostic)
+diff --git a/backend/app/agent/prompts.py b/backend/app/agent/prompts.py
+index 223b7db..62d6ad2 100644
+--- a/backend/app/agent/prompts.py
++++ b/backend/app/agent/prompts.py
+@@ -8,9 +8,12 @@ SYSTEM_PROMPT = """You are a careful digital design engineer working with the op
+ Write synthesizable Verilog-2005 only: no SystemVerilog, initial blocks, RTL delays,
+ or latches. Use default case branches and full combinational assignments. Use a
+ synchronous active-low rst_n unless the specification explicitly says otherwise.
+-Tests run on cocotb 2.0.1 with Icarus Verilog. Use Timer(5, unit='ns'). Import only
+-cocotb, its public submodules, random, or math. Access signals directly as dut.port;
+-getattr, eval, open, os, and subprocess are forbidden by the source checks.
++Generated tests run through the trusted sa_tb adapter on cocotb 2.0.1/Icarus.
++Import public names from sa_tb, plus random or math when needed; never import
++cocotb or access DUT handles, clocks or simulator triggers. Tests are no-argument
++synchronous generator functions decorated with @case, not async functions.
++Each registered case function must have a test_* name and no arguments.
++getattr, eval, open, os, and subprocess are forbidden by source checks.
+ Trust actual tool output over assumptions. After a failing test, read the failure,
+ record a one-line hypothesis with record_note, then fix RTL. Never weaken tests to
+ make failing RTL pass. A test may change only if it contradicts a numbered spec
+@@ -25,7 +28,7 @@ measurements or describe recorded/unit-test evidence as a live model result.
+ STAGE_GOALS = {
+     "SPEC": "Return only DesignSpec JSON matching the schema. Make each behavior testable and plan at least four tests covering normal operation and edge cases, plus synchronous reset for sequential designs.",
+     "RTL": "Write RTL implementing the specification, then lint it with zero errors. You may read tests but cannot write them. If repairing a failure, record a hypothesis before changing RTL.",
+-    "VERIFY": "Author independent cocotb tests from the specification before inspecting any implementation. Only read/write test/*.py; RTL is unavailable. Run at least four tests. Keep existing tests unchanged unless an explicit TEST_SPEC_CONTRADICTION note justifies a correction.",
++    "VERIFY": "Author independent generator tests through sa_tb from the specification before inspecting any implementation. Only read/write test/test_*.py; RTL is unavailable. Run at least four meaningful tests. Keep existing tests unchanged unless an explicit TEST_SPEC_CONTRADICTION note justifies a correction.",
+     "SYNTH": "Check actual Yosys cell statistics before physical design.",
+     "FLOW": "Run the backend-controlled initial physical design and render its real layout.",
+     "OPTIMIZE": "Improve the measured design. Compare at least one variant even if initial timing passes. Prefer meeting the requested frequency and WNS>=0, then lower stdcell area, then lower flow-reported power. You may propose up to three run_flow calls in one pure-flow batch. Never mix flow calls with writes/tests in the same response. RTL changes must re-pass the existing VERIFY tests before any flow. Record the rationale for each variant.",
+@@ -47,6 +50,39 @@ def stage_prompt(
+         "last_tool_results": last_results, "current_files": [file["path"] for file in files],
+     }
+     remaining_flows = budget.get("flow_runs")
++    if stage == "VERIFY" and spec is not None:
++        context["test_contract"] = {
++            "behaviors": [f"B{index}" for index in range(1, len(spec.behavior) + 1)],
++            "plans": [f"T{index}" for index in range(1, len(spec.test_plan) + 1)],
++            "id_order": "B1/T1 refer to the first behavior/test_plan entries; cover every ID.",
++            "data_inputs": [port.name for port in spec.ports if port.direction == "input"
++                            and (spec.purely_combinational or port.name not in {"clk", "rst_n"})],
++            "api": (
++                "from sa_tb import case, Reset, Cycle, OBSERVE, check. Each @case requires literal "
++                "behaviors=('B1',...), plans=('T1',...). Use reset_case=True for reset coverage and "
++                "edge_case=True, edge_inputs=('input_name',...) for directed input boundaries; every "
++                "data input must have an edge declaration somewhere. Use the spec's legal input domain. "
++                "A sequential case first yields Reset(inputs={all data inputs}, after={all outputs}, cycles=2). "
++                "Then yield Cycle(inputs={all data inputs}, after={all outputs}, before={all outputs}). "
++                "Cycle inputs may also include rst_n=0 or 1 for mid-sequence reset; otherwise rst_n defaults to 1. "
++                "Do not include clk. Reset inputs contain only data inputs; it drives rst_n itself. "
++                "before is optional: omitted values are observations, explicit values are assertions. "
++                "It is sampled with inputs settled before the rising edge; after follows that edge. "
++                "Combinational cases omit Reset/before and yield Cycle(inputs=...,after=...). "
++                "Every case needs an actual Cycle and an equality or check(bool_condition,'message') afterward. "
++                "Use fitting unsigned integers (boolean pin flags become 0/1). None skips equality, "
++                "but controls must resolve. Declare payloads={'data':'valid'} for validity-qualified data; "
++                "payload None requires independently expected valid=0. OBSERVE captures adaptive data, "
++                "not a missing-response exemption. A yielded Cycle returns immutable {'before':{ports}, "
++                "'after':{ports}} snapshots; use pre-edge handshakes for scoreboards, assert order/data, "
++                "stalls and eventual progress within the public allowed latency. Seed random.Random(n) "
++                "and use finite loops. Never infer an exact unspecified latency/capacity. "
++                "For wired-AND environment feedback use wired_and={'input':('release_output',)}; input "
++                "values express external release intent, snapshots contain resolved actual inputs. "
++                "Only an explicitly asynchronous reset requirement may use Reset.asserted_before_edge; "
++                "bind async_reset_behavior='B#' and async_reset_requirement to that exact behavior text."
++            ),
++        }
+     if stage == "OPTIMIZE" and first_optimization_round and isinstance(remaining_flows, int) and remaining_flows >= 3:
+         clock = spec.targets.get("clock_mhz") if spec else None
+         clock_instruction = (
+diff --git a/backend/app/agent/tools.py b/backend/app/agent/tools.py
+index af5624c..ec36bc8 100644
+--- a/backend/app/agent/tools.py
++++ b/backend/app/agent/tools.py
+@@ -6,6 +6,7 @@ import json
+ import os
+ import re
+ import stat
++from copy import deepcopy
+ from collections.abc import Awaitable, Callable, Iterator
+ from contextlib import contextmanager
+ from pathlib import Path, PurePosixPath
+@@ -13,9 +14,13 @@ from typing import Literal
+ 
+ from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationError
+ 
++from app.agent.diagnostics import bounded_result
+ from app.eda.flow import validate_flow_overrides
+ from app.eda.service import EDA
++from app.eda import harness
++from app.eda.verification import capture_harness_proof, validate_proof
+ from app.llm.types import ToolCall, ToolDefinition
++from app.schemas import DesignSpec
+ 
+ MAX_WRITE_BYTES = 128 * 1024
+ MAX_OUTPUT_BYTES = 8 * 1024
+@@ -99,32 +104,7 @@ def _tail(text: str, limit: int = MAX_OUTPUT_BYTES) -> str:
+ 
+ 
+ def _bounded_result(result: dict[str, JsonValue]) -> dict[str, JsonValue]:
+-    encoded = json.dumps(result, ensure_ascii=False, allow_nan=False)
+-    if len(encoded.encode()) <= MAX_OUTPUT_BYTES:
+-        return result
+-    compact: dict[str, JsonValue] = {
+-        key: result[key] for key in (
+-            "ok", "bytes", "passed", "failed", "skipped", "cases", "cell_count", "area_estimate",
+-            "run_tag", "drc_ok", "lvs_ok", "image_url", "best_run_tag", "metrics",
+-            "log_path", "results_path", "stats_path",
+-        ) if key in result
+-    }
+-    compact["summary"] = "Output truncated; full EDA logs remain on disk."
+-    for key in ("error", "content", "diff", "text", "log_tail"):
+-        if isinstance(result.get(key), str):
+-            compact[key] = _tail(str(result[key]), 4 * 1024)
+-            break
+-    else:
+-        compact["log_tail"] = _tail(encoded, 4 * 1024)
+-    for key in ("errors", "failures"):
+-        values = result.get(key)
+-        if isinstance(values, list) and values:
+-            compact["first_error"] = _tail(json.dumps(values[0], ensure_ascii=False), 512)
+-            break
+-    # Metrics are normally a small numeric mapping. Bound even unexpected output.
+-    if len(json.dumps(compact, ensure_ascii=False).encode()) > MAX_OUTPUT_BYTES:
+-        return {"ok": result.get("ok", False), "summary": compact["summary"], "log_tail": _tail(encoded, 4 * 1024)}
+-    return compact
++    return bounded_result(result, MAX_OUTPUT_BYTES)
+ 
+ 
+ def _validate_rtl(content: str) -> None:
+@@ -201,6 +181,28 @@ class ToolRunner:
+         self._verified_tests_digest: str | None = None
+         self._verified_top: str | None = None
+         self._test_lock = asyncio.Lock()
++        self._harness_spec: DesignSpec | None = None
++        self._harness_proof: dict[str, JsonValue] | None = None
++        self._flow_proofs: dict[str, dict[str, JsonValue]] = {}
++
++    def configure_test_harness(self, spec: DesignSpec) -> None:
++        """Host-owned generated-test mode; never selected by model tool arguments."""
++        self._harness_spec = DesignSpec.model_validate(spec.model_dump(mode="json"))
++        self.eda.configure_test_harness(self._harness_spec)
++        self.verified_revision = None
++        self._verified_tests_digest = None
++        self._verified_top = None
++        self._harness_proof = None
++
++    def flow_verification_artifacts(self, run_tag: str) -> dict[str, Path]:
++        return self.eda.flow_verification_artifacts(run_tag) if self._harness_spec is not None else {}
++
++    @property
++    def requires_harness_verification(self) -> bool:
++        return self._harness_spec is not None
++
++    def flow_verification_proof(self, run_tag: str) -> dict[str, JsonValue] | None:
++        return deepcopy(self._flow_proofs.get(run_tag))
+ 
+     def _source_digest(self, directory: str, extension: str) -> str:
+         self._relative(directory)
+@@ -224,6 +226,12 @@ class ToolRunner:
+                 or self._verified_tests_digest != self._source_digest("test", ".py")
+                 or self._verified_top != top or self._test_lock.locked()):
+             raise ValueError("Current RTL and tests must pass at least 4 tests before a flow run")
++        if self._harness_spec is not None:
++            if self._harness_proof is None:
++                raise ValueError("Current generated tests have no qualified harness proof")
++            validate_proof(self.work_dir, self._harness_proof,
++                           source_dir=self.work_dir / "src", tests_dir=self.work_dir / "test",
++                           require_current_helper=True)
+ 
+     def _relative(self, path: str) -> PurePosixPath:
+         if "\\" in path or "\x00" in path or any(part in {"", ".", ".."} for part in path.split("/")):
+@@ -331,12 +339,30 @@ class ToolRunner:
+                 self.verified_revision = None
+                 self._verified_tests_digest = None
+                 self._verified_top = None
+-                result = await self.eda.run_tests(arguments.top, arguments.test_module)
++                self._harness_proof = None
++                result = await (self.eda.run_harness_tests(arguments.top, arguments.test_module)
++                                if self._harness_spec is not None
++                                else self.eda.run_tests(arguments.top, arguments.test_module))
+                 if before != self.rtl_digest() or tests_before != self._source_digest("test", ".py"):
+                     result.update(ok=False, error="Sources changed while tests were running; verify again")
+                 elif (result.get("ok") is True and type(result.get("passed")) is int
+                       and int(result["passed"]) >= 4 and type(result.get("failed")) is int
+                       and result["failed"] == 0):
++                    if self._harness_spec is not None:
++                        try:
++                            self._harness_proof = capture_harness_proof(
++                                self.work_dir, arguments.top, result, self.eda.harness_artifacts())
++                            validate_proof(self.work_dir, self._harness_proof,
++                                           source_dir=self.work_dir / "src", tests_dir=self.work_dir / "test",
++                                           require_current_helper=True)
++                        except ValueError as error:
++                            self._harness_proof = None
++                            result.update(ok=False, quality_gate_passed=False, error=str(error),
++                                          error_kind="harness_error", first_diagnostic={
++                                              "kind": "harness_error", "message": str(error)})
++                    if result.get("ok") is not True:
++                        await self._emit("test_result", _bounded_result(result))
++                        return result
+                     self.verified_revision = before
+                     self._verified_tests_digest = tests_before
+                     self._verified_top = arguments.top
+@@ -353,8 +379,14 @@ class ToolRunner:
+             flow_index = self.flow_runs
+             async with _FLOW_SEMAPHORE:
+                 self._require_verified(arguments.top)
+-                result = await self.eda.run_flow(arguments.top, overrides)
+-            if isinstance(result.get("metrics"), dict):
++                proof = deepcopy(self._harness_proof)
++                result = await (self.eda.run_harness_flow(arguments.top, overrides, proof)
++                                if self._harness_spec is not None
++                                else self.eda.run_flow(arguments.top, overrides))
++                if proof is not None and isinstance(result.get("run_tag"), str):
++                    self._flow_proofs[result["run_tag"]] = proof
++            # A failed flow returns metrics={}; never record it as a measured row.
++            if isinstance(result.get("metrics"), dict) and result["metrics"]:
+                 result["metrics"]["flow_index"] = flow_index
+                 await self._emit("metric_recorded", {"run_tag": result.get("run_tag"), "flow_index": flow_index, "metrics": result["metrics"]})
+             return result
+@@ -383,7 +415,13 @@ class ToolRunner:
+         if path.suffix == ".v":
+             _validate_rtl(arguments.content)
+         elif path.suffix == ".py":
+-            _validate_test(arguments.content)
++            if self._harness_spec is not None:
++                context = self.eda.harness_context()
++                if context is None:
++                    raise ValueError("Trusted test harness is not configured")
++                harness.validate_generated_test(arguments.content, context, module_name=path.stem)
++            else:
++                _validate_test(arguments.content)
+         else:
+             validate_flow_overrides(json.loads(arguments.content))
+         with self._file(arguments.path, write=True) as descriptor:
+@@ -410,4 +448,5 @@ class ToolRunner:
+             self.verified_revision = None
+             self._verified_tests_digest = None
+             self._verified_top = None
++            self._harness_proof = None
+         return {"ok": True, "bytes": len(content), "diff": _tail(diff)}
+diff --git a/backend/app/eda/sandbox.py b/backend/app/eda/sandbox.py
+index 7f12042..844891a 100644
+--- a/backend/app/eda/sandbox.py
++++ b/backend/app/eda/sandbox.py
+@@ -1,11 +1,16 @@
+ """Run trusted command arguments against untrusted designs in Docker."""
+ 
+ import asyncio
++import csv
+ from dataclasses import dataclass
++from datetime import datetime, timezone
++import io
+ import json
+ import math
+ import os
+ from pathlib import Path
++import re
++import stat
+ from uuid import uuid4
+ 
+ from pydantic import JsonValue
+@@ -72,7 +77,7 @@ class DockerSandbox:
+         self.pdk_dir = (pdk_dir or Path(os.getenv("EDA_PDK_DIR", REPO_ROOT / "runs/pdk/ciel/sky130/versions" / PDK_REVISION))).resolve()
+         self.user = user if user is not None else f"{os.getuid()}:{os.getgid()}"
+ 
+-    async def run(self, command: list[str], *, input_dir: Path, output_dir: Path, timeout: float = 60, require_pdk: bool = False) -> CommandResult:
++    async def run(self, command: list[str], *, input_dir: Path, output_dir: Path, timeout: float = 60, require_pdk: bool = False, trusted_test_helper: Path | None = None) -> CommandResult:
+         if not math.isfinite(timeout) or timeout <= 0:
+             raise ValueError("Timeout must be positive")
+         input_dir = input_dir.resolve()
+@@ -88,6 +93,20 @@ class DockerSandbox:
+                 "-v", f"{input_dir}:/input:ro", "-v", f"{output_dir}:/output", "-w", "/output"]
+         if require_pdk:
+             args += ["-v", f"{self.pdk_dir}:/pdk:ro"]
++        if trusted_test_helper is not None:
++            helper = Path(trusted_test_helper).absolute()
++            expected = input_dir / "trusted" / "sa_tb.py"
++            if (helper != expected or any(path.is_symlink() for path in (helper, helper.parent))
++                    or not helper.is_file() or not stat.S_ISREG(helper.lstat().st_mode)):
++                raise ValueError("Trusted helper must be the regular input/trusted/sa_tb.py snapshot")
++            if input_dir.is_relative_to(output_dir) or output_dir.is_relative_to(input_dir):
++                raise ValueError("Trusted helper input and writable output must not overlap")
++            mount = io.StringIO()
++            csv.writer(mount, lineterminator="").writerow([
++                "type=bind", f"source={helper}",
++                "target=/opt/silicon-python/sa_tb.py", "readonly",
++            ])
++            args += ["--mount", mount.getvalue()]
+         args += [self.image, *command]
+         path = output_dir / "tool.log"
+         timed_out = False
+@@ -119,6 +138,33 @@ class DockerSandbox:
+         return CommandResult(returncode, timed_out, path, log_tail(output_dir, path))
+ 
+ 
++async def pin_sandbox_image(sandbox: DockerSandbox) -> tuple[DockerSandbox, dict[str, str]]:
++    """Observe a local image ID and pin only the new helper route to those bytes."""
++    reference = sandbox.image
++    if not isinstance(reference, str) or not reference or reference.startswith("-") or len(reference) > 500:
++        raise ValueError("Invalid EDA image reference")
++    try:
++        process = await asyncio.create_subprocess_exec(
++            "docker", "image", "inspect", "--format", "{{.Id}}", reference,
++            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL,
++        )
++    except OSError as error:
++        raise ValueError("Cannot inspect the local EDA image") from error
++    try:
++        stdout, _ = await asyncio.wait_for(process.communicate(), 10)
++    except (TimeoutError, asyncio.CancelledError):
++        if process.returncode is None:
++            process.kill()
++        await process.wait()
++        raise
++    image_id = stdout.decode("ascii", errors="replace").strip()
++    if process.returncode != 0 or not re.fullmatch(r"sha256:[0-9a-f]{64}", image_id):
++        raise ValueError("Docker inspection did not return an immutable EDA image ID")
++    identity = {"reference": reference, "image_id": image_id,
++                "authority": "docker_image_inspect", "observed_at": datetime.now(timezone.utc).isoformat()}
++    return DockerSandbox(image=image_id, pdk_dir=sandbox.pdk_dir, user=sandbox.user), identity
++
++
+ async def run_runtime(sandbox: DockerSandbox, kind: str, *, input_dir: Path, output_dir: Path, top: str, extra: list[str] | None = None, timeout: float = 60, require_pdk: bool = False) -> dict[str, JsonValue]:
+     result = await sandbox.run(["python3", "/opt/silicon-agent/runtime.py", kind, "--top", top, *(extra or [])], input_dir=input_dir, output_dir=output_dir, timeout=timeout, require_pdk=require_pdk)
+     payload: dict[str, JsonValue] = {"ok": False, "error": "Tool produced no structured result"}
+diff --git a/backend/app/eda/service.py b/backend/app/eda/service.py
+index 81380e6..3dc718a 100644
+--- a/backend/app/eda/service.py
++++ b/backend/app/eda/service.py
+@@ -1,3 +1,5 @@
++import asyncio
++from copy import deepcopy
+ from pathlib import Path
+ import re
+ import shutil
+@@ -5,8 +7,9 @@ from uuid import uuid4
+ 
+ from pydantic import JsonValue
+ 
+-from app.eda import flow, lint, render, sim, synth
+-from app.eda.sandbox import DockerSandbox, read_json_artifact, safe_artifact
++from app.eda import flow, harness, lint, render, sim, synth, verification
++from app.eda.sandbox import DockerSandbox, pin_sandbox_image, read_json_artifact, safe_artifact
++from app.schemas import DesignSpec
+ 
+ IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
+ 
+@@ -24,6 +27,105 @@ class EDA:
+         self.clock_port = validate_identifier(clock_port) if clock_port is not None else None
+         self.sandbox = sandbox or DockerSandbox()
+         self._flows: dict[str, tuple[Path, Path, str]] = {}
++        self._harness_context: dict | None = None
++        self._harness_sandbox: DockerSandbox | None = None
++        self._harness_image_identity: dict[str, str] | None = None
++        self._harness_image_lock = asyncio.Lock()
++        self._last_harness: tuple[Path, Path, dict] | None = None
++        self._flow_verification: dict[str, dict[str, Path]] = {}
++
++    def configure_test_harness(self, spec: DesignSpec) -> None:
++        self._harness_context = harness.build_context(spec, require_edge_case=True, allow_wired_and=True)
++        self._last_harness = None
++
++    def harness_context(self) -> dict | None:
++        return deepcopy(self._harness_context)
++
++    async def _prepare_harness_sandbox(self) -> tuple[DockerSandbox, dict[str, str]]:
++        async with self._harness_image_lock:
++            if self._harness_sandbox is None:
++                sandbox, identity = await pin_sandbox_image(self.sandbox)
++                self._harness_image_identity = harness.validate_image_identity(identity)
++                self._harness_sandbox = sandbox
++        return self._harness_sandbox, dict(self._harness_image_identity)
++
++    async def run_harness_tests(self, top: str, test_module: str) -> dict[str, JsonValue]:
++        validate_identifier(top)
++        validate_identifier(test_module)
++        if self._harness_context is None:
++            raise ValueError("Trusted test harness is not configured")
++        context = deepcopy(self._harness_context)
++        source, output = self._snapshot("harness")
++        sandbox, identity = await self._prepare_harness_sandbox()
++        result = await harness.run_harness_tests(sandbox, source, output, top, test_module, context, identity)
++        for field in ("log_path", "results_path", "evidence_path"):
++            if isinstance(result.get(field), str):
++                path = safe_artifact(output, output / result[field])
++                result[field] = str(path.relative_to(self.work_dir))
++        for name, relative in result.get("input_artifacts", {}).items():
++            path = safe_artifact(source, source / relative)
++            result["input_artifacts"][name] = str(path.relative_to(self.work_dir))
++        result.update(harness_input_dir=str(source.relative_to(self.work_dir)),
++                      harness_output_dir=str(output.relative_to(self.work_dir)))
++        self._last_harness = (source, output, deepcopy(result))
++        return result
++
++    def harness_result(self) -> dict[str, JsonValue] | None:
++        return deepcopy(self._last_harness[2]) if self._last_harness is not None else None
++
++    def harness_artifacts(self) -> dict[str, Path]:
++        if self._last_harness is None:
++            return {}
++        source, output, _ = self._last_harness
++        paths = {
++            "source_dir": source / "src", "tests_dir": source / "test",
++            "context": source / "trusted/harness.json", "helper": source / "trusted/sa_tb.py",
++            "evidence": output / "sa_tb_evidence.json", "xml": output / "test_results.xml",
++            "result": output / "result.json", "log": output / "tool.log",
++        }
++        return {name: safe_artifact(self.work_dir, path) for name, path in paths.items()
++                if path.exists() and not path.is_symlink()}
++
++    async def run_harness_flow(self, top: str, config_overrides: dict[str, JsonValue], proof: dict) -> dict[str, JsonValue]:
++        validate_identifier(top)
++        proof = deepcopy(proof)
++        verification.validate_proof(self.work_dir, proof, require_current_helper=True)
++        if proof["top_module"] != top:
++            raise ValueError("Flow top differs from verified top")
++        overrides: dict[str, JsonValue] = {}
++        config = safe_artifact(self.work_dir, self.work_dir / "config.json")
++        if config.is_file():
++            contents = read_json_artifact(self.work_dir, config, finite=True)
++            if not isinstance(contents, dict):
++                raise ValueError("Flow overrides must be an object")
++            overrides.update(flow.validate_flow_overrides(contents))
++        overrides.update(flow.validate_flow_overrides(config_overrides))
++        source, output = self._snapshot("harness_flow")
++        verification.validate_proof(self.work_dir, proof, source / "src", source / "test", require_current_helper=True)
++        sandbox, identity = await self._prepare_harness_sandbox()
++        if sandbox.image != proof["image_identity"]["image_id"] or identity["image_id"] != sandbox.image:
++            raise ValueError("Flow image differs from the verified immutable image")
++        materials = verification.copy_proof_material(self.work_dir, proof, source)
++        run_tag = f"flow_{uuid4().hex[:16]}"
++        self._flows[run_tag] = (source, output, top)
++        self._flow_verification[run_tag] = materials
++        flow.write_config(source, output, top, self.clock_port, overrides)
++        result = await flow.run_flow(sandbox, source, output, top, self.run_id, run_tag)
++        try:
++            verification.validate_retained_flow(self.work_dir, proof, materials, source / "src", source / "test")
++        except ValueError as error:
++            message = f"Flow verification changed during execution: {error}"
++            result.update(ok=False, verification_valid=False, error=message, error_kind="harness_error",
++                          first_diagnostic={"kind": "harness_error", "test": None, "message": message})
++        else:
++            result["verification_valid"] = True
++        return result
++
++    def flow_verification_artifacts(self, run_tag: str) -> dict[str, Path]:
++        self._flow(run_tag)
++        paths = self._flow_verification.get(run_tag, {})
++        return {name: safe_artifact(self.work_dir, path) for name, path in paths.items()
++                if path.is_file() and not path.is_symlink()}
+ 
+     def _snapshot(self, kind: str) -> tuple[Path, Path]:
+         call_dir = safe_artifact(self.work_dir, self.work_dir / ".eda" / f"{kind}_{uuid4().hex}")
+diff --git a/backend/app/llm/factory.py b/backend/app/llm/factory.py
+index 175ecc6..e5fb68c 100644
+--- a/backend/app/llm/factory.py
++++ b/backend/app/llm/factory.py
+@@ -5,10 +5,11 @@ from app.llm.types import Budget, LLM, LLMError
+ 
+ def create_llm(*, budget: Budget | None = None) -> LLM:
+     provider = os.getenv("LLM_PROVIDER", "codex")
++    max_tokens = os.getenv("LLM_MAX_TOKENS", "").strip()
+     budget = budget if budget is not None else Budget(
+         max_usd=float(os.getenv("RUN_BUDGET_USD", "2")),
+         max_calls=int(os.getenv("LLM_MAX_CALLS", "50")),
+-        max_tokens=int(os.getenv("LLM_MAX_TOKENS", "300000")),
++        max_tokens=int(max_tokens) if max_tokens else None,
+     )
+     if provider == "codex":
+         from app.llm.codex import CodexCLIClient
+diff --git a/backend/app/llm/types.py b/backend/app/llm/types.py
+index 8e4892b..e2109d7 100644
+--- a/backend/app/llm/types.py
++++ b/backend/app/llm/types.py
+@@ -62,7 +62,7 @@ class LLM(Protocol):
+ class Budget:
+     max_usd: float = 2.0
+     max_calls: int = 50
+-    max_tokens: int = 300_000
++    max_tokens: int | None = None  # None = unlimited
+     calls: int = field(default=0, init=False)
+     input_tokens: int = field(default=0, init=False)
+     output_tokens: int = field(default=0, init=False)
+@@ -72,7 +72,7 @@ class Budget:
+     def __post_init__(self) -> None:
+         if not math.isfinite(self.max_usd) or self.max_usd < 0:
+             raise ValueError("max_usd must be finite and nonnegative")
+-        if self.max_calls < 1 or self.max_tokens < 1:
++        if self.max_calls < 1 or (self.max_tokens is not None and self.max_tokens < 1):
+             raise ValueError("Call and token limits must be positive")
+ 
+     @property
+@@ -86,7 +86,7 @@ class Budget:
+     def check(self) -> None:
+         if self._known_cost_usd > self.max_usd:
+             raise BudgetExceeded("Model dollar budget exceeded")
+-        if self.total_tokens > self.max_tokens:
++        if self.max_tokens is not None and self.total_tokens > self.max_tokens:
+             raise BudgetExceeded("Model token budget exceeded")
+ 
+     def reserve(self) -> None:
+@@ -94,7 +94,7 @@ class Budget:
+         self.check()
+         if self.calls >= self.max_calls:
+             raise BudgetExceeded("Model call budget exhausted")
+-        if self.total_tokens >= self.max_tokens:
++        if self.max_tokens is not None and self.total_tokens >= self.max_tokens:
+             raise BudgetExceeded("Model token budget exhausted")
+         self.calls += 1
+ 
+diff --git a/backend/app/packaging.py b/backend/app/packaging.py
+index 6f07d6f..84cbeee 100644
+--- a/backend/app/packaging.py
++++ b/backend/app/packaging.py
+@@ -11,6 +11,7 @@ from zipfile import BadZipFile, ZipFile, ZIP_DEFLATED
+ from app.agent.tools import ToolRunner
+ from app.eda.parsers import parse_librelane_metrics
+ from app.eda.sandbox import read_json_artifact, safe_artifact
++from app.eda.verification import validate_retained_flow
+ from app.models import Metric
+ from app.schemas import DesignSpec
+ 
+@@ -20,6 +21,41 @@ REQUIRED_BUNDLE_MEMBERS = frozenset({
+     "design.log", "info.yaml", "integration_notes.md", "design_spec.json",
+ })
+ MAX_BUNDLE_BYTES = 256 * 1024 * 1024
++HARNESS_MEMBERS = {
++    "helper": "trusted/sa_tb.py", "context": "trusted/harness.json",
++    "evidence": "trusted/sa_tb_evidence.json", "xml": "trusted/test_results.xml",
++    "runtime": "trusted/runtime_result.json", "host_result": "trusted/host_result.json",
++    "proof": "trusted/proof.json",
++}
++
++
++def _validate_harness_bundle(archive: ZipFile, names: set[str], expected_top: str) -> None:
++    required = set(HARNESS_MEMBERS.values()) | {"verification.json", "test_instructions.md", "manifest.json"}
++    if not required <= names:
++        raise ValueError("Package is missing selected harness verification material")
++    manifest = json.loads(archive.read("manifest.json"))
++    if not isinstance(manifest, dict) or not isinstance(manifest.get("files"), dict):
++        raise ValueError("Package has no file integrity manifest")
++    for name in names - {"manifest.json"}:
++        if manifest["files"].get(name) != hashlib.sha256(archive.read(name)).hexdigest():
++            raise ValueError("Package file differs from its integrity manifest")
++    proof = json.loads(archive.read("verification.json"))
++    if not isinstance(proof, dict) or proof != json.loads(archive.read(HARNESS_MEMBERS["proof"])):
++        raise ValueError("Package does not contain the selected verification proof")
++    if proof.get("top_module") != expected_top:
++        raise ValueError("Package verification top differs from its design specification")
++    # Only bounded source/test/capsule members are needed for verification.
++    with tempfile.TemporaryDirectory(prefix="silicon-bundle-check-") as temporary:
++        root = Path(temporary).resolve()
++        for name in names:
++            if name in HARNESS_MEMBERS.values() or name.startswith(("src/", "test/")):
++                if archive.getinfo(name).file_size > 2 * 1024 * 1024:
++                    raise ValueError("Package verification member exceeds size limit")
++                path = root / name
++                path.parent.mkdir(parents=True, exist_ok=True)
++                path.write_bytes(archive.read(name))
++        validate_retained_flow(root, proof, {key: root / name for key, name in HARNESS_MEMBERS.items()},
++                               root / "src", root / "test")
+ 
+ 
+ def _file(root: Path, path: Path) -> Path:
+@@ -46,7 +82,8 @@ def _info(spec: DesignSpec, source_files: list[str], clock_mhz: float) -> str:
+     return "\n".join(lines) + "\n"
+ 
+ 
+-def validate_bundle(path: Path, *, expected_run_tag: str | None = None, expected_spec: DesignSpec | None = None) -> None:
++def validate_bundle(path: Path, *, expected_run_tag: str | None = None, expected_spec: DesignSpec | None = None,
++                    require_harness_verification: bool = False) -> None:
+     """Check ZIP integrity and concrete deliverables before a run can reach DONE."""
+     if not path.is_file() or not 0 < path.stat().st_size <= MAX_BUNDLE_BYTES:
+         raise ValueError("Package ZIP is missing, empty, or too large")
+@@ -82,6 +119,8 @@ def validate_bundle(path: Path, *, expected_run_tag: str | None = None, expected
+                     raise ValueError("Package GDS is not a GDSII stream")
+             if archive.testzip() is not None:
+                 raise ValueError("Package ZIP failed its integrity check")
++            if require_harness_verification or "verification.json" in names or any(name.startswith("trusted/") for name in names):
++                _validate_harness_bundle(archive, names, spec.top_module)
+     except (BadZipFile, KeyError, RuntimeError) as error:
+         raise ValueError("Package is not a readable chip bundle") from error
+ 
+@@ -137,6 +176,39 @@ def _package_design(tools: ToolRunner, best_run_tag: str, spec: DesignSpec) -> P
+         "info.yaml": _info(spec, source_names, metric.clock_mhz),
+         "integration_notes.md": notes,
+     }
++    verification = tools.flow_verification_artifacts(best_run_tag)
++    if tools.requires_harness_verification and not verification:
++        raise ValueError("Selected flow is missing its trusted harness verification material")
++    if verification:
++        proof = tools.flow_verification_proof(best_run_tag)
++        if proof is None:
++            raise ValueError("Selected flow has no captured verification proof")
++        validate_retained_flow(root, proof, verification, artifacts["source_dir"], artifacts["tests_dir"])
++        for kind, member in HARNESS_MEMBERS.items():
++            files[member] = _file(root, verification[kind])
++        generated["verification.json"] = json.dumps(proof, allow_nan=False, indent=2) + "\n"
++        generated["test_instructions.md"] = (
++            "# Reproduce the selected tests\n\n"
++            "The trusted helper, frozen contract, actual XML/evidence and host proof in trusted/ "
++            "belong to this selected flow. They are independent of later working-file edits.\n\n"
++            "With the pinned EDA image already available locally, extract the bundle and run "
++            "these commands from its directory (paths must not contain commas):\n\n"
++            "```sh\n"
++            'bundle_dir="$(pwd)"\noutput_dir="$(mktemp -d)"\n'
++            'mkdir -p "$output_dir/home" "$output_dir/tmp" "$output_dir/cache"\n'
++            "docker run --rm --init --network none --read-only --cap-drop ALL \\\n"
++            "  --security-opt no-new-privileges --cpus 4 --memory 6g --pids-limit 512 \\\n"
++            '  --user "$(id -u):$(id -g)" -e HOME=/output/home -e TMPDIR=/output/tmp \\\n'
++            "  -e XDG_CACHE_HOME=/output/cache -e PYTHONDONTWRITEBYTECODE=1 \\\n"
++            '  -e PYTHONPATH=/opt/silicon-python -v "$bundle_dir:/input:ro" -v "$output_dir:/output" \\\n'
++            '  --mount "type=bind,source=$bundle_dir/trusted/sa_tb.py,target=/opt/silicon-python/sa_tb.py,readonly" \\\n'
++            f"  -w /output {proof['image_identity']['image_id']} \\\n"
++            f"  python3 /opt/silicon-agent/runtime.py sim --top {spec.top_module} "
++            f"--test-module {proof['host_result']['test_module']} > \"$output_dir/tool.log\" 2>&1\n"
++            'cat "$output_dir/result.json"\n```\n\n'
++            "Outputs are tool.log, test_results.xml, sa_tb_evidence.json and result.json. "
++            "The bundle's selected test results do not claim that a newly modified design passes.\n"
++        )
+     manifest = {"run_tag": best_run_tag, "tiny_tapeout_ready": False, "template": TEMPLATE_URL, "files": {}}
+     destination = safe_artifact(root.parent, root.parent / "bundle.zip")
+     with tempfile.NamedTemporaryFile(prefix=".bundle-", suffix=".zip", dir=root.parent, delete=False) as temporary:
+@@ -151,7 +223,8 @@ def _package_design(tools: ToolRunner, best_run_tag: str, spec: DesignSpec) -> P
+                 archive.writestr(name, text)
+                 manifest["files"][name] = hashlib.sha256(text.encode()).hexdigest()
+             archive.writestr("manifest.json", json.dumps(manifest, indent=2) + "\n")
+-        validate_bundle(temporary_path, expected_run_tag=best_run_tag, expected_spec=spec)
++        validate_bundle(temporary_path, expected_run_tag=best_run_tag, expected_spec=spec,
++                        require_harness_verification=tools.requires_harness_verification)
+         temporary_path.replace(destination)
+     finally:
+         temporary_path.unlink(missing_ok=True)
+diff --git a/backend/app/schemas.py b/backend/app/schemas.py
+index 9f35e75..88beb5d 100644
+--- a/backend/app/schemas.py
++++ b/backend/app/schemas.py
+@@ -97,6 +97,9 @@ class Outcome(BaseModel):
+     block_signoff_clean: bool = False
+     design_spec: DesignSpec | None = None
+     error: str | None = None
++    failure_class: str | None = Field(default=None, pattern=r"^[a-z_]+$", max_length=64)
++    suggested_action: str | None = Field(default=None, min_length=1, max_length=1000)
++    last_diagnostic: dict[str, JsonValue] | None = None
+     scope_decision: Literal["decline", "ask_clarify", "scope_down"] | None = None
+     scope_reason: str | None = Field(default=None, min_length=1, max_length=3000)
+ 
+diff --git a/backend/app/agent/diagnostics.py b/backend/app/agent/diagnostics.py
+new file mode 100644
+index 0000000..3780cc3
+--- /dev/null
++++ b/backend/app/agent/diagnostics.py
+@@ -0,0 +1,221 @@
++"""Retain a diagnostic before log compaction; do not infer whether an RTL or a
++test expectation is wrong from a simulator assertion alone.
++"""
++
++from collections.abc import Mapping
++import json
++import math
++import re
++
++from pydantic import JsonValue
++
++
++def prefix(text: str, byte_limit: int) -> str:
++    raw = text.encode("utf-8", errors="replace")
++    if len(raw) <= byte_limit:
++        return raw.decode("utf-8")
++    suffix = " [truncated]"
++    if byte_limit < len(suffix):
++        return raw[:max(0, byte_limit)].decode("utf-8", errors="ignore")
++    return raw[:max(0, byte_limit - len(suffix))].decode("utf-8", errors="ignore") + suffix
++
++
++def _item(value: object, kind: str) -> dict[str, JsonValue] | None:
++    if isinstance(value, str) and value.strip():
++        return {"kind": kind, "message": prefix(value.strip(), 1400)}
++    if not isinstance(value, Mapping):
++        return None
++    message = value.get("message") or value.get("error")
++    if not isinstance(message, str) or not message.strip():
++        return None
++    found: dict[str, JsonValue] = {"kind": kind, "message": prefix(message.strip(), 1400)}
++    for key in ("test", "phase", "signal"):
++        if isinstance(value.get(key), str):
++            found[key] = prefix(value[key], 200)
++    for key in ("cycle", "expected", "actual"):
++        entry = value.get(key)
++        if type(entry) is int:
++            # Values are still bounded if a malformed producer returns a giant int.
++            found[key] = entry if entry.bit_length() <= 1024 else f"<integer with {entry.bit_length()} bits>"
++        elif isinstance(entry, str):
++            found[key] = prefix(entry, 350)
++    return found
++
++
++def _fatal_log_diagnostic(result: Mapping[str, object]) -> dict[str, JsonValue] | None:
++    if result.get("ok") is not False or not isinstance(result.get("log_tail"), str):
++        return None
++    for line in result["log_tail"].splitlines():
++        if re.search(r"\[(?:WARN|WARNING)(?:\s|\])", line, re.I):
++            continue
++        # Bare codes are supported only by the two captured real error.log files.
++        # An arbitrary bracketed code can be a warning (notably GPL-0302).
++        if (re.search(r"\[ERROR\s+[A-Z][A-Z0-9_]*-\d+\]", line)
++                or re.search(r"\[(?:DPL-0036|GPL-0301)\]", line)
++                or re.match(r"\s*%Error(?:-[A-Z0-9_]+)?:", line)
++                or re.match(r"\s*ERROR:\s*\S", line)
++                or re.match(r"\s*(?:AssertionError|ValueError|TypeError|ImportError|ModuleNotFoundError|"
++                            r"SyntaxError|RuntimeError|NameError|AttributeError|KeyError|IndexError):(?:\s|$)", line)):
++            return _item(line, "tool_error")
++    return None
++
++
++def _generic_exit(message: object) -> bool:
++    return isinstance(message, str) and re.fullmatch(
++        r"(?:Tool|Flow|Process|Command|Simulator) exited with code -?\d+\.?", message.strip()) is not None
++
++
++def first_diagnostic(result: Mapping[str, object]) -> dict[str, JsonValue] | None:
++    for key in ("first_diagnostic", "diagnostic"):
++        structured = result.get(key)
++        if isinstance(structured, Mapping):
++            kind = structured.get("kind")
++            if isinstance(kind, str) and kind in {"functional_assertion", "harness_error", "infrastructure_error", "test_failure", "tool_error"}:
++                found = _item(structured, kind)
++                if found:
++                    return found
++    cases = result.get("cases")
++    if isinstance(cases, list):
++        for case in cases:
++            if isinstance(case, Mapping) and case.get("ok") is False:
++                found = _item(case, "test_failure")
++                if found:
++                    return found
++    for key, kind in (("failures", "test_failure"), ("errors", "tool_error")):
++        values = result.get(key)
++        if isinstance(values, list):
++            for value in values[:100]:
++                found = _item(value, kind)
++                if found:
++                    return found
++    fatal = _fatal_log_diagnostic(result)
++    for key in ("first_error", "error"):
++        found = _item(result.get(key), "tool_error")
++        if found:
++            return fatal if fatal is not None and _generic_exit(found["message"]) else found
++    if fatal is not None:
++        return fatal
++    if result.get("ok") is not False:
++        return None
++    tail = result.get("log_tail")
++    if isinstance(tail, str) and tail.strip():
++        lines = [line for line in tail.splitlines()
++                 if not re.search(r"\[(?:WARN|WARNING)(?:\s|\])", line, re.I)]
++        return _item("\n".join(lines)[-1400:], "tool_error")
++    return None
++
++
++def diagnostic_text(diagnostic: Mapping[str, object]) -> str:
++    message = diagnostic.get("message")
++    if not isinstance(message, str):
++        return ""
++    test = diagnostic.get("test")
++    return prefix((f"{test}: " if isinstance(test, str) and test else "") + message, 1800)
++
++
++def bounded_result(result: dict[str, JsonValue], limit: int = 8192) -> dict[str, JsonValue]:
++    """Keep the first failure/counts before spending space on log excerpts."""
++    def size(value: object) -> int:
++        try:
++            return len(json.dumps(value, ensure_ascii=False, allow_nan=False).encode("utf-8"))
++        except (TypeError, ValueError, OverflowError, UnicodeError):
++            return limit + 1
++
++    diagnostic = first_diagnostic(result)
++    enriched = dict(result)
++    if diagnostic is not None:
++        enriched["first_diagnostic"] = diagnostic
++        enriched["first_error"] = prefix(diagnostic_text(diagnostic), 700)
++    if size(enriched) <= limit:
++        return enriched
++    keys = (
++        "ok", "bytes", "passed", "failed", "skipped", "cell_count", "area_estimate",
++        "run_tag", "drc_ok", "lvs_ok", "image_url", "best_run_tag", "metrics",
++        "log_path", "results_path", "stats_path", "evidence_path", "proof_path",
++        "harness_evidence_valid", "quality_gate_passed", "mode", "helper_sha256",
++        "context_sha256", "error_kind",
++    )
++    compact = {key: enriched[key] for key in keys if key in enriched}
++    compact["summary"] = "Output truncated; full artifacts remain on disk."
++    if diagnostic is not None:
++        compact["first_diagnostic"] = diagnostic
++        compact["first_error"] = prefix(diagnostic_text(diagnostic), 700)
++    if isinstance(result.get("error"), str):
++        compact["error"] = prefix(result["error"], 600)
++    # Unexpected metadata must fail closed without replacing genuine numbers.
++    if size(compact) > limit:
++        reserved = (
++            "passed", "failed", "skipped", "cell_count", "run_tag", "drc_ok", "lvs_ok",
++            "log_path", "results_path", "stats_path", "evidence_path", "proof_path",
++            "harness_evidence_valid", "quality_gate_passed", "mode", "helper_sha256",
++            "context_sha256", "error_kind",
++        )
++        compact = {}
++        omitted = []
++        for key in reserved:
++            if key not in enriched:
++                continue
++            value = enriched[key]
++            valid = value is None or type(value) is bool
++            valid = valid or (type(value) is int and value.bit_length() <= 1024)
++            valid = valid or (type(value) is float and math.isfinite(value))
++            if isinstance(value, str):
++                try:
++                    valid = len(value.encode("utf-8")) <= 1024
++                except UnicodeError:
++                    valid = False
++            if valid:
++                compact[key] = value
++            else:
++                omitted.append(key)
++        if omitted:
++            compact["metadata_omitted"] = omitted
++        compact.update(ok=False, summary="Structured metadata exceeded output cap; full artifacts remain on disk.")
++        if diagnostic is not None:
++            compact["first_diagnostic"] = diagnostic
++            compact["first_error"] = prefix(diagnostic_text(diagnostic), 700)
++        if size(compact) > limit:
++            # A caller-selected tiny limit is unsupported, never silently exceeded.
++            raise ValueError("Output cap is too small to preserve the failure envelope")
++        return compact
++    cases = result.get("cases")
++    if isinstance(cases, list):
++        kept: list[JsonValue] = []
++        candidate = {**compact, "cases": kept, "cases_omitted": len(cases)}
++        if size(candidate) > limit:
++            return compact
++        compact = candidate
++        for value in cases[:100]:
++            if not isinstance(value, dict):
++                break
++            case: dict[str, JsonValue] = {"test": prefix(str(value.get("test", "unknown")), 200),
++                                         "ok": value.get("ok")}
++            if isinstance(value.get("message"), str):
++                case["message"] = prefix(value["message"], 250)
++            kept.append(case)
++            compact["cases_omitted"] = len(cases) - len(kept)
++            if size(compact) > limit:
++                kept.pop()
++                compact["cases_omitted"] = len(cases) - len(kept)
++                break
++    # Add one useful bulk field, allocating the envelope first. Binary search
++    # accounts for JSON escapes rather than assuming a character costs one byte.
++    for key in ("content", "diff", "text", "log_tail"):
++        value = result.get(key)
++        if not isinstance(value, str):
++            continue
++        raw = value.encode("utf-8", errors="replace")
++        low, high = 0, min(len(raw), limit)
++        while low < high:
++            middle = (low + high + 1) // 2
++            excerpt = raw[-middle:].decode("utf-8", errors="ignore") if middle else ""
++            compact[key] = excerpt
++            if size(compact) <= limit:
++                low = middle
++            else:
++                high = middle - 1
++        compact[key] = raw[-low:].decode("utf-8", errors="ignore") if low else ""
++        if size(compact) > limit:
++            compact.pop(key)
++        break
++    return compact
+diff --git a/backend/app/eda/harness.py b/backend/app/eda/harness.py
+new file mode 100644
+index 0000000..9dc1820
+--- /dev/null
++++ b/backend/app/eda/harness.py
+@@ -0,0 +1,684 @@
++"""Host admission and execution evidence for the explicit sa_tb_v1 route.
++
++Keep legacy EDA.run_tests, sim.run_tests and run_runtime unchanged. This module
++must never import the container-side sa_tb module on the host.
++"""
++from __future__ import annotations
++
++import ast
++from dataclasses import dataclass
++from datetime import datetime
++import hashlib
++import json
++import math
++import os
++from pathlib import Path
++import re
++from typing import Any
++from xml.etree import ElementTree as ET
++
++from app.eda.sandbox import DockerSandbox, MAX_JSON_BYTES, safe_artifact
++from app.eda.sim import parse_test_cases
++from app.schemas import DesignSpec
++
++MODE = "sa_tb_v1"
++API_VERSION = 1
++SCHEMA_VERSION = 1
++HELPER_ORIGIN = "/opt/silicon-python/sa_tb.py"
++MAX_SOURCE_BYTES = 128 * 1024
++MAX_CASES = 1000
++IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
++IMAGE_ID = re.compile(r"sha256:[0-9a-f]{64}\Z")
++PUBLIC_API = {"case", "Reset", "Cycle", "OBSERVE", "check", "API_VERSION"}
++META_KEYS = {
++    "behaviors", "plans", "reset_case", "edge_case", "edge_inputs", "payloads", "wired_and",
++    "async_reset_behavior", "async_reset_requirement", "seed",
++}
++COUNTERS = (
++    "reset_assertions", "reset_edges", "async_assertion_checks", "reset_comparisons",
++    "cycle_count", "cycle_comparisons", "protocol_checks", "required_known_checks",
++)
++DANGEROUS_NAMES = {
++    "__import__", "eval", "exec", "compile", "open", "input", "globals", "locals",
++    "vars", "getattr", "setattr", "delattr", "hasattr", "dir", "breakpoint", "help",
++    "dut", "cocotb", "Timer", "Clock", "RisingEdge", "FallingEdge", "ReadOnly", "ReadWrite",
++}
++DANGEROUS_ATTRIBUTES = {
++    "system", "popen", "open", "fdopen", "fork", "forkpty", "kill", "killpg",
++    "environ", "getenv", "putenv", "unsetenv", "mro", "load_module", "find_spec",
++    "f_globals", "f_locals", "f_back", "f_code", "gi_frame", "cr_frame", "tb_frame",
++    "read_text", "read_bytes", "write_text", "write_bytes", "settrace", "setprofile",
++}
++
++
++class HarnessError(ValueError):
++    """A generated-plan/context/quality error, not a functional RTL verdict."""
++
++
++class EvidenceError(ValueError):
++    """Missing, corrupt or contradictory execution evidence."""
++
++
++def _canonical(value: Any) -> bytes:
++    return json.dumps(value, sort_keys=True, separators=(",", ":"),
++                      ensure_ascii=False, allow_nan=False).encode("utf-8")
++
++
++def context_digest(context: dict[str, Any]) -> str:
++    return hashlib.sha256(_canonical({key: value for key, value in context.items()
++                                     if key != "context_sha256"})).hexdigest()
++
++
++def _identifier(value: Any) -> str:
++    if not isinstance(value, str) or len(value) > 128 or not IDENTIFIER.fullmatch(value):
++        raise HarnessError("Expected a plain identifier")
++    return value
++
++
++def _read_bytes(root: Path, path: Path, limit: int = MAX_JSON_BYTES) -> bytes:
++    if path.is_symlink():
++        raise EvidenceError("Artifact must not be a symlink")
++    path = safe_artifact(root, path)
++    if not path.is_file():
++        raise EvidenceError("Required artifact is missing")
++    with path.open("rb") as stream:
++        contents = stream.read(limit + 1)
++    if len(contents) > limit:
++        raise EvidenceError("Artifact exceeds its size limit")
++    return contents
++
++
++def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
++    result: dict[str, Any] = {}
++    for key, value in pairs:
++        if key in result:
++            raise EvidenceError("Duplicate JSON field")
++        result[key] = value
++    return result
++
++
++def _nonfinite(_: str) -> None:
++    raise EvidenceError("Non-finite JSON number")
++
++
++def _finite_float(value: str) -> float:
++    number = float(value)
++    if not math.isfinite(number):
++        raise EvidenceError("Non-finite JSON number")
++    return number
++
++
++def _read_json(root: Path, path: Path) -> dict[str, Any]:
++    try:
++        value = json.loads(_read_bytes(root, path), object_pairs_hook=_unique_object,
++                           parse_constant=_nonfinite, parse_float=_finite_float)
++    except (UnicodeError, json.JSONDecodeError) as error:
++        raise EvidenceError("Malformed JSON artifact") from error
++    if not isinstance(value, dict):
++        raise EvidenceError("JSON artifact must be an object")
++    return value
++
++
++def _write_new(path: Path, contents: bytes) -> None:
++    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
++    with os.fdopen(descriptor, "wb") as stream:
++        stream.write(contents)
++        stream.flush()
++        os.fsync(stream.fileno())
++
++
++def _flat_digest(root: Path, directory: str, suffix: str) -> str:
++    path = root / directory
++    if path.is_symlink() or not path.is_dir():
++        raise HarnessError(f"Missing or unsafe {directory} snapshot")
++    paths = sorted(path.iterdir())
++    if not paths:
++        raise HarnessError(f"Empty {directory} snapshot")
++    digest = hashlib.sha256()
++    for source in paths:
++        if source.is_symlink() or not source.is_file() or source.suffix != suffix:
++            raise HarnessError(f"{directory} must contain only flat regular {suffix} files")
++        _identifier(source.stem)
++        contents = _read_bytes(root, source, MAX_SOURCE_BYTES)
++        digest.update(source.name.encode("utf-8") + b"\0" + contents + b"\0")
++    return digest.hexdigest()
++
++
++def validate_image_identity(value: dict[str, Any]) -> dict[str, str]:
++    keys = {"reference", "image_id", "authority", "observed_at"}
++    if not isinstance(value, dict) or set(value) != keys:
++        raise HarnessError("Missing trusted image identity")
++    if not all(isinstance(item, str) and item for item in value.values()):
++        raise HarnessError("Image identity fields must be nonempty strings")
++    if not IMAGE_ID.fullmatch(value["image_id"]) or value["authority"] != "docker_image_inspect":
++        raise HarnessError("Image identity was not observed by trusted Docker inspection")
++    try:
++        observed = datetime.fromisoformat(value["observed_at"].replace("Z", "+00:00"))
++    except ValueError as error:
++        raise HarnessError("Image observation time is invalid") from error
++    if observed.utcoffset() is None:
++        raise HarnessError("Image observation time must include its timezone")
++    return dict(value)
++
++
++def build_context(
++    spec: DesignSpec, *, require_reset_case: bool | None = None,
++    require_edge_case: bool = False, allow_wired_and: bool = False,
++) -> dict[str, Any]:
++    """Freeze validated public requirements without interpreting their free text."""
++    spec = DesignSpec.model_validate(spec.model_dump(mode="json"))
++    if require_reset_case is None:
++        require_reset_case = not spec.purely_combinational
++    if any(type(value) is not bool for value in (require_reset_case, require_edge_case, allow_wired_and)):
++        raise HarnessError("Harness capability and required-tag flags must be booleans")
++    clock_mhz = spec.targets.get("clock_mhz") or 50.0
++    clock_period_ps = None if spec.purely_combinational else int(round(1_000_000 / float(clock_mhz)))
++    return {
++        "schema_version": SCHEMA_VERSION, "mode": MODE, "api_version": API_VERSION,
++        "top_module": spec.top_module, "purely_combinational": spec.purely_combinational,
++        "clock_period_ps": clock_period_ps,
++        "ports": [{"name": port.name, "direction": port.direction, "width": port.width}
++                  for port in spec.ports],
++        "behaviors": {f"B{index}": text for index, text in enumerate(spec.behavior, 1)},
++        "plans": {f"T{index}": text for index, text in enumerate(spec.test_plan, 1)},
++        "required_case_tags": {"reset_case": require_reset_case, "edge_case": require_edge_case},
++        "allow_wired_and": allow_wired_and,
++    }
++
++
++def _ids(value: Any, allowed: dict[str, str], label: str) -> list[str]:
++    if not isinstance(value, (list, tuple)) or not value or len(value) > len(allowed):
++        raise HarnessError(f"{label} must be a nonempty literal list or tuple")
++    if any(not isinstance(item, str) or item not in allowed for item in value):
++        raise HarnessError(f"Unknown {label} identifier")
++    if len(set(value)) != len(value):
++        raise HarnessError(f"Duplicate {label} identifier")
++    return list(value)
++
++
++def normalize_case_metadata(metadata: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
++    if set(metadata) - META_KEYS or not {"behaviors", "plans"} <= set(metadata):
++        raise HarnessError("case requires behavior/plan bindings and only supported metadata")
++    normalized = {
++        "behaviors": _ids(metadata["behaviors"], context["behaviors"], "behavior"),
++        "plans": _ids(metadata["plans"], context["plans"], "plan"),
++        "reset_case": metadata.get("reset_case", False),
++        "edge_case": metadata.get("edge_case", False),
++        "edge_inputs": metadata.get("edge_inputs", ()),
++        "payloads": {} if metadata.get("payloads") is None else metadata["payloads"],
++        "wired_and": {} if metadata.get("wired_and") is None else metadata["wired_and"],
++        "async_reset_behavior": metadata.get("async_reset_behavior"),
++        "async_reset_requirement": metadata.get("async_reset_requirement"),
++        "seed": metadata.get("seed"),
++    }
++    if type(normalized["reset_case"]) is not bool or type(normalized["edge_case"]) is not bool:
++        raise HarnessError("Case tags must be literal booleans")
++    ports = {port["name"]: port for port in context["ports"]}
++    outputs = {name: port for name, port in ports.items() if port["direction"] == "output"}
++    inputs = {name: port for name, port in ports.items()
++              if port["direction"] == "input"
++              and (context["purely_combinational"] or name not in {"clk", "rst_n"})}
++    edge_inputs = normalized["edge_inputs"]
++    if (not isinstance(edge_inputs, (list, tuple))
++            or any(not isinstance(name, str) or name not in inputs or name in {"clk", "rst_n"}
++                   for name in edge_inputs)
++            or len(edge_inputs) != len(set(edge_inputs))):
++        raise HarnessError("edge_inputs must name unique literal data inputs, excluding clk/rst_n")
++    normalized["edge_inputs"] = list(edge_inputs)
++    payloads = normalized["payloads"]
++    if not isinstance(payloads, dict):
++        raise HarnessError("payloads must be a literal mapping")
++    for payload, valid in payloads.items():
++        if payload not in outputs or (valid is not None and
++                (not isinstance(valid, str) or valid not in outputs or outputs[valid]["width"] != 1)):
++            raise HarnessError("Invalid payload or one-bit valid output")
++        if valid is not None and valid in payloads:
++            raise HarnessError("Valid controls must remain required-known controls")
++    wired = normalized["wired_and"]
++    if not isinstance(wired, dict) or (wired and not context["allow_wired_and"]):
++        raise HarnessError("Wired-AND metadata is invalid or this primitive is not qualified")
++    for line, releases in wired.items():
++        if line not in inputs or inputs[line]["width"] != 1:
++            raise HarnessError("Wired-AND line must be a one-bit data input")
++        if not isinstance(releases, (list, tuple)) or not releases:
++            raise HarnessError("Wired-AND releases must be a nonempty literal sequence")
++        if any(not isinstance(name, str) or name not in outputs or outputs[name]["width"] != 1
++               or name in payloads for name in releases) or len(set(releases)) != len(releases):
++            raise HarnessError("Wired-AND releases must be unique one-bit known output controls")
++        wired[line] = list(releases)
++    behavior, requirement = normalized["async_reset_behavior"], normalized["async_reset_requirement"]
++    if behavior is not None or requirement is not None:
++        if (context["purely_combinational"] or not normalized["reset_case"]
++                or not isinstance(behavior, str) or behavior not in normalized["behaviors"]
++                or requirement != context["behaviors"].get(behavior)):
++            raise HarnessError("Async assertion must bind a reset case to exact public behavior text")
++    seed = normalized["seed"]
++    if seed is not None and (type(seed) is not int or not 0 <= seed < 2**63):
++        raise HarnessError("seed must be a nonnegative bounded literal integer")
++    return normalized
++
++
++def _has_own_yield(function: ast.FunctionDef) -> bool:
++    pending: list[ast.AST] = list(function.body)
++    while pending:
++        node = pending.pop()
++        if isinstance(node, (ast.Yield, ast.YieldFrom)):
++            return True
++        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)):
++            pending.extend(ast.iter_child_nodes(node))
++    return False
++
++
++def validate_generated_test(
++    content: str, context: dict[str, Any], *, module_name: str,
++) -> dict[str, dict[str, Any]]:
++    """Admission checks only; the container remains the Python isolation boundary."""
++    if not _identifier(module_name).startswith("test_") or len(content.encode("utf-8")) > MAX_SOURCE_BYTES:
++        raise HarnessError("Generated tests require bounded test_*.py files")
++    try:
++        tree = ast.parse(content)
++    except SyntaxError as error:
++        raise HarnessError(f"Invalid generated Python: {error.msg}") from None
++    if sum(1 for _ in ast.walk(tree)) > 20_000:
++        raise HarnessError("Generated test AST exceeds its size limit")
++    harness_imports: set[str] = set()
++    random_constructors: set[str] = set()
++    for node in ast.walk(tree):
++        if isinstance(node, (ast.AsyncFunctionDef, ast.Await, ast.AsyncFor, ast.AsyncWith)):
++            raise HarnessError("Generated entries and helpers must be synchronous")
++        if isinstance(node, (ast.Import, ast.ImportFrom)):
++            if node not in tree.body:
++                raise HarnessError("Generated imports must be module-level")
++            if any(alias.asname is not None or alias.name == "*" or alias.name.startswith("_")
++                   for alias in node.names):
++                raise HarnessError("Aliased, wildcard and private imports are not allowed")
++            if isinstance(node, ast.Import):
++                if any(alias.name not in {"random", "math"} for alias in node.names):
++                    raise HarnessError("Only math/random module imports are allowed")
++            else:
++                if node.level or node.module not in {"sa_tb", "math", "random"}:
++                    raise HarnessError("Generated import is not allowed")
++                names = {alias.name for alias in node.names}
++                if node.module == "sa_tb" and not names <= PUBLIC_API:
++                    raise HarnessError("Unknown public sa_tb import")
++                if node.module == "sa_tb":
++                    harness_imports.update(names)
++                elif names & PUBLIC_API:
++                    raise HarnessError("Harness API names must come from sa_tb")
++                if node.module == "random" and names != {"Random"}:
++                    raise HarnessError("Use a local explicitly seeded Random instance")
++                if node.module == "random":
++                    random_constructors.add("Random")
++        if isinstance(node, ast.Name):
++            if node.id in DANGEROUS_NAMES or node.id.startswith("__"):
++                raise HarnessError(f"Generated test name is not allowed: {node.id}")
++            if isinstance(node.ctx, (ast.Store, ast.Del)) and (node.id in PUBLIC_API | {"math", "random"} or node.id.startswith("test_")):
++                raise HarnessError("Harness API and registered test names cannot be rebound")
++        if isinstance(node, ast.arg) and (node.arg in PUBLIC_API | DANGEROUS_NAMES | {"math", "random"}
++                                         or node.arg.startswith(("__", "test_"))):
++            raise HarnessError("Generated parameters cannot shadow harness or protected names")
++        if isinstance(node, ast.Attribute):
++            if node.attr.startswith("_") or node.attr in DANGEROUS_ATTRIBUTES or node.attr.startswith(("exec", "spawn", "posix_spawn")):
++                raise HarnessError(f"Generated attribute is not allowed: {node.attr}")
++            if isinstance(node.value, ast.Name) and node.value.id == "random" and node.attr != "Random":
++                raise HarnessError("Use a local explicitly seeded Random instance")
++        if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
++            if node.name in PUBLIC_API or node.name in {"math", "random"}:
++                raise HarnessError("Harness API/import names cannot be shadowed")
++    if "case" not in harness_imports:
++        raise HarnessError("Generated module must import case from sa_tb")
++    cases: dict[str, dict[str, Any]] = {}
++    permitted_case_calls: set[int] = set()
++    top_functions = {id(node) for node in tree.body if isinstance(node, ast.FunctionDef)}
++    for node in ast.walk(tree):
++        if isinstance(node, ast.ClassDef) and node.decorator_list:
++            raise HarnessError("Generated classes cannot have decorators")
++        if not isinstance(node, ast.FunctionDef):
++            continue
++        is_case = node.name.startswith("test_")
++        if not is_case:
++            if node.decorator_list:
++                raise HarnessError("Only registered cases may have a decorator")
++            continue
++        _identifier(node.name)
++        arguments = node.args
++        if (id(node) not in top_functions or arguments.posonlyargs or arguments.args
++                or arguments.vararg or arguments.kwonlyargs or arguments.kwarg
++                or len(node.decorator_list) != 1 or not _has_own_yield(node)):
++            raise HarnessError("test_* entries must be top-level no-argument synchronous generators")
++        decorator = node.decorator_list[0]
++        if (not isinstance(decorator, ast.Call) or not isinstance(decorator.func, ast.Name)
++                or decorator.func.id != "case" or decorator.args):
++            raise HarnessError("Every test_* entry requires exactly @case with literal keyword metadata")
++        keywords = [keyword.arg for keyword in decorator.keywords]
++        if None in keywords or len(set(keywords)) != len(keywords):
++            raise HarnessError("Case metadata cannot use unpacking or duplicate keys")
++        try:
++            metadata = {keyword.arg: ast.literal_eval(keyword.value) for keyword in decorator.keywords}
++        except (ValueError, TypeError, SyntaxError) as error:
++            raise HarnessError("Case metadata must be literal") from error
++        if node.name in cases:
++            raise HarnessError("Duplicate registered test name")
++        cases[node.name] = normalize_case_metadata(metadata, context)
++        permitted_case_calls.add(id(decorator))
++    if not cases or len(cases) > MAX_CASES:
++        raise HarnessError("Generated module must register a bounded nonempty set of cases")
++    for node in ast.walk(tree):
++        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "case" and id(node) not in permitted_case_calls:
++            raise HarnessError("case may only be used as the registration decorator")
++        if isinstance(node, ast.Call):
++            constructor = (isinstance(node.func, ast.Name) and node.func.id in random_constructors) or (
++                isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name)
++                and node.func.value.id == "random" and node.func.attr == "Random")
++            if constructor:
++                seeds = node.args if not node.keywords else [keyword.value for keyword in node.keywords if keyword.arg == "x"]
++                if ((node.args and node.keywords) or len(node.keywords) > 1 or len(seeds) != 1
++                        or not isinstance(seeds[0], ast.Constant) or type(seeds[0].value) is not int):
++                    raise HarnessError("Random requires one fixed literal integer seed")
++    parents = {id(child): node for node in ast.walk(tree) for child in ast.iter_child_nodes(node)}
++    for node in ast.walk(tree):
++        if isinstance(node, ast.Name) and node.id == "case":
++            parent = parents.get(id(node))
++            if not isinstance(parent, ast.Call) or parent.func is not node or id(parent) not in permitted_case_calls:
++                raise HarnessError("case may only name the registration decorator")
++    return cases
++
++
++@dataclass(frozen=True)
++class PreparedHarness:
++    input_dir: Path
++    helper_path: Path
++    context_path: Path
++    context_bytes: bytes
++    source_sha256: str
++    tests_sha256: str
++    helper_sha256: str
++
++    @property
++    def context(self) -> dict[str, Any]:
++        return json.loads(self.context_bytes)
++
++
++def prepare_harness_input(
++    input_dir: Path, test_module: str, context: dict[str, Any], image_identity: dict[str, Any],
++) -> PreparedHarness:
++    """Prepare only a trusted helper/context inside an already copied input snapshot."""
++    if input_dir.is_symlink() or not input_dir.is_dir():
++        raise HarnessError("Harness input must be a real snapshot directory")
++    input_dir = input_dir.resolve()
++    test_module = _identifier(test_module)
++    image = validate_image_identity(image_identity)
++    context = json.loads(_canonical(context))
++    if (context.get("schema_version"), context.get("mode"), context.get("api_version")) != (SCHEMA_VERSION, MODE, API_VERSION):
++        raise HarnessError("Unsupported harness context")
++    source_sha = _flat_digest(input_dir, "src", ".v")
++    tests_sha = _flat_digest(input_dir, "test", ".py")
++    selected_cases = None
++    for path in sorted((input_dir / "test").iterdir()):
++        cases = validate_generated_test(_read_bytes(input_dir, path, MAX_SOURCE_BYTES).decode("utf-8"), context, module_name=path.stem)
++        if path.stem == test_module:
++            selected_cases = cases
++    if selected_cases is None:
++        raise HarnessError("Selected generated test module is missing")
++    if len(selected_cases) < 4:
++        raise HarnessError("Selected generated module must register at least four cases")
++    helper_source = Path(__file__).with_name("sa_tb.py")
++    if helper_source.is_symlink():
++        raise HarnessError("Trusted helper source cannot be a symlink")
++    helper_bytes = _read_bytes(helper_source.parent, helper_source, MAX_SOURCE_BYTES)
++    helper_sha = hashlib.sha256(helper_bytes).hexdigest()
++    context.update(helper_sha256=helper_sha, expected_cases=list(selected_cases),
++                   registered_cases=selected_cases, image_identity=image)
++    context["context_sha256"] = context_digest(context)
++    context_bytes = _canonical(context) + b"\n"
++    if len(context_bytes) > MAX_JSON_BYTES:
++        raise HarnessError("Frozen context exceeds its size limit")
++    trusted = input_dir / "trusted"
++    trusted.mkdir(mode=0o700, exist_ok=False)
++    helper_path, context_path = trusted / "sa_tb.py", trusted / "harness.json"
++    _write_new(helper_path, helper_bytes)
++    _write_new(context_path, context_bytes)
++    if (_flat_digest(input_dir, "src", ".v") != source_sha
++            or _flat_digest(input_dir, "test", ".py") != tests_sha
++            or _read_bytes(input_dir, helper_path, MAX_SOURCE_BYTES) != helper_bytes
++            or _read_bytes(input_dir, context_path) != context_bytes):
++        raise HarnessError("Harness inputs changed during preparation")
++    return PreparedHarness(input_dir, helper_path, context_path, context_bytes, source_sha, tests_sha, helper_sha)
++
++
++def _exact_names(value: Any, expected: set[str], label: str) -> None:
++    if (not isinstance(value, list) or any(not isinstance(name, str) for name in value)
++            or len(value) != len(set(value)) or set(value) != expected):
++        raise EvidenceError(f"{label} names differ from the authoritative registered cases")
++
++
++def _counter(record: dict[str, Any], name: str) -> int:
++    value = record.get(name)
++    if type(value) is not int or not 0 <= value <= 1_000_000_000:
++        raise EvidenceError(f"Invalid {name} evidence counter")
++    return value
++
++
++def _diagnostic(value: Any, name: str, kind: str) -> dict[str, Any]:
++    if not isinstance(value, dict) or value.get("kind") != kind or value.get("test") != name:
++        raise EvidenceError("A failed verdict lacks its corresponding structured diagnostic")
++    if not isinstance(value.get("message"), str) or not value["message"]:
++        raise EvidenceError("A failed verdict has no diagnostic message")
++    result = {key: value[key] for key in ("kind", "test", "message", "phase", "cycle", "signal", "expected", "actual", "trace") if key in value}
++    for key in ("message", "trace"):
++        if key in result:
++            if not isinstance(result[key], str):
++                raise EvidenceError("Diagnostic text has an invalid type")
++            result[key] = result[key].encode("utf-8")[:2048].decode("utf-8", errors="ignore")
++    for key in ("phase", "signal"):
++        if key in result:
++            if not isinstance(result[key], str):
++                raise EvidenceError("Diagnostic identity has an invalid type")
++            result[key] = result[key][:128]
++    if "cycle" in result and (type(result["cycle"]) is not int or result["cycle"] < 0):
++        raise EvidenceError("Diagnostic cycle has an invalid type")
++    for key in ("expected", "actual"):
++        if key in result:
++            if result[key] is not None and type(result[key]) not in (str, int):
++                raise EvidenceError("Diagnostic digital value has an invalid type")
++            if isinstance(result[key], str):
++                result[key] = result[key][:2048]
++    return result
++
++
++def _validate_witnesses(record: dict[str, Any], context: dict[str, Any]) -> None:
++    witnesses = record.get("witnesses")
++    if not isinstance(witnesses, list) or len(witnesses) > 256:
++        raise EvidenceError("Case stimulus witnesses are missing or unbounded")
++    inputs = {port["name"]: port["width"] for port in context["ports"] if port["direction"] == "input"}
++    for witness in witnesses:
++        if (not isinstance(witness, dict) or type(witness.get("cycle")) is not int
++                or witness["cycle"] < 0 or not isinstance(witness.get("phase"), str)
++                or not 0 < len(witness["phase"]) <= 64):
++            raise EvidenceError("Invalid stimulus witness identity")
++        for field in ("inputs", "intent"):
++            values = witness.get(field)
++            if not isinstance(values, dict):
++                raise EvidenceError("Stimulus witnesses require resolved inputs and separate intent")
++            for name, value in values.items():
++                if (name not in inputs or type(value) is not int or not 0 <= value < 2 ** inputs[name]
++                        or (field == "intent" and not context["purely_combinational"]
++                            and name in {"clk", "rst_n"})):
++                    raise EvidenceError("Stimulus witness contains an invalid digital input value")
++
++
++def validate_evidence(
++    context: dict[str, Any], evidence: dict[str, Any], cases: list[dict[str, Any]],
++    runtime: dict[str, Any], *, execution_ok: bool,
++) -> dict[str, Any]:
++    """Reconcile all verdicts before considering the minimum test-quality gate."""
++    identities = {
++        "schema_version": SCHEMA_VERSION, "mode": MODE, "api_version": API_VERSION,
++        "helper_origin": HELPER_ORIGIN, "helper_sha256": context["helper_sha256"],
++        "context_sha256": context["context_sha256"], "image_identity": context["image_identity"],
++        "clock_period_ps": context["clock_period_ps"],
++    }
++    if context_digest(context) != context.get("context_sha256"):
++        raise EvidenceError("Frozen context hash is invalid")
++    if (type(evidence.get("schema_version")) is not int or type(evidence.get("api_version")) is not int
++            or any(evidence.get(key) != value for key, value in identities.items())):
++        raise HarnessError("Loaded helper/context/image provenance does not match the frozen input")
++    expected = set(context["expected_cases"])
++    _exact_names(context["expected_cases"], set(context["registered_cases"]), "Context")
++    _exact_names(evidence.get("registered_cases"), expected, "Runtime registration")
++    _exact_names([case.get("test") for case in cases], expected, "XML")
++    records = evidence.get("cases")
++    if not isinstance(records, list) or any(not isinstance(record, dict) for record in records):
++        raise EvidenceError("Case evidence must be an array of records")
++    _exact_names([record.get("name") for record in records], expected, "Helper evidence")
++    xml = {case["test"]: case for case in cases}
++    observed = {"passed": sum(case.get("ok") is True for case in cases),
++                "failed": sum(case.get("ok") is False for case in cases),
++                "skipped": sum(case.get("ok") is None for case in cases)}
++    if any(type(runtime.get(key)) is not int or runtime[key] != count for key, count in observed.items()):
++        raise EvidenceError("Runtime counts disagree with actual XML cases")
++    if type(runtime.get("ok")) is not bool:
++        raise EvidenceError("Runtime result lacks a boolean success verdict")
++    diagnostic = None
++    for record in records:
++        name = record["name"]
++        metadata = context["registered_cases"][name]
++        if any(record.get(key) != value for key, value in metadata.items()):
++            raise HarnessError("Executed case declarations differ from frozen source metadata")
++        if record.get("entered") is not True or record.get("completed") is not True:
++            raise EvidenceError("A registered case did not complete")
++        outcome = record.get("outcome")
++        if outcome not in {"passed", "functional_assertion", "harness_error", "infrastructure_error"}:
++            raise EvidenceError("Unknown helper case outcome")
++        if xml[name].get("ok") is not (outcome == "passed"):
++            raise EvidenceError("XML verdict disagrees with the corresponding helper verdict")
++        for counter in COUNTERS:
++            _counter(record, counter)
++        _validate_witnesses(record, context)
++        if outcome != "passed":
++            candidate = _diagnostic(record.get("first_diagnostic"), name, outcome)
++            if diagnostic is None or (diagnostic["kind"] == "functional_assertion" and outcome != "functional_assertion"):
++                diagnostic = candidate
++    if not execution_ok:
++        raise EvidenceError("Simulator process did not exit successfully")
++    all_passed = observed["passed"] == len(expected) and observed["failed"] == observed["skipped"] == 0
++    if runtime["ok"] != all_passed:
++        raise EvidenceError("Runtime success disagrees with the complete XML verdict set")
++    result: dict[str, Any] = {"ok": False, **observed, "cases": cases, "harness_evidence_valid": True,
++                              "quality_gate_passed": False}
++    if not all_passed:
++        result.update(error="Generated cases failed", first_diagnostic=diagnostic)
++        if diagnostic is not None:
++            result["error_kind"] = diagnostic["kind"]
++        return result
++    if len(expected) < 4:
++        raise HarnessError("Verification requires at least four distinct passing registered cases")
++    for record in records:
++        if _counter(record, "cycle_count") < 1 or _counter(record, "cycle_comparisons") + _counter(record, "protocol_checks") < 1:
++            raise HarnessError("Each case must execute a Cycle and a Cycle equality or protocol check")
++        if not context["purely_combinational"] and (_counter(record, "reset_assertions") < 1 or _counter(record, "reset_edges") < 1):
++            raise HarnessError("Each sequential case requires actual reset assertion and clock edges")
++        if record["async_reset_behavior"] is not None and _counter(record, "async_assertion_checks") < 1:
++            raise HarnessError("Declared asynchronous assertion was not actually checked")
++    for field in ("behaviors", "plans"):
++        covered = {identifier for record in records for identifier in record[field]}
++        if covered != set(context[field]):
++            raise HarnessError(f"Passing case declarations do not cover the frozen {field}")
++    data_inputs = {port["name"] for port in context["ports"]
++                   if port["direction"] == "input" and port["name"] not in {"clk", "rst_n"}}
++    declared_edges = {name for record in records for name in record["edge_inputs"]}
++    if declared_edges != data_inputs:
++        raise HarnessError("Passing case declarations require edge coverage for every data input")
++    for record in records:
++        witnessed = {name for witness in record["witnesses"] for name in witness["inputs"]}
++        if not set(record["edge_inputs"]) <= witnessed:
++            raise HarnessError("Each declared edge input needs an actual driven witness in that case")
++    for tag, required in context["required_case_tags"].items():
++        if required and not any(record[tag] is True for record in records):
++            raise HarnessError(f"Required declared {tag} is absent")
++    result.update(ok=True, quality_gate_passed=True)
++    return result
++
++
++async def _run_harness_tests(
++    sandbox: DockerSandbox, input_dir: Path, output_dir: Path, top: str, test_module: str,
++    context: dict[str, Any], image_identity: dict[str, Any], *, timeout: float = 60,
++) -> dict[str, Any]:
++    """Run the new route using a sandbox pinned to its observed image ID."""
++    _identifier(top)
++    _identifier(test_module)
++    if top != context.get("top_module"):
++        raise HarnessError("Harness top differs from the frozen public specification")
++    image = validate_image_identity(image_identity)
++    if sandbox.image != image["image_id"]:
++        raise HarnessError("Harness sandbox must execute the observed immutable image ID")
++    if type(timeout) not in (int, float) or not math.isfinite(timeout) or timeout <= 0:
++        raise HarnessError("Harness timeout must be finite and positive")
++    if output_dir.is_symlink():
++        raise HarnessError("Harness output cannot be a symlink")
++    output_dir = output_dir.resolve()
++    resolved_input = input_dir.resolve()
++    if output_dir.is_relative_to(resolved_input) or resolved_input.is_relative_to(output_dir):
++        raise HarnessError("Read-only input and writable output directories must not overlap")
++    if any((output_dir / name).exists() or (output_dir / name).is_symlink()
++           for name in ("result.json", "test_results.xml", "sa_tb_evidence.json")):
++        raise HarnessError("Harness output must not contain prior execution evidence")
++    prepared = prepare_harness_input(input_dir, test_module, context, image)
++    output_dir.mkdir(parents=True, exist_ok=True)
++    execution = await sandbox.run(
++        ["python3", "/opt/silicon-agent/runtime.py", "sim", "--top", top, "--test-module", test_module],
++        input_dir=prepared.input_dir, output_dir=output_dir, timeout=timeout,
++        require_pdk=False, trusted_test_helper=prepared.helper_path,
++    )
++    frozen = prepared.context
++    result: dict[str, Any] = {
++        "ok": False, "mode": MODE, "api_version": API_VERSION,
++        "top_module": top, "test_module": test_module,
++        "helper_sha256": prepared.helper_sha256, "context_sha256": frozen["context_sha256"],
++        "source_sha256": prepared.source_sha256, "tests_sha256": prepared.tests_sha256,
++        "image_identity": image, "quality_gate_passed": False,
++        "log_path": "tool.log", "results_path": "test_results.xml",
++        "evidence_path": "sa_tb_evidence.json",
++        "input_artifacts": {"context": "trusted/harness.json", "helper": "trusted/sa_tb.py"},
++        "log_tail": execution.log_tail, "timed_out": execution.timed_out,
++        "exit_code": execution.returncode,
++    }
++    runtime: dict[str, Any] = {}
++    try:
++        if (_flat_digest(prepared.input_dir, "src", ".v") != prepared.source_sha256
++                or _flat_digest(prepared.input_dir, "test", ".py") != prepared.tests_sha256
++                or hashlib.sha256(_read_bytes(prepared.input_dir, prepared.helper_path, MAX_SOURCE_BYTES)).hexdigest() != prepared.helper_sha256
++                or _read_bytes(prepared.input_dir, prepared.context_path) != prepared.context_bytes):
++            raise HarnessError("Harness snapshot changed during execution")
++        runtime = _read_json(output_dir, output_dir / "result.json")
++        _read_bytes(output_dir, output_dir / "test_results.xml")
++        cases = parse_test_cases(output_dir, output_dir / "test_results.xml")
++        result.update(cases=cases, passed=sum(case["ok"] is True for case in cases),
++                      failed=sum(case["ok"] is False for case in cases),
++                      skipped=sum(case["ok"] is None for case in cases))
++        evidence = _read_json(output_dir, output_dir / "sa_tb_evidence.json")
++        result.update(validate_evidence(frozen, evidence, cases, runtime, execution_ok=execution.ok))
++    except (OSError, ValueError, ET.ParseError) as error:
++        kind = "harness_error" if isinstance(error, HarnessError) else "infrastructure_error"
++        message = "Simulator timed out" if execution.timed_out else str(error)
++        if kind == "infrastructure_error" and not execution.timed_out and isinstance(runtime.get("error"), str):
++            message = f"{runtime['error'][:2048]} ({message})"
++        result.update(ok=False, quality_gate_passed=False, error=message, error_kind=kind,
++                      first_diagnostic={"kind": kind, "test": None, "message": message})
++    return result
++
++
++async def run_harness_tests(
++    sandbox: DockerSandbox, input_dir: Path, output_dir: Path, top: str, test_module: str,
++    context: dict[str, Any], image_identity: dict[str, Any], *, timeout: float = 60,
++) -> dict[str, Any]:
++    """Normalize admission failures without changing any legacy test route."""
++    try:
++        return await _run_harness_tests(sandbox, input_dir, output_dir, top, test_module,
++                                        context, image_identity, timeout=timeout)
++    except (OSError, ValueError) as error:
++        kind = "harness_error" if isinstance(error, HarnessError) else "infrastructure_error"
++        message = str(error).encode("utf-8")[:2048].decode("utf-8", errors="ignore")
++        return {"ok": False, "mode": MODE, "api_version": API_VERSION, "quality_gate_passed": False,
++                "error_kind": kind, "error": message,
++                "first_diagnostic": {"kind": kind, "test": None, "message": message}}
+diff --git a/backend/app/eda/sa_tb.py b/backend/app/eda/sa_tb.py
+new file mode 100644
+index 0000000..f590e3d
+--- /dev/null
++++ b/backend/app/eda/sa_tb.py
+@@ -0,0 +1,577 @@
++"""Trusted cocotb adapter for admitted synchronous generator cases.
++
++Single rising-edge clock/active-low rst_n or combinational designs only. The
++clock period is the host's nominal target rounded to integer ps, not a measurement.
++Metadata declares coverage and seed use; it does not prove semantic coverage or
++seed a local model.
++Host validation must admit the source and enforce the all-cases/XML/proof gate.
++"""
++
++from __future__ import annotations
++
++from dataclasses import dataclass as _dataclass
++import functools as _functools
++import hashlib as _hashlib
++import inspect as _inspect
++import json as _json
++import os as _os
++from pathlib import Path as _Path
++import re as _re
++import tempfile as _tempfile
++import traceback as _traceback
++from types import MappingProxyType as _MappingProxyType
++from collections.abc import Mapping as _Mapping
++
++import cocotb as _cocotb
++from cocotb.triggers import ReadOnly as _ReadOnly, ReadWrite as _ReadWrite, Timer as _Timer
++
++API_VERSION = 1
++__all__ = ("case", "Reset", "Cycle", "OBSERVE", "check", "API_VERSION")
++_MODE = "sa_tb_v1"
++_ORIGIN = "/opt/silicon-python/sa_tb.py"
++_CONTEXT_PATH = _Path("/input/trusted/harness.json")
++_EVIDENCE_PATH = _Path("/output/sa_tb_evidence.json")
++_MAX_BYTES = 2 * 1024 * 1024
++_MAX_WITNESSES = 8
++_CURRENT = None
++
++
++class _HarnessError(RuntimeError):
++    pass
++
++
++class _FunctionalAssertion(AssertionError):
++    pass
++
++
++def _clip(value: object, limit: int = 512) -> str:
++    return str(value).encode("utf-8")[:limit].decode("utf-8", errors="ignore")
++
++
++def _fail(kind: str, message: str, *, phase=None, signal=None, expected=None, actual=None):
++    diagnostic = {"kind": kind, "message": _clip(message)}
++    if _CURRENT is not None:
++        diagnostic.update(test=_CURRENT.record["name"], cycle=_CURRENT.record["cycle_count"] + 1)
++    for key, value in (("phase", phase), ("signal", signal), ("expected", expected), ("actual", actual)):
++        if value is not None:
++            diagnostic[key] = _clip(value, 256) if isinstance(value, str) else value
++    prefix = "SA_TB " + " ".join(f"{key}={diagnostic[key]}" for key in
++                                 ("test", "cycle", "phase", "signal", "expected", "actual")
++                                 if key in diagnostic)
++    error = (_FunctionalAssertion if kind == "functional_assertion" else _HarnessError)(
++        _clip(prefix + ": " + message, 1024))
++    error.diagnostic = diagnostic
++    raise error
++
++
++def _require(condition: bool, message: str):
++    if not condition:
++        _fail("harness_error", message)
++
++
++def _canonical(value: object) -> bytes:
++    return _json.dumps(value, sort_keys=True, separators=(",", ":"),
++                       ensure_ascii=False, allow_nan=False).encode("utf-8")
++
++
++def _bounded_read(path: _Path) -> bytes:
++    with path.open("rb") as stream:
++        value = stream.read(_MAX_BYTES + 1)
++    _require(len(value) <= _MAX_BYTES, "Trusted context/helper exceeds size limit")
++    return value
++
++
++def _load_context() -> tuple[dict, str]:
++    _require(str(_Path(__file__)) == _ORIGIN, "Helper imported from an untrusted origin")
++    _require(_cocotb.__version__ == "2.0.1", "This helper requires cocotb 2.0.1")
++    context = _json.loads(_bounded_read(_CONTEXT_PATH))
++    _require(type(context) is dict, "Harness context must be an object")
++    digest = context.get("context_sha256")
++    _require(isinstance(digest, str) and _re.fullmatch(r"[0-9a-f]{64}", digest) is not None,
++             "Missing context SHA256")
++    unsigned = {key: value for key, value in context.items() if key != "context_sha256"}
++    _require(_hashlib.sha256(_canonical(unsigned)).hexdigest() == digest, "Context SHA256 mismatch")
++    helper_hash = _hashlib.sha256(_bounded_read(_Path(_ORIGIN))).hexdigest()
++    _require(context.get("helper_sha256") == helper_hash, "Mounted helper SHA256 mismatch")
++    _require(context.get("schema_version") == 1 and type(context.get("schema_version")) is int
++             and context.get("mode") == _MODE and context.get("api_version") == API_VERSION
++             and type(context.get("api_version")) is int, "Unsupported harness context version")
++    _require(type(context.get("purely_combinational")) is bool, "Missing combinational mode")
++    _require(isinstance(context.get("top_module"), str)
++             and _re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", context["top_module"]) is not None,
++             "Invalid top module")
++    identity = context.get("image_identity")
++    _require(type(identity) is dict and identity.get("authority") == "docker_image_inspect"
++             and isinstance(identity.get("reference"), str) and bool(identity["reference"])
++             and isinstance(identity.get("observed_at"), str) and bool(identity["observed_at"])
++             and isinstance(identity.get("image_id"), str)
++             and _re.fullmatch(r"sha256:[0-9a-f]{64}", identity["image_id"]) is not None,
++             "Missing trusted-host image observation")
++    ports = context.get("ports")
++    _require(type(ports) is list and 1 <= len(ports) <= 64, "Invalid port context")
++    names = set()
++    for port in ports:
++        _require(type(port) is dict and isinstance(port.get("name"), str)
++                 and _re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", port["name"]) is not None
++                 and port.get("direction") in ("input", "output")
++                 and type(port.get("width")) is int and 1 <= port["width"] <= 1024,
++                 "Invalid frozen port")
++        _require(port["name"] not in names, "Duplicate frozen port")
++        names.add(port["name"])
++    for field, prefix in (("behaviors", "B"), ("plans", "T")):
++        values = context.get(field)
++        _require(type(values) is dict and 1 <= len(values) <= 32
++                 and set(values) == {f"{prefix}{index}" for index in range(1, len(values) + 1)}
++                 and all(isinstance(value, str) and value.strip() for value in values.values()),
++                 f"Invalid frozen {field}")
++    expected, registered = context.get("expected_cases"), context.get("registered_cases")
++    _require(type(expected) is list and 4 <= len(expected) <= 1000
++             and all(isinstance(name, str) and name.startswith("test_") for name in expected)
++             and len(set(expected)) == len(expected) and type(registered) is dict
++             and set(expected) == set(registered), "Invalid expected case manifest")
++    _require(type(context.get("allow_wired_and")) is bool, "Missing wired-AND qualification flag")
++    return context, helper_hash
++
++
++_CONTEXT, _HELPER_HASH = _load_context()
++_PORTS = {port["name"]: port for port in _CONTEXT["ports"]}
++_INPUTS = {name: port for name, port in _PORTS.items() if port["direction"] == "input"}
++_OUTPUTS = {name: port for name, port in _PORTS.items() if port["direction"] == "output"}
++_SEQUENTIAL = not _CONTEXT["purely_combinational"]
++_PERIOD_PS = _CONTEXT.get("clock_period_ps")
++_require((type(_PERIOD_PS) is int and _PERIOD_PS >= 4) if _SEQUENTIAL else _PERIOD_PS is None,
++         "Sequential clock_period_ps must be a positive rounded period; combinational uses null")
++_LOW_PS = _PERIOD_PS // 2 if _SEQUENTIAL else 0
++_HIGH_PS = _PERIOD_PS - _LOW_PS if _SEQUENTIAL else 0
++_GAP_PS = min(1000, _LOW_PS // 2) if _SEQUENTIAL else 0
++_PRE_PS = _LOW_PS - _GAP_PS
++if _SEQUENTIAL:
++    _require(all(name in _INPUTS and _INPUTS[name]["width"] == 1 for name in ("clk", "rst_n")),
++             "Sequential harness requires scalar input clk and rst_n")
++_DATA_INPUTS = {name: port for name, port in _INPUTS.items()
++                if not (_SEQUENTIAL and name in ("clk", "rst_n"))}
++_EVIDENCE = {"schema_version": 1, "mode": _MODE, "api_version": API_VERSION,
++             "helper_origin": _ORIGIN, "helper_sha256": _HELPER_HASH,
++             "context_sha256": _CONTEXT["context_sha256"],
++             "image_identity": _CONTEXT["image_identity"], "clock_period_ps": _PERIOD_PS,
++             "registered_cases": [], "cases": []}
++
++
++def _save_evidence():
++    encoded = _canonical(_EVIDENCE)
++    if len(encoded) + 1 > _MAX_BYTES:
++        for record in _EVIDENCE["cases"]:
++            # The first capture includes every declared edge input. Retain it so
++            # compaction cannot discard the only driven witness for a declaration.
++            retained = record["witnesses"][:1] if record["edge_inputs"] else []
++            record["witnesses_omitted"] += len(record["witnesses"]) - len(retained)
++            record["witnesses"] = retained
++        encoded = _canonical(_EVIDENCE)
++    _require(len(encoded) + 1 <= _MAX_BYTES, "Case evidence exceeds size limit")
++    with _tempfile.NamedTemporaryFile(dir=_EVIDENCE_PATH.parent, prefix=".sa-tb-", delete=False) as stream:
++        temporary = _Path(stream.name)
++        try:
++            stream.write(encoded + b"\n")
++            stream.flush()
++            _os.replace(temporary, _EVIDENCE_PATH)
++        finally:
++            temporary.unlink(missing_ok=True)
++
++
++class _Observe:
++    def __repr__(self):
++        return "OBSERVE"
++
++
++OBSERVE = _Observe()
++
++
++def _frozen_mapping(value):
++    _require(isinstance(value, _Mapping), "Request values must be mappings")
++    # Only pin mappings use this function: normalize exact Python flags before
++    # strict integer validation, comparison, drive, and evidence recording.
++    return _MappingProxyType({name: int(pin) if type(pin) is bool else pin
++                              for name, pin in value.items()})
++
++
++@_dataclass(frozen=True)
++class Reset:
++    inputs: _Mapping
++    after: _Mapping
++    cycles: int = 2
++    asserted_before_edge: _Mapping | None = None
++
++    def __post_init__(self):
++        object.__setattr__(self, "inputs", _frozen_mapping(self.inputs))
++        object.__setattr__(self, "after", _frozen_mapping(self.after))
++        if self.asserted_before_edge is not None:
++            object.__setattr__(self, "asserted_before_edge", _frozen_mapping(self.asserted_before_edge))
++
++
++@_dataclass(frozen=True)
++class Cycle:
++    inputs: _Mapping
++    after: _Mapping
++    before: _Mapping | None = None
++
++    def __post_init__(self):
++        object.__setattr__(self, "inputs", _frozen_mapping(self.inputs))
++        object.__setattr__(self, "after", _frozen_mapping(self.after))
++        if self.before is not None:
++            object.__setattr__(self, "before", _frozen_mapping(self.before))
++
++
++def check(condition: bool, message: str):
++    _require(_CURRENT is not None and _CURRENT.record["cycle_count"] > 0,
++             "Protocol checks require an actual completed Cycle")
++    _require(type(condition) is bool and isinstance(message, str) and bool(message.strip()),
++             "check requires a boolean and a nonempty message")
++    _CURRENT.record["protocol_checks"] += 1
++    if not condition:
++        _fail("functional_assertion", message, phase="protocol")
++
++
++def _metadata(*, behaviors, plans, reset_case, edge_case, edge_inputs, payloads, wired_and,
++              async_reset_behavior, async_reset_requirement, seed):
++    for field, values in (("behaviors", behaviors), ("plans", plans)):
++        _require(type(values) in (tuple, list) and values
++                 and all(isinstance(value, str) and value in _CONTEXT[field] for value in values)
++                 and len(set(values)) == len(values),
++                 f"Invalid case {field}")
++    _require(type(reset_case) is bool and type(edge_case) is bool, "Case tags must be boolean")
++    _require(type(edge_inputs) in (tuple, list)
++             and all(isinstance(name, str) and name in _DATA_INPUTS
++                     and name not in ("clk", "rst_n") for name in edge_inputs)
++             and len(set(edge_inputs)) == len(edge_inputs),
++             "edge_inputs must name unique literal data inputs, excluding clk/rst_n")
++    _require((payloads is None or isinstance(payloads, _Mapping))
++             and (wired_and is None or isinstance(wired_and, _Mapping)), "Case bindings must be mappings")
++    payloads, wired_and = dict(payloads or {}), dict(wired_and or {})
++    for name, valid in payloads.items():
++        _require(name in _OUTPUTS and (valid is None or
++                 (isinstance(valid, str) and valid in _OUTPUTS
++                  and _OUTPUTS[valid]["width"] == 1 and valid not in payloads)),
++                 "Payload validity must reference a scalar output control")
++    _require(not wired_and or _CONTEXT["allow_wired_and"], "Wired-AND primitive is not qualified")
++    for name, releases in wired_and.items():
++        _require(name in _DATA_INPUTS and _DATA_INPUTS[name]["width"] == 1
++                 and type(releases) in (list, tuple) and releases
++                 and all(isinstance(release, str) and release in _OUTPUTS
++                         and _OUTPUTS[release]["width"] == 1 and release not in payloads for release in releases)
++                 and len(set(releases)) == len(releases),
++                 "Wired-AND needs scalar input and scalar release outputs; 1=release")
++    if async_reset_behavior is not None or async_reset_requirement is not None:
++        _require(_SEQUENTIAL and reset_case and isinstance(async_reset_behavior, str)
++                 and async_reset_behavior in behaviors
++                 and _CONTEXT["behaviors"].get(async_reset_behavior) == async_reset_requirement,
++                 "Async assertion needs its exact frozen behavior declaration")
++    _require(seed is None or (type(seed) is int and 0 <= seed < 2**63),
++             "Seed declaration must be a bounded nonnegative integer")
++    return {"behaviors": list(behaviors), "plans": list(plans), "reset_case": reset_case,
++            "edge_case": edge_case, "edge_inputs": list(edge_inputs), "payloads": payloads,
++            "wired_and": {name: list(releases) for name, releases in wired_and.items()},
++            "async_reset_behavior": async_reset_behavior,
++            "async_reset_requirement": async_reset_requirement, "seed": seed}
++
++
++class _Session:
++    def __init__(self, dut, metadata, record):
++        self.handles = {name: getattr(dut, name) for name in _PORTS}
++        self.metadata, self.record = metadata, record
++        self.initialized = not _SEQUENTIAL
++        self.intent = {}
++        self.last_witness = None
++        self.feedback_ps = 8 if metadata["wired_and"] else 0
++        _require(not _SEQUENTIAL or min(_PRE_PS, _HIGH_PS) > self.feedback_ps,
++                 "Clock phases must leave time for bounded wired-AND settlement")
++        for name, handle in self.handles.items():
++            _require(len(handle) == _PORTS[name]["width"], f"Frozen width differs for {name}")
++
++    def validate_inputs(self, values):
++        _require(set(values) == set(_DATA_INPUTS), "Request must explicitly supply every data input")
++        for name, value in values.items():
++            _require(type(value) is int and 0 <= value < (1 << _DATA_INPUTS[name]["width"]),
++                     f"Input {name} is not a fitting unsigned integer")
++
++    def validate_expected(self, values):
++        _require(values is not None and set(values) == set(_OUTPUTS),
++                 "Expectation must explicitly cover every output")
++        for name, value in values.items():
++            if value is OBSERVE:
++                _require(name in self.metadata["payloads"], "OBSERVE is for declared payloads")
++            elif value is None:
++                valid = self.metadata["payloads"].get(name)
++                if name in self.metadata["payloads"] and valid is not None:
++                    _require(type(values[valid]) is int and values[valid] == 0,
++                             "Payload None needs expected valid=0; use OBSERVE for adaptive capture")
++            else:
++                _require(type(value) is int and 0 <= value < (1 << _OUTPUTS[name]["width"]),
++                         f"Expectation {name} is not a fitting unsigned integer")
++
++    def drive(self, values):
++        self.validate_inputs(values)
++        first_drive = not self.intent
++        self.intent = dict(values)
++        for name, value in values.items():
++            # Preserve the old resolved bus until settlement; intent must not create a high glitch.
++            if first_drive or not self.initialized or name not in self.metadata["wired_and"]:
++                self.handles[name].value = value
++
++    def read(self, name):
++        value = self.handles[name].value
++        return int(value) if value.is_resolvable else str(value)
++
++    async def settle(self):
++        if not self.metadata["wired_and"] or not self.initialized:
++            await _ReadWrite()
++            return
++        # Deferred deposits must propagate before feedback reads on Icarus.
++        # A fixed eight-ps budget keeps clock periods independent of convergence.
++        for round_index in range(8):
++            await _Timer(1, unit="ps")
++            await _ReadWrite()
++            changes = {}
++            for name, releases in self.metadata["wired_and"].items():
++                resolved = self.intent[name]
++                for release in releases:
++                    value = self.read(release)
++                    if type(value) is not int:
++                        _fail("harness_error", "Unknown wired-AND release", signal=release, actual=value)
++                    resolved &= value
++                if self.read(name) != resolved:
++                    changes[name] = resolved
++            if not changes:
++                if round_index < 7:
++                    await _Timer(7 - round_index, unit="ps")
++                    await _ReadWrite()
++                return
++            for name, value in changes.items():
++                self.handles[name].value = value
++        _fail("harness_error", "Wired-AND feedback did not converge within eight rounds")
++
++    def witness(self, values, phase):
++        actual = {name: values[name] for name in _DATA_INPUTS}
++        state = (actual, dict(self.intent))
++        if state == self.last_witness:
++            return
++        self.last_witness = state
++        if len(self.record["witnesses"]) >= _MAX_WITNESSES:
++            self.record["witnesses_omitted"] += 1
++            return
++        # Evidence remains bounded by the frozen port limit, without losing
++        # declarations on designs that have more than eight data inputs.
++        names = sorted(set(self.metadata["edge_inputs"]) | set(sorted(actual)[:8]))
++        self.record["witnesses"].append({
++            "cycle": self.record["cycle_count"] + 1, "phase": phase,
++            "inputs": {name: actual[name] for name in names},
++            "intent": {name: self.intent[name] for name in names},
++            "inputs_omitted": len(actual) - len(names),
++            "boundaries": {name: "zero" if actual[name] == 0 else "width_max"
++                           for name in names if actual[name] in (0, (1 << _DATA_INPUTS[name]["width"]) - 1)},
++        })
++
++    async def capture(self, expected, phase, *, reset_edge=False, async_assertion=False):
++        self.validate_expected(expected)
++        if reset_edge or async_assertion:
++            self.initialized = True
++        await self.settle()
++        if reset_edge:
++            self.record["reset_edges"] += 1
++        await _ReadOnly()
++        values = {name: self.read(name) for name in _PORTS}
++        for name in _INPUTS:
++            if type(values[name]) is not int:
++                _fail("harness_error", "Driven input is unresolved", phase=phase,
++                      signal=name, actual=values[name])
++        self.witness(values, phase)
++        counter = "cycle_comparisons" if phase in ("before", "after") else "reset_comparisons"
++
++        def compare(name):
++            value = expected[name]
++            if value is not None and value is not OBSERVE:
++                self.record[counter] += 1
++                if type(values[name]) is not int or values[name] != value:
++                    _fail("functional_assertion", "Output differs from independent expectation", phase=phase,
++                          signal=name, expected=value, actual=values[name])
++
++        for name in _OUTPUTS:
++            if name not in self.metadata["payloads"]:
++                self.record["required_known_checks"] += 1
++                if type(values[name]) is not int:
++                    _fail("functional_assertion", "Required control is unresolved", phase=phase,
++                          signal=name, expected=expected[name], actual=values[name])
++                compare(name)
++        for name in _OUTPUTS:
++            if name in self.metadata["payloads"]:
++                valid = self.metadata["payloads"][name]
++                if valid is not None and values[valid] == 1:
++                    self.record["required_known_checks"] += 1
++                    if type(values[name]) is not int:
++                        _fail("functional_assertion", "Claimed valid payload is unresolved", phase=phase,
++                              signal=name, actual=values[name])
++                compare(name)
++        if async_assertion:
++            self.record["async_assertion_checks"] += 1
++        return _MappingProxyType(values)
++
++    async def reset(self, request):
++        _require(_SEQUENTIAL, "Combinational cases cannot request Reset")
++        _require(type(request.cycles) is int and request.cycles >= 1, "Reset cycles must be positive")
++        _require(request.asserted_before_edge is None or self.metadata["async_reset_behavior"] is not None,
++                 "Asserted-before-edge check requires an explicit async requirement")
++        await _Timer(1, unit="step")
++        self.handles["clk"].value = 0
++        self.handles["rst_n"].value = 1
++        self.initialized = False
++        self.drive(request.inputs)
++        await _Timer(1, unit="ns")
++        self.handles["rst_n"].value = 0
++        await _Timer(1, unit="ns")
++        self.record["reset_assertions"] += 1
++        asserted = None
++        if request.asserted_before_edge is not None:
++            asserted = await self.capture(request.asserted_before_edge, "reset_asserted", async_assertion=True)
++            await _Timer(1, unit="ns")
++        after = None
++        for index in range(request.cycles):
++            self.handles["clk"].value = 1
++            after = await self.capture(request.after, "reset_after", reset_edge=True)
++            await _Timer(_HIGH_PS - self.feedback_ps, unit="ps")
++            self.handles["clk"].value = 0
++            if index + 1 < request.cycles:
++                await _Timer(_LOW_PS, unit="ps")
++        return _MappingProxyType({"before": None, "after": after, "reset_asserted": asserted,
++                                  "intent": _MappingProxyType(dict(self.intent))})
++
++    async def cycle(self, request):
++        _require(self.initialized, "Sequential cases must begin with Reset")
++        self.validate_expected(request.after)
++        before_expected = request.before
++        driven_inputs = request.inputs
++        if _SEQUENTIAL:
++            if before_expected is None:
++                before_expected = {name: OBSERVE if name in self.metadata["payloads"] else None
++                                   for name in _OUTPUTS}
++            self.validate_expected(before_expected)
++            driven_inputs = dict(request.inputs)
++            reset_value = driven_inputs.pop("rst_n", 1)
++            _require(type(reset_value) is int and reset_value in (0, 1),
++                     "Cycle rst_n must be a digital zero or one")
++            self.handles["rst_n"].value = reset_value
++        else:
++            _require(request.before is None, "Combinational Cycle uses before=None")
++        self.drive(driven_inputs)
++        await _Timer((_PRE_PS if _SEQUENTIAL else 1000) - self.feedback_ps, unit="ps")
++        before = None
++        if _SEQUENTIAL:
++            before = await self.capture(before_expected, "before")
++            await _Timer(_GAP_PS, unit="ps")
++            self.handles["clk"].value = 1
++        after = await self.capture(request.after, "after")
++        await _Timer(_HIGH_PS - self.feedback_ps if _SEQUENTIAL else 1, unit="ps")
++        if _SEQUENTIAL:
++            self.handles["clk"].value = 0
++        self.record["cycle_count"] += 1
++        return _MappingProxyType({"before": before, "after": after,
++                                  "intent": _MappingProxyType(dict(self.intent))})
++
++
++def case(*, behaviors, plans, reset_case=False, edge_case=False, edge_inputs=(), payloads=None,
++         wired_and=None, async_reset_behavior=None, async_reset_requirement=None, seed=None):
++    metadata = _metadata(behaviors=behaviors, plans=plans, reset_case=reset_case, edge_case=edge_case,
++                         edge_inputs=edge_inputs, payloads=payloads, wired_and=wired_and,
++                         async_reset_behavior=async_reset_behavior,
++                         async_reset_requirement=async_reset_requirement, seed=seed)
++
++    def decorate(function):
++        name = function.__name__
++        _require(name in _CONTEXT["registered_cases"] and name not in _EVIDENCE["registered_cases"],
++                 "Case absent from frozen manifest or registered twice")
++        _require(metadata == _CONTEXT["registered_cases"][name], "Case metadata differs from frozen source")
++        _require(_inspect.isgeneratorfunction(function) and not _inspect.signature(function).parameters,
++                 "A case must be a synchronous no-argument generator")
++        _EVIDENCE["registered_cases"].append(name)
++        _save_evidence()
++
++        @_functools.wraps(function)
++        async def run(dut):
++            global _CURRENT
++            _require(_CURRENT is None, "Concurrent generated cases are not supported")
++            record = {"name": name, **metadata, "entered": True, "completed": False, "outcome": "running",
++                      "reset_assertions": 0, "reset_edges": 0, "async_assertion_checks": 0,
++                      "reset_comparisons": 0, "cycle_count": 0, "cycle_comparisons": 0,
++                      "protocol_checks": 0, "required_known_checks": 0,
++                      "witnesses": [], "witnesses_omitted": 0}
++            _EVIDENCE["cases"].append(record)
++            generator = None
++            failure = None
++            session = None
++            try:
++                session = _Session(dut, metadata, record)
++                _CURRENT = session
++                _save_evidence()
++                await _Timer(1, unit="step")
++                generator = function()
++                observed = None
++                while True:
++                    try:
++                        request = generator.send(observed)
++                    except StopIteration:
++                        break
++                    if type(request) is Reset:
++                        observed = await session.reset(request)
++                    elif type(request) is Cycle:
++                        observed = await session.cycle(request)
++                    else:
++                        _fail("harness_error", "Generator must yield Reset or Cycle")
++                _require(record["cycle_count"] > 0 and
++                         record["cycle_comparisons"] + record["protocol_checks"] > 0,
++                         "Case needs an actual Cycle and an equality/protocol check")
++                _require(not _SEQUENTIAL or (record["reset_assertions"] > 0 and record["reset_edges"] > 0),
++                         "Sequential case lacks actual reset assertion/edge evidence")
++                _require(metadata["async_reset_behavior"] is None or record["async_assertion_checks"] > 0,
++                         "Declared async requirement lacks asserted-before-edge check")
++                record["outcome"] = "passed"
++            except BaseException as error:
++                failure = error
++                kind = "harness_error"
++                if isinstance(error, _FunctionalAssertion):
++                    kind = "functional_assertion"
++                elif isinstance(error, AssertionError) and record["cycle_count"] > 0:
++                    kind = "functional_assertion"
++                elif not isinstance(error, (Exception, _HarnessError)):
++                    kind = "infrastructure_error"
++                record["outcome"] = kind
++                diagnostic = getattr(error, "diagnostic", None)
++                if not isinstance(diagnostic, dict):
++                    diagnostic = {"kind": kind, "test": name,
++                                  "message": _clip(error) or type(error).__name__,
++                                  "cycle": record["cycle_count"], "phase": "generator"}
++                diagnostic.update(kind=kind, test=name)
++                diagnostic["trace"] = _clip("".join(_traceback.format_exception(error)), 2048)
++                record["first_diagnostic"] = diagnostic
++            finally:
++                if generator is not None:
++                    try:
++                        generator.close()
++                    except BaseException as error:
++                        record["outcome"] = "harness_error"
++                        record["cleanup_error"] = _clip(error)
++                        original = record.get("first_diagnostic")
++                        record["first_diagnostic"] = {
++                            "kind": "harness_error", "test": name, "phase": "cleanup",
++                            "cycle": record["cycle_count"], "message": _clip(error) or type(error).__name__,
++                        }
++                        if original is not None:
++                            record["prior_diagnostic"] = original
++                        if failure is None:
++                            failure = error
++                record["completed"] = True
++                _CURRENT = None
++                _save_evidence()
++            if failure is not None:
++                raise failure
++
++        return _cocotb.test()(run)
++
++    return decorate
+diff --git a/backend/app/eda/verification.py b/backend/app/eda/verification.py
+new file mode 100644
+index 0000000..d4a8485
+--- /dev/null
++++ b/backend/app/eda/verification.py
+@@ -0,0 +1,237 @@
++"""Bind a passing harness invocation to the exact inputs of a later flow."""
++
++from copy import deepcopy
++import hashlib
++from pathlib import Path
++from typing import Any
++from xml.etree import ElementTree as ET
++
++from app.eda import harness
++from app.eda.sandbox import MAX_JSON_BYTES, safe_artifact
++
++SCHEMA_VERSION = 1
++ARTIFACT_NAMES = {"context": "harness.json", "helper": "sa_tb.py", "evidence": "sa_tb_evidence.json",
++                  "xml": "test_results.xml", "runtime": "runtime_result.json"}
++
++
++def _digest(value: Any) -> str:
++    return hashlib.sha256(harness._canonical(value)).hexdigest()
++
++
++def _path(work_dir: Path, value: str | Path, *, directory: bool = False) -> Path:
++    if not isinstance(value, (str, Path)) or not str(value):
++        raise ValueError("Verification path must be a nonempty path")
++    path = Path(value)
++    if not path.is_absolute():
++        path = work_dir / path
++    if ".." in path.parts:
++        raise ValueError("Verification paths cannot contain parent traversal")
++    relative = path.relative_to(work_dir)
++    candidate = work_dir
++    for part in relative.parts:
++        candidate /= part
++        if candidate.is_symlink():
++            raise ValueError("Verification artifacts cannot traverse symlinks")
++    path = safe_artifact(work_dir, path)
++    if not (path.is_dir() if directory else path.is_file()):
++        raise ValueError("Required verification artifact is missing")
++    return path
++
++
++def _read(work_dir: Path, value: str | Path) -> bytes:
++    return harness._read_bytes(work_dir, _path(work_dir, value))
++
++
++def _proof_digest(proof: dict[str, Any]) -> str:
++    return _digest({key: value for key, value in proof.items() if key != "proof_sha256"})
++
++
++def _reconcile(work_dir: Path, top: str, result: dict[str, Any], paths: dict[str, Path]) -> dict[str, Any]:
++    context = harness._read_json(work_dir, paths["context"])
++    if context.get("top_module") != top:
++        raise ValueError("Verification top differs from the frozen context")
++    if (result.get("ok") is not True or result.get("quality_gate_passed") is not True
++            or result.get("harness_evidence_valid") is not True
++            or type(result.get("exit_code")) is not int or result["exit_code"] != 0
++            or result.get("timed_out") is not False):
++        raise ValueError("Verification requires an actual complete passing harness result")
++    if (type(result.get("api_version")) is not int or result["api_version"] != harness.API_VERSION
++            or result.get("mode") != harness.MODE or result.get("top_module") != top):
++        raise ValueError("Verification result has a different mode, API, or top")
++    test_module = harness._identifier(result.get("test_module"))
++    for path in sorted(paths["tests_dir"].iterdir()):
++        cases = harness.validate_generated_test(
++            harness._read_bytes(work_dir, path, harness.MAX_SOURCE_BYTES).decode("utf-8"),
++            context, module_name=path.stem)
++        if path.stem == test_module and cases != context.get("registered_cases"):
++            raise ValueError("Verification declarations differ from the executed test module")
++    if not (paths["tests_dir"] / f"{test_module}.py").is_file():
++        raise ValueError("Verification test module is missing")
++    expected = {
++        "helper_sha256": hashlib.sha256(_read(work_dir, paths["helper"])).hexdigest(),
++        "context_sha256": harness.context_digest(context),
++        "image_identity": harness.validate_image_identity(context.get("image_identity")),
++        "source_sha256": harness._flat_digest(paths["source_dir"].parent, paths["source_dir"].name, ".v"),
++        "tests_sha256": harness._flat_digest(paths["tests_dir"].parent, paths["tests_dir"].name, ".py"),
++    }
++    if any(result.get(key) != value for key, value in expected.items()):
++        raise ValueError("Verification input identity differs from the actual harness result")
++    if context.get("helper_sha256") != expected["helper_sha256"]:
++        raise ValueError("Verification helper differs from the frozen context")
++    evidence = harness._read_json(work_dir, paths["evidence"])
++    _read(work_dir, paths["xml"])
++    cases = harness.parse_test_cases(work_dir, paths["xml"])
++    runtime = harness._read_json(work_dir, paths["runtime"])
++    checked = harness.validate_evidence(context, evidence, cases, runtime, execution_ok=True)
++    if (any(type(result.get(key)) is not int for key in ("passed", "failed", "skipped"))
++            or checked.get("ok") is not True or any(result.get(key) != checked[key]
++                                                   for key in ("passed", "failed", "skipped", "cases"))):
++        raise ValueError("Verification host result disagrees with the actual complete case evidence")
++    return expected
++
++
++def _capture_harness_proof(
++    work_dir: Path, top: str, result: dict[str, Any], artifacts: dict[str, Path],
++) -> dict[str, Any]:
++    """Recheck retained execution bytes; callers cannot turn a claimed pass into proof."""
++    work_dir = work_dir.resolve()
++    harness._identifier(top)
++    names = {"source_dir", "tests_dir", "context", "helper", "evidence", "xml", "result"}
++    if not names <= set(artifacts):
++        raise ValueError("Verification is missing retained harness artifacts")
++    paths = {name: _path(work_dir, artifacts[name], directory=name.endswith("_dir")) for name in names}
++    paths["runtime"] = paths.pop("result")
++    input_dir = paths["source_dir"].parent
++    if (paths["tests_dir"].parent != input_dir
++            or paths["context"].parent != input_dir / "trusted"
++            or paths["helper"].parent != input_dir / "trusted"
++            or len({paths[name].parent for name in ("evidence", "xml", "runtime")}) != 1):
++        raise ValueError("Verification artifacts do not belong to one harness snapshot")
++    identity = _reconcile(work_dir, top, result, paths)
++    host_result = deepcopy(result)
++    proof = {
++        "schema_version": SCHEMA_VERSION, "mode": harness.MODE, "api_version": harness.API_VERSION,
++        "top_module": top, **identity,
++        "source_dir": str(paths["source_dir"].relative_to(work_dir)),
++        "tests_dir": str(paths["tests_dir"].relative_to(work_dir)),
++        "artifacts": {name: {"path": str(paths[name].relative_to(work_dir)),
++                             "sha256": hashlib.sha256(_read(work_dir, paths[name])).hexdigest()}
++                      for name in ARTIFACT_NAMES},
++        "host_result": host_result, "host_result_sha256": _digest(host_result),
++    }
++    proof["proof_sha256"] = _proof_digest(proof)
++    if len(harness._canonical(proof)) > MAX_JSON_BYTES:
++        raise ValueError("Verification proof exceeds its size limit")
++    return proof
++
++
++def _validate_proof_header(proof: dict[str, Any]) -> None:
++    required = {"schema_version", "mode", "api_version", "top_module", "image_identity",
++                "helper_sha256", "context_sha256", "source_sha256", "tests_sha256",
++                "source_dir", "tests_dir", "artifacts", "host_result", "host_result_sha256", "proof_sha256"}
++    if (not isinstance(proof, dict) or len(harness._canonical(proof)) > MAX_JSON_BYTES
++            or set(proof) != required or not isinstance(proof.get("host_result"), dict)
++            or type(proof.get("schema_version")) is not int or proof["schema_version"] != SCHEMA_VERSION
++            or proof.get("mode") != harness.MODE or type(proof.get("api_version")) is not int
++            or proof["api_version"] != harness.API_VERSION or proof.get("proof_sha256") != _proof_digest(proof)):
++        raise ValueError("Verification proof is invalid")
++    if _digest(proof.get("host_result")) != proof.get("host_result_sha256"):
++        raise ValueError("Verification host result digest is invalid")
++    files = proof.get("artifacts")
++    if not isinstance(files, dict) or set(files) != set(ARTIFACT_NAMES):
++        raise ValueError("Verification artifact manifest is invalid")
++    if any(not isinstance(record, dict) or set(record) != {"path", "sha256"} for record in files.values()):
++        raise ValueError("Verification artifact identity is invalid")
++
++
++def _validate_proof(
++    work_dir: Path, proof: dict[str, Any], source_dir: Path | None = None,
++    tests_dir: Path | None = None, *, require_current_helper: bool = False,
++) -> None:
++    """Check recorded bytes and, optionally, the actual copied inputs of a flow."""
++    work_dir = work_dir.resolve()
++    _validate_proof_header(proof)
++    files = proof["artifacts"]
++    paths = {name: _path(work_dir, proof[name], directory=True) for name in ("source_dir", "tests_dir")}
++    for name, record in files.items():
++        paths[name] = _path(work_dir, record["path"])
++        if hashlib.sha256(_read(work_dir, paths[name])).hexdigest() != record["sha256"]:
++            raise ValueError(f"Verification {name} artifact changed")
++    identity = _reconcile(work_dir, proof["top_module"], proof["host_result"], paths)
++    if any(proof.get(key) != value for key, value in identity.items()):
++        raise ValueError("Verification proof differs from its retained input identity")
++    for directory, expected, suffix in ((source_dir, "source_sha256", ".v"), (tests_dir, "tests_sha256", ".py")):
++        if directory is not None:
++            directory = _path(work_dir, directory, directory=True)
++            if harness._flat_digest(directory.parent, directory.name, suffix) != proof[expected]:
++                raise ValueError(f"Copied flow {directory.name} differs from verified inputs")
++    if require_current_helper:
++        current = Path(harness.__file__).with_name("sa_tb.py")
++        if current.is_symlink() or hashlib.sha256(harness._read_bytes(current.parent, current, harness.MAX_SOURCE_BYTES)).hexdigest() != proof["helper_sha256"]:
++            raise ValueError("Current helper differs from the verified helper")
++
++
++def capture_harness_proof(
++    work_dir: Path, top: str, result: dict[str, Any], artifacts: dict[str, Path],
++) -> dict[str, Any]:
++    try:
++        return _capture_harness_proof(work_dir, top, result, artifacts)
++    except (OSError, TypeError, KeyError, OverflowError, UnicodeError, ET.ParseError) as error:
++        raise ValueError(f"Invalid verification artifacts: {error}") from error
++
++
++def validate_proof(
++    work_dir: Path, proof: dict[str, Any], source_dir: Path | None = None,
++    tests_dir: Path | None = None, *, require_current_helper: bool = False,
++) -> None:
++    try:
++        _validate_proof(work_dir, proof, source_dir, tests_dir, require_current_helper=require_current_helper)
++    except (OSError, TypeError, KeyError, OverflowError, UnicodeError, ET.ParseError) as error:
++        raise ValueError(f"Invalid verification proof: {error}") from error
++
++
++def validate_retained_flow(
++    work_dir: Path, proof: dict[str, Any], artifacts: dict[str, Path],
++    source_dir: Path, tests_dir: Path,
++) -> None:
++    """Validate a selected capsule without needing the original test snapshot."""
++    try:
++        work_dir = work_dir.resolve()
++        _validate_proof_header(proof)
++        required = set(ARTIFACT_NAMES) | {"proof", "host_result"}
++        if not isinstance(artifacts, dict) or not required <= set(artifacts):
++            raise ValueError("Retained flow capsule is missing verification material")
++        paths = {name: _path(work_dir, artifacts[name]) for name in required}
++        paths.update(source_dir=_path(work_dir, source_dir, directory=True),
++                     tests_dir=_path(work_dir, tests_dir, directory=True))
++        if (_read(work_dir, paths["proof"]) != harness._canonical(proof) + b"\n"
++                or _read(work_dir, paths["host_result"]) != harness._canonical(proof["host_result"]) + b"\n"):
++            raise ValueError("Retained flow proof or host result differs from its captured identity")
++        for name in ARTIFACT_NAMES:
++            if hashlib.sha256(_read(work_dir, paths[name])).hexdigest() != proof["artifacts"][name]["sha256"]:
++                raise ValueError(f"Retained flow {name} artifact changed")
++        identity = _reconcile(work_dir, proof["top_module"], proof["host_result"], paths)
++        if any(proof.get(key) != value for key, value in identity.items()):
++            raise ValueError("Retained flow inputs differ from the verified identity")
++    except (OSError, TypeError, KeyError, OverflowError, UnicodeError, ET.ParseError) as error:
++        raise ValueError(f"Invalid retained flow capsule: {error}") from error
++
++
++def copy_proof_material(work_dir: Path, proof: dict[str, Any], input_dir: Path) -> dict[str, Path]:
++    """Retain exact checked material with a selected flow, independent of later tests."""
++    validate_proof(work_dir, proof, input_dir / "src", input_dir / "test", require_current_helper=True)
++    trusted = input_dir / "trusted"
++    trusted.mkdir(mode=0o700)
++    result = {}
++    for name, filename in ARTIFACT_NAMES.items():
++        contents = _read(work_dir, proof["artifacts"][name]["path"])
++        if hashlib.sha256(contents).hexdigest() != proof["artifacts"][name]["sha256"]:
++            raise ValueError("Verification artifact changed during flow preparation")
++        result[name] = trusted / filename
++        harness._write_new(result[name], contents)
++    for name, value in (("host_result", proof["host_result"]), ("proof", proof)):
++        result[name] = trusted / f"{name}.json"
++        harness._write_new(result[name], harness._canonical(value) + b"\n")
++    validate_proof(work_dir, proof, input_dir / "src", input_dir / "test", require_current_helper=True)
++    validate_retained_flow(work_dir, proof, result, input_dir / "src", input_dir / "test")
++    return result

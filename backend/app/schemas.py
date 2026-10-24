@@ -97,6 +97,9 @@ class Outcome(BaseModel):
     block_signoff_clean: bool = False
     design_spec: DesignSpec | None = None
     error: str | None = None
+    failure_class: str | None = Field(default=None, pattern=r"^[a-z_]+$", max_length=64)
+    suggested_action: str | None = Field(default=None, min_length=1, max_length=1000)
+    last_diagnostic: dict[str, JsonValue] | None = None
     scope_decision: Literal["decline", "ask_clarify", "scope_down"] | None = None
     scope_reason: str | None = Field(default=None, min_length=1, max_length=3000)
 

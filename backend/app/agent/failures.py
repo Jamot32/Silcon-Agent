@@ -41,6 +41,7 @@ class FailureClass(StrEnum):
     UNDRIVEN_OUTPUT = "undriven_output"
     COMB_DELAY = "comb_delay"
     TB_BOILERPLATE_BUG = "tb_boilerplate_bug"
+    TEST_HARNESS_ERROR = "test_harness_error"
     TB_WRONG_EXPECTATION = "tb_wrong_expectation"
     RTL_LOGIC_BUG = "rtl_logic_bug"
     FIX_LOOP_THRASH = "fix_loop_thrash"
@@ -53,6 +54,7 @@ class FailureClass(StrEnum):
     TOO_BIG = "too_big"
     CONFIG_ERROR = "config_error"
     DIE_TOO_SMALL = "die_too_small"
+    PLACEMENT_FAILED = "placement_failed"
     ROUTING_CONGESTION = "routing_congestion"
     TIMING_FAIL = "timing_fail"
     DRC_FAIL = "drc_fail"
@@ -80,6 +82,7 @@ class Failure:
 
 
 _DETAILS: dict[FailureClass, tuple[str, str]] = {
+    FailureClass.TEST_HARNESS_ERROR: ("Verification stopped at a test-harness request or signal binding.", "Inspect the reported harness request or signal binding and rerun verification before changing RTL."),
     FailureClass.SPEC_MISREAD: ("The parsed design disagrees with the requested behavior.", "Correct the structured specification before generating RTL."),
     FailureClass.SPEC_INVALID: ("The model did not produce a valid design specification.", "Repair the reported schema field while preserving the user requirements."),
     FailureClass.SCOPE_UNBOUNDED: ("The estimated design exceeds the supported size budget.", "Reduce widths or storage depth, or explicitly request more tiles."),
@@ -105,6 +108,7 @@ _DETAILS: dict[FailureClass, tuple[str, str]] = {
     FailureClass.TOO_BIG: ("Synthesis reports more cells than the supported budget.", "Reduce widths or storage depth, or choose a larger supported tile allocation."),
     FailureClass.CONFIG_ERROR: ("The physical-design configuration was rejected.", "Correct the reported key or value using the pinned LibreLane configuration schema."),
     FailureClass.DIE_TOO_SMALL: ("The floorplan cannot fit the required cells or power grid.", "Lower utilization and increase the die dimensions within the selected tile budget."),
+    FailureClass.PLACEMENT_FAILED: ("The physical cells could not be placed legally.", "Inspect the saved placement report; try more space within the selected size limit, or reduce the design for a fixed tile."),
     FailureClass.ROUTING_CONGESTION: ("The router could not fit the required connections.", "Lower placement density, then grow the die within the selected size budget."),
     FailureClass.TIMING_FAIL: ("The measured implementation misses its timing constraint.", "Try conservative flow settings or a permitted slower clock; then consider an RTL change."),
     FailureClass.DRC_FAIL: ("The layout has design-rule violations.", "Retry conservative density settings; retain a not tapeout-ready status until clean."),
@@ -134,7 +138,8 @@ _RTL_RULES = (
 )
 _FLOW_RULES = (
     (FailureClass.CONFIG_ERROR, r"\binvalid configuration\b|\bconfiguration (?:error|is invalid)\b|\bunknown configuration (?:key|variable)\b|Only clock period, utilization, density, die area"),
-    (FailureClass.DIE_TOO_SMALL, r"\bdie (?:area |dimensions? )?(?:is |are )?too small\b|\binsufficient (?:width|height|area)\b|\bcore area (?:is )?too small\b"),
+    (FailureClass.DIE_TOO_SMALL, r"\bGPL-0301\b|\bdie (?:area |dimensions? )?(?:is |are )?too small\b|\binsufficient (?:width|height|area)\b|\bcore area (?:is )?too small\b"),
+    (FailureClass.PLACEMENT_FAILED, r"\bDPL-0036\b"),
     (FailureClass.ROUTING_CONGESTION, r"\brouting congestion (?:is )?too high\b|\bcongestion overflow\b"),
     (FailureClass.DRC_FAIL, r"\bDRC (?:check )?failed\b|\b(?:DRC violations|total DRC errors)\s*[:=]\s*[1-9]\d*\b"),
     (FailureClass.LVS_FAIL, r"\bCircuits do not match\b|\bLVS (?:check )?failed\b|\bLVS mismatches\s*[:=]\s*[1-9]\d*\b"),
@@ -230,6 +235,8 @@ def classify_failure(
         return diagnosis(FailureClass.FIX_LOOP_THRASH, f"repeated_rtl_hash={result.get('repeated_rtl_hash')}; same_error_count={result.get('same_error_count')}")
     if result.get("scope_decision_correct") is False:
         return diagnosis(FailureClass.SCOPE_DECISION_WRONG, "Independent scope check: scope_decision_correct=false")
+    if result.get("ok") is False and result.get("error_kind") == "harness_error":
+        return diagnosis(FailureClass.TEST_HARNESS_ERROR, text or "Trusted test harness rejected execution")
     cells = _number(result.get("estimated_cells" if failure_stage == FailureStage.SPEC else "cell_count"))
     limit = _number(result.get("cell_budget"))
     if cells is not None and limit is not None and cells > limit:

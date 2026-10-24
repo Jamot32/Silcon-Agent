@@ -1,0 +1,174 @@
+{
+  "qualification_only": true,
+  "measured_at": "2026-10-24T04:58:21.868572+00:00",
+  "work_dir": "runs/qualification/r2_legacy_f509a30a851b",
+  "image_identity": {
+    "reference": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+    "image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+    "authority": "docker_image_inspect",
+    "observed_at": "2026-10-24T04:58:20.046093+00:00"
+  },
+  "controls": [
+    {
+      "label": "pass",
+      "lint": {
+        "ok": true,
+        "warnings": [],
+        "errors": [],
+        "log_tail": "- V e r i l a t i o n   R e p o r t: Verilator 5.044 2026-01-01 rev v5.040\n- Verilator: Built from 0.036 MB sources in 2 modules, into 0.007 MB in 3 C++ files needing 0.000 MB\n- Verilator: Walltime 0.003 s (elab=0.000, cvt=0.001, bld=0.000); cpu 0.002 s on 1 threads; alloced 18.398 MB\n",
+        "log_path": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/qualification/r2_legacy_f509a30a851b/pass/.eda/lint_ce327c886f5849728e314156c1e90edb/output/tool.log",
+        "timed_out": false
+      },
+      "sim": {
+        "ok": true,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "failures": [],
+        "log_tail": "     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3\n     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered\n     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)\n     0.00ns INFO     cocotb                             Seeding Python random module with 1792817900\n     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb\n     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages\n     0.00ns INFO     cocotb                             Running tests\n     0.00ns INFO     cocotb.regression                  running test_subject.test_legacy (1/1)\n    12.00ns INFO     cocotb.regression                  test_subject.test_legacy passed\n    12.00ns INFO     cocotb.regression                  **************************************************************************************\n                                                        ** TEST                          STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **\n                                                        **************************************************************************************\n                                                        ** test_subject.test_legacy       PASS          12.00           0.00      42545.77  **\n                                                        **************************************************************************************\n                                                        ** TESTS=1 PASS=1 FAIL=0 SKIP=0                 12.00           0.00      17325.87  **\n                                                        **************************************************************************************\n",
+        "log_path": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/qualification/r2_legacy_f509a30a851b/pass/.eda/sim_958e3794257b423a805289a97662d80b/output/tool.log",
+        "timed_out": false,
+        "results_path": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/qualification/r2_legacy_f509a30a851b/pass/.eda/sim_958e3794257b423a805289a97662d80b/output/test_results.xml",
+        "cases": [
+          {
+            "test": "test_legacy",
+            "ok": true
+          }
+        ]
+      },
+      "logs": [
+        {
+          "path": "runs/qualification/r2_legacy_f509a30a851b/pass/.eda/sim_958e3794257b423a805289a97662d80b/output/tool.log",
+          "sha256": "55cf1a166602079eb0c45706729335a19401882329c115687a6996f2b5475d7a"
+        },
+        {
+          "path": "runs/qualification/r2_legacy_f509a30a851b/pass/.eda/lint_ce327c886f5849728e314156c1e90edb/output/tool.log",
+          "sha256": "921ff983d1056fdf382a11b436c4efecb02d2095a8ca5abdf5b0458a35e5cc6b"
+        }
+      ]
+    },
+    {
+      "label": "functional-fail",
+      "lint": {
+        "ok": true,
+        "warnings": [],
+        "errors": [],
+        "log_tail": "- V e r i l a t i o n   R e p o r t: Verilator 5.044 2026-01-01 rev v5.040\n- Verilator: Built from 0.036 MB sources in 2 modules, into 0.007 MB in 3 C++ files needing 0.000 MB\n- Verilator: Walltime 0.003 s (elab=0.000, cvt=0.001, bld=0.000); cpu 0.002 s on 1 threads; alloced 18.402 MB\n",
+        "log_path": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/qualification/r2_legacy_f509a30a851b/functional-fail/.eda/lint_850829f44fdc4cf7b2b91408b7c992c0/output/tool.log",
+        "timed_out": false
+      },
+      "sim": {
+        "ok": false,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "failures": [
+          {
+            "test": "test_legacy",
+            "message": "AssertionError",
+            "log_tail": "     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3\n     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered\n     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)\n     0.00ns INFO     cocotb                             Seeding Python random module with 1792817900\n     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb\n     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages\n     0.00ns INFO     cocotb                             Running tests\n     0.00ns INFO     cocotb.regression                  running test_subject.test_legacy (1/1)\n    12.00ns WARNING  ..otb.Test test_legacy.test_legacy Traceback (most recent call last):\n                                                          File \"/input/test/test_subject.py\", line 18, in test_legacy\n                                                            assert int(dut.q.value)==0\n                                                                   ^^^^^^^^^^^^^^^^^^^\n                                                        AssertionError\n    12.00ns WARNING  cocotb.regression                  test_subject.test_legacy failed\n    12.00ns INFO     cocotb.regression                  **************************************************************************************\n                                                        ** TEST                          STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **\n                                                        **************************************************************************************\n                                                        ** test_subject.test_legacy       FAIL          12.00           0.00      22509.68  **\n                                                        **************************************************************************************\n                                                        ** TESTS=1 PASS=0 FAIL=1 SKIP=0                 12.00           0.00       4280.63  **\n                                                        **************************************************************************************\n"
+          }
+        ],
+        "log_tail": "     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3\n     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered\n     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)\n     0.00ns INFO     cocotb                             Seeding Python random module with 1792817900\n     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb\n     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages\n     0.00ns INFO     cocotb                             Running tests\n     0.00ns INFO     cocotb.regression                  running test_subject.test_legacy (1/1)\n    12.00ns WARNING  ..otb.Test test_legacy.test_legacy Traceback (most recent call last):\n                                                          File \"/input/test/test_subject.py\", line 18, in test_legacy\n                                                            assert int(dut.q.value)==0\n                                                                   ^^^^^^^^^^^^^^^^^^^\n                                                        AssertionError\n    12.00ns WARNING  cocotb.regression                  test_subject.test_legacy failed\n    12.00ns INFO     cocotb.regression                  **************************************************************************************\n                                                        ** TEST                          STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **\n                                                        **************************************************************************************\n                                                        ** test_subject.test_legacy       FAIL          12.00           0.00      22509.68  **\n                                                        **************************************************************************************\n                                                        ** TESTS=1 PASS=0 FAIL=1 SKIP=0                 12.00           0.00       4280.63  **\n                                                        **************************************************************************************\n",
+        "log_path": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/qualification/r2_legacy_f509a30a851b/functional-fail/.eda/sim_015c2313b70a4c6991c977c6e4bd4464/output/tool.log",
+        "timed_out": false,
+        "results_path": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/qualification/r2_legacy_f509a30a851b/functional-fail/.eda/sim_015c2313b70a4c6991c977c6e4bd4464/output/test_results.xml",
+        "cases": [
+          {
+            "test": "test_legacy",
+            "ok": false,
+            "message": "AssertionError"
+          }
+        ]
+      },
+      "logs": [
+        {
+          "path": "runs/qualification/r2_legacy_f509a30a851b/functional-fail/.eda/sim_015c2313b70a4c6991c977c6e4bd4464/output/tool.log",
+          "sha256": "848c341c251041f4cc1f381abfb3baf446c74f1ba74ed57d3fd89247d06da688"
+        },
+        {
+          "path": "runs/qualification/r2_legacy_f509a30a851b/functional-fail/.eda/lint_850829f44fdc4cf7b2b91408b7c992c0/output/tool.log",
+          "sha256": "219e0f494adb54b7d1f7974511b49dae60b77f101a8dbf9db3c7522b3f505e35"
+        }
+      ]
+    },
+    {
+      "label": "pre-reset-fail",
+      "lint": {
+        "ok": true,
+        "warnings": [],
+        "errors": [],
+        "log_tail": "- V e r i l a t i o n   R e p o r t: Verilator 5.044 2026-01-01 rev v5.040\n- Verilator: Built from 0.036 MB sources in 2 modules, into 0.007 MB in 3 C++ files needing 0.000 MB\n- Verilator: Walltime 0.003 s (elab=0.000, cvt=0.001, bld=0.000); cpu 0.002 s on 1 threads; alloced 18.402 MB\n",
+        "log_path": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/qualification/r2_legacy_f509a30a851b/pre-reset-fail/.eda/lint_2d03d88fa2d843bca2783a20d55917a6/output/tool.log",
+        "timed_out": false
+      },
+      "sim": {
+        "ok": false,
+        "passed": 0,
+        "failed": 1,
+        "skipped": 0,
+        "failures": [
+          {
+            "test": "test_legacy",
+            "message": "Cannot convert Logic('X') to int",
+            "log_tail": "     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3\n     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered\n     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)\n     0.00ns INFO     cocotb                             Seeding Python random module with 1792817901\n     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb\n     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages\n     0.00ns INFO     cocotb                             Running tests\n     0.00ns INFO     cocotb.regression                  running test_subject.test_legacy (1/1)\n     0.00ns WARNING  ..otb.Test test_legacy.test_legacy Cannot convert Logic('X') to int\n                                                        Traceback (most recent call last):\n                                                          File \"/input/test/test_subject.py\", line 8, in test_legacy\n                                                            assert int(dut.q.value)==0\n                                                                   ~~~^^^^^^^^^^^^^\n                                                          File \"/opt/silicon-python/cocotb/types/_logic.py\", line 250, in __int__\n                                                            raise ValueError(f\"Cannot convert {self!r} to int\")\n                                                        ValueError: Cannot convert Logic('X') to int\n     0.00ns WARNING  cocotb.regression                  test_subject.test_legacy failed\n     0.00ns INFO     cocotb.regression                  **************************************************************************************\n                                                        ** TEST                          STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **\n                                                        **************************************************************************************\n                                                        ** test_subject.test_legacy       FAIL           0.00           0.00          0.00  **\n                                                        **************************************************************************************\n                                                        ** TESTS=1 PASS=0 FAIL=1 SKIP=0                  0.00           0.00          0.00  **\n                                                        **************************************************************************************\n"
+          }
+        ],
+        "log_tail": "     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3\n     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered\n     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)\n     0.00ns INFO     cocotb                             Seeding Python random module with 1792817901\n     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb\n     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages\n     0.00ns INFO     cocotb                             Running tests\n     0.00ns INFO     cocotb.regression                  running test_subject.test_legacy (1/1)\n     0.00ns WARNING  ..otb.Test test_legacy.test_legacy Cannot convert Logic('X') to int\n                                                        Traceback (most recent call last):\n                                                          File \"/input/test/test_subject.py\", line 8, in test_legacy\n                                                            assert int(dut.q.value)==0\n                                                                   ~~~^^^^^^^^^^^^^\n                                                          File \"/opt/silicon-python/cocotb/types/_logic.py\", line 250, in __int__\n                                                            raise ValueError(f\"Cannot convert {self!r} to int\")\n                                                        ValueError: Cannot convert Logic('X') to int\n     0.00ns WARNING  cocotb.regression                  test_subject.test_legacy failed\n     0.00ns INFO     cocotb.regression                  **************************************************************************************\n                                                        ** TEST                          STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **\n                                                        **************************************************************************************\n                                                        ** test_subject.test_legacy       FAIL           0.00           0.00          0.00  **\n                                                        **************************************************************************************\n                                                        ** TESTS=1 PASS=0 FAIL=1 SKIP=0                  0.00           0.00          0.00  **\n                                                        **************************************************************************************\n",
+        "log_path": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/qualification/r2_legacy_f509a30a851b/pre-reset-fail/.eda/sim_b19a4c6b63f341048f585ba44521680b/output/tool.log",
+        "timed_out": false,
+        "results_path": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/qualification/r2_legacy_f509a30a851b/pre-reset-fail/.eda/sim_b19a4c6b63f341048f585ba44521680b/output/test_results.xml",
+        "cases": [
+          {
+            "test": "test_legacy",
+            "ok": false,
+            "message": "Cannot convert Logic('X') to int"
+          }
+        ]
+      },
+      "logs": [
+        {
+          "path": "runs/qualification/r2_legacy_f509a30a851b/pre-reset-fail/.eda/lint_2d03d88fa2d843bca2783a20d55917a6/output/tool.log",
+          "sha256": "219e0f494adb54b7d1f7974511b49dae60b77f101a8dbf9db3c7522b3f505e35"
+        },
+        {
+          "path": "runs/qualification/r2_legacy_f509a30a851b/pre-reset-fail/.eda/sim_b19a4c6b63f341048f585ba44521680b/output/tool.log",
+          "sha256": "02544e6162664398582a7d93783ea201a6f4a5c10204bcd33ff36070b2827de6"
+        }
+      ]
+    },
+    {
+      "label": "compile-fail",
+      "lint": {
+        "ok": false,
+        "warnings": [],
+        "errors": [
+          "%Error: /input/src/subject.v:1:119: syntax error, unexpected end of file, expecting '('",
+          "%Error: Cannot continue"
+        ],
+        "log_tail": "%Error: /input/src/subject.v:1:119: syntax error, unexpected end of file, expecting '('\n    1 | module subject(input clk, input rst_n, input d, output reg q); always @(posedge clk) if (!rst_n) q <= 0; else q <= d; broken\n      |                                                                                                                       ^~~~~~\n        ... See the manual at https://verilator.org/verilator_doc.html?v=5.044 for more assistance.\n%Error: Cannot continue\n        ... This fatal error may be caused by the earlier error(s); resolve those first.\n",
+        "log_path": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/qualification/r2_legacy_f509a30a851b/compile-fail/.eda/lint_10109b709e01495db38838a72b345adc/output/tool.log",
+        "timed_out": false
+      },
+      "sim": {
+        "ok": false,
+        "error": "Command '['iverilog', '-o', '/output/build/sim.vvp', '-s', 'subject', '-g2012', '-f', '/output/build/cmds.f', '/input/src/subject.v']' returned non-zero exit status 2.",
+        "log_tail": "/input/src/subject.v:2: syntax error\nI give up.\nTraceback (most recent call last):\n  File \"/opt/silicon-agent/runtime.py\", line 111, in main\n    result = simulate(args.top, args.test_module)\n  File \"/opt/silicon-agent/runtime.py\", line 53, in simulate\n    runner.build(sources=sources(), hdl_toplevel=top, build_dir=OUTPUT / \"build\", timescale=(\"1ns\", \"1ps\"), always=True)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/silicon-python/cocotb_tools/runner.py\", line 389, in build\n    self._execute(cmds, cwd=self.build_dir)\n    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/silicon-python/cocotb_tools/runner.py\", line 621, in _execute\n    self._execute_cmds(cmds, cwd)\n    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"/opt/silicon-python/cocotb_tools/runner.py\", line 638, in _execute_cmds\n    subprocess.run(\n    ~~~~~~~~~~~~~~^\n        cmd, cwd=cwd, env=self.env, check=True, stdout=stdout, stderr=stderr\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File \"/nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/lib/python3.13/subprocess.py\", line 577, in run\n    raise CalledProcessError(retcode, process.args,\n                             output=stdout, stderr=stderr)\nsubprocess.CalledProcessError: Command '['iverilog', '-o', '/output/build/sim.vvp', '-s', 'subject', '-g2012', '-f', '/output/build/cmds.f', '/input/src/subject.v']' returned non-zero exit status 2.\n",
+        "log_path": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/qualification/r2_legacy_f509a30a851b/compile-fail/.eda/sim_822ee3a75d9243c9b7edda70939bddb2/output/tool.log",
+        "timed_out": false
+      },
+      "logs": [
+        {
+          "path": "runs/qualification/r2_legacy_f509a30a851b/compile-fail/.eda/sim_822ee3a75d9243c9b7edda70939bddb2/output/tool.log",
+          "sha256": "4f7b0b2925cb497f504f1db29bc6eb8adefd35bd838279cad0ee4e9558f0d008"
+        },
+        {
+          "path": "runs/qualification/r2_legacy_f509a30a851b/compile-fail/.eda/lint_10109b709e01495db38838a72b345adc/output/tool.log",
+          "sha256": "47fcfd666f29b99a1e186475d3835c600e9ffbe5d8e94dc4531512bd3aa1f907"
+        }
+      ]
+    }
+  ],
+  "all_passed": true,
+  "legacy_methods_unchanged_from": "c1ba199"
+}

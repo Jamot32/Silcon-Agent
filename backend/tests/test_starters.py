@@ -161,14 +161,14 @@ def test_real_uart_fixture_hashes_counts_and_unchanged_tests():
 def test_supplied_seed_then_real_fixture_failure_and_model_repair_keeps_independent_tests(tmp_path):
     starter = load_starter("uart_off_by_one")
     script = [
-        response(content=json.dumps(spec_data())), response(),
-        response(),  # Backend-loaded initial RTL has only a model summary, no authoring call.
+        response(content=json.dumps(spec_data())),
+        # The backend loads the starter; deterministic summaries need no responses.
         response(call("write_file", path="test/test_uart_tx.py", content=(GOLDEN / "test/test_uart_tx.py").read_text()),
-                 call("run_tests", top="uart_tx", test_module="test_uart_tx")), response(),
+                 call("run_tests", top="uart_tx", test_module="test_uart_tx")),
         response(call("record_note", text="Hypothesis: the supplied UART advances serial bits one clock too early."),
                  call("write_file", path="src/uart_tx.v", content=(GOLDEN / "src/uart_tx.v").read_text()),
-                 call("lint", top="uart_tx")), response(),
-        response(call("run_tests", top="uart_tx", test_module="test_uart_tx")), response(),
+                 call("lint", top="uart_tx")),
+        response(call("run_tests", top="uart_tx", test_module="test_uart_tx")),
     ]
     llm = FakeLLM(script)
     events = []
@@ -194,6 +194,8 @@ def test_supplied_seed_then_real_fixture_failure_and_model_repair_keeps_independ
         await orchestrator._repair()
 
     asyncio.run(scenario())
+    assert llm.budget.calls == len(llm.requests) == len(script)
+    assert not llm.responses
     assert eda.observed == ["failed", "passed"]
     assert orchestrator.fix_loops == 1 and orchestrator._starter_loaded
     assert (work / "src/uart_tx.v").read_bytes() == (GOLDEN / "src/uart_tx.v").read_bytes()

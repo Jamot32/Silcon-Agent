@@ -11,6 +11,7 @@ from zipfile import BadZipFile, ZipFile, ZIP_DEFLATED
 from app.agent.tools import ToolRunner
 from app.eda.parsers import parse_librelane_metrics
 from app.eda.sandbox import read_json_artifact, safe_artifact
+from app.eda.verification import validate_retained_flow
 from app.models import Metric
 from app.schemas import DesignSpec
 
@@ -20,6 +21,41 @@ REQUIRED_BUNDLE_MEMBERS = frozenset({
     "design.log", "info.yaml", "integration_notes.md", "design_spec.json",
 })
 MAX_BUNDLE_BYTES = 256 * 1024 * 1024
+HARNESS_MEMBERS = {
+    "helper": "trusted/sa_tb.py", "context": "trusted/harness.json",
+    "evidence": "trusted/sa_tb_evidence.json", "xml": "trusted/test_results.xml",
+    "runtime": "trusted/runtime_result.json", "host_result": "trusted/host_result.json",
+    "proof": "trusted/proof.json",
+}
+
+
+def _validate_harness_bundle(archive: ZipFile, names: set[str], expected_top: str) -> None:
+    required = set(HARNESS_MEMBERS.values()) | {"verification.json", "test_instructions.md", "manifest.json"}
+    if not required <= names:
+        raise ValueError("Package is missing selected harness verification material")
+    manifest = json.loads(archive.read("manifest.json"))
+    if not isinstance(manifest, dict) or not isinstance(manifest.get("files"), dict):
+        raise ValueError("Package has no file integrity manifest")
+    for name in names - {"manifest.json"}:
+        if manifest["files"].get(name) != hashlib.sha256(archive.read(name)).hexdigest():
+            raise ValueError("Package file differs from its integrity manifest")
+    proof = json.loads(archive.read("verification.json"))
+    if not isinstance(proof, dict) or proof != json.loads(archive.read(HARNESS_MEMBERS["proof"])):
+        raise ValueError("Package does not contain the selected verification proof")
+    if proof.get("top_module") != expected_top:
+        raise ValueError("Package verification top differs from its design specification")
+    # Only bounded source/test/capsule members are needed for verification.
+    with tempfile.TemporaryDirectory(prefix="silicon-bundle-check-") as temporary:
+        root = Path(temporary).resolve()
+        for name in names:
+            if name in HARNESS_MEMBERS.values() or name.startswith(("src/", "test/")):
+                if archive.getinfo(name).file_size > 2 * 1024 * 1024:
+                    raise ValueError("Package verification member exceeds size limit")
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(archive.read(name))
+        validate_retained_flow(root, proof, {key: root / name for key, name in HARNESS_MEMBERS.items()},
+                               root / "src", root / "test")
 
 
 def _file(root: Path, path: Path) -> Path:
@@ -46,7 +82,8 @@ def _info(spec: DesignSpec, source_files: list[str], clock_mhz: float) -> str:
     return "\n".join(lines) + "\n"
 
 
-def validate_bundle(path: Path, *, expected_run_tag: str | None = None, expected_spec: DesignSpec | None = None) -> None:
+def validate_bundle(path: Path, *, expected_run_tag: str | None = None, expected_spec: DesignSpec | None = None,
+                    require_harness_verification: bool = False) -> None:
     """Check ZIP integrity and concrete deliverables before a run can reach DONE."""
     if not path.is_file() or not 0 < path.stat().st_size <= MAX_BUNDLE_BYTES:
         raise ValueError("Package ZIP is missing, empty, or too large")
@@ -82,6 +119,8 @@ def validate_bundle(path: Path, *, expected_run_tag: str | None = None, expected
                     raise ValueError("Package GDS is not a GDSII stream")
             if archive.testzip() is not None:
                 raise ValueError("Package ZIP failed its integrity check")
+            if require_harness_verification or "verification.json" in names or any(name.startswith("trusted/") for name in names):
+                _validate_harness_bundle(archive, names, spec.top_module)
     except (BadZipFile, KeyError, RuntimeError) as error:
         raise ValueError("Package is not a readable chip bundle") from error
 
@@ -137,6 +176,39 @@ def _package_design(tools: ToolRunner, best_run_tag: str, spec: DesignSpec) -> P
         "info.yaml": _info(spec, source_names, metric.clock_mhz),
         "integration_notes.md": notes,
     }
+    verification = tools.flow_verification_artifacts(best_run_tag)
+    if tools.requires_harness_verification and not verification:
+        raise ValueError("Selected flow is missing its trusted harness verification material")
+    if verification:
+        proof = tools.flow_verification_proof(best_run_tag)
+        if proof is None:
+            raise ValueError("Selected flow has no captured verification proof")
+        validate_retained_flow(root, proof, verification, artifacts["source_dir"], artifacts["tests_dir"])
+        for kind, member in HARNESS_MEMBERS.items():
+            files[member] = _file(root, verification[kind])
+        generated["verification.json"] = json.dumps(proof, allow_nan=False, indent=2) + "\n"
+        generated["test_instructions.md"] = (
+            "# Reproduce the selected tests\n\n"
+            "The trusted helper, frozen contract, actual XML/evidence and host proof in trusted/ "
+            "belong to this selected flow. They are independent of later working-file edits.\n\n"
+            "With the pinned EDA image already available locally, extract the bundle and run "
+            "these commands from its directory (paths must not contain commas):\n\n"
+            "```sh\n"
+            'bundle_dir="$(pwd)"\noutput_dir="$(mktemp -d)"\n'
+            'mkdir -p "$output_dir/home" "$output_dir/tmp" "$output_dir/cache"\n'
+            "docker run --rm --init --network none --read-only --cap-drop ALL \\\n"
+            "  --security-opt no-new-privileges --cpus 4 --memory 6g --pids-limit 512 \\\n"
+            '  --user "$(id -u):$(id -g)" -e HOME=/output/home -e TMPDIR=/output/tmp \\\n'
+            "  -e XDG_CACHE_HOME=/output/cache -e PYTHONDONTWRITEBYTECODE=1 \\\n"
+            '  -e PYTHONPATH=/opt/silicon-python -v "$bundle_dir:/input:ro" -v "$output_dir:/output" \\\n'
+            '  --mount "type=bind,source=$bundle_dir/trusted/sa_tb.py,target=/opt/silicon-python/sa_tb.py,readonly" \\\n'
+            f"  -w /output {proof['image_identity']['image_id']} \\\n"
+            f"  python3 /opt/silicon-agent/runtime.py sim --top {spec.top_module} "
+            f"--test-module {proof['host_result']['test_module']} > \"$output_dir/tool.log\" 2>&1\n"
+            'cat "$output_dir/result.json"\n```\n\n'
+            "Outputs are tool.log, test_results.xml, sa_tb_evidence.json and result.json. "
+            "The bundle's selected test results do not claim that a newly modified design passes.\n"
+        )
     manifest = {"run_tag": best_run_tag, "tiny_tapeout_ready": False, "template": TEMPLATE_URL, "files": {}}
     destination = safe_artifact(root.parent, root.parent / "bundle.zip")
     with tempfile.NamedTemporaryFile(prefix=".bundle-", suffix=".zip", dir=root.parent, delete=False) as temporary:
@@ -151,7 +223,8 @@ def _package_design(tools: ToolRunner, best_run_tag: str, spec: DesignSpec) -> P
                 archive.writestr(name, text)
                 manifest["files"][name] = hashlib.sha256(text.encode()).hexdigest()
             archive.writestr("manifest.json", json.dumps(manifest, indent=2) + "\n")
-        validate_bundle(temporary_path, expected_run_tag=best_run_tag, expected_spec=spec)
+        validate_bundle(temporary_path, expected_run_tag=best_run_tag, expected_spec=spec,
+                        require_harness_verification=tools.requires_harness_verification)
         temporary_path.replace(destination)
     finally:
         temporary_path.unlink(missing_ok=True)

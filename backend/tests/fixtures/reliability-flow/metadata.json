@@ -1,0 +1,103 @@
+{
+  "purpose": "Untouched actualterminalR1flowerrorsforfuturecanonicaldiagnosticunitqualification; noEDA/modelreruns. Reconstructedfieldvisibilityisstaticapplicationofexistingtruncationrules,notnewinferenceorflowresults.",
+  "fixtures": [
+    {
+      "fixture": "dpl-0036.error.log",
+      "sha256": "60d9ffb94f7f947a539d9c12f7940393a867e8f12175e7448fcb6a4d333b0ae6",
+      "bytes": 38,
+      "source_relative_path": "eval/results/20261024T030824Z_b4b21326/trials/dev/dab0b0719d10/repeat-03/pipeline/5de5606a516a40dcb84aff1e51a2c9e9/work/.eda/flow_8961ab22bb304e619055ac9275b13031/output/runs/flow_1ca87227ce0d4726/error.log",
+      "source_cohort": "20261024T030824Z_b4b21326",
+      "source_case_id": "dab0b0719d10",
+      "source_repeat": 3,
+      "source_run_id": "5de5606a516a40dcb84aff1e51a2c9e9",
+      "source_run_tag": "flow_1ca87227ce0d4726",
+      "source_event_id": 30,
+      "source_events_relative_path": "eval/results/20261024T030824Z_b4b21326/trials/dev/dab0b0719d10/repeat-03/pipeline/5de5606a516a40dcb84aff1e51a2c9e9/events.jsonl",
+      "fatal_code": "DPL-0036",
+      "contents_untouched": true,
+      "diagnostic_field_visibility": {
+        "immutable_error_log": {
+          "has_fatal_code": true,
+          "path": "eval/results/20261024T030824Z_b4b21326/trials/dev/dab0b0719d10/repeat-03/pipeline/5de5606a516a40dcb84aff1e51a2c9e9/work/.eda/flow_8961ab22bb304e619055ac9275b13031/output/runs/flow_1ca87227ce0d4726/error.log"
+        },
+        "runtime_result_json": {
+          "keys": [
+            "ok",
+            "run_tag"
+          ],
+          "has_fatal_code": false,
+          "path": "eval/results/20261024T030824Z_b4b21326/trials/dev/dab0b0719d10/repeat-03/pipeline/5de5606a516a40dcb84aff1e51a2c9e9/work/.eda/flow_8961ab22bb304e619055ac9275b13031/output/result.json"
+        },
+        "saved_tool_finished_result.log_tail": {
+          "has_fatal_code": true,
+          "bytes": 4133
+        },
+        "saved_tool_finished_result.first_error": {
+          "present": false,
+          "has_fatal_code": false
+        },
+        "saved_tool_finished_result.error": {
+          "present": false,
+          "has_fatal_code": false
+        },
+        "reconstructed_same_turn_tool_reply.first_error": {
+          "has_fatal_code": true,
+          "rule": "last700charactersofactualsavedlog_tail"
+        },
+        "reconstructed_cross_stage_record.first_error": {
+          "has_fatal_code": false,
+          "rule": "first400oflast700charactersofactualsavedlog_tail"
+        }
+      }
+    },
+    {
+      "fixture": "gpl-0301.error.log",
+      "sha256": "fc5143ed95384d30c9e9afce454962cefb2adf8d99bb2383642adb0eab05bdfa",
+      "bytes": 47,
+      "source_relative_path": "eval/results/20261024T030824Z_b4b21326/trials/dev/dab0b0719d10/repeat-03/pipeline/5de5606a516a40dcb84aff1e51a2c9e9/work/.eda/flow_03e4c3b1d5fd44cf9147915a1f62f65b/output/runs/flow_0680f4085725430b/error.log",
+      "source_cohort": "20261024T030824Z_b4b21326",
+      "source_case_id": "dab0b0719d10",
+      "source_repeat": 3,
+      "source_run_id": "5de5606a516a40dcb84aff1e51a2c9e9",
+      "source_run_tag": "flow_0680f4085725430b",
+      "source_event_id": 41,
+      "source_events_relative_path": "eval/results/20261024T030824Z_b4b21326/trials/dev/dab0b0719d10/repeat-03/pipeline/5de5606a516a40dcb84aff1e51a2c9e9/events.jsonl",
+      "fatal_code": "GPL-0301",
+      "contents_untouched": true,
+      "diagnostic_field_visibility": {
+        "immutable_error_log": {
+          "has_fatal_code": true,
+          "path": "eval/results/20261024T030824Z_b4b21326/trials/dev/dab0b0719d10/repeat-03/pipeline/5de5606a516a40dcb84aff1e51a2c9e9/work/.eda/flow_03e4c3b1d5fd44cf9147915a1f62f65b/output/runs/flow_0680f4085725430b/error.log"
+        },
+        "runtime_result_json": {
+          "keys": [
+            "ok",
+            "run_tag"
+          ],
+          "has_fatal_code": false,
+          "path": "eval/results/20261024T030824Z_b4b21326/trials/dev/dab0b0719d10/repeat-03/pipeline/5de5606a516a40dcb84aff1e51a2c9e9/work/.eda/flow_03e4c3b1d5fd44cf9147915a1f62f65b/output/result.json"
+        },
+        "saved_tool_finished_result.log_tail": {
+          "has_fatal_code": true,
+          "bytes": 4133
+        },
+        "saved_tool_finished_result.first_error": {
+          "present": false,
+          "has_fatal_code": false
+        },
+        "saved_tool_finished_result.error": {
+          "present": false,
+          "has_fatal_code": false
+        },
+        "reconstructed_same_turn_tool_reply.first_error": {
+          "has_fatal_code": true,
+          "rule": "last700charactersofactualsavedlog_tail"
+        },
+        "reconstructed_cross_stage_record.first_error": {
+          "has_fatal_code": false,
+          "rule": "first400oflast700charactersofactualsavedlog_tail"
+        }
+      }
+    }
+  ]
+}

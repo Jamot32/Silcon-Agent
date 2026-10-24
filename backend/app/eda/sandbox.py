@@ -1,11 +1,16 @@
 """Run trusted command arguments against untrusted designs in Docker."""
 
 import asyncio
+import csv
 from dataclasses import dataclass
+from datetime import datetime, timezone
+import io
 import json
 import math
 import os
 from pathlib import Path
+import re
+import stat
 from uuid import uuid4
 
 from pydantic import JsonValue
@@ -72,7 +77,7 @@ class DockerSandbox:
         self.pdk_dir = (pdk_dir or Path(os.getenv("EDA_PDK_DIR", REPO_ROOT / "runs/pdk/ciel/sky130/versions" / PDK_REVISION))).resolve()
         self.user = user if user is not None else f"{os.getuid()}:{os.getgid()}"
 
-    async def run(self, command: list[str], *, input_dir: Path, output_dir: Path, timeout: float = 60, require_pdk: bool = False) -> CommandResult:
+    async def run(self, command: list[str], *, input_dir: Path, output_dir: Path, timeout: float = 60, require_pdk: bool = False, trusted_test_helper: Path | None = None) -> CommandResult:
         if not math.isfinite(timeout) or timeout <= 0:
             raise ValueError("Timeout must be positive")
         input_dir = input_dir.resolve()
@@ -88,6 +93,20 @@ class DockerSandbox:
                 "-v", f"{input_dir}:/input:ro", "-v", f"{output_dir}:/output", "-w", "/output"]
         if require_pdk:
             args += ["-v", f"{self.pdk_dir}:/pdk:ro"]
+        if trusted_test_helper is not None:
+            helper = Path(trusted_test_helper).absolute()
+            expected = input_dir / "trusted" / "sa_tb.py"
+            if (helper != expected or any(path.is_symlink() for path in (helper, helper.parent))
+                    or not helper.is_file() or not stat.S_ISREG(helper.lstat().st_mode)):
+                raise ValueError("Trusted helper must be the regular input/trusted/sa_tb.py snapshot")
+            if input_dir.is_relative_to(output_dir) or output_dir.is_relative_to(input_dir):
+                raise ValueError("Trusted helper input and writable output must not overlap")
+            mount = io.StringIO()
+            csv.writer(mount, lineterminator="").writerow([
+                "type=bind", f"source={helper}",
+                "target=/opt/silicon-python/sa_tb.py", "readonly",
+            ])
+            args += ["--mount", mount.getvalue()]
         args += [self.image, *command]
         path = output_dir / "tool.log"
         timed_out = False
@@ -117,6 +136,33 @@ class DockerSandbox:
                     raise
             returncode = process.returncode if process.returncode is not None else -1
         return CommandResult(returncode, timed_out, path, log_tail(output_dir, path))
+
+
+async def pin_sandbox_image(sandbox: DockerSandbox) -> tuple[DockerSandbox, dict[str, str]]:
+    """Observe a local image ID and pin only the new helper route to those bytes."""
+    reference = sandbox.image
+    if not isinstance(reference, str) or not reference or reference.startswith("-") or len(reference) > 500:
+        raise ValueError("Invalid EDA image reference")
+    try:
+        process = await asyncio.create_subprocess_exec(
+            "docker", "image", "inspect", "--format", "{{.Id}}", reference,
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL,
+        )
+    except OSError as error:
+        raise ValueError("Cannot inspect the local EDA image") from error
+    try:
+        stdout, _ = await asyncio.wait_for(process.communicate(), 10)
+    except (TimeoutError, asyncio.CancelledError):
+        if process.returncode is None:
+            process.kill()
+        await process.wait()
+        raise
+    image_id = stdout.decode("ascii", errors="replace").strip()
+    if process.returncode != 0 or not re.fullmatch(r"sha256:[0-9a-f]{64}", image_id):
+        raise ValueError("Docker inspection did not return an immutable EDA image ID")
+    identity = {"reference": reference, "image_id": image_id,
+                "authority": "docker_image_inspect", "observed_at": datetime.now(timezone.utc).isoformat()}
+    return DockerSandbox(image=image_id, pdk_dir=sandbox.pdk_dir, user=sandbox.user), identity
 
 
 async def run_runtime(sandbox: DockerSandbox, kind: str, *, input_dir: Path, output_dir: Path, top: str, extra: list[str] | None = None, timeout: float = 60, require_pdk: bool = False) -> dict[str, JsonValue]:

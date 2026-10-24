@@ -7,8 +7,10 @@ from uuid import uuid4
 
 from pydantic import JsonValue, ValidationError
 
-from app.agent.memory import Memory
-from app.agent.prompts import STAGE_GOALS, SUMMARY_PROMPT, SYSTEM_PROMPT, stage_prompt
+from app.agent.diagnostics import diagnostic_text, first_diagnostic, prefix
+from app.agent.failures import classify_failure
+from app.agent.memory import Memory, summary_from_evidence
+from app.agent.prompts import STAGE_GOALS, SYSTEM_PROMPT, stage_prompt
 from app.agent.scope import ScopeAssessment, assess_scope, terminal_message
 from app.agent.starters import load_starter
 from app.agent.tools import ToolRunner, tool_definitions
@@ -139,38 +141,26 @@ class Orchestrator:
         return messages
 
     async def _remember(self, stage: str) -> None:
-        evidence = self.last_results[-4:]
-        if stage == "VERIFY":
-            evidence = [result for result in evidence if result.get("tool") == "run_tests"]
-        response = await self._ask([
-            Message(role="system", content=SYSTEM_PROMPT),
-            Message(role="user", content=SUMMARY_PROMPT + "\n" + json.dumps({
-                "stage": stage, "evidence": evidence,
-                "design_spec": self.design_spec.model_dump(mode="json") if self.design_spec else None,
-                "best_metrics": self.best.model_dump(mode="json", exclude={"id", "run_id", "iteration_id"}) if self.best else None,
-                "bundle": self.bundle_path.name if self.bundle_path else None,
-            })),
-        ], set())
-        if response.tool_calls:
-            raise LLMError("Stage summaries cannot call tools")
-        self.memory.record(stage, response.content)
+        self.memory.record(stage, summary_from_evidence(
+            stage,
+            design_spec=self.design_spec.model_dump(mode="json") if self.design_spec else None,
+            tool_results=self.last_results[-4:],
+            best_metrics=self.best.model_dump(mode="json") if self.best else None,
+            bundle_name=self.bundle_path.name if self.bundle_path else None,
+        ))
 
     def _record_result(self, call: ToolCall, result: dict[str, JsonValue]) -> None:
         summary: dict[str, JsonValue] = {"tool": call.name}
-        for key in ("ok", "bytes", "passed", "failed", "cell_count", "area_estimate", "run_tag", "metrics", "drc_ok", "lvs_ok"):
+        for key in ("ok", "bytes", "passed", "failed", "skipped", "cell_count", "area_estimate", "run_tag", "metrics", "drc_ok", "lvs_ok",
+                    "log_path", "results_path", "evidence_path", "stats_path", "quality_gate_passed", "error_kind"):
             if key in result:
                 summary[key] = result[key]
         if isinstance(call.arguments.get("path"), str):
             summary["path"] = call.arguments["path"]
-        error = result.get("error") or result.get("first_error")
-        for key in ("errors", "failures"):
-            values = result.get(key)
-            if not error and isinstance(values, list) and values:
-                error = json.dumps(values[0])
-        if not error and result.get("ok") is False and isinstance(result.get("log_tail"), str):
-            error = str(result["log_tail"])[-700:]
-        if error:
-            summary["first_error"] = str(error)[:400]
+        diagnostic = first_diagnostic(result)
+        if diagnostic is not None:
+            summary["first_diagnostic"] = diagnostic
+            summary["first_error"] = diagnostic_text(diagnostic)
         self.last_results.append(summary)
         self.last_results = self.last_results[-8:]
 
@@ -225,13 +215,10 @@ class Orchestrator:
         # ToolRunner already bounds source/report reads; logs and diffs stay out
         # of model context. Numbers and the first failure are enough to act on.
         trimmed = {key: value for key, value in result.items() if key not in {"diff", "log_tail", "failures", "errors"}}
-        for key in ("errors", "failures"):
-            values = result.get(key)
-            if isinstance(values, list) and values:
-                trimmed["first_error"] = str(values[0])[:700]
-        if (not trimmed.get("first_error") and result.get("ok") is False
-                and isinstance(result.get("log_tail"), str)):
-            trimmed["first_error"] = str(result["log_tail"])[-700:]
+        diagnostic = first_diagnostic(result)
+        if diagnostic is not None:
+            trimmed["first_diagnostic"] = diagnostic
+            trimmed["first_error"] = diagnostic_text(diagnostic)
         if isinstance(trimmed.get("text"), str):
             trimmed["text"] = str(trimmed["text"])[:2000]
         return Message(role="tool", tool_call_id=call.id, content=json.dumps(trimmed, allow_nan=False))
@@ -491,6 +478,30 @@ class Orchestrator:
         if len(self.candidates) < 2:
             await self._emit("note", {"text": "Optimization attempts produced no successful comparison; preserving the measured initial design."})
 
+    def _failure_details(self, error: Exception, message: str) -> tuple[str, str, str, dict[str, JsonValue] | None]:
+        # A repaired failure must not be presented as the current blocker.
+        latest = {str(result["tool"]): result for result in self.last_results if "tool" in result}
+        relevant = {
+            "RTL": ("lint", "write_file", "run_tests"), "VERIFY": ("run_tests", "write_file"),
+            "SYNTH": ("synth_stats",), "FLOW": ("run_flow",),
+            "OPTIMIZE": ("run_flow", "run_tests", "lint"), "SIGNOFF": ("read_report",),
+        }.get(self.stage, ())
+        tool = next((name for name in relevant if latest.get(name, {}).get("ok") is False), None)
+        evidence = latest[tool] if tool is not None else None
+        terminal = classify_failure(stage=self.stage, error=error, tool=tool, result=evidence)
+        assert terminal is not None
+        detail = classify_failure(stage=self.stage, tool=tool, result=evidence) if evidence else None
+        action = detail.suggested_action if detail is not None else terminal.suggested_action
+        diagnostic = first_diagnostic(evidence) if evidence else None
+        text = prefix(message, 1000)
+        if diagnostic is not None:
+            text += f" Last {tool}: {diagnostic_text(diagnostic)}."
+        path = evidence.get("log_path") if evidence else None
+        if isinstance(path, str) and not Path(path).is_absolute():
+            text += f" Saved log: {prefix(path, 400)}."
+        text += f" Next: {action}"
+        return prefix(text, 3000), terminal.failure_class.value, action, diagnostic
+
     async def run(self) -> Outcome:
         try:
             await self._stage("SPEC", previous_ok=None)
@@ -499,6 +510,7 @@ class Orchestrator:
                 return scoped
             await self._spec()
             assert self.design_spec is not None
+            self.tools.configure_test_harness(self.design_spec)
             self.tools.eda.clock_port = None if self.design_spec.purely_combinational else "clk"
             await self._remember("SPEC")
             await self._rtl()
@@ -531,7 +543,8 @@ class Orchestrator:
                 raise LLMError("Packaging is not configured; a real bundle is required before DONE")
             self.bundle_path = await self.package_callback(self.best.run_tag)
             from app.packaging import validate_bundle
-            validate_bundle(self.bundle_path, expected_run_tag=self.best.run_tag, expected_spec=self.design_spec)
+            validate_bundle(self.bundle_path, expected_run_tag=self.best.run_tag, expected_spec=self.design_spec,
+                            require_harness_verification=self.tools.requires_harness_verification)
             await self._remember("PACKAGE")
             await self._stage("DONE")
             target_status = "numeric targets met" if targets_met(self.best, self.design_spec.targets) else "numeric targets missed"
@@ -548,7 +561,11 @@ class Orchestrator:
                 message = f"Invalid design or metric evidence at {first['loc']}: {first['msg']}"
             else:
                 message = str(error)[:1000] or type(error).__name__
-            await self._emit("error", {"stage": self.stage, "message": message})
+            message, failure_class, action, diagnostic = self._failure_details(error, message)
+            await self._emit("error", {"stage": self.stage, "message": message,
+                                        "failure_class": failure_class, "suggested_action": action,
+                                        "last_diagnostic": diagnostic})
             await self._stage("FAIL", previous_ok=False)
             return Outcome(status="failed", summary=message, error=message, design_spec=self.design_spec,
-                           best_run_tag=self.best.run_tag if self.best else None)
+                           best_run_tag=self.best.run_tag if self.best else None,
+                           failure_class=failure_class, suggested_action=action, last_diagnostic=diagnostic)

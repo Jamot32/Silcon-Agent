@@ -6,6 +6,7 @@ import json
 import os
 import re
 import stat
+from copy import deepcopy
 from collections.abc import Awaitable, Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path, PurePosixPath
@@ -13,9 +14,13 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationError
 
+from app.agent.diagnostics import bounded_result
 from app.eda.flow import validate_flow_overrides
 from app.eda.service import EDA
+from app.eda import harness
+from app.eda.verification import capture_harness_proof, validate_proof
 from app.llm.types import ToolCall, ToolDefinition
+from app.schemas import DesignSpec
 
 MAX_WRITE_BYTES = 128 * 1024
 MAX_OUTPUT_BYTES = 8 * 1024
@@ -99,32 +104,7 @@ def _tail(text: str, limit: int = MAX_OUTPUT_BYTES) -> str:
 
 
 def _bounded_result(result: dict[str, JsonValue]) -> dict[str, JsonValue]:
-    encoded = json.dumps(result, ensure_ascii=False, allow_nan=False)
-    if len(encoded.encode()) <= MAX_OUTPUT_BYTES:
-        return result
-    compact: dict[str, JsonValue] = {
-        key: result[key] for key in (
-            "ok", "bytes", "passed", "failed", "skipped", "cases", "cell_count", "area_estimate",
-            "run_tag", "drc_ok", "lvs_ok", "image_url", "best_run_tag", "metrics",
-            "log_path", "results_path", "stats_path",
-        ) if key in result
-    }
-    compact["summary"] = "Output truncated; full EDA logs remain on disk."
-    for key in ("error", "content", "diff", "text", "log_tail"):
-        if isinstance(result.get(key), str):
-            compact[key] = _tail(str(result[key]), 4 * 1024)
-            break
-    else:
-        compact["log_tail"] = _tail(encoded, 4 * 1024)
-    for key in ("errors", "failures"):
-        values = result.get(key)
-        if isinstance(values, list) and values:
-            compact["first_error"] = _tail(json.dumps(values[0], ensure_ascii=False), 512)
-            break
-    # Metrics are normally a small numeric mapping. Bound even unexpected output.
-    if len(json.dumps(compact, ensure_ascii=False).encode()) > MAX_OUTPUT_BYTES:
-        return {"ok": result.get("ok", False), "summary": compact["summary"], "log_tail": _tail(encoded, 4 * 1024)}
-    return compact
+    return bounded_result(result, MAX_OUTPUT_BYTES)
 
 
 def _validate_rtl(content: str) -> None:
@@ -201,6 +181,28 @@ class ToolRunner:
         self._verified_tests_digest: str | None = None
         self._verified_top: str | None = None
         self._test_lock = asyncio.Lock()
+        self._harness_spec: DesignSpec | None = None
+        self._harness_proof: dict[str, JsonValue] | None = None
+        self._flow_proofs: dict[str, dict[str, JsonValue]] = {}
+
+    def configure_test_harness(self, spec: DesignSpec) -> None:
+        """Host-owned generated-test mode; never selected by model tool arguments."""
+        self._harness_spec = DesignSpec.model_validate(spec.model_dump(mode="json"))
+        self.eda.configure_test_harness(self._harness_spec)
+        self.verified_revision = None
+        self._verified_tests_digest = None
+        self._verified_top = None
+        self._harness_proof = None
+
+    def flow_verification_artifacts(self, run_tag: str) -> dict[str, Path]:
+        return self.eda.flow_verification_artifacts(run_tag) if self._harness_spec is not None else {}
+
+    @property
+    def requires_harness_verification(self) -> bool:
+        return self._harness_spec is not None
+
+    def flow_verification_proof(self, run_tag: str) -> dict[str, JsonValue] | None:
+        return deepcopy(self._flow_proofs.get(run_tag))
 
     def _source_digest(self, directory: str, extension: str) -> str:
         self._relative(directory)
@@ -224,6 +226,12 @@ class ToolRunner:
                 or self._verified_tests_digest != self._source_digest("test", ".py")
                 or self._verified_top != top or self._test_lock.locked()):
             raise ValueError("Current RTL and tests must pass at least 4 tests before a flow run")
+        if self._harness_spec is not None:
+            if self._harness_proof is None:
+                raise ValueError("Current generated tests have no qualified harness proof")
+            validate_proof(self.work_dir, self._harness_proof,
+                           source_dir=self.work_dir / "src", tests_dir=self.work_dir / "test",
+                           require_current_helper=True)
 
     def _relative(self, path: str) -> PurePosixPath:
         if "\\" in path or "\x00" in path or any(part in {"", ".", ".."} for part in path.split("/")):
@@ -331,12 +339,30 @@ class ToolRunner:
                 self.verified_revision = None
                 self._verified_tests_digest = None
                 self._verified_top = None
-                result = await self.eda.run_tests(arguments.top, arguments.test_module)
+                self._harness_proof = None
+                result = await (self.eda.run_harness_tests(arguments.top, arguments.test_module)
+                                if self._harness_spec is not None
+                                else self.eda.run_tests(arguments.top, arguments.test_module))
                 if before != self.rtl_digest() or tests_before != self._source_digest("test", ".py"):
                     result.update(ok=False, error="Sources changed while tests were running; verify again")
                 elif (result.get("ok") is True and type(result.get("passed")) is int
                       and int(result["passed"]) >= 4 and type(result.get("failed")) is int
                       and result["failed"] == 0):
+                    if self._harness_spec is not None:
+                        try:
+                            self._harness_proof = capture_harness_proof(
+                                self.work_dir, arguments.top, result, self.eda.harness_artifacts())
+                            validate_proof(self.work_dir, self._harness_proof,
+                                           source_dir=self.work_dir / "src", tests_dir=self.work_dir / "test",
+                                           require_current_helper=True)
+                        except ValueError as error:
+                            self._harness_proof = None
+                            result.update(ok=False, quality_gate_passed=False, error=str(error),
+                                          error_kind="harness_error", first_diagnostic={
+                                              "kind": "harness_error", "message": str(error)})
+                    if result.get("ok") is not True:
+                        await self._emit("test_result", _bounded_result(result))
+                        return result
                     self.verified_revision = before
                     self._verified_tests_digest = tests_before
                     self._verified_top = arguments.top
@@ -353,7 +379,12 @@ class ToolRunner:
             flow_index = self.flow_runs
             async with _FLOW_SEMAPHORE:
                 self._require_verified(arguments.top)
-                result = await self.eda.run_flow(arguments.top, overrides)
+                proof = deepcopy(self._harness_proof)
+                result = await (self.eda.run_harness_flow(arguments.top, overrides, proof)
+                                if self._harness_spec is not None
+                                else self.eda.run_flow(arguments.top, overrides))
+                if proof is not None and isinstance(result.get("run_tag"), str):
+                    self._flow_proofs[result["run_tag"]] = proof
             if isinstance(result.get("metrics"), dict):
                 result["metrics"]["flow_index"] = flow_index
                 await self._emit("metric_recorded", {"run_tag": result.get("run_tag"), "flow_index": flow_index, "metrics": result["metrics"]})
@@ -383,7 +414,13 @@ class ToolRunner:
         if path.suffix == ".v":
             _validate_rtl(arguments.content)
         elif path.suffix == ".py":
-            _validate_test(arguments.content)
+            if self._harness_spec is not None:
+                context = self.eda.harness_context()
+                if context is None:
+                    raise ValueError("Trusted test harness is not configured")
+                harness.validate_generated_test(arguments.content, context, module_name=path.stem)
+            else:
+                _validate_test(arguments.content)
         else:
             validate_flow_overrides(json.loads(arguments.content))
         with self._file(arguments.path, write=True) as descriptor:
@@ -410,4 +447,5 @@ class ToolRunner:
             self.verified_revision = None
             self._verified_tests_digest = None
             self._verified_top = None
+            self._harness_proof = None
         return {"ok": True, "bytes": len(content), "diff": _tail(diff)}

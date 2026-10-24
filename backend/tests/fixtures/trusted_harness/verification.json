@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "mode": "sa_tb_v1",
+  "api_version": 1,
+  "top_module": "proof_counter",
+  "helper_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+  "context_sha256": "fa7f60777e83f2332ea737417e686bb59bd2882add5444aa85854d574223c8d5",
+  "image_identity": {
+    "authority": "docker_image_inspect",
+    "image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+    "observed_at": "2026-10-24T05:04:01.887347+00:00",
+    "reference": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1"
+  },
+  "source_sha256": "8722b361c0a98e69c836a8cbf768a967836569b8cb552fc1b15609ec2077a880",
+  "tests_sha256": "070a4f879c32f543bafd0b90d5dc0b3597dde3ea19940f323122e51f8316ea27",
+  "source_dir": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/src",
+  "tests_dir": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/test",
+  "artifacts": {
+    "context": {
+      "path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/trusted/harness.json",
+      "sha256": "18a22ce32c7721c13e352ce5540f2d524119e7da8d29648b778aa4e1447d3a72"
+    },
+    "helper": {
+      "path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/trusted/sa_tb.py",
+      "sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21"
+    },
+    "evidence": {
+      "path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/sa_tb_evidence.json",
+      "sha256": "ee6a61e5c3162e37b8581a19745a748d8aebab40f5d730182a07c354a79f95e1"
+    },
+    "xml": {
+      "path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/test_results.xml",
+      "sha256": "9102ba3135bbd5420e4af83ab7d28160f22b0e0ff9134832f057a1e316846af0"
+    },
+    "runtime": {
+      "path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/result.json",
+      "sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+    }
+  },
+  "host_result": {
+    "ok": true,
+    "mode": "sa_tb_v1",
+    "api_version": 1,
+    "top_module": "proof_counter",
+    "test_module": "test_proof_counter",
+    "helper_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+    "context_sha256": "fa7f60777e83f2332ea737417e686bb59bd2882add5444aa85854d574223c8d5",
+    "source_sha256": "8722b361c0a98e69c836a8cbf768a967836569b8cb552fc1b15609ec2077a880",
+    "tests_sha256": "070a4f879c32f543bafd0b90d5dc0b3597dde3ea19940f323122e51f8316ea27",
+    "image_identity": {
+      "reference": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+      "image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+      "authority": "docker_image_inspect",
+      "observed_at": "2026-10-24T05:04:01.887347+00:00"
+    },
+    "quality_gate_passed": true,
+    "log_path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/tool.log",
+    "results_path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/test_results.xml",
+    "evidence_path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/sa_tb_evidence.json",
+    "input_artifacts": {
+      "context": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/trusted/harness.json",
+      "helper": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/trusted/sa_tb.py"
+    },
+    "log_tail": "     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3\n     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered\n     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)\n     0.00ns INFO     cocotb                             Seeding Python random module with 1792818242\n     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb\n     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages\n     0.00ns INFO     cocotb                             Running tests\n     0.00ns INFO     cocotb.regression                  running test_proof_counter.test_reset (1/4)\n    52.00ns INFO     cocotb.regression                  test_proof_counter.test_reset passed\n    52.00ns INFO     cocotb.regression                  running test_proof_counter.test_increment (2/4)\n   124.00ns INFO     cocotb.regression                  test_proof_counter.test_increment passed\n   124.00ns INFO     cocotb.regression                  running test_proof_counter.test_hold (3/4)\n   196.01ns INFO     cocotb.regression                  test_proof_counter.test_hold passed\n   196.01ns INFO     cocotb.regression                  running test_proof_counter.test_wrap (4/4)\n   568.01ns INFO     cocotb.regression                  test_proof_counter.test_wrap passed\n   568.01ns INFO     cocotb.regression                  *******************************************************************************************\n                                                        ** TEST                               STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **\n                                                        *******************************************************************************************\n                                                        ** test_proof_counter.test_reset       PASS          52.00           0.00      27999.00  **\n                                                        ** test_proof_counter.test_increment   PASS          72.00           0.00      32613.20  **\n                                                        ** test_proof_counter.test_hold        PASS          72.00           0.00      48142.56  **\n                                                        ** test_proof_counter.test_wrap        PASS         372.00           0.00     153753.40  **\n                                                        *******************************************************************************************\n                                                        ** TESTS=4 PASS=4 FAIL=0 SKIP=0                     568.01           0.01      61351.74  **\n                                                        *******************************************************************************************\n",
+    "timed_out": false,
+    "exit_code": 0,
+    "cases": [
+      {
+        "test": "test_reset",
+        "ok": true
+      },
+      {
+        "test": "test_increment",
+        "ok": true
+      },
+      {
+        "test": "test_hold",
+        "ok": true
+      },
+      {
+        "test": "test_wrap",
+        "ok": true
+      }
+    ],
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "harness_evidence_valid": true,
+    "harness_input_dir": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input",
+    "harness_output_dir": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output"
+  },
+  "host_result_sha256": "db47176638c7cd9ec234b20ea614530629623db858137955c4065480e19478c8",
+  "proof_sha256": "5558285441af9a0336426e7423fcabb223d19a2e656d491a1be5f8f24eee8322"
+}

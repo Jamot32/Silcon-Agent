@@ -1,0 +1,9 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1792818242" />
+    <testcase name="test_reset" classname="test_proof_counter" file="/opt/silicon-python/sa_tb.py" lineno="3" time="0.0018572807312011719" sim_time_ns="52.002" ratio_time="27998.998280872915" />
+    <testcase name="test_increment" classname="test_proof_counter" file="/opt/silicon-python/sa_tb.py" lineno="8" time="0.0022077560424804688" sim_time_ns="72.002" ratio_time="32613.204817278616" />
+    <testcase name="test_hold" classname="test_proof_counter" file="/opt/silicon-python/sa_tb.py" lineno="14" time="0.0014955997467041016" sim_time_ns="72.00200000000001" ratio_time="48142.559637812854" />
+    <testcase name="test_wrap" classname="test_proof_counter" file="/opt/silicon-python/sa_tb.py" lineno="20" time="0.0024194717407226562" sim_time_ns="372.00199999999995" ratio_time="153753.39737958217" />
+  </testsuite>
+</testsuites>

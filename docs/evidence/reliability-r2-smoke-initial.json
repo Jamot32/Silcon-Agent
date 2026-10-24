@@ -1,0 +1,554 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "initial_failed_real_model_smoke",
+  "purpose": "Preserve the actual failed integration smoke and its public events. This is not a reliability benchmark or a performance improvement claim.",
+  "run_id": "31e532e348b84d7d8ebbf330e1adcd36",
+  "is_replay": false,
+  "provider": "codex",
+  "spec_text": "Build a six-bit saturating event counter. Inputs are clk, rst_n, enable, event_in, and clear (all one bit). Outputs are count (six bits) and full (one bit). At each rising clock edge: rst_n=0 synchronously clears count to zero; otherwise clear=1 clears count and takes priority over enable/event_in; otherwise increment count only when enable and event_in are both 1. Once count is 63 it holds until clear or reset. full is combinationally 1 exactly when count is 63. Use a 50 MHz target. No prescaler or extra features.",
+  "top_module": "saturating_event_counter",
+  "status": "failed",
+  "final_stage": "FAIL",
+  "created_at": "2026-10-24T04:57:29.816481Z",
+  "finished_at": "2026-10-24T05:02:24.104983+00:00",
+  "elapsed_seconds": 294.288502,
+  "source_artifacts": [
+    {
+      "path": "runs/31e532e348b84d7d8ebbf330e1adcd36/run.json",
+      "sha256": "a01c761d35259d5eaddf5f336a1ed5bcd3b366866d08f7cc987470771cde42d0"
+    },
+    {
+      "path": "runs/31e532e348b84d7d8ebbf330e1adcd36/events.jsonl",
+      "sha256": "b3364ab2d7d72ceb1b41e994c2188ab45b38bc3521a3c169b9977fbcfab2dcb1"
+    },
+    {
+      "path": "runs/31e532e348b84d7d8ebbf330e1adcd36/metrics.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "runs/31e532e348b84d7d8ebbf330e1adcd36/work/.eda/harness_017e1678428c435599b33ed380efc504/input/trusted/sa_tb.py",
+      "sha256": "090b36755f9aff3d524ceda89836ad101081ddea6ec33d15fa4aa040f3dba65d"
+    },
+    {
+      "path": "runs/31e532e348b84d7d8ebbf330e1adcd36/work/.eda/harness_017e1678428c435599b33ed380efc504/input/test/test_counter_spec.py",
+      "sha256": "ae3260619b323a8358606191e916f72369c2e147fcbb4f325ba4579e45330494"
+    },
+    {
+      "path": "runs/31e532e348b84d7d8ebbf330e1adcd36/work/.eda/harness_017e1678428c435599b33ed380efc504/input/src/saturating_event_counter.v",
+      "sha256": "81af1e6d746fbf8adefb5228fda9088194c228a1ac65b7f3254beabe3db2b117"
+    }
+  ],
+  "terminal_error_event": {
+    "id": 1908,
+    "ts": "2026-10-24T05:02:24.086801+00:00",
+    "type": "error",
+    "payload": {
+      "stage": "VERIFY",
+      "message": "Verification failed after five RTL repair loops Last run_tests: test_reset_clear_priority: Request must explicitly supply every data input. Saved log: .eda/harness_59aa2014341c4d68925b9e6ba770d92e/output/tool.log. Next: Compare the failing stimulus and expected result with the frozen specification.",
+      "failure_class": "fix_loop_exhausted",
+      "suggested_action": "Compare the failing stimulus and expected result with the frozen specification.",
+      "last_diagnostic": {
+        "kind": "harness_error",
+        "message": "Request must explicitly supply every data input",
+        "test": "test_reset_clear_priority",
+        "cycle": 1
+      }
+    }
+  },
+  "terminal_finished_event": {
+    "id": 1910,
+    "ts": "2026-10-24T05:02:24.104983+00:00",
+    "type": "run_finished",
+    "payload": {
+      "status": "failed",
+      "summary": "Verification failed after five RTL repair loops Last run_tests: test_reset_clear_priority: Request must explicitly supply every data input. Saved log: .eda/harness_59aa2014341c4d68925b9e6ba770d92e/output/tool.log. Next: Compare the failing stimulus and expected result with the frozen specification.",
+      "best_run_tag": null,
+      "tapeout_ready": false,
+      "block_signoff_clean": false,
+      "error": "Verification failed after five RTL repair loops Last run_tests: test_reset_clear_priority: Request must explicitly supply every data input. Saved log: .eda/harness_59aa2014341c4d68925b9e6ba770d92e/output/tool.log. Next: Compare the failing stimulus and expected result with the frozen specification.",
+      "failure_class": "fix_loop_exhausted",
+      "suggested_action": "Compare the failing stimulus and expected result with the frozen specification.",
+      "last_diagnostic": {
+        "kind": "harness_error",
+        "message": "Request must explicitly supply every data input",
+        "test": "test_reset_clear_priority",
+        "cycle": 1
+      },
+      "scope_decision": null,
+      "scope_reason": null
+    }
+  },
+  "usage": {
+    "calls": 16,
+    "input_tokens": 193604,
+    "output_tokens": 17864,
+    "cost_usd": null,
+    "cost_known": false,
+    "cost_note": "ChatGPT plan OAuth usage does not supply a verified per-run USD charge; null is not zero.",
+    "per_stage": {
+      "SPEC": {
+        "calls": 2,
+        "input_tokens": 20189,
+        "output_tokens": 805
+      },
+      "RTL": {
+        "calls": 6,
+        "input_tokens": 72497,
+        "output_tokens": 936
+      },
+      "VERIFY": {
+        "calls": 8,
+        "input_tokens": 100918,
+        "output_tokens": 16123
+      }
+    },
+    "cumulative_events": [
+      {
+        "event_id": 1788,
+        "ts": "2026-10-24T04:57:36.097574+00:00",
+        "stage": "SPEC",
+        "cost_usd": null,
+        "input_tokens": 10610,
+        "output_tokens": 140,
+        "calls": 1
+      },
+      {
+        "event_id": 1790,
+        "ts": "2026-10-24T04:57:54.981308+00:00",
+        "stage": "SPEC",
+        "cost_usd": null,
+        "input_tokens": 20189,
+        "output_tokens": 805,
+        "calls": 2
+      },
+      {
+        "event_id": 1792,
+        "ts": "2026-10-24T04:58:00.292050+00:00",
+        "stage": "RTL",
+        "cost_usd": null,
+        "input_tokens": 30253,
+        "output_tokens": 1038,
+        "calls": 3
+      },
+      {
+        "event_id": 1799,
+        "ts": "2026-10-24T04:58:28.425770+00:00",
+        "stage": "VERIFY",
+        "cost_usd": null,
+        "input_tokens": 40840,
+        "output_tokens": 2964,
+        "calls": 4
+      },
+      {
+        "event_id": 1804,
+        "ts": "2026-10-24T04:58:52.376759+00:00",
+        "stage": "VERIFY",
+        "cost_usd": null,
+        "input_tokens": 53457,
+        "output_tokens": 4933,
+        "calls": 5
+      },
+      {
+        "event_id": 1812,
+        "ts": "2026-10-24T04:59:16.573726+00:00",
+        "stage": "VERIFY",
+        "cost_usd": null,
+        "input_tokens": 68197,
+        "output_tokens": 6847,
+        "calls": 6
+      },
+      {
+        "event_id": 1823,
+        "ts": "2026-10-24T04:59:23.050590+00:00",
+        "stage": "RTL",
+        "cost_usd": null,
+        "input_tokens": 80587,
+        "output_tokens": 6971,
+        "calls": 7
+      },
+      {
+        "event_id": 1830,
+        "ts": "2026-10-24T04:59:51.556888+00:00",
+        "stage": "VERIFY",
+        "cost_usd": null,
+        "input_tokens": 93181,
+        "output_tokens": 9034,
+        "calls": 8
+      },
+      {
+        "event_id": 1840,
+        "ts": "2026-10-24T04:59:58.691476+00:00",
+        "stage": "RTL",
+        "cost_usd": null,
+        "input_tokens": 105673,
+        "output_tokens": 9163,
+        "calls": 9
+      },
+      {
+        "event_id": 1847,
+        "ts": "2026-10-24T05:00:21.023654+00:00",
+        "stage": "VERIFY",
+        "cost_usd": null,
+        "input_tokens": 118258,
+        "output_tokens": 11166,
+        "calls": 10
+      },
+      {
+        "event_id": 1857,
+        "ts": "2026-10-24T05:00:28.177816+00:00",
+        "stage": "RTL",
+        "cost_usd": null,
+        "input_tokens": 130776,
+        "output_tokens": 11327,
+        "calls": 11
+      },
+      {
+        "event_id": 1864,
+        "ts": "2026-10-24T05:01:10.689698+00:00",
+        "stage": "VERIFY",
+        "cost_usd": null,
+        "input_tokens": 143375,
+        "output_tokens": 13455,
+        "calls": 12
+      },
+      {
+        "event_id": 1874,
+        "ts": "2026-10-24T05:01:17.926309+00:00",
+        "stage": "RTL",
+        "cost_usd": null,
+        "input_tokens": 155890,
+        "output_tokens": 13600,
+        "calls": 13
+      },
+      {
+        "event_id": 1881,
+        "ts": "2026-10-24T05:01:44.771086+00:00",
+        "stage": "VERIFY",
+        "cost_usd": null,
+        "input_tokens": 168487,
+        "output_tokens": 15627,
+        "calls": 14
+      },
+      {
+        "event_id": 1891,
+        "ts": "2026-10-24T05:01:51.128571+00:00",
+        "stage": "RTL",
+        "cost_usd": null,
+        "input_tokens": 181005,
+        "output_tokens": 15771,
+        "calls": 15
+      },
+      {
+        "event_id": 1898,
+        "ts": "2026-10-24T05:02:23.686887+00:00",
+        "stage": "VERIFY",
+        "cost_usd": null,
+        "input_tokens": 193604,
+        "output_tokens": 17864,
+        "calls": 16
+      }
+    ]
+  },
+  "event_counts": {
+    "note": 14,
+    "stage_changed": 14,
+    "cost_update": 16,
+    "tool_started": 35,
+    "file_written": 3,
+    "tool_finished": 35,
+    "test_result": 6,
+    "error": 1,
+    "run_finished": 1
+  },
+  "tool_started_counts": {
+    "write_file": 9,
+    "lint": 6,
+    "run_tests": 8,
+    "record_note": 12
+  },
+  "stage_events": [
+    {
+      "event_id": 1787,
+      "ts": "2026-10-24T04:57:29.983637+00:00",
+      "stage": "SPEC",
+      "previous_ok": null
+    },
+    {
+      "event_id": 1791,
+      "ts": "2026-10-24T04:57:54.994156+00:00",
+      "stage": "RTL",
+      "previous_ok": true
+    },
+    {
+      "event_id": 1798,
+      "ts": "2026-10-24T04:58:00.600206+00:00",
+      "stage": "VERIFY",
+      "previous_ok": true
+    },
+    {
+      "event_id": 1822,
+      "ts": "2026-10-24T04:59:16.974002+00:00",
+      "stage": "RTL",
+      "previous_ok": false
+    },
+    {
+      "event_id": 1829,
+      "ts": "2026-10-24T04:59:23.316034+00:00",
+      "stage": "VERIFY",
+      "previous_ok": true
+    },
+    {
+      "event_id": 1839,
+      "ts": "2026-10-24T04:59:51.917304+00:00",
+      "stage": "RTL",
+      "previous_ok": false
+    },
+    {
+      "event_id": 1846,
+      "ts": "2026-10-24T04:59:58.949238+00:00",
+      "stage": "VERIFY",
+      "previous_ok": true
+    },
+    {
+      "event_id": 1856,
+      "ts": "2026-10-24T05:00:21.389342+00:00",
+      "stage": "RTL",
+      "previous_ok": false
+    },
+    {
+      "event_id": 1863,
+      "ts": "2026-10-24T05:00:28.469153+00:00",
+      "stage": "VERIFY",
+      "previous_ok": true
+    },
+    {
+      "event_id": 1873,
+      "ts": "2026-10-24T05:01:11.100543+00:00",
+      "stage": "RTL",
+      "previous_ok": false
+    },
+    {
+      "event_id": 1880,
+      "ts": "2026-10-24T05:01:18.183443+00:00",
+      "stage": "VERIFY",
+      "previous_ok": true
+    },
+    {
+      "event_id": 1890,
+      "ts": "2026-10-24T05:01:45.190739+00:00",
+      "stage": "RTL",
+      "previous_ok": false
+    },
+    {
+      "event_id": 1897,
+      "ts": "2026-10-24T05:01:51.400658+00:00",
+      "stage": "VERIFY",
+      "previous_ok": true
+    },
+    {
+      "event_id": 1909,
+      "ts": "2026-10-24T05:02:24.093735+00:00",
+      "stage": "FAIL",
+      "previous_ok": false
+    }
+  ],
+  "test_result_events": [
+    {
+      "event_id": 1820,
+      "ts": "2026-10-24T04:59:16.957329+00:00",
+      "ok": false,
+      "passed": 0,
+      "failed": 4,
+      "skipped": 0,
+      "quality_gate_passed": false,
+      "helper_sha256": "090b36755f9aff3d524ceda89836ad101081ddea6ec33d15fa4aa040f3dba65d",
+      "context_sha256": "9386d86bb0738c7c1487cc85f4bfdfe333dbbd1a509de5f674f40e936496be9f",
+      "error_kind": "harness_error",
+      "first_diagnostic": {
+        "kind": "harness_error",
+        "message": "Request must explicitly supply every data input",
+        "test": "test_reset_clear_priority",
+        "cycle": 1
+      },
+      "log_path": ".eda/harness_017e1678428c435599b33ed380efc504/output/tool.log",
+      "results_path": ".eda/harness_017e1678428c435599b33ed380efc504/output/test_results.xml",
+      "evidence_path": ".eda/harness_017e1678428c435599b33ed380efc504/output/sa_tb_evidence.json"
+    },
+    {
+      "event_id": 1837,
+      "ts": "2026-10-24T04:59:51.900582+00:00",
+      "ok": false,
+      "passed": 0,
+      "failed": 4,
+      "skipped": 0,
+      "quality_gate_passed": false,
+      "helper_sha256": "090b36755f9aff3d524ceda89836ad101081ddea6ec33d15fa4aa040f3dba65d",
+      "context_sha256": "9386d86bb0738c7c1487cc85f4bfdfe333dbbd1a509de5f674f40e936496be9f",
+      "error_kind": "harness_error",
+      "first_diagnostic": {
+        "kind": "harness_error",
+        "message": "Request must explicitly supply every data input",
+        "test": "test_reset_clear_priority",
+        "cycle": 1
+      },
+      "log_path": ".eda/harness_c577361598e142159970b9a228a424cc/output/tool.log",
+      "results_path": ".eda/harness_c577361598e142159970b9a228a424cc/output/test_results.xml",
+      "evidence_path": ".eda/harness_c577361598e142159970b9a228a424cc/output/sa_tb_evidence.json"
+    },
+    {
+      "event_id": 1854,
+      "ts": "2026-10-24T05:00:21.366924+00:00",
+      "ok": false,
+      "passed": 0,
+      "failed": 4,
+      "skipped": 0,
+      "quality_gate_passed": false,
+      "helper_sha256": "090b36755f9aff3d524ceda89836ad101081ddea6ec33d15fa4aa040f3dba65d",
+      "context_sha256": "9386d86bb0738c7c1487cc85f4bfdfe333dbbd1a509de5f674f40e936496be9f",
+      "error_kind": "harness_error",
+      "first_diagnostic": {
+        "kind": "harness_error",
+        "message": "Request must explicitly supply every data input",
+        "test": "test_reset_clear_priority",
+        "cycle": 1
+      },
+      "log_path": ".eda/harness_164e05753e8f40dcad4459dfec44e9fb/output/tool.log",
+      "results_path": ".eda/harness_164e05753e8f40dcad4459dfec44e9fb/output/test_results.xml",
+      "evidence_path": ".eda/harness_164e05753e8f40dcad4459dfec44e9fb/output/sa_tb_evidence.json"
+    },
+    {
+      "event_id": 1871,
+      "ts": "2026-10-24T05:01:11.082124+00:00",
+      "ok": false,
+      "passed": 0,
+      "failed": 4,
+      "skipped": 0,
+      "quality_gate_passed": false,
+      "helper_sha256": "090b36755f9aff3d524ceda89836ad101081ddea6ec33d15fa4aa040f3dba65d",
+      "context_sha256": "9386d86bb0738c7c1487cc85f4bfdfe333dbbd1a509de5f674f40e936496be9f",
+      "error_kind": "harness_error",
+      "first_diagnostic": {
+        "kind": "harness_error",
+        "message": "Request must explicitly supply every data input",
+        "test": "test_reset_clear_priority",
+        "cycle": 1
+      },
+      "log_path": ".eda/harness_69b79e1aa2404259989cd2954619669a/output/tool.log",
+      "results_path": ".eda/harness_69b79e1aa2404259989cd2954619669a/output/test_results.xml",
+      "evidence_path": ".eda/harness_69b79e1aa2404259989cd2954619669a/output/sa_tb_evidence.json"
+    },
+    {
+      "event_id": 1888,
+      "ts": "2026-10-24T05:01:45.172120+00:00",
+      "ok": false,
+      "passed": 0,
+      "failed": 4,
+      "skipped": 0,
+      "quality_gate_passed": false,
+      "helper_sha256": "090b36755f9aff3d524ceda89836ad101081ddea6ec33d15fa4aa040f3dba65d",
+      "context_sha256": "9386d86bb0738c7c1487cc85f4bfdfe333dbbd1a509de5f674f40e936496be9f",
+      "error_kind": "harness_error",
+      "first_diagnostic": {
+        "kind": "harness_error",
+        "message": "Request must explicitly supply every data input",
+        "test": "test_reset_clear_priority",
+        "cycle": 1
+      },
+      "log_path": ".eda/harness_96856f34c608436c99fe810f2fcf1c52/output/tool.log",
+      "results_path": ".eda/harness_96856f34c608436c99fe810f2fcf1c52/output/test_results.xml",
+      "evidence_path": ".eda/harness_96856f34c608436c99fe810f2fcf1c52/output/sa_tb_evidence.json"
+    },
+    {
+      "event_id": 1906,
+      "ts": "2026-10-24T05:02:24.065875+00:00",
+      "ok": false,
+      "passed": 0,
+      "failed": 4,
+      "skipped": 0,
+      "quality_gate_passed": false,
+      "helper_sha256": "090b36755f9aff3d524ceda89836ad101081ddea6ec33d15fa4aa040f3dba65d",
+      "context_sha256": "9386d86bb0738c7c1487cc85f4bfdfe333dbbd1a509de5f674f40e936496be9f",
+      "error_kind": "harness_error",
+      "first_diagnostic": {
+        "kind": "harness_error",
+        "message": "Request must explicitly supply every data input",
+        "test": "test_reset_clear_priority",
+        "cycle": 1
+      },
+      "log_path": ".eda/harness_59aa2014341c4d68925b9e6ba770d92e/output/tool.log",
+      "results_path": ".eda/harness_59aa2014341c4d68925b9e6ba770d92e/output/test_results.xml",
+      "evidence_path": ".eda/harness_59aa2014341c4d68925b9e6ba770d92e/output/sa_tb_evidence.json"
+    }
+  ],
+  "rejected_tool_events": [
+    {
+      "event_id": 1801,
+      "tool": "write_file",
+      "error": "HarnessError: Only registered cases may have a decorator"
+    },
+    {
+      "event_id": 1809,
+      "tool": "write_file",
+      "error": "HarnessError: Only registered cases may have a decorator"
+    },
+    {
+      "event_id": 1835,
+      "tool": "write_file",
+      "error": "Preserve existing tests; a TEST_SPEC_CONTRADICTION note is required to correct one"
+    },
+    {
+      "event_id": 1852,
+      "tool": "write_file",
+      "error": "Preserve existing tests; a TEST_SPEC_CONTRADICTION note is required to correct one"
+    },
+    {
+      "event_id": 1869,
+      "tool": "write_file",
+      "error": "Preserve existing tests; a TEST_SPEC_CONTRADICTION note is required to correct one"
+    },
+    {
+      "event_id": 1886,
+      "tool": "write_file",
+      "error": "Preserve existing tests; a TEST_SPEC_CONTRADICTION note is required to correct one"
+    }
+  ],
+  "file_written_events": [
+    {
+      "event_id": 1794,
+      "path": "src/saturating_event_counter.v"
+    },
+    {
+      "event_id": 1817,
+      "path": "test/test_counter_spec.py"
+    },
+    {
+      "event_id": 1903,
+      "path": "test/test_counter_spec.py"
+    }
+  ],
+  "analysis": {
+    "observed_blocker": "All six actual simulations stopped at harness input validation: each reported zero passes, four failures, and Request must explicitly supply every data input. No functional RTL correctness conclusion follows from those harness failures.",
+    "api_mismatch": "In the recorded helper, _DATA_INPUTS excludes clk and rst_n (lines 151-152), and validate_inputs requires an exact key match (line 291). The first accepted generated tests include rst_n in Cycle.inputs; the original helper rejects that additional control. The final accepted edit also adds rst_n to Reset.inputs, which the same original helper rejects before an edge.",
+    "repair_path": "Five RTL repair loops occurred. Only the initial RTL file was written. Four proposed test corrections were rejected because TEST_SPEC_CONTRADICTION was embedded after another prefix; the final correctly prefixed note allowed one test edit, but the same original helper still rejected its input dictionary.",
+    "initial_test_authoring": "Two earlier write_file attempts were rejected by harness case/decorator validation before the accepted test source reached simulation.",
+    "terminal_message": "The original terminal message preserved the actual harness diagnostic and saved relative log path. Its recorded failure_class is fix_loop_exhausted; the recorded next action is generic frozen-specification comparison. This artifact does not relabel that historical event using the later classifier.",
+    "not_reached": [
+      "SYNTH",
+      "FLOW",
+      "OPTIMIZE",
+      "SIGNOFF",
+      "PACKAGE",
+      "DONE"
+    ],
+    "physical_metrics_recorded": 0,
+    "layout_rendered": false,
+    "bundle_produced": false,
+    "after_smoke_correction": {
+      "separate_from_recorded_run": true,
+      "helper_path": "backend/app/eda/sa_tb.py",
+      "helper_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+      "change": "Optional sequential rst_n input handling was added after this smoke. The coordinator is qualifying and rerunning the corrected integration separately; this failed run is retained unchanged."
+    },
+    "limits": "One failed smoke is integration evidence only. It establishes neither before/after success rates nor cost, speed, area, timing, signoff, or independent functional correctness improvements."
+  }
+}

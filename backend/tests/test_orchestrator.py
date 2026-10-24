@@ -17,7 +17,7 @@ from app.agent.tools import ToolRunner
 from app.eda.parsers import parse_librelane_metrics
 from app.eda.service import EDA
 from app.llm.fake import FakeLLM
-from app.llm.types import Budget, Completion, ToolCall
+from app.llm.types import Budget, BudgetExceeded, Completion, ToolCall
 from app.models import Metric
 from app.packaging import package_design
 from app.schemas import DesignSpec
@@ -26,7 +26,6 @@ FIXTURES = Path(__file__).parent / "fixtures"
 FLOW = FIXTURES / "golden_counter"
 BUG = FIXTURES / "counter_increment_bug"
 GOLDEN = Path(__file__).resolve().parents[2] / "designs/golden/counter"
-SUMMARY = "Requirements preserved.\nUsed recorded tool evidence.\nMeasurements remain unchanged.\nNo additional claim.\nContinue to the next check."
 CALL_IDS = count(1)
 
 
@@ -48,7 +47,7 @@ def call(name, **arguments):
 
 
 def response(*calls, content=None):
-    return Completion(content=SUMMARY if content is None and not calls else content or "",
+    return Completion(content=content or "",
                       tool_calls=list(calls), model="unit-script", provider="fake", input_tokens=10,
                       output_tokens=10, latency_ms=0, cost_usd=0)
 
@@ -61,18 +60,15 @@ def rtl_response(*, buggy=False, hypothesis=False):
 
 def full_script():
     return [
-        response(content=json.dumps(spec_data())), response(),
-        rtl_response(buggy=True), response(),
+        response(content=json.dumps(spec_data())),
+        rtl_response(buggy=True),
         response(call("write_file", path="test/test_counter.py", content=(GOLDEN / "test/test_counter.py").read_text()),
-                 call("run_tests", top="counter", test_module="test_counter")), response(),
-        rtl_response(hypothesis=True), response(),
-        response(call("run_tests", top="counter", test_module="test_counter")), response(),
-        response(),  # SYNTH summary; tool execution is backend controlled.
-        response(),  # Initial FLOW summary.
+                 call("run_tests", top="counter", test_module="test_counter")),
+        rtl_response(hypothesis=True),
+        response(call("run_tests", top="counter", test_module="test_counter")),
         response(call("record_note", text="Compare two utilization settings against the recorded baseline.")),
         response(call("run_flow", top="counter", config_overrides={"FP_CORE_UTIL": 35}),
                  call("run_flow", top="counter", config_overrides={"FP_CORE_UTIL": 45})),
-        response(), response(), response(),  # OPTIMIZE, SIGNOFF, PACKAGE summaries.
     ]
 
 
@@ -137,6 +133,21 @@ class RecordedEDA(EDA):
         return {"ok": True, "text": path.read_text()}
 
 
+class RecordedToolRunner(ToolRunner):
+    """Validate configuration but retain the authentic legacy fixture route.
+
+    These controller tests do not qualify old cocotb recordings as executions of
+    the new helper. Dedicated harness/proof tests qualify that separate route.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.configured_test_specs = []
+
+    def configure_test_harness(self, spec):
+        self.configured_test_specs.append(DesignSpec.model_validate(spec.model_dump(mode="json")))
+
+
 def build_run(tmp_path, script=None, *, budget=None, package=True, prefix_scope=True):
     events = []
 
@@ -145,7 +156,7 @@ def build_run(tmp_path, script=None, *, budget=None, package=True, prefix_scope=
 
     work = tmp_path / "work"
     eda = RecordedEDA(work)
-    tools = ToolRunner(work, "unit-recorded-evidence", eda=eda, event_callback=record)
+    tools = RecordedToolRunner(work, "unit-recorded-evidence", eda=eda, event_callback=record)
     scripted = list(full_script() if script is None else script)
     if prefix_scope:
         scripted.insert(0, response(content=json.dumps({
@@ -170,6 +181,10 @@ def test_scripted_spec_to_done_uses_real_fail_fix_evidence_and_real_bundle(tmp_p
     assert outcome.status == "done", outcome.error
     assert outcome.block_signoff_clean is True
     assert outcome.tapeout_ready is False  # Standalone signoff does not verify a TT wrapper.
+    assert orchestrator.tools.configured_test_specs == [orchestrator.design_spec]
+    assert orchestrator.tools._harness_spec is None  # Legacy recordings remain explicitly legacy.
+    assert llm.budget.calls == len(full_script()) + 1
+    assert not llm.responses
     assert orchestrator.fix_loops == 1
     assert [result["ok"] for result in eda.test_results] == [False, True]
     assert eda.test_results[0]["failed"] == 2
@@ -206,13 +221,13 @@ def test_scripted_spec_to_done_uses_real_fail_fix_evidence_and_real_bundle(tmp_p
 
 def test_first_optimization_round_runs_three_parallel_configuration_variants(tmp_path):
     script = full_script()
-    script[12] = response(call("record_note", text="Compare area synthesis, lower placement density, and delay synthesis at the requested clock."))
+    script[5] = response(call("record_note", text="Compare area synthesis, lower placement density, and delay synthesis at the requested clock."))
     overrides = [
         {"CLOCK_PERIOD": 20.0, "SYNTH_STRATEGY": "AREA 1"},
         {"CLOCK_PERIOD": 20.0, "PL_TARGET_DENSITY_PCT": 35},
         {"CLOCK_PERIOD": 20.0, "SYNTH_STRATEGY": "DELAY 1", "FP_CORE_UTIL": 35},
     ]
-    script[13] = response(*(call("run_flow", top="counter", config_overrides=variant) for variant in overrides))
+    script[6] = response(*(call("run_flow", top="counter", config_overrides=variant) for variant in overrides))
     orchestrator, llm, eda, events = build_run(tmp_path, script)
     outcome = asyncio.run(orchestrator.run())
     assert outcome.status == "done", outcome.error
@@ -288,7 +303,7 @@ def test_three_variant_prompt_does_not_exceed_remaining_budget(first_round, rema
 
 def test_failed_comparisons_keep_and_package_actual_initial_best(tmp_path):
     script = full_script()
-    script[14:15] = [response(), response(call("run_flow", top="counter", config_overrides={})), response()]
+    script.append(response(call("run_flow", top="counter", config_overrides={})))
     orchestrator, _, eda, events = build_run(tmp_path, script)
     eda.fail_comparisons = True
     outcome = asyncio.run(orchestrator.run())
@@ -300,14 +315,12 @@ def test_failed_comparisons_keep_and_package_actual_initial_best(tmp_path):
 
 def test_verified_rtl_proposal_is_physically_measured_before_another_proposal(tmp_path):
     script = [
-        *full_script()[:12],
+        *full_script()[:5],
         response(
             call("record_note", text="Compare this RTL candidate against the measured baseline."),
             call("write_file", path="src/counter.v", content=(GOLDEN / "src/counter.v").read_text()),
             call("run_tests", top="counter", test_module="test_counter"),
         ),
-        response(), response(), response(), response(), response(), response(),
-        # VERIFY, SYNTH, automatic FLOW, OPTIMIZE, SIGNOFF, PACKAGE summaries.
     ]
     orchestrator, llm, eda, events = build_run(tmp_path, script)
     outcome = asyncio.run(orchestrator.run())
@@ -320,7 +333,8 @@ def test_verified_rtl_proposal_is_physically_measured_before_another_proposal(tm
     optimization_requests = [(index, messages) for index, (messages, definitions) in enumerate(llm.requests)
                              if "run_flow" in {tool.name for tool in definitions}]
     assert len(optimization_requests) == 1
-    assert all(not definitions for _, definitions in llm.requests[optimization_requests[0][0] + 1:])
+    assert llm.requests[optimization_requests[0][0] + 1:] == []
+    assert llm.budget.calls == len(script) + 1
     stages = [payload["stage"] for kind, payload in events if kind == "stage_changed"]
     assert stages[-5:] == ["FLOW", "OPTIMIZE", "SIGNOFF", "PACKAGE", "DONE"]
     assert orchestrator.bundle_path.is_file()
@@ -332,6 +346,54 @@ def test_budget_exhaustion_stops_before_eda(tmp_path):
     assert outcome.status == "failed"
     assert "budget" in outcome.error
     assert eda.test_results == [] and eda.flow_calls == 0
+
+
+def test_deterministic_memory_never_calls_llm_after_actual_exit_with_exhausted_budget(tmp_path):
+    limit = len(full_script()) + 1  # Scope plus genuine design/tool proposals only.
+    orchestrator, llm, _, _ = build_run(tmp_path, budget=Budget(max_calls=limit))
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "done", outcome.error
+    assert llm.budget.calls == len(llm.requests) == limit
+    with pytest.raises(BudgetExceeded):
+        llm.budget.reserve()
+    before = (llm.budget.calls, llm.budget.input_tokens, llm.budget.output_tokens, len(llm.requests))
+    asyncio.run(orchestrator._remember("PACKAGE"))
+    assert (llm.budget.calls, llm.budget.input_tokens, llm.budget.output_tokens, len(llm.requests)) == before
+    lines = orchestrator.memory.summaries["PACKAGE"].splitlines()
+    assert len(lines) == 5 and all(len(line) <= 160 for line in lines)
+    assert orchestrator.bundle_path.name in lines[1]
+
+
+def test_passing_verify_exit_does_not_need_another_call_for_its_summary(tmp_path):
+    script = [response(call("run_tests", top="counter", test_module="test_counter"))]
+    orchestrator, llm, eda, _ = build_run(tmp_path, script, budget=Budget(max_calls=1), prefix_scope=False)
+    orchestrator.design_spec = DesignSpec.model_validate(spec_data())
+    orchestrator.tools.configure_test_harness(orchestrator.design_spec)
+
+    async def scenario():
+        await orchestrator._execute("RTL", call("write_file", path="src/counter.v", content=(GOLDEN / "src/counter.v").read_text()))
+        await orchestrator._execute("VERIFY", call("write_file", path="test/test_counter.py", content=(GOLDEN / "test/test_counter.py").read_text()))
+        assert await orchestrator._verify() is True
+        assert orchestrator.tools.verified_revision == orchestrator.tools.rtl_digest()
+        with pytest.raises(BudgetExceeded):
+            llm.budget.reserve()
+        await orchestrator._remember("VERIFY")
+
+    asyncio.run(scenario())
+    assert len(llm.requests) == llm.budget.calls == 1
+    assert eda.test_results[-1]["ok"] is True
+    assert "tests passed=4; tests failed=0" in orchestrator.memory.summaries["VERIFY"]
+
+
+def test_optimization_text_claim_remains_a_proposal_and_requires_a_real_comparison(tmp_path):
+    script = [*full_script()[:5], response(content="The layout is already optimal."), full_script()[6]]
+    orchestrator, llm, eda, _ = build_run(tmp_path, script)
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "done", outcome.error
+    assert eda.flow_calls == 3
+    assert llm.budget.calls == len(script) + 1
+    feedback = [message.content for message in llm.requests[-1][0] if message.role == "user"]
+    assert any("text claim cannot replace a measured comparison" in text for text in feedback)
 
 
 @pytest.mark.parametrize("assessment", [
@@ -357,6 +419,7 @@ def test_scope_decision_ends_before_any_hardware_activity(tmp_path, assessment):
     assert assessment["reason"] in outcome.summary and assessment["next_action"] in outcome.summary
     assert outcome.design_spec is None and outcome.best_run_tag is None
     assert orchestrator.design_spec is None and orchestrator.bundle_path is None
+    assert orchestrator.tools.configured_test_specs == []
     assert not list((orchestrator.tools.work_dir / "src").glob("*"))
     assert not list((orchestrator.tools.work_dir / "test").glob("*"))
     assert eda.test_results == [] and eda.flow_calls == 0
@@ -451,10 +514,10 @@ def test_stage_permissions_and_failure_hypothesis_gate(tmp_path):
 
 
 def test_five_repair_loops_are_a_hard_limit(tmp_path):
-    script = full_script()[:6]
+    script = full_script()[:3]
     for _ in range(5):
-        script.extend([rtl_response(buggy=True, hypothesis=True), response(),
-                       response(call("run_tests", top="counter", test_module="test_counter")), response()])
+        script.extend([rtl_response(buggy=True, hypothesis=True),
+                       response(call("run_tests", top="counter", test_module="test_counter"))])
     orchestrator, _, eda, _ = build_run(tmp_path, script)
     outcome = asyncio.run(orchestrator.run())
     assert outcome.status == "failed"

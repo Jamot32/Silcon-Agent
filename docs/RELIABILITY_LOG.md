@@ -338,3 +338,140 @@ R1. Before admission they need real qualification in the unchanged pinned EDA
 image, legacy simulator-route controls, source/proof/package binding and offline
 regression checks. Reference-model/SPEC-critic work follows; placement sizing
 now has a real failing fixture to guide its later deterministic handler.
+
+### R2 — trusted generated tests, diagnostic retention and bookkeeping (REJECTED)
+
+Before: R1 81/90 overall; T1 24/24, T2 25/30, T3 14/18, T4 18/18;
+Tier 2 median 242.201 s; nine unclear failed hardware outcomes. After: **45/90**
+overall, Tier 2 median 246.353 s; 45 failed hardware outcomes without a fully
+usable terminal action. Reject the active generated-test adapter. The following
+admission checks describe qualification before the complete measurement.
+
+This is one declared combined treatment: a host-owned generator test adapter,
+bounded first diagnostics with artifact references, five-line deterministic
+stage memory without inference, and terminal failures containing the retained
+blocker and a next action. Tests still originate from the specification, not the
+RTL. Coverage tags and executed comparisons are admission evidence, not proof
+that the test author's expectations match the user request. The independent
+hidden tests remain essential.
+
+The adapter is a single read-only file mount into the existing immutable EDA
+image. Existing `EDA.lint`, `EDA.run_tests`, their default sandbox arguments and
+the baked runtime remain unchanged; generated tests use explicit new routes.
+Passing generated evidence is reconciled with actual XML and bound to helper,
+contract, image, source and test hashes. Physical runs and packages retain that
+same proof and selected input snapshot. Removing all verification members cannot
+make a strict package pass the caller's required verification mode.
+
+Qualification exposed a real usability defect before cohort admission. Live
+OAuth run `31e532e348b84d7d8ebbf330e1adcd36` failed because natural generated
+`Cycle.inputs` included `rst_n`, while the first adapter accepted only data pins.
+It exhausted five repair loops; it is not counted as a successful build or eval
+trial. The adapter now permits explicit 0/1 reset during sequential cycles,
+defaulting to released reset when omitted; clocks remain host-owned. All 33 real
+controls, including correct/wrong mid-cycle-reset designs and invalid controls,
+pass in the unchanged pinned image. Stable helper SHA256 is
+`d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21`.
+Four legacy-route controls still distinguish pass, functional failure,
+pre-reset unknown read and compile failure. A fresh live attempt and selected
+proof→flow→bundle reproduction are qualification, not success-rate estimates.
+
+Admission requires the offline/replay checks and an unchanged grader/corpus/tool
+boundary audit. Then freeze sources and repeat exactly
+`make eval SET=dev N=3 EVAL_JOBS=4`, with the same model selection, CLI/image/PDK
+and 32-call/300000-token/$1-known-cost/900s caps. Compare to R1 under the same G1
+grader; publish all failures and keep/revert only after that comparison. Plan
+usage still has unknown USD cost. Held-out application measurements remain
+unopened and unmeasured.
+
+R2 admission checks pass: `make test` reports 655 backend checks (36 integration
+checks excluded), TypeScript validation, 15 frontend checks and five real
+replay/failure browser checks (58.4 s). The earlier replay attempt was correctly
+blocked while our live smoke owned the single active-job slot; rerunning after
+it completed passed. `make eval-test` reports 294 passing grader/publication
+checks. The read-only boundary audit confirms seven existing EDA method bodies,
+the legacy sandbox route, baked runtime, EDA image and grader/corpus boundary
+are unchanged (`docs/evidence/reliability-r2-boundary.json`).
+
+Fresh live run `865146c4ee534fbaa8256d31d3038447` reaches DONE in seven actual
+OAuth calls, with four clean flows, three overlapping optimization calls,
+1000×1000 rendered PNG and selected bundle/hash acceptance. It used 78,955 input
+and 4,454 output tokens; USD is unknown. A registered-case naming error was
+corrected by the model before test admission. The API documentation now states
+that names must begin `test_`. Independent package qualification reproduced
+four actual tests from the downloaded capsule in the pinned image after removing
+the original simulation snapshot from a disposable copy. Evidence files retain
+both failed and successful smokes, the exact final helper/proof identities,
+warnings and bounded coverage limitations. These checks admit R2 to measurement;
+they do not establish a dev or held-out success rate.
+
+
+R2 completed `make eval SET=dev N=3 EVAL_JOBS=4` with all 90 trials attempted,
+exit 0, no evaluator infrastructure error, crash, timeout or missing terminal
+message. Its repeat successes are 14/30, 16/30 and 15/30. R1→R2 is 81/90→45/90,
+**−40 percentage points**; paired outcomes show 37 regressions and one improvement.
+
+| Tier | R1 before | R2 after | R2 repeat mean / min–max |
+| --- | ---: | ---: | ---: |
+| 1 | 24/24 | 12/24 | 50% / 50–50% |
+| 2 | 25/30 | 12/30 | 40% / 30–50% |
+| 3 | 14/18 | 3/18 | 16.7% / 16.7–16.7% |
+| 4 | 18/18 | 18/18 | 100% / 100–100% |
+
+All 27 completed hardware designs have finite source-bound hidden passes,
+recorded clean block DRC/LVS and independently checked selected proof/package
+bindings. A hidden pass on incomplete current RTL is not counted as completion.
+The four canonical budget stops and 41 general pipeline failures are preserved;
+all 45 hardware failures stop in VERIFY without a flow. Application harness
+rejections are distinct from evaluator infrastructure errors.
+
+| Rank | Actual initial failure mechanism | Trials |
+| ---: | --- | ---: |
+| 1 | Payload-only observation API used on control outputs | 22 |
+| 2 | Global edge-case declaration gate, even after all assertions pass | 14 |
+| 3 | Full input/output snapshots compared with output-only dictionaries | 6 |
+| 4 | Initial-edge expectations contradict permitted unknown startup | 3 |
+
+Seventy-three actual positive self-test runs are rejected for the missing edge
+annotation. Recovery also encounters 85 existing-test write guard rejections and
+41 alternate-module rejections. These are event counts with overlapping trials,
+not independent failed designs or causal effect estimates. All 45 failed builds
+are reviewed: 38 final messages identify the cause but supply an insufficient
+action, seven are unclear, zero meet the full blocker-plus-usable-action criterion.
+All 18 scope reasons match the expected public decision and pass that review.
+Successful hardware-message semantics were not manually reviewed; no all-90
+clarity claim is made. Original explanation fields remain unreviewed.
+
+Actual R2 usage is 1,013 calls, 12,574,334 input and 742,672 output tokens. Fewer
+calls than R1 do not establish lower resource cost: total input-plus-output rises
+from 12,577,197 to 13,317,006 tokens. Failed hardware consumes 766 calls and
+10,283,124 tokens; 566 calls occur after the first verification blocker. These
+are observed expenditures, not a counterfactual savings estimate. Plan USD stays
+unknown for all 90; the dollar target cannot be assessed. Tier 2 median rises
+from 242.201 to 246.353 seconds. The lower overall median includes early failures
+and is not evidence of a faster successful pipeline.
+
+The original historical sealer rejected R2 because its source scan recognizes
+only `flow_*`; the adapter uses actual `harness_flow_*` directories. No seal files
+were created by that failed attempt. The separate publication-only
+`scripts/seal_harness_eval.py` recognizes a unique actual selection, retains all
+base raw-summary/terminal-database/hidden-XML/source/signoff checks and adds
+retained-capsule reconciliation with the hash-verified frozen validator. It
+preflights all 90 before writing, records its own SHA separately, and seals and
+verifies 90 terminal records plus 27 physical-source/capsule bindings. No directory
+alias, raw row, score, summary, grader, corpus or tool image was changed. R1 still
+verifies under the original unchanged sealer. Independent audit also binds all
+27 selected capsules to the exact package members and manifest.
+
+**Decision: reject R2 active generated-test mode.** Preserve the experiment,
+qualified controls and measured failure analysis in history. R3 will restore
+ordinary cocotb generation/selection and separately measure deterministic memory
+and diagnostic retention against R1. Dormant helper/proof APIs are qualification
+material, not an active ordinary-build path or a kept success improvement.
+Reference-first input-only stimulus remains a draft for a later measured change.
+No held-out application run has been used. Full evidence and limitations:
+`docs/evidence/reliability-r2.json`, `.md`, and the sealed cohort analysis.
+
+Publication regression: `make eval-test` passes 324 checks, including 30 new
+actual-capsule/tamper/ambiguity checks for the explicit historical adapter.
+The adapter and original sealer SHAs remain the values recorded in EVIDENCE.

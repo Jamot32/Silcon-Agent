@@ -1,0 +1,23 @@
+{
+  "kind": "real_container_mount_qualification",
+  "image": {
+    "reference": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+    "image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+    "authority": "docker_image_inspect",
+    "observed_at": "2026-10-24T04:38:13.128523+00:00"
+  },
+  "observed": {
+    "helper_hashes": [
+      "2a7c4f354916bee777c07151e1224348832f92c0be5334ca3bb54dbbbf760f39",
+      "2a7c4f354916bee777c07151e1224348832f92c0be5334ca3bb54dbbbf760f39"
+    ],
+    "write_errnos": [
+      30,
+      30
+    ],
+    "embedded_runtime_sha256": "5ba094045c25f71319dbf3ecd1b6e2cb2f9a9f025b33f678d2e154e42d7930f3"
+  },
+  "log_path": "runs/qualification/r2_mount_c5e440b872/output/tool.log",
+  "command_script_sha256": "dda46efb198a53b830134f2ee1153fb26bf6f48d4a873a690521743cc35e9384",
+  "ok": true
+}

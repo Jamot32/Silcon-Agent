@@ -1,0 +1,40 @@
+{
+  "split": "dev",
+  "tiers": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "config": {
+    "repeats": 3,
+    "concurrency": 4,
+    "max_calls": 32,
+    "max_tokens": 300000,
+    "max_usd": 1.0,
+    "time_limit_seconds": 900.0,
+    "snapshot_id": "05fcdad834393e01e7ba9627954f8a5fab02206887b6fccc5f2da7752b8f4fea"
+  },
+  "provenance": {
+    "provider": "codex",
+    "model": "gpt-6.1-sol",
+    "cli_version": "codex-cli 0.163.0",
+    "tool_versions": {
+      "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+      "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+      "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+      "python": "3.12.13",
+      "openai": "3.37.0",
+      "pydantic": "2.14.1",
+      "sqlmodel": "0.0.48"
+    },
+    "cost_target_assessable": false,
+    "snapshot_root": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/eval/results/20261024T051009Z_cfd9d131/pipeline",
+    "pipeline_sha": "05fcdad834393e01e7ba9627954f8a5fab02206887b6fccc5f2da7752b8f4fea",
+    "base_commit": "c1ba199e9aa2b3bdea1efda4893e9ac6981e1fa7",
+    "includes_uncommitted_runtime_changes": true,
+    "harness_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669"
+  },
+  "corpus_sha256": "6e6625b9d6b9702064e83db48099843af9aa541c5a9b2d521dddb0de102ba55d",
+  "output_root": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/eval/results/20261024T051009Z_cfd9d131"
+}

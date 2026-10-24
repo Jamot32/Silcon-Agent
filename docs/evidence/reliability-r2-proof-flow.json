@@ -1,0 +1,328 @@
+{
+  "qualification": "Real current host proof to full flow; one hand-authored control, not a development success-rate estimate.",
+  "started_at": "2026-10-24T05:04:01.853567+00:00",
+  "work_dir": "runs/eda-harness-proof-flow/71013f0381e141e48c8f075186ab0d91",
+  "prior_attempts": [
+    {
+      "path": "runs/eda-harness-proof-flow/266df6498ebe4227be91ebf77a058ad1/qualification.json",
+      "result": "1 pass/3 harness errors; authored fixture omitted required sequential before expectations; no full flow launched"
+    },
+    {
+      "path": "runs/eda-harness-proof-flow/81178fc9a00e4bf3993c61b0998afd01/qualification.json",
+      "result": "Four passes, full flow DRC/LVS clean with GDS; same capsule validator checked after flow in qualification script; repeated after adding immediate post-flow check to service"
+    },
+    {
+      "path": "runs/eda-harness-proof-flow/eb1fa737e2e84102a9c76a0aff1bfbfa/qualification.json",
+      "result": "Four passes, full flow DRC/LVS clean with GDS and verification_valid true; helper9adb subsequently corrected for omitted-before behavior"
+    },
+    {
+      "path": "runs/eda-harness-proof-flow/14063d03097142d1b015ef0bbcb11590/qualification.json",
+      "result": "Four passes, full flow DRC/LVS clean with GDS and verification_valid true; helper090b subsequently gained qualified optional Cycle reset input; final run uses stable helperd9e4c020"
+    }
+  ],
+  "host_command": "PYTHONPATH=backend uv run --python 3.12 --with-requirements backend/requirements.txt python /tmp/silicon-r2-proof-flow.py",
+  "qualification_script_sha256": "35be17ae3ec7aa4b2b03e8d8e6a58307b412a49c0fdaa8e5fe456b6439a683d5",
+  "runtime_sim_command": [
+    "python3",
+    "/opt/silicon-agent/runtime.py",
+    "sim",
+    "--top",
+    "proof_counter",
+    "--test-module",
+    "test_proof_counter"
+  ],
+  "flow_configuration": "Existing defaults; no overrides or physics changes.",
+  "rtl": "module proof_counter(input clk, input rst_n, input enable, output reg [3:0] q);\nalways @(posedge clk) begin\n  if (!rst_n) q <= 0;\n  else if (enable) q <= q + 1'b1;\nend\nendmodule\n",
+  "tests": "from sa_tb import case, Reset, Cycle\n\n@case(behaviors=('B1',), plans=('T1',), reset_case=True, edge_case=True, edge_inputs=('enable',))\ndef test_reset():\n    yield Reset({'enable': 0}, {'q': 0})\n    yield Cycle({'enable': 0}, before={'q': 0}, after={'q': 0})\n\n@case(behaviors=('B1',), plans=('T2',), reset_case=True, edge_case=True, edge_inputs=('enable',))\ndef test_increment():\n    yield Reset({'enable': 0}, {'q': 0})\n    yield Cycle({'enable': 1}, before={'q': 0}, after={'q': 1})\n    yield Cycle({'enable': 1}, before={'q': 1}, after={'q': 2})\n\n@case(behaviors=('B1',), plans=('T3',), reset_case=True, edge_case=True, edge_inputs=('enable',))\ndef test_hold():\n    yield Reset({'enable': 0}, {'q': 0})\n    yield Cycle({'enable': 1}, before={'q': 0}, after={'q': 1})\n    yield Cycle({'enable': 0}, before={'q': 1}, after={'q': 1})\n\n@case(behaviors=('B1',), plans=('T4',), reset_case=True, edge_case=True, edge_inputs=('enable',))\ndef test_wrap():\n    yield Reset({'enable': 0}, {'q': 0})\n    for value in range(1, 18):\n        yield Cycle({'enable': 1}, before={'q': (value - 1) & 15}, after={'q': value & 15})\n",
+  "design_spec": {
+    "top_module": "proof_counter",
+    "summary": "Hand-authored four-bit enable counter for R2 identity qualification.",
+    "ports": [
+      {
+        "name": "clk",
+        "direction": "input",
+        "width": 1,
+        "description": "clk"
+      },
+      {
+        "name": "rst_n",
+        "direction": "input",
+        "width": 1,
+        "description": "rst_n"
+      },
+      {
+        "name": "enable",
+        "direction": "input",
+        "width": 1,
+        "description": "enable"
+      },
+      {
+        "name": "q",
+        "direction": "output",
+        "width": 4,
+        "description": "q"
+      }
+    ],
+    "behavior": [
+      "On rising clk, active-low synchronous reset clears q; otherwise enable increments q modulo 16 and disabled q holds."
+    ],
+    "targets": {
+      "clock_mhz": 50.0,
+      "max_area_um2": null,
+      "fit": null
+    },
+    "test_plan": [
+      "Observe reset and disabled zero",
+      "Observe enabled increment",
+      "Observe disabled state retention",
+      "Observe modulo wrap and enable edge declarations"
+    ],
+    "purely_combinational": false
+  },
+  "source_identities": {
+    "backend/app/eda/harness.py": "246cd6ca1db38332098c11f1633e358cae1afdc87de922029b98a16a54c05e59",
+    "backend/app/eda/sa_tb.py": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+    "backend/app/eda/verification.py": "ba1ceace27502c6ace679c39004f49f78e3283f19190e1c43b70d0b96570ad70",
+    "backend/app/eda/service.py": "98057201dbd923af041832a218fb0706d152f8c593b519e08210be989f88e29e",
+    "backend/app/eda/sandbox.py": "f622ad612e1bd4b052e21c68e23398ea933bcbec7f341c582e992633def1bbb1",
+    "backend/app/eda/flow.py": "bd20516f0f63e4afed9de78e97110f9ddcc4dede80fec2aa1e6ba0b68f3c1862",
+    "backend/app/agent/tools.py": "4feb4e7986f0764470ee73182d1e1786608a15d0e03bab319d87e7924fe1be15",
+    "backend/app/packaging.py": "b25f64b301c8e6632abaed58637fe1fdd40145aa73b164f67502322b5a041f25",
+    "backend/app/schemas.py": "6b16995da3c9df6f497b6a19187d96cdfc431a10484c6569402736d9886b563a",
+    "eda/runtime.py": "5ba094045c25f71319dbf3ecd1b6e2cb2f9a9f025b33f678d2e154e42d7930f3",
+    "eda/versions.env": "b40a5017dd18b87a6b6457bbdbc476e915b8d8e4fa55f06a3ece21af858688cd"
+  },
+  "stage": "finished",
+  "harness_result": {
+    "ok": true,
+    "mode": "sa_tb_v1",
+    "api_version": 1,
+    "top_module": "proof_counter",
+    "test_module": "test_proof_counter",
+    "helper_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+    "context_sha256": "fa7f60777e83f2332ea737417e686bb59bd2882add5444aa85854d574223c8d5",
+    "source_sha256": "8722b361c0a98e69c836a8cbf768a967836569b8cb552fc1b15609ec2077a880",
+    "tests_sha256": "070a4f879c32f543bafd0b90d5dc0b3597dde3ea19940f323122e51f8316ea27",
+    "image_identity": {
+      "reference": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+      "image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+      "authority": "docker_image_inspect",
+      "observed_at": "2026-10-24T05:04:01.887347+00:00"
+    },
+    "quality_gate_passed": true,
+    "log_path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/tool.log",
+    "results_path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/test_results.xml",
+    "evidence_path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/sa_tb_evidence.json",
+    "input_artifacts": {
+      "context": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/trusted/harness.json",
+      "helper": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/trusted/sa_tb.py"
+    },
+    "log_tail": "     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3\n     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered\n     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)\n     0.00ns INFO     cocotb                             Seeding Python random module with 1792818242\n     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb\n     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages\n     0.00ns INFO     cocotb                             Running tests\n     0.00ns INFO     cocotb.regression                  running test_proof_counter.test_reset (1/4)\n    52.00ns INFO     cocotb.regression                  test_proof_counter.test_reset passed\n    52.00ns INFO     cocotb.regression                  running test_proof_counter.test_increment (2/4)\n   124.00ns INFO     cocotb.regression                  test_proof_counter.test_increment passed\n   124.00ns INFO     cocotb.regression                  running test_proof_counter.test_hold (3/4)\n   196.01ns INFO     cocotb.regression                  test_proof_counter.test_hold passed\n   196.01ns INFO     cocotb.regression                  running test_proof_counter.test_wrap (4/4)\n   568.01ns INFO     cocotb.regression                  test_proof_counter.test_wrap passed\n   568.01ns INFO     cocotb.regression                  *******************************************************************************************\n                                                        ** TEST                               STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **\n                                                        *******************************************************************************************\n                                                        ** test_proof_counter.test_reset       PASS          52.00           0.00      27999.00  **\n                                                        ** test_proof_counter.test_increment   PASS          72.00           0.00      32613.20  **\n                                                        ** test_proof_counter.test_hold        PASS          72.00           0.00      48142.56  **\n                                                        ** test_proof_counter.test_wrap        PASS         372.00           0.00     153753.40  **\n                                                        *******************************************************************************************\n                                                        ** TESTS=4 PASS=4 FAIL=0 SKIP=0                     568.01           0.01      61351.74  **\n                                                        *******************************************************************************************\n",
+    "timed_out": false,
+    "exit_code": 0,
+    "cases": [
+      {
+        "test": "test_reset",
+        "ok": true
+      },
+      {
+        "test": "test_increment",
+        "ok": true
+      },
+      {
+        "test": "test_hold",
+        "ok": true
+      },
+      {
+        "test": "test_wrap",
+        "ok": true
+      }
+    ],
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "harness_evidence_valid": true,
+    "harness_input_dir": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input",
+    "harness_output_dir": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output"
+  },
+  "proof": {
+    "schema_version": 1,
+    "mode": "sa_tb_v1",
+    "api_version": 1,
+    "top_module": "proof_counter",
+    "helper_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+    "context_sha256": "fa7f60777e83f2332ea737417e686bb59bd2882add5444aa85854d574223c8d5",
+    "image_identity": {
+      "authority": "docker_image_inspect",
+      "image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+      "observed_at": "2026-10-24T05:04:01.887347+00:00",
+      "reference": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1"
+    },
+    "source_sha256": "8722b361c0a98e69c836a8cbf768a967836569b8cb552fc1b15609ec2077a880",
+    "tests_sha256": "070a4f879c32f543bafd0b90d5dc0b3597dde3ea19940f323122e51f8316ea27",
+    "source_dir": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/src",
+    "tests_dir": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/test",
+    "artifacts": {
+      "context": {
+        "path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/trusted/harness.json",
+        "sha256": "18a22ce32c7721c13e352ce5540f2d524119e7da8d29648b778aa4e1447d3a72"
+      },
+      "helper": {
+        "path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/trusted/sa_tb.py",
+        "sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21"
+      },
+      "evidence": {
+        "path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/sa_tb_evidence.json",
+        "sha256": "ee6a61e5c3162e37b8581a19745a748d8aebab40f5d730182a07c354a79f95e1"
+      },
+      "xml": {
+        "path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/test_results.xml",
+        "sha256": "9102ba3135bbd5420e4af83ab7d28160f22b0e0ff9134832f057a1e316846af0"
+      },
+      "runtime": {
+        "path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/result.json",
+        "sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+      }
+    },
+    "host_result": {
+      "ok": true,
+      "mode": "sa_tb_v1",
+      "api_version": 1,
+      "top_module": "proof_counter",
+      "test_module": "test_proof_counter",
+      "helper_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+      "context_sha256": "fa7f60777e83f2332ea737417e686bb59bd2882add5444aa85854d574223c8d5",
+      "source_sha256": "8722b361c0a98e69c836a8cbf768a967836569b8cb552fc1b15609ec2077a880",
+      "tests_sha256": "070a4f879c32f543bafd0b90d5dc0b3597dde3ea19940f323122e51f8316ea27",
+      "image_identity": {
+        "reference": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+        "image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+        "authority": "docker_image_inspect",
+        "observed_at": "2026-10-24T05:04:01.887347+00:00"
+      },
+      "quality_gate_passed": true,
+      "log_path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/tool.log",
+      "results_path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/test_results.xml",
+      "evidence_path": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output/sa_tb_evidence.json",
+      "input_artifacts": {
+        "context": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/trusted/harness.json",
+        "helper": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input/trusted/sa_tb.py"
+      },
+      "log_tail": "     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3\n     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered\n     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)\n     0.00ns INFO     cocotb                             Seeding Python random module with 1792818242\n     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb\n     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages\n     0.00ns INFO     cocotb                             Running tests\n     0.00ns INFO     cocotb.regression                  running test_proof_counter.test_reset (1/4)\n    52.00ns INFO     cocotb.regression                  test_proof_counter.test_reset passed\n    52.00ns INFO     cocotb.regression                  running test_proof_counter.test_increment (2/4)\n   124.00ns INFO     cocotb.regression                  test_proof_counter.test_increment passed\n   124.00ns INFO     cocotb.regression                  running test_proof_counter.test_hold (3/4)\n   196.01ns INFO     cocotb.regression                  test_proof_counter.test_hold passed\n   196.01ns INFO     cocotb.regression                  running test_proof_counter.test_wrap (4/4)\n   568.01ns INFO     cocotb.regression                  test_proof_counter.test_wrap passed\n   568.01ns INFO     cocotb.regression                  *******************************************************************************************\n                                                        ** TEST                               STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **\n                                                        *******************************************************************************************\n                                                        ** test_proof_counter.test_reset       PASS          52.00           0.00      27999.00  **\n                                                        ** test_proof_counter.test_increment   PASS          72.00           0.00      32613.20  **\n                                                        ** test_proof_counter.test_hold        PASS          72.00           0.00      48142.56  **\n                                                        ** test_proof_counter.test_wrap        PASS         372.00           0.00     153753.40  **\n                                                        *******************************************************************************************\n                                                        ** TESTS=4 PASS=4 FAIL=0 SKIP=0                     568.01           0.01      61351.74  **\n                                                        *******************************************************************************************\n",
+      "timed_out": false,
+      "exit_code": 0,
+      "cases": [
+        {
+          "test": "test_reset",
+          "ok": true
+        },
+        {
+          "test": "test_increment",
+          "ok": true
+        },
+        {
+          "test": "test_hold",
+          "ok": true
+        },
+        {
+          "test": "test_wrap",
+          "ok": true
+        }
+      ],
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "harness_evidence_valid": true,
+      "harness_input_dir": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/input",
+      "harness_output_dir": ".eda/harness_b7039f45567a4840bcc61eb5494b9cb1/output"
+    },
+    "host_result_sha256": "db47176638c7cd9ec234b20ea614530629623db858137955c4065480e19478c8",
+    "proof_sha256": "5558285441af9a0336426e7423fcabb223d19a2e656d491a1be5f8f24eee8322"
+  },
+  "flow_result": {
+    "ok": true,
+    "run_tag": "flow_89e8d99de7684902",
+    "log_tail": "[truncated; full log saved on disk]\n                         step.py:1336\n               'runs/flow_89e8d99de7684902/61-odb-checkdesignantenn             \n               aproperties/odb-checkdesignantennaproperties.log'\u2026               \n[05:04:31] [V] Running 'KLayout.XOR' at                             step.py:1138\n               'runs/flow_89e8d99de7684902/62-klayout-xor'\u2026                     \n[05:04:31] [I] Running XOR with 18 threads\u2026                       klayout.py:401\n[05:04:31] [I] Logging subprocess to                                step.py:1336\n               'runs/flow_89e8d99de7684902/62-klayout-xor/klayout-x             \n               or.log'\u2026                                                         \n[05:04:33] [V] Running 'Checker.XOR' at                             step.py:1138\n               'runs/flow_89e8d99de7684902/63-checker-xor'\u2026                     \n[05:04:33] [I] Check for XOR differences clear.                   checker.py:131\n[05:04:33] [V] Running 'Magic.DRC' at                               step.py:1138\n               'runs/flow_89e8d99de7684902/64-magic-drc'\u2026                       \n[05:04:33] [I] Logging subprocess to                                step.py:1336\n               'runs/flow_89e8d99de7684902/64-magic-drc/magic-drc.l             \n               og'\u2026                                                             \n[05:04:33] [V] Running 'KLayout.DRC' at                             step.py:1138\n               'runs/flow_89e8d99de7684902/65-klayout-drc'\u2026                     \n[05:04:33] [I] Running KLayout DRC with 18 threads\u2026               klayout.py:578\n[05:04:33] [I] Logging subprocess to                                step.py:1336\n               'runs/flow_89e8d99de7684902/65-klayout-drc/klayout-d             \n               rc.log'\u2026                                                         \n[05:04:35] [I] Logging subprocess to                                step.py:1336\n               'runs/flow_89e8d99de7684902/65-klayout-drc/xml_drc_r             \n               eport_to_json.log'\u2026                                              \n[05:04:35] [V] Running 'Checker.MagicDRC' at                        step.py:1138\n               'runs/flow_89e8d99de7684902/66-checker-magicdrc'\u2026                \n[05:04:35] [I] Check for Magic DRC errors clear.                  checker.py:131\n[05:04:35] [V] Running 'Checker.KLayoutDRC' at                      step.py:1138\n               'runs/flow_89e8d99de7684902/67-checker-klayoutdrc'\u2026              \n[05:04:35] [I] Check for KLayout DRC errors clear.                checker.py:131\n[05:04:35] [V] Running 'Magic.SpiceExtraction' at                   step.py:1138\n               'runs/flow_89e8d99de7684902/68-magic-spiceextraction             \n               '\u2026                                                               \n[05:04:35] [I] Logging subprocess to                                step.py:1336\n               'runs/flow_89e8d99de7684902/68-magic-spiceextraction             \n               /magic-spiceextraction.log'\u2026                                     \n[05:04:36] [V] Running 'Checker.IllegalOverlap' at                  step.py:1138\n               'runs/flow_89e8d99de7684902/69-checker-illegaloverla             \n               p'\u2026                                                              \n[05:04:36] [I] Check for Magic Illegal Overlap errors clear.      checker.py:131\n[05:04:36] [V] Running 'Netgen.LVS' at                              step.py:1138\n               'runs/flow_89e8d99de7684902/70-netgen-lvs'\u2026                      \n[05:04:36] [I] Logging subprocess to                                step.py:1336\n               'runs/flow_89e8d99de7684902/70-netgen-lvs/netgen-lvs             \n               .log'\u2026                                                           \n[05:04:37] [V] Running 'Checker.LVS' at                             step.py:1138\n               'runs/flow_89e8d99de7684902/71-checker-lvs'\u2026                     \n[05:04:37] [I] Check for LVS errors clear.                        checker.py:131\n[05:04:37] [I] Gating variable for step 'Yosys.EQY' set to     sequential.py:362\n               'False'- the step will be skipped.                               \n[05:04:37] [I] Skipping step 'Equivalence Check'\u2026              sequential.py:370\n[05:04:37] [V] Running 'Checker.SetupViolations' at                 step.py:1138\n               'runs/flow_89e8d99de7684902/72-checker-setupviolatio             \n               ns'\u2026                                                             \n[05:04:37] [V] No setup violations found                          checker.py:628\n[05:04:37] [V] Running 'Checker.HoldViolations' at                  step.py:1138\n               'runs/flow_89e8d99de7684902/73-checker-holdviolation             \n               s'\u2026                                                              \n[05:04:37] [V] No hold violations found                           checker.py:628\n[05:04:37] [V] Running 'Checker.MaxSlewViolations' at               step.py:1138\n               'runs/flow_89e8d99de7684902/74-checker-maxslewviolat             \n               ions'\u2026                                                           \n[05:04:37] [V] No max slew violations found                       checker.py:628\n[05:04:37] [V] Running 'Checker.MaxCapViolations' at                step.py:1138\n               'runs/flow_89e8d99de7684902/75-checker-maxcapviolati             \n               ons'\u2026                                                            \n[05:04:37] [V] No max cap violations found                        checker.py:628\n[05:04:37] [V] Running 'Misc.ReportManufacturability' at            step.py:1138\n               'runs/flow_89e8d99de7684902/76-misc-reportmanufactur             \n               ability'\u2026                                                        \n[05:04:37] [I] Saving views to                                      state.py:209\n               '/output/runs/flow_89e8d99de7684902/final'\u2026                      \n[05:04:37] [I] Flow complete.                                  sequential.py:413\n\n\n[05:04:37] [W] The following warnings were generated by the flow:    flow.py:699\n[05:04:37] [W] [OpenROAD.CheckSDCFiles] 'PNR_SDC_FILE' is not        flow.py:701\n               defined. Using generic fallback SDC for OpenROAD PnR             \n               steps.                                                           \n[05:04:37] [W] [OpenROAD.CheckSDCFiles] 'SIGNOFF_SDC_FILE' is not    flow.py:701\n               defined. Using generic fallback SDC for OpenROAD PnR             \n               steps.                                                           \n[05:04:37] [W] [OpenROAD.RepairDesignPostGPL] [STA-1140]             flow.py:701\n               /pdk/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_s            \n               c_hd__tt_025C_1v80.lib line 1, library                           \n               sky130_fd_sc_hd__tt_025C_1v80 already exists. (and 17            \n               similar warnings)                                                \n[05:04:37] [W] [OpenROAD.RepairDesignPostGPL] [RSZ-0020] found 2     flow.py:701\n               floating nets.                                                   \n[05:04:37] [W] [OpenROAD.DetailedRouting] [DRT-0349] LEF58_ENCLOSURE flow.py:701\n               with no CUTCLASS is not supported. Skipping for layer            \n               mcon (and 9 similar warnings)                                    \n[05:04:37] [W] [Checker.WireLength] Threshold for                    flow.py:701\n               Threshold-surpassing long wires is not set. The                  \n               checker will be skipped.                                         \n[05:04:37] [W] [OpenROAD.IRDropReport] 'VSRC_LOC_FILES' was not      flow.py:701\n               given a value, which may make the results of IR drop             \n               analysis inaccurate. If you are not integrating a                \n               top-level chip for manufacture, you may ignore this              \n               warning, otherwise, see the documentation for                    \n               'VSRC_LOC_FILES'.                                                \n",
+    "log_path": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/eda-harness-proof-flow/71013f0381e141e48c8f075186ab0d91/.eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/output/tool.log",
+    "timed_out": false,
+    "metrics": {
+      "flow_index": 0,
+      "clock_mhz": 50.0,
+      "area_um2": 457.939,
+      "wns_ns": 0.0,
+      "tns_ns": 0.0,
+      "power_mw": 0.04947741035721265,
+      "cell_count": 116,
+      "drc_ok": true,
+      "lvs_ok": true
+    },
+    "drc_ok": true,
+    "lvs_ok": true,
+    "verification_valid": true
+  },
+  "capsule_validation": {
+    "ok": true,
+    "source_dir": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/input/src",
+    "tests_dir": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/input/test",
+    "materials": {
+      "context": {
+        "path": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/input/trusted/harness.json",
+        "sha256": "18a22ce32c7721c13e352ce5540f2d524119e7da8d29648b778aa4e1447d3a72"
+      },
+      "helper": {
+        "path": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/input/trusted/sa_tb.py",
+        "sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21"
+      },
+      "evidence": {
+        "path": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/input/trusted/sa_tb_evidence.json",
+        "sha256": "ee6a61e5c3162e37b8581a19745a748d8aebab40f5d730182a07c354a79f95e1"
+      },
+      "xml": {
+        "path": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/input/trusted/test_results.xml",
+        "sha256": "9102ba3135bbd5420e4af83ab7d28160f22b0e0ff9134832f057a1e316846af0"
+      },
+      "runtime": {
+        "path": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/input/trusted/runtime_result.json",
+        "sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+      },
+      "host_result": {
+        "path": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/input/trusted/host_result.json",
+        "sha256": "a482fdbac957199f5f611283e0d018b3f8f55c22a9b87cb36612230fd540a672"
+      },
+      "proof": {
+        "path": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/input/trusted/proof.json",
+        "sha256": "ac25ba3d9c41667ce54f9a40881c3747ee43dd1ef52292e43f6632327477b7b6"
+      }
+    }
+  },
+  "physical_artifacts": {
+    "gds": {
+      "path": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/output/runs/flow_89e8d99de7684902/final/gds/proof_counter.gds",
+      "bytes": 378610,
+      "sha256": "5ed16d9d911aaf75eaefd5f3c6d8b03519f0384e457b26343e0cfda3dde7ef0c"
+    },
+    "lef": {
+      "path": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/output/runs/flow_89e8d99de7684902/final/lef/proof_counter.lef",
+      "bytes": 3057,
+      "sha256": "1a798bd459d5632ab1eccaed90e52ea1b7576ced461a0ea7c516b88fba28e659"
+    },
+    "netlist": {
+      "path": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/output/runs/flow_89e8d99de7684902/final/nl/proof_counter.nl.v",
+      "bytes": 83139,
+      "sha256": "0eb34e433b01e5a9cbd49c62d851c5f5a7c37a9b4778b60713b294442f7b70fa"
+    },
+    "metrics": {
+      "path": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/output/runs/flow_89e8d99de7684902/final/metrics.json",
+      "bytes": 16987,
+      "sha256": "6cf6a0d47d49e65a0ccb39de1e9d886bf40f49a73c8681a2ca5771014f8a940c"
+    },
+    "config": {
+      "path": ".eda/harness_flow_9340448cf57f402b8a90de0e82f9b5b7/output/runs/flow_89e8d99de7684902/resolved.json",
+      "bytes": 94268,
+      "sha256": "472fd9cf154a4de3762eefe46891d7c4b53fd956f8424b9fc4d54fec1b647484"
+    }
+  },
+  "finished_at": "2026-10-24T05:04:37.426815+00:00",
+  "drc_ok": true,
+  "lvs_ok": true
+}

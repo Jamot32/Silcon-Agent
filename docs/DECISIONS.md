@@ -214,3 +214,22 @@ with helper/context identities bound to the selected verification and package.
 Test coverage tags are declarations with observed execution evidence, not a
 semantic proof or a substitute for private golden tests. Growing a failing
 standalone floorplan remains an untested later repair, not a completed result.
+
+
+### R2: reject the active adapter after the complete frozen dev comparison
+
+Hand-written controls and exact proof binding passed, but ordinary model-authored
+workflows regress from R1 81/90 to R2 45/90 (−40 points). Keep all failed trials
+and qualification evidence; reject the active generator adapter. Coverage tags
+add authoring friction without establishing semantic correctness. Routing test
+API/metadata failures into RTL and blocking precise test-only corrections makes
+recovery ineffective. The next candidate restores the ordinary cocotb route and
+measures the diagnostics/deterministic-summary subset separately. Do not infer an
+individual keep decision from the combined R2 result.
+
+Historical publication uses an explicit new sealer for the actual harness-flow
+path and retained capsule. The default sealer and measured grader stay unchanged;
+no flow aliases or rewritten records are used. R2's 90 terminal states and 27
+selected clean build sources/capsules verify; the independent audit also checks
+package copies. Fewer model calls do not mean lower total tokens or known USD.
+Held-out application measurements remain unopened.

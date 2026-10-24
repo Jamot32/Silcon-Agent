@@ -1,0 +1,388 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "successful_real_model_integration_smoke",
+  "qualification_only": true,
+  "dev_benchmark_score": null,
+  "hidden_oracle_evaluated": false,
+  "run_id": "865146c4ee534fbaa8256d31d3038447",
+  "provider": "codex",
+  "is_replay": false,
+  "starter_id": null,
+  "deliberate_fault_injected": false,
+  "spec_text": "Build a six-bit saturating event counter. Inputs are clk, rst_n, enable, event_in, and clear (all one bit). Outputs are count (six bits) and full (one bit). At each rising clock edge: rst_n=0 synchronously clears count to zero; otherwise clear=1 clears count and takes priority over enable/event_in; otherwise increment count only when enable and event_in are both 1. Once count is 63 it holds until clear or reset. full is combinationally 1 exactly when count is 63. Use a 50 MHz target. No prescaler or extra features.",
+  "top_module": "event_counter",
+  "created_at": "2026-10-24T05:04:38.859024Z",
+  "finished_at": "2026-10-24T05:07:13.719056+00:00",
+  "elapsed_seconds": 154.860032,
+  "status": "done",
+  "best_run_tag": "flow_1fa26c7ae76d405f",
+  "tapeout_ready": false,
+  "terminal_event": {
+    "id": 1984,
+    "ts": "2026-10-24T05:07:13.719056+00:00",
+    "type": "run_finished",
+    "payload": {
+      "status": "done",
+      "summary": "Selected flow_1fa26c7ae76d405f; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+      "best_run_tag": "flow_1fa26c7ae76d405f",
+      "tapeout_ready": false,
+      "block_signoff_clean": true,
+      "error": null,
+      "failure_class": null,
+      "suggested_action": null,
+      "last_diagnostic": null,
+      "scope_decision": null,
+      "scope_reason": null
+    }
+  },
+  "usage": {
+    "calls": 7,
+    "input_tokens": 78955,
+    "output_tokens": 4454,
+    "cost_usd": null,
+    "cost_known": false,
+    "cumulative_events": [
+      {
+        "event_id": 1913,
+        "ts": "2026-10-24T05:04:45.465424+00:00",
+        "cost_usd": null,
+        "input_tokens": 10612,
+        "output_tokens": 128,
+        "calls": 1
+      },
+      {
+        "event_id": 1915,
+        "ts": "2026-10-24T05:05:00.057958+00:00",
+        "cost_usd": null,
+        "input_tokens": 20191,
+        "output_tokens": 806,
+        "calls": 2
+      },
+      {
+        "event_id": 1917,
+        "ts": "2026-10-24T05:05:05.388931+00:00",
+        "cost_usd": null,
+        "input_tokens": 30269,
+        "output_tokens": 1043,
+        "calls": 3
+      },
+      {
+        "event_id": 1924,
+        "ts": "2026-10-24T05:05:27.079035+00:00",
+        "cost_usd": null,
+        "input_tokens": 40912,
+        "output_tokens": 2609,
+        "calls": 4
+      },
+      {
+        "event_id": 1929,
+        "ts": "2026-10-24T05:05:48.627774+00:00",
+        "cost_usd": null,
+        "input_tokens": 53265,
+        "output_tokens": 4066,
+        "calls": 5
+      },
+      {
+        "event_id": 1950,
+        "ts": "2026-10-24T05:06:30.586260+00:00",
+        "cost_usd": null,
+        "input_tokens": 65985,
+        "output_tokens": 4276,
+        "calls": 6
+      },
+      {
+        "event_id": 1954,
+        "ts": "2026-10-24T05:06:36.047902+00:00",
+        "cost_usd": null,
+        "input_tokens": 78955,
+        "output_tokens": 4454,
+        "calls": 7
+      }
+    ]
+  },
+  "source_artifacts": [
+    {
+      "path": "runs/865146c4ee534fbaa8256d31d3038447/run.json",
+      "sha256": "dc29a3622ad881b048534ade2ac0c629d6ba414e3cd4aa12eae23f289fdaf80b"
+    },
+    {
+      "path": "runs/865146c4ee534fbaa8256d31d3038447/events.jsonl",
+      "sha256": "ce42681272eb2f4bc78b085ac9eab4778e44d531c27c69e82612fb4a35e2ae23"
+    },
+    {
+      "path": "runs/865146c4ee534fbaa8256d31d3038447/metrics.json",
+      "sha256": "0781ef5e7a99e8c44111a244337896cca8fd2cb942efe3e4841f3258bdeb7d8f"
+    },
+    {
+      "path": "runs/865146c4ee534fbaa8256d31d3038447/acceptance.json",
+      "sha256": "52335469972ee6b659090c19040384865442d153508cdd26c56bbf9354d4b51b"
+    },
+    {
+      "path": "runs/865146c4ee534fbaa8256d31d3038447/bundle.zip",
+      "sha256": "33f9982e4d8f493888c70a0d4653288871d7c73ba942d822ca822acd4b0057da"
+    }
+  ],
+  "acceptance": {
+    "command": "python scripts/live_acceptance.py 865146c4ee534fbaa8256d31d3038447 --min-flow-points 4 --require-parallel3",
+    "saved_result": {
+      "run_id": "865146c4ee534fbaa8256d31d3038447",
+      "status": "passed",
+      "provider": "codex",
+      "call_count": 7,
+      "input_tokens": 78955,
+      "output_tokens": 4454,
+      "cost_usd": null,
+      "flow_points": 4,
+      "best": {
+        "iteration_id": "6aab78e19dec43adbe2352e839fa0dd6",
+        "flow_index": 1,
+        "run_id": "865146c4ee534fbaa8256d31d3038447",
+        "area_um2": 636.861,
+        "tns_ns": 0.0,
+        "cell_count": 135,
+        "lvs_ok": true,
+        "run_tag": "flow_1fa26c7ae76d405f",
+        "id": "096c927c7256464bbcd5cbf8515b22cf",
+        "clock_mhz": 50.0,
+        "wns_ns": 0.0,
+        "power_mw": 0.05221333776717074,
+        "drc_ok": true
+      },
+      "metrics": [
+        {
+          "iteration_id": "6aab78e19dec43adbe2352e839fa0dd6",
+          "flow_index": 1,
+          "run_id": "865146c4ee534fbaa8256d31d3038447",
+          "area_um2": 636.861,
+          "tns_ns": 0.0,
+          "cell_count": 135,
+          "lvs_ok": true,
+          "run_tag": "flow_1fa26c7ae76d405f",
+          "id": "096c927c7256464bbcd5cbf8515b22cf",
+          "clock_mhz": 50.0,
+          "wns_ns": 0.0,
+          "power_mw": 0.05221333776717074,
+          "drc_ok": true
+        },
+        {
+          "iteration_id": "43f28dd88ed347eb9ae062270236c0dc",
+          "flow_index": 2,
+          "run_id": "865146c4ee534fbaa8256d31d3038447",
+          "area_um2": 636.861,
+          "tns_ns": 0.0,
+          "cell_count": 135,
+          "lvs_ok": true,
+          "run_tag": "flow_4798f906e15f4751",
+          "id": "a86f85da975840ba9eed225cfc3e1000",
+          "clock_mhz": 50.0,
+          "wns_ns": 0.0,
+          "power_mw": 0.0528534255863633,
+          "drc_ok": true
+        },
+        {
+          "iteration_id": "43f28dd88ed347eb9ae062270236c0dc",
+          "flow_index": 3,
+          "run_id": "865146c4ee534fbaa8256d31d3038447",
+          "area_um2": 838.304,
+          "tns_ns": 0.0,
+          "cell_count": 160,
+          "lvs_ok": true,
+          "run_tag": "flow_c9d94dea002e4350",
+          "id": "a87bbaf8482a42f18bc3a3445f13c679",
+          "clock_mhz": 50.0,
+          "wns_ns": 0.0,
+          "power_mw": 0.05450264143291861,
+          "drc_ok": true
+        },
+        {
+          "iteration_id": "43f28dd88ed347eb9ae062270236c0dc",
+          "flow_index": 4,
+          "run_id": "865146c4ee534fbaa8256d31d3038447",
+          "area_um2": 689.411,
+          "tns_ns": 0.0,
+          "cell_count": 139,
+          "lvs_ok": true,
+          "run_tag": "flow_b897c3dbee514e2c",
+          "id": "e80a4f0ec5fb473ebdeaab8b0fd934a8",
+          "clock_mhz": 50.0,
+          "wns_ns": 0.0,
+          "power_mw": 0.05377110210247338,
+          "drc_ok": true
+        }
+      ],
+      "layout_dimensions": [
+        1000,
+        1000
+      ],
+      "layout_sha256": "5d94449fe3a814bdbd6e965f267ceeadf799ee99683ed3b7f7d62765b6e091c3",
+      "bundle_sha256": "33f9982e4d8f493888c70a0d4653288871d7c73ba942d822ca822acd4b0057da",
+      "tiny_tapeout_ready": false,
+      "max_overlapping_flow_calls": 3,
+      "repair": null
+    }
+  },
+  "initial_tool_rejections": [
+    {
+      "event_id": 1926,
+      "tool": "write_file",
+      "error": "HarnessError: Only registered cases may have a decorator"
+    },
+    {
+      "event_id": 1928,
+      "tool": "run_tests",
+      "error": "ValueError: No test source files found"
+    }
+  ],
+  "model_correction": {
+    "note_event_id": 1931,
+    "admitted_test_write_event_id": 1934,
+    "description": "The first decorated case names lacked the required test_ prefix, so write_file was rejected. The following run_tests found no saved test source. The real model recorded the naming hypothesis and supplied the accepted test file; no RTL behavior had failed at that point."
+  },
+  "verification": {
+    "test_result_event_id": 1937,
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "quality_gate_passed": true,
+    "test_cases": [
+      "test_synchronous_reset",
+      "test_counting_and_gating",
+      "test_clear_priority",
+      "test_saturation_and_recovery"
+    ],
+    "helper_sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21",
+    "context_sha256": "6094888ba2af7d27e188748f6b7fc5cb3e0c12c4f99718d268cc6c7f2aa5fee1",
+    "source_sha256": "fbcce3d79376ac4387ad748ae52d6e340ee1f92ac9a81722050d90cbe49cfae7",
+    "tests_sha256": "0869e56849bb97b08ed109abdf99840e4d7c510769e43506f388e98437c1f891",
+    "proof_sha256": "bb64f1412108f054404fcf11500cfe26fbcb47aad5deae41de8dbf6f9f7d4ae8",
+    "image_identity": {
+      "authority": "docker_image_inspect",
+      "image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+      "observed_at": "2026-10-24T05:05:48.716314+00:00",
+      "reference": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1"
+    },
+    "artifacts": {
+      "context": {
+        "path": "runs/865146c4ee534fbaa8256d31d3038447/work/.eda/harness_1b2c7d2ca36f4f1d8932bb236fe7b966/input/trusted/harness.json",
+        "sha256": "81258c88474d7b8d1343b9e8062655467ea8200c0fa3beceaa98cba2371e2359"
+      },
+      "evidence": {
+        "path": "runs/865146c4ee534fbaa8256d31d3038447/work/.eda/harness_1b2c7d2ca36f4f1d8932bb236fe7b966/output/sa_tb_evidence.json",
+        "sha256": "90bd2a0e51c3313c5070f040df6f9af93fac5d8d81e389387e297d0c2524877f"
+      },
+      "helper": {
+        "path": "runs/865146c4ee534fbaa8256d31d3038447/work/.eda/harness_1b2c7d2ca36f4f1d8932bb236fe7b966/input/trusted/sa_tb.py",
+        "sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21"
+      },
+      "runtime": {
+        "path": "runs/865146c4ee534fbaa8256d31d3038447/work/.eda/harness_1b2c7d2ca36f4f1d8932bb236fe7b966/output/result.json",
+        "sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+      },
+      "xml": {
+        "path": "runs/865146c4ee534fbaa8256d31d3038447/work/.eda/harness_1b2c7d2ca36f4f1d8932bb236fe7b966/output/test_results.xml",
+        "sha256": "8d7047090498ba124a06ae9d4f6667ac9828f8a076a89cdcfb2e170fa663cc80"
+      }
+    },
+    "tests_unchanged_after_admission": true,
+    "test_source_file_written_event_count": 1,
+    "note": "The four admitted sa_tb cases passed and were preserved through packaging. This is self-test/proof evidence, not hidden-oracle correctness."
+  },
+  "metric_events": [
+    {
+      "event_id": 1944,
+      "run_tag": "flow_1fa26c7ae76d405f",
+      "flow_index": 1,
+      "metrics": {
+        "flow_index": 1,
+        "clock_mhz": 50.0,
+        "area_um2": 636.861,
+        "wns_ns": 0.0,
+        "tns_ns": 0.0,
+        "power_mw": 0.05221333776717074,
+        "cell_count": 135,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "event_id": 1958,
+      "run_tag": "flow_4798f906e15f4751",
+      "flow_index": 2,
+      "metrics": {
+        "flow_index": 2,
+        "clock_mhz": 50.0,
+        "area_um2": 636.861,
+        "wns_ns": 0.0,
+        "tns_ns": 0.0,
+        "power_mw": 0.0528534255863633,
+        "cell_count": 135,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "event_id": 1960,
+      "run_tag": "flow_c9d94dea002e4350",
+      "flow_index": 3,
+      "metrics": {
+        "flow_index": 3,
+        "clock_mhz": 50.0,
+        "area_um2": 838.304,
+        "wns_ns": 0.0,
+        "tns_ns": 0.0,
+        "power_mw": 0.05450264143291861,
+        "cell_count": 160,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "event_id": 1962,
+      "run_tag": "flow_b897c3dbee514e2c",
+      "flow_index": 4,
+      "metrics": {
+        "flow_index": 4,
+        "clock_mhz": 50.0,
+        "area_um2": 689.411,
+        "wns_ns": 0.0,
+        "tns_ns": 0.0,
+        "power_mw": 0.05377110210247338,
+        "cell_count": 139,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    }
+  ],
+  "selected_layout": {
+    "event_id": 1947,
+    "path": "runs/865146c4ee534fbaa8256d31d3038447/work/.eda/harness_flow_c6f4ea0fa7af4cc9b507a5c0aa96d1a7/output/runs/flow_1fa26c7ae76d405f/final/render/event_counter.png",
+    "image_url": "/api/runs/865146c4ee534fbaa8256d31d3038447/layout/flow_1fa26c7ae76d405f.png",
+    "width": 1000,
+    "height": 1000,
+    "sha256": "5d94449fe3a814bdbd6e965f267ceeadf799ee99683ed3b7f7d62765b6e091c3"
+  },
+  "selected_bundle_member_sha256": {
+    "src/event_counter.v": "99ce58619ab5c153a7eaaa9856fbee7bc7f99f381e7a7d3ffc3ce9d5068d4313",
+    "test/test_event_counter_spec.py": "04931542bec66d16f31a111006db03b2e412190c835e957fd479d4798ede53b6",
+    "layout/design.gds": "a3f5783fccafed1be2707b80391222001a10789b9c252b1bca1ae0b4d1595725",
+    "layout/design.lef": "4ae3a2e5985ab7fa527cc7f9f61449a9e39a48749070172ebfd0d35281ad836b",
+    "trusted/proof.json": "ebada4b3b6899e5edb4073953480f88c5199035884892ad2874774e72e196e33",
+    "verification.json": "4a3ff85e77bca7b2d8d106f0d7b7fc22e5f1c22b16ab65bdf470149e7ea7aa35",
+    "manifest.json": "e43a236bac4c42ea121af9174bac875f453167e1d592187ddb74de1d41b6682e",
+    "trusted/test_results.xml": "8d7047090498ba124a06ae9d4f6667ac9828f8a076a89cdcfb2e170fa663cc80"
+  },
+  "event_counts": {
+    "note": 4,
+    "stage_changed": 9,
+    "cost_update": 7,
+    "tool_started": 21,
+    "file_written": 2,
+    "tool_finished": 21,
+    "test_result": 1,
+    "metric_recorded": 4,
+    "layout_rendered": 4,
+    "run_finished": 1
+  },
+  "documentation_change_after_run": "After this run, SYSTEM prompt documentation was clarified to state explicitly that registered case function names must start with test_. The current prompt is therefore not claimed to be byte-identical to the prompt used for this smoke.",
+  "limits": "This single integration qualification does not establish dev/heldout reliability, independent functional correctness, or before/after performance improvement. USD charge remains unknown. DRC/LVS cleanliness does not establish Tiny Tapeout wrapper or shuttle readiness."
+}

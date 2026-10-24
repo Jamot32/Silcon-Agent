@@ -1,0 +1,37 @@
+{
+  "state": "admitted_to_measurement_not_kept",
+  "cohort": "20261024T051009Z_cfd9d131",
+  "pipeline_sha256": "05fcdad834393e01e7ba9627954f8a5fab02206887b6fccc5f2da7752b8f4fea",
+  "command": "make eval SET=dev N=3 EVAL_JOBS=4",
+  "before_cohort": "20261024T030824Z_b4b21326",
+  "before_successes": 81,
+  "planned_trials": 90,
+  "after_successes": null,
+  "cost_usd_known": false,
+  "qualification": {
+    "backend_unit_passed": 655,
+    "integration_deselected": 36,
+    "frontend_unit_passed": 15,
+    "typecheck_passed": true,
+    "browser_passed": 5,
+    "browser_seconds": 58.4,
+    "eval_publication_unit_passed": 294,
+    "real_harness_controls_passed": 33,
+    "legacy_route_controls_passed": 4
+  },
+  "evidence": {
+    "reliability-r2-boundary.json": "c4d9a5bbedbbe601a318cfee3c747af711a5eaa1dd89f763df81ea1226b018b7",
+    "reliability-r2-mount.json": "37566c334314c88d5cad5cb3414c77d4330cdd8d13fc4c2ff6861ef624159a2c",
+    "reliability-r2-legacy.json": "5797315f9d2f6376a40483eb23b66e23b6378ec40c9bd3d96d2a1f9af5d0fb2d",
+    "reliability-r2-proof-flow.json": "a23f6d3f1a8492f650e5b527c414479fb082c5360991260a0e4c644173ddb0c1",
+    "reliability-r2-packaging.json": "1da60574fce9cb5839346790eba21f68ca2dbd2d7d31cb56a296912aece39889",
+    "reliability-r2-smoke-initial.json": "e51ad1466d9796fe4f53f90eaf8b2eb274f3c6389cbb013f12d9f1dbd483e34b",
+    "reliability-r2-smoke.json": "82924a87bf47a1f6bf3ddc768b2d510776227ca73c316f26633269a7b0260311"
+  },
+  "notes": [
+    "The first smoke failed; its evidence is retained.",
+    "Hand-authored and live smoke checks are not dev success-rate measurements.",
+    "One initial replay check was blocked by the live job; the idle replay rerun passed.",
+    "No held-out application evaluation has been run."
+  ]
+}

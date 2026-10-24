@@ -1,0 +1,60 @@
+{
+  "recording": "Actual real R2 selected-flow capsule, copied byte-for-byte from a validated and reproduced bundle; no simulated/unit data.",
+  "origin": "docs/evidence/reliability-r2-proof-flow.json",
+  "origin_sha256": "a23f6d3f1a8492f650e5b527c414479fb082c5360991260a0e4c644173ddb0c1",
+  "selected_run_tag": "flow_89e8d99de7684902",
+  "bundle_sha256": "f56297a3ebf6f1fe91e1efbb3a94364241e1d86762c0654ccaf66a14ef8f7a87",
+  "image_identity": {
+    "authority": "docker_image_inspect",
+    "image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+    "observed_at": "2026-10-24T05:04:01.887347+00:00",
+    "reference": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1"
+  },
+  "proof_sha256": "5558285441af9a0336426e7423fcabb223d19a2e656d491a1be5f8f24eee8322",
+  "files": {
+    "src/proof_counter.v": {
+      "bytes": 178,
+      "sha256": "58d72f81de368558e30f046a75fcb8de4fd292446378a6087dff3505daadd25c"
+    },
+    "test/test_proof_counter.py": {
+      "bytes": 1114,
+      "sha256": "7a4f9b1931211adac4bd8c997cdc3fc8d6756b5df9b37929ea4020dd5af5059c"
+    },
+    "test_instructions.md": {
+      "bytes": 1350,
+      "sha256": "6e2de7577cf89c661b1c56309c15e23c289affe300665c73a0ffef4567059e34"
+    },
+    "trusted/harness.json": {
+      "bytes": 2083,
+      "sha256": "18a22ce32c7721c13e352ce5540f2d524119e7da8d29648b778aa4e1447d3a72"
+    },
+    "trusted/host_result.json": {
+      "bytes": 4718,
+      "sha256": "a482fdbac957199f5f611283e0d018b3f8f55c22a9b87cb36612230fd540a672"
+    },
+    "trusted/proof.json": {
+      "bytes": 6562,
+      "sha256": "ac25ba3d9c41667ce54f9a40881c3747ee43dd1ef52292e43f6632327477b7b6"
+    },
+    "trusted/runtime_result.json": {
+      "bytes": 69,
+      "sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+    },
+    "trusted/sa_tb.py": {
+      "bytes": 29433,
+      "sha256": "d9e4c0204eaf86cbc690010b4dae6a79a399e9787fb5941a0448b7be0cff7d21"
+    },
+    "trusted/sa_tb_evidence.json": {
+      "bytes": 3551,
+      "sha256": "ee6a61e5c3162e37b8581a19745a748d8aebab40f5d730182a07c354a79f95e1"
+    },
+    "trusted/test_results.xml": {
+      "bytes": 957,
+      "sha256": "9102ba3135bbd5420e4af83ab7d28160f22b0e0ff9134832f057a1e316846af0"
+    },
+    "verification.json": {
+      "bytes": 7140,
+      "sha256": "326554401c8de20cf1fd4fc33a68e26cfe2983a12d6c1ac49d1f7e36fe1d0336"
+    }
+  }
+}
