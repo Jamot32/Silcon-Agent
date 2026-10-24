@@ -95,3 +95,22 @@ contracted benchmark, with some omitted defaults and informal wording. Shared
 upstream families, possible pretraining exposure, absent design families, and
 interfaces explicitly requesting standalone cores limit generalization claims.
 No Tiny Tapeout pin-fit or submission claim follows from standalone success.
+
+## Explicit G0 → G1 scope observation bridge
+
+G0 has no collected public scope decisions. Its original results stay immutable.
+G1 observes only canonical typed scope outcomes matching the visible final
+reason. Regrading a sealed old cohort is a separate artifact, never a new model
+measurement:
+
+```sh
+uv run --python 3.12 --with-requirements backend/requirements.txt python -m eval scope-bridge 20261024T010349Z_814bc010
+make eval-compare A=20261024T010349Z_814bc010 B=<new-result> BRIDGE=20261024T010349Z_814bc010_scope_G1_391b18e3be9f
+```
+
+Default comparison remains strict. The explicit bridge path re-verifies the
+original private evidence, requires all 90 complete rows unchanged, and keeps
+measurement and regrading hashes separate. A public audit file alone is not
+sufficient without the original private sealed evidence. Any further grader
+source change invalidates this specific proof and requires a separately audited
+measurement protocol; it cannot silently reuse this bridge identity.

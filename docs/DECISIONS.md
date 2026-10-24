@@ -182,3 +182,14 @@ conservative classifier label. Clarity requires a real final blocker plus a
 usable next action, not only a present message. These are derived engineering
 reviews; the committed G0 measurement is never overwritten. Explicit starter
 repair demonstrations remain isolated from the general preset/free-text path.
+
+### G1: explicit compatibility proof for newly observable public scope decisions
+
+The G0 report and raw records remain immutable. G1 reads only typed terminal
+scope fields matching the public failed-run explanation. A separate bridge
+verifies every sealed original and proves exact equality of all 90 rows, while
+retaining G0 measurement identity and distinct G1 regrading identity. Default
+unequal-grader comparisons still reject; `make eval-compare ... BRIDGE=<id>` is
+an explicit, reverified compatibility path. This evidence-backed extension
+precedes the real scope-gate experiment and does not rerun or relabel inference.
+Unit-test Compose runs rebuild images to avoid stale-source verification.

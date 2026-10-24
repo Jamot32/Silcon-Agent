@@ -193,3 +193,34 @@ harness and preserved repair diagnostics (7 failures), followed by model-based
 verification and the remaining generalization work. Before measuring the scope
 change, qualify the explicitly versioned G1 observation extension against all
 90 sealed G0 records; default unequal-grader comparisons must still reject.
+
+### G1 public-scope observation compatibility
+
+G1 is frozen at `391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669`.
+It accepts a policy decision only from a unique canonical public terminal event
+whose failed status and reason exactly match the visible Run. Completed/selected
+or signed-off build claims, malformed/duplicate/nonfinite JSON, wrong identities,
+empty/oversized reasons and conflicting visible errors do not qualify. The
+existing no-RTL/no-EDA policy scoring is unchanged. Raw model refusals are never
+used as terminal evidence.
+
+The explicitly requested offline bridge
+`20261024T010349Z_814bc010_scope_G1_391b18e3be9f` verifies every original raw-result,
+terminal database/projection, XML and selected-source binding, reobserves all 90
+rows and proves **complete row equality**, including failure classes. It checks
+the sealed evidence again after regrading and binds the verifier source hash.
+The derived report retains G0 measurement provenance and separately names G1
+regrading. No inference was rerun and no old result was overwritten. Default
+comparison still rejects unequal grader hashes. Only an explicit `BRIDGE=<id>`
+comparison re-verifies this evidence and uses a temporary comparison identity.
+This is an audited scope-observation extension, not proof of equivalence for
+arbitrary future rubric changes. Qualified comparison requires the private
+sealed evidence archive; public hashes alone do not recreate that evidence.
+
+Offline working-tree checks (including the separately pending scope gate):
+745 passed, 2 integration checks excluded; independent focused review 128 passed.
+Historical before/after is exactly 65/90, with all 90 fields unchanged. This
+keeps measurement tooling; it does not claim a design-pipeline improvement.
+`make test` now rebuilds its API/web unit-test images, using locally verified
+Compose `run --build --quiet-build` flags, so edited source cannot be tested
+against a stale image. No model or EDA calls are made by those regression tests.

@@ -97,3 +97,19 @@ class Outcome(BaseModel):
     block_signoff_clean: bool = False
     design_spec: DesignSpec | None = None
     error: str | None = None
+    scope_decision: Literal["decline", "ask_clarify", "scope_down"] | None = None
+    scope_reason: str | None = Field(default=None, min_length=1, max_length=3000)
+
+    @model_validator(mode="after")
+    def visible_scope_outcome(self) -> "Outcome":
+        if self.scope_decision is None:
+            if self.scope_reason is not None:
+                raise ValueError("A scope reason requires a scope decision")
+            return self
+        if not self.scope_reason or not self.scope_reason.strip():
+            raise ValueError("A scope decision requires a nonempty visible reason")
+        if self.status != "failed" or self.best_run_tag is not None or self.tapeout_ready or self.block_signoff_clean:
+            raise ValueError("A scope decision cannot claim a completed or signed-off build")
+        if self.summary != self.scope_reason or self.error not in (None, self.scope_reason):
+            raise ValueError("The scope reason must exactly match the visible terminal explanation")
+        return self

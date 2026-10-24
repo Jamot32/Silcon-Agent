@@ -29,8 +29,8 @@ down:
 test: test-unit test-e2e
 
 test-unit:
-	docker compose run --rm --no-deps api python -m pytest -q -m 'not integration' -o cache_dir=/tmp/pytest-cache tests
-	docker compose run --rm --no-deps web npm run typecheck
+	docker compose run --build --quiet-build --rm --no-deps api python -m pytest -q -m 'not integration' -o cache_dir=/tmp/pytest-cache tests
+	docker compose run --build --quiet-build --rm --no-deps web npm run typecheck
 	npm --prefix frontend run test:unit
 
 frontend/node_modules/.package-lock.json: frontend/package.json frontend/package-lock.json
@@ -71,7 +71,7 @@ eval:
 	uv run --env-file .env --python 3.12 --with-requirements backend/requirements.txt python -m eval run --set "$(SET)" --tiers "$(TIER)" --repeat "$(N)" --jobs "$(EVAL_JOBS)"
 
 eval-compare:
-	uv run --python 3.12 --with-requirements backend/requirements.txt python -m eval compare "$(A)" "$(B)"
+	uv run --python 3.12 --with-requirements backend/requirements.txt python -m eval compare "$(A)" "$(B)" $(if $(BRIDGE),--scope-bridge "$(BRIDGE)")
 
 eval-test:
 	uv run --python 3.12 --with-requirements backend/requirements.txt python -m pytest -q eval/tests scripts/tests

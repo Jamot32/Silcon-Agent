@@ -18,6 +18,7 @@ from typing import Callable
 
 from .contracts import EvalCase, EvalConfig, HiddenResult, StageChecks, TrialResult, source_snapshot_sha256
 from .scoring import score_trial
+from .scope_observation import observe_scope
 
 
 def _write_json(path: Path, value: object) -> None:
@@ -313,6 +314,9 @@ async def run_trial(case: EvalCase, repeat_index: int, trial_dir: Path, config: 
             exception = re.fullmatch(r"Worker (?:execution )?failed \(([A-Za-z_][A-Za-z0-9_]*)\)", current.error or harness_error or "")
             worker_exception_type = exception[1] if exception else None
             events = _all_events(store, run.id)
+            scope = observe_scope({"id": current.id, "status": current.status, "summary": current.summary, "error": current.error},
+                                  [event.model_dump(mode="json") for event in events])
+            _write_json(trial_dir / "scope_observation.json", scope)
             with Session(store.engine) as session:
                 iterations = list(session.exec(select(Iteration).where(Iteration.run_id == run.id).order_by(Iteration.index)).all())
             _write_json(trial_dir / "iterations.json", [iteration.model_dump(mode="json") for iteration in iterations])
@@ -389,6 +393,7 @@ async def run_trial(case: EvalCase, repeat_index: int, trial_dir: Path, config: 
                 error=current.error, harness_error=harness_error, provider=provider, model=getattr(client, "model", None),
                 worker_exception_type=worker_exception_type, terminal_message_present=bool((current.error or current.summary or "").strip()),
                 failure_class=_failure_class(current.error, observer, timed_out),
+                scope_decision=scope["scope_decision"], scope_reason=scope["scope_reason"],
                 cli_version=metadata.get("cli_version"), pipeline_sha=config.snapshot_id, tool_versions=metadata.get("tool_versions", {}),
             )
             result = score_trial(result, case.expected_outcome)

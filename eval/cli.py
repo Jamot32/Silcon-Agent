@@ -271,6 +271,10 @@ def main(argv: list[str] | None = None) -> int:
     compare = commands.add_parser("compare", help="Compare real reports with compatible provenance")
     compare.add_argument("a")
     compare.add_argument("b")
+    compare.add_argument("--scope-bridge", help="Explicit audited scope-observer bridge artifact ID")
+    bridge = commands.add_parser("scope-bridge", help="Reobserve all sealed source trials without model or EDA calls")
+    bridge.add_argument("source")
+    bridge.add_argument("--output-id")
     child = commands.add_parser("_execute", help=argparse.SUPPRESS)
     child.add_argument("invocation", type=Path)
     args = parser.parse_args(argv)
@@ -286,6 +290,14 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         if args.command == "selfcheck":
             return asyncio.run(selfcheck(args.split))
+        if args.command == "scope-bridge":
+            from eval.scope_observation import create_bridge
+            print(json.dumps(create_bridge(args.source, args.output_id, root=ROOT), indent=2))
+            return 0
+        if args.scope_bridge:
+            from eval.scope_observation import compare_with_scope_bridge
+            print(json.dumps(compare_with_scope_bridge(args.a, args.b, args.scope_bridge, root=ROOT), indent=2, allow_nan=False))
+            return 0
         from eval.reporting import compare_reports
         result = compare_reports(read_json(result_directory(args.a) / "summary.json"),
                                  read_json(result_directory(args.b) / "summary.json"))
