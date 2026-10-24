@@ -510,7 +510,6 @@ class Orchestrator:
                 return scoped
             await self._spec()
             assert self.design_spec is not None
-            self.tools.configure_test_harness(self.design_spec)
             self.tools.eda.clock_port = None if self.design_spec.purely_combinational else "clk"
             await self._remember("SPEC")
             await self._rtl()

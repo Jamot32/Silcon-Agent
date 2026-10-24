@@ -133,19 +133,6 @@ class RecordedEDA(EDA):
         return {"ok": True, "text": path.read_text()}
 
 
-class RecordedToolRunner(ToolRunner):
-    """Validate configuration but retain the authentic legacy fixture route.
-
-    These controller tests do not qualify old cocotb recordings as executions of
-    the new helper. Dedicated harness/proof tests qualify that separate route.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.configured_test_specs = []
-
-    def configure_test_harness(self, spec):
-        self.configured_test_specs.append(DesignSpec.model_validate(spec.model_dump(mode="json")))
 
 
 def build_run(tmp_path, script=None, *, budget=None, package=True, prefix_scope=True):
@@ -156,7 +143,7 @@ def build_run(tmp_path, script=None, *, budget=None, package=True, prefix_scope=
 
     work = tmp_path / "work"
     eda = RecordedEDA(work)
-    tools = RecordedToolRunner(work, "unit-recorded-evidence", eda=eda, event_callback=record)
+    tools = ToolRunner(work, "unit-recorded-evidence", eda=eda, event_callback=record)
     scripted = list(full_script() if script is None else script)
     if prefix_scope:
         scripted.insert(0, response(content=json.dumps({
@@ -181,8 +168,8 @@ def test_scripted_spec_to_done_uses_real_fail_fix_evidence_and_real_bundle(tmp_p
     assert outcome.status == "done", outcome.error
     assert outcome.block_signoff_clean is True
     assert outcome.tapeout_ready is False  # Standalone signoff does not verify a TT wrapper.
-    assert orchestrator.tools.configured_test_specs == [orchestrator.design_spec]
-    assert orchestrator.tools._harness_spec is None  # Legacy recordings remain explicitly legacy.
+    assert orchestrator.tools.requires_harness_verification is False
+    assert eda.harness_context() is None  # Ordinary builds use the measured legacy simulator route.
     assert llm.budget.calls == len(full_script()) + 1
     assert not llm.responses
     assert orchestrator.fix_loops == 1
@@ -368,7 +355,6 @@ def test_passing_verify_exit_does_not_need_another_call_for_its_summary(tmp_path
     script = [response(call("run_tests", top="counter", test_module="test_counter"))]
     orchestrator, llm, eda, _ = build_run(tmp_path, script, budget=Budget(max_calls=1), prefix_scope=False)
     orchestrator.design_spec = DesignSpec.model_validate(spec_data())
-    orchestrator.tools.configure_test_harness(orchestrator.design_spec)
 
     async def scenario():
         await orchestrator._execute("RTL", call("write_file", path="src/counter.v", content=(GOLDEN / "src/counter.v").read_text()))
@@ -419,7 +405,6 @@ def test_scope_decision_ends_before_any_hardware_activity(tmp_path, assessment):
     assert assessment["reason"] in outcome.summary and assessment["next_action"] in outcome.summary
     assert outcome.design_spec is None and outcome.best_run_tag is None
     assert orchestrator.design_spec is None and orchestrator.bundle_path is None
-    assert orchestrator.tools.configured_test_specs == []
     assert not list((orchestrator.tools.work_dir / "src").glob("*"))
     assert not list((orchestrator.tools.work_dir / "test").glob("*"))
     assert eda.test_results == [] and eda.flow_calls == 0

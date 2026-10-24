@@ -475,3 +475,23 @@ No held-out application run has been used. Full evidence and limitations:
 Publication regression: `make eval-test` passes 324 checks, including 30 new
 actual-capsule/tamper/ambiguity checks for the explicit historical adapter.
 The adapter and original sealer SHAs remain the values recorded in EVIDENCE.
+
+
+### R3 — ordinary cocotb plus diagnostics and deterministic summaries (PENDING)
+
+Primary before: R1 81/90 (T1 24/24, T2 25/30, T3 14/18, T4 18/18),
+Tier 2 median 242.201 s. Rejected combined R2:45/90. After:unmeasured; no keep
+decision. Restore R1 prompts byte-for-byte and stop configuring the generated
+adapter in ordinary runs. Retain R2 diagnostic/bookkeeping/failure fields as a
+new subset treatment. Existing helper/proof APIs and authentic qualification
+fixtures remain dormant and available for a later independently qualified route.
+
+Admission: `make test` passes655 backend/15 frontend/TypeScript/5 actual
+replay-failure browser checks (58.6s). Nine existing EDA method bodies remain
+byte-identical to R1. The ordinary controller no longer configures the adapter;
+its recorded-evidence tests assert that mode stays off. `make demo` rebuilds
+healthy API/web and restarts the authenticated host worker. The immutable EDA
+image, G1 grader, corpus and 32-call/300000-token/$1-known-cost/900s limits stay
+unchanged. Measure exactly dev3×/four workers, compare primarily to R1, and keep
+or revert only after all90 records. USD remains unknown; held-out app measurement
+remains unopened. Details:`docs/evidence/reliability-r3-admission.json`.

@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "pre_measurement_admission",
+  "treatment": "R3 ordinary cocotb with diagnostic retention and deterministic summaries",
+  "state": "admitted_not_kept",
+  "primary_before_cohort": "20261024T030824Z_b4b21326",
+  "primary_before_successful": 81,
+  "primary_before_planned": 90,
+  "rejected_combined_cohort": "20261024T051009Z_cfd9d131",
+  "rejected_combined_successful": 45,
+  "after_successful": null,
+  "after_planned": 90,
+  "runtime_sha256": "8951f86e7b3bd2148ace26b20dcadfc46cf46435426aaf368e21e818ee2ab72a",
+  "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+  "frozen_grader_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669",
+  "dev_corpus_sha256": "6e6625b9d6b9702064e83db48099843af9aa541c5a9b2d521dddb0de102ba55d",
+  "command": "make eval SET=dev N=3 EVAL_JOBS=4",
+  "limits": {
+    "max_calls": 32,
+    "max_tokens": 300000,
+    "max_usd_known": 1,
+    "time_limit_seconds": 900,
+    "jobs": 4
+  },
+  "checks": {
+    "backend_unit_passed": 655,
+    "backend_integration_deselected": 36,
+    "frontend_unit_passed": 15,
+    "typescript_passed": true,
+    "replay_failure_e2e_passed": 5,
+    "e2e_seconds": 58.6,
+    "prompts_byte_equal_to_r1": true,
+    "legacy_eda_method_bodies_byte_equal_to_r1": 9,
+    "ordinary_orchestrator_configures_generated_adapter": false,
+    "stage_summary_llm_calls": 0,
+    "make_demo_healthy": true
+  },
+  "retained_dormant_qualification": [
+    "sa_tb_v1 helper and explicit host route",
+    "retained proof and strict package validation",
+    "hand-written controls and authentic fixtures"
+  ],
+  "active_delta_vs_r1": [
+    "bounded first diagnostics and artifact references",
+    "deterministic five-line evidence summaries without LLM calls",
+    "terminal class, blocker and suggested action fields"
+  ],
+  "usd_cost_assessable": false,
+  "heldout_application_measured": false,
+  "limitations": [
+    "Subset treatment must improve fresh dev results; neither R2 proof controls nor fewer summary calls establish success improvement.",
+    "Ordinary cocotb generation still has authored boilerplate and expectations. Reference-first/input-only host plans remain unused /tmp drafts.",
+    "Dormant strict proof routes are not ordinary-run evidence.",
+    "Existing optimization and recovery policy limitations remain unmodified."
+  ]
+}

@@ -233,3 +233,13 @@ no flow aliases or rewritten records are used. R2's 90 terminal states and 27
 selected clean build sources/capsules verify; the independent audit also checks
 package copies. Fewer model calls do not mean lower total tokens or known USD.
 Held-out application measurements remain unopened.
+
+
+### R3: isolate bookkeeping/diagnostic subset with ordinary cocotb restored
+
+R2 is rejected. Do not discard its measured failures or infer individual component
+gains. R3 restores the prior prompts and ordinary simulator selection, retaining
+deterministic evidence summaries and diagnostic/terminal detail as a separately
+measured candidate against R1. Dormant helper/proof qualification remains in the
+codebase without being selected by ordinary runs. No reference-model, SPEC,
+physics, toolchain, corpus or grading changes enter this cohort.
