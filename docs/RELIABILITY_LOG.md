@@ -547,3 +547,78 @@ changes the default section order because every current failed build reaches
 physical design; it does not bypass qualification or a fresh full DEV3× result.
 Reference/static/pattern/reporting prototypes remain isolated and unmeasured.
 No held-out application evaluation has been opened; no full-target claim.
+
+
+## R4 admission — mapped-area planning, physical recovery, executed-failure evidence
+
+Change → kept R3 DEV3× before: **86/90**, T1 24/24, T2 30/30,
+T3 14/18, T4 18/18; 68/68 reported hardware successes pass bound hidden tests.
+After → pending a complete immutable DEV3× cohort. Decision → experimental,
+not yet kept. Do not use component controls or the live smoke as eval scores.
+
+The treatment replaces the ordinary controller's count-only SYNTH request with
+an additive, source-bound LibreLane3.0.16 run through
+`Checker.YosysSynthChecks`. It discovers actual mapped area/count, resolved
+clock/strategy and all three authorized HD technology SITE geometries from real
+outputs. Fixtures preserve exact raw states/config/TECH_LEFs with provenance.
+No generic-cell area heuristic becomes a measured Metric. Cached mapping binds
+source, top, clock port/period, strategy and the inspected immutable image;
+source races and changed receipts fail closed.
+
+Host planning computes conservative site/row capacity at45% utilization and
+retains the qualified100µm PDN minimum/500µm maximum. Standalone bounds may grow;
+explicit die limits cannot. A requested1x1 keeps the pinned161×111.52µm boundary;
+this does not establish TT pin allocation, DEF integration, wrapper verification,
+precheck or tapeout readiness. Plans explicitly remain unmeasured estimates.
+Pinned floorplan/density semantics were checked against official LibreLane
+[absolute sizing](https://github.com/librelane/librelane/blob/3.0.16/librelane/scripts/openroad/floorplan.tcl)
+and [OpenROAD variables](https://github.com/librelane/librelane/blob/3.0.16/librelane/steps/openroad.py);
+the fixed boundary comes from the pinned official
+[SKY tile table](https://github.com/TinyTapeout/tt-support-tools/blob/01d5d2814fa9dd61e9d211e0b235a4a592a9316a/tech/sky130A/tile_sizes.yaml).
+
+Initial FLOW failure gets bounded deterministic recovery before another model
+proposal: conservative density, then authorized standalone growth; original
+six-flow, run-time and model budgets remain. No clock relaxation is used without
+an explicit authorized floor (the current contract has none). OPTIMIZE requires
+a real DRC/LVS-clean baseline, and an optional model/budget failure cannot discard
+that selected source snapshot. Failed or unknown signoff never becomes best.
+
+Tool evidence records actual launched command exit code/duration/timeout, copies
+its log immediately and writes exclusive private result/receipt sidecars. A
+bounded ledger distinguishes executed failures, rejected repairs, failed launches
+and capture errors. Exact same-tool/source/input success resolves only its matching
+failure; per-tool current hashes prevent cross-tool mislabeling. Precise config
+key errors include the actual allowlist and percentage density units. Full evidence
+stays on disk while model/SSE payloads remain bounded. Cleanup launch failure now
+returns an observed timeout and reaps the launched process rather than losing its
+receipt. A concurrent reservation regression prevents awaited mapping from
+oversubscribing six physical attempts. All18 pre-existing EDA method ASTs,
+baked runtime/image, grading route, corpus and oracle sources remain unchanged.
+
+Admission checks: `make test` passes787backend tests (36integration deselected),
+TypeScript,15frontend units and5real replay/failure E2E checks in58.1s. A final
+small empty-measurement suppression change is covered by69focused controller,
+concurrency and evidence regressions. The first full attempt exposed an old test
+expecting cleanup-spawn exceptions; its assertion now checks preserved timeout,
+cleanup diagnostic and process reaping. A replay check first refused the active
+live job; the subsequent idle replay and complete suite pass. These failed checks
+are preserved honestly and are not discarded measurements.
+
+A fresh OAuth-backed public Gray-code spec (no preset/starter) reaches DONE,
+passes its own tests and produces4real flow points:854.57,852.067,912.125,
+864.579µm², all50MHz and clean DRC/LVS. The selected852.067µm² bundle validates.
+Six actual model calls use69,348input/3,580output tokens; plan USD remains unknown.
+That smoke precedes final receipt/label refinements; a separate final production
+ToolRunner qualification reuses only its public generated source/tests, then runs
+real lint/sim/mapped synthesis/cached fullflow/render/package with no model calls.
+All4executed command receipts and source/ZIP bindings rehash successfully. These
+establish the route, not hidden correctness or general success. Public records:
+`docs/evidence/reliability-r4-live-smoke.json` and
+`docs/evidence/reliability-r4-physics-qualification.json`.
+
+Next: commit admission, freeze the source and run the unchanged full DEV3× with
+four jobs and original caps. No runtime, grader, image or corpus edits during that
+cohort. Reference/static/pattern/trace/TT prototypes stay outside the active path.
+The three earlier incomplete I2C hidden failures remain a separate correctness
+risk; physical improvement alone cannot prove their functional recovery. No
+held-out application run has been opened, and the full targets are not claimed.

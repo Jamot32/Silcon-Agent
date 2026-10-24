@@ -264,3 +264,27 @@ Recorded hidden status also fails on the three incomplete I2C snapshots; no hidd
 contents are used for tuning. Physical qualification cannot establish recovery of
 their behavior. Reference-first verification remains required before claiming a
 general reliability result or proceeding to final held-out proof.
+
+
+R4 is admitted as one measured physics/evidence treatment, after the complete kept
+R3 result86/90. Real mapped synthesis replaces count-only sizing in the ordinary
+controller; additive EDA methods preserve the generic grading route. Use sourced
+placement geometry and explicit absolute bounds, not FP_CORE_UTIL as a resizing
+proxy. Respect the official1x1 boundary without calling it TT integration. Keep
+original clock constraints unless a future explicit floor authorizes relaxation.
+
+Recovery stays in FLOW until a measured DRC/LVS-clean baseline exists. Optional
+optimization cannot discard that clean source; failed/unknown variants cannot
+replace it. Actual-command receipts and schema/policy rejections remain separate,
+with exact-tool/input resolution and safe private immutable log copies. Max-six
+reservation happens after awaited planning, atomically. Failed cleanup launch is
+reported as the real timeout after reaping; this edge-case behavior is covered
+explicitly rather than allowing an exception to erase command provenance.
+
+Qualification is actual tool work and live OAuth use, not a dev eval number.
+All18 old EDA method ASTs, image/runtime, grader/oracles/corpus and experiment
+caps remain unchanged. Decide keep/revert only after the next frozen DEV3×;
+known failed I2C hidden status prevents inferring end-to-end recovery from a
+clean physical layout. ChatGPT-plan USD and effective serving revision stay
+unknown. User-owned pre-existing edits remain unstaged and are included in the
+immutable eval working-patch provenance exactly as in R3.

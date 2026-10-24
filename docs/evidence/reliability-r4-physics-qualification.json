@@ -1,0 +1,198 @@
+{
+  "qualification_id": "83af79bd30f046ad86c116b4e059c3a8",
+  "source_public_run_id": "17d4371100de471990597a53dfb0a708",
+  "started_at": "2026-10-24T08:49:51.349032+00:00",
+  "ok": true,
+  "provider_calls": 0,
+  "hidden_oracle_used": false,
+  "tiny_tapeout_ready": false,
+  "scope": "Production-route qualification against the supplied public smoke's own tests only; not independent hidden correctness or Tiny Tapeout wrapper verification.",
+  "work_dir": "runs/eda-physics-production/83af79bd30f046ad86c116b4e059c3a8/work",
+  "source_spec_sha256": "46a402f8183cc5560416441b446b915de947bf50edd9989e6da1d606d76294d9",
+  "source_sha256": "fdf4969ff22806863124a60caa1ecfc0c2a654c51f65f34619a61a15a6ea4c23",
+  "input_files": {
+    "src": {
+      "gray_position_counter.v": "279544af55d3b8f7afd5200290813329077101c020aa75343e1fd3e3a1b148c6"
+    },
+    "test": {
+      "test_gray_position_counter.py": "3cf563415b7ece5720107499a8c85935c9358551d4bbd75ef858d33f3c3e7024"
+    }
+  },
+  "image_identity": {
+    "reference": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+    "image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+    "authority": "docker_image_inspect",
+    "observed_at": "2026-10-24T08:49:51.389917+00:00"
+  },
+  "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+  "run_tag": "flow_aa823fa38a6d4a6b",
+  "metrics": {
+    "flow_index": 1,
+    "clock_mhz": 50.0,
+    "area_um2": 854.57,
+    "wns_ns": 0.0,
+    "tns_ns": 0.0,
+    "power_mw": 0.06507755460916087,
+    "cell_count": 244,
+    "drc_ok": true,
+    "lvs_ok": true
+  },
+  "bundle": {
+    "path": "runs/eda-physics-production/83af79bd30f046ad86c116b4e059c3a8/bundle.zip",
+    "sha256": "72dd0606cf8e520be0d3dbdea0a084a1efc55e187745a4994f15d7f3ce6a9b00",
+    "bytes": 134178,
+    "manifest_files": {
+      "layout/design.gds": "62a6d80d305166c2032400d2eb9605c26996d261a7387047742b90bb865793a7",
+      "layout/design.lef": "4090fc669d9027b9f720ea76b9f0e2aeb7c5964cf822bd469e97d0c8363570a0",
+      "raw_metrics.json": "5f06b4323cadec7d2144cffbb994d709c7009ce336b715cb0c27a47bc3a4d959",
+      "flow_config.json": "21f90c9ffcecda3c32b7a351b952fe32461a21f4b02b323a948d3beecd8e9858",
+      "src/gray_position_counter.v": "279544af55d3b8f7afd5200290813329077101c020aa75343e1fd3e3a1b148c6",
+      "test/test_gray_position_counter.py": "3cf563415b7ece5720107499a8c85935c9358551d4bbd75ef858d33f3c3e7024",
+      "netlist/design.nl.v": "ad4580b6a3d893eacb63c80e5351d67e6058f0a40b5d6f6be6e5fe15aaab2da1",
+      "metrics.json": "014cbcb33d3ca58ab67f2e379c457b585cc93ea740c24767852743e70156ff6f",
+      "design_spec.json": "1d4c4e189609de404115ea536724aaa2da9a2f1664b0ac4cf6af93429d7b2242",
+      "design.log": "46c0e637e0f24fe62f2bf1472b35ea17a5b2b69f8c837615c405939cd4b4795d",
+      "info.yaml": "59fa1a04aca542e67372bec9bb1629f4c493757c6a2741fa9c53d25065b5bcb5",
+      "integration_notes.md": "805ce572a8b69de0680412214aef853e948a25c5be2ef78037efd326c0732626"
+    }
+  },
+  "layout": {
+    "path": "runs/eda-physics-production/83af79bd30f046ad86c116b4e059c3a8/work/.eda/flow_42218cf71f5943b7a671f67e222ff692/output/runs/flow_aa823fa38a6d4a6b/final/render/gray_position_counter.png",
+    "sha256": "34cff2fcdb0dd645d0fcec7e7746ce3d4efb341357c43c874e641245766fccec",
+    "dimensions": [
+      1000,
+      692
+    ]
+  },
+  "artifacts": {
+    "gds": {
+      "path": "runs/eda-physics-production/83af79bd30f046ad86c116b4e059c3a8/work/.eda/flow_42218cf71f5943b7a671f67e222ff692/output/runs/flow_aa823fa38a6d4a6b/final/gds/gray_position_counter.gds",
+      "sha256": "62a6d80d305166c2032400d2eb9605c26996d261a7387047742b90bb865793a7",
+      "bytes": 716322
+    },
+    "lef": {
+      "path": "runs/eda-physics-production/83af79bd30f046ad86c116b4e059c3a8/work/.eda/flow_42218cf71f5943b7a671f67e222ff692/output/runs/flow_aa823fa38a6d4a6b/final/lef/gray_position_counter.lef",
+      "sha256": "4090fc669d9027b9f720ea76b9f0e2aeb7c5964cf822bd469e97d0c8363570a0",
+      "bytes": 5227
+    },
+    "netlist": {
+      "path": "runs/eda-physics-production/83af79bd30f046ad86c116b4e059c3a8/work/.eda/flow_42218cf71f5943b7a671f67e222ff692/output/runs/flow_aa823fa38a6d4a6b/final/nl/gray_position_counter.nl.v",
+      "sha256": "ad4580b6a3d893eacb63c80e5351d67e6058f0a40b5d6f6be6e5fe15aaab2da1",
+      "bytes": 167472
+    },
+    "metrics": {
+      "path": "runs/eda-physics-production/83af79bd30f046ad86c116b4e059c3a8/work/.eda/flow_42218cf71f5943b7a671f67e222ff692/output/runs/flow_aa823fa38a6d4a6b/final/metrics.json",
+      "sha256": "5f06b4323cadec7d2144cffbb994d709c7009ce336b715cb0c27a47bc3a4d959",
+      "bytes": 16877
+    },
+    "layout": {
+      "path": "runs/eda-physics-production/83af79bd30f046ad86c116b4e059c3a8/work/.eda/flow_42218cf71f5943b7a671f67e222ff692/output/runs/flow_aa823fa38a6d4a6b/final/render/gray_position_counter.png",
+      "sha256": "34cff2fcdb0dd645d0fcec7e7746ce3d4efb341357c43c874e641245766fccec",
+      "bytes": 79391
+    },
+    "config": {
+      "path": "runs/eda-physics-production/83af79bd30f046ad86c116b4e059c3a8/work/.eda/flow_42218cf71f5943b7a671f67e222ff692/output/runs/flow_aa823fa38a6d4a6b/resolved.json",
+      "sha256": "21f90c9ffcecda3c32b7a351b952fe32461a21f4b02b323a948d3beecd8e9858",
+      "bytes": 94287
+    }
+  },
+  "receipt_hashes_rechecked": true,
+  "selected_source_binding_verified": true,
+  "test_source_preserved": true,
+  "physical_flow_attempts": 1,
+  "elapsed_seconds": 38.44845025008544,
+  "finished_at": "2026-10-24T08:50:29.797650+00:00",
+  "qualification_path": "runs/eda-physics-production/83af79bd30f046ad86c116b4e059c3a8/qualification.json",
+  "qualification_sha256": "41074257ab3332d056504a9084b2f4bf64e3cc8ed66e6388aee8ceebcde07904",
+  "own_tests": {
+    "passed": 4,
+    "failed": 0
+  },
+  "mapped_synthesis": {
+    "source_sha256": "fdf4969ff22806863124a60caa1ecfc0c2a654c51f65f34619a61a15a6ea4c23",
+    "area_estimate": 394.128,
+    "cell_count": 32,
+    "clock_period_ns": 20.0,
+    "synthesis_strategy": "AREA 0",
+    "mapping_cache_key": "507ebf3c097cf7a0b95e1eaf77e68913fca5afe4daa4774198bdbb2417d0aa7f",
+    "sizing_plan": {
+      "die_area": [
+        "0",
+        "0",
+        "161.0",
+        "111.52"
+      ],
+      "planned_core_area_um2": "13460.4096",
+      "mapped_cell_area_um2": "394.128",
+      "planned_utilization_pct": "2.9280535415504740658114891243725599553820412716118",
+      "target_utilization_pct": "45",
+      "fixed_footprint": true,
+      "fits_estimate": true,
+      "recommended_action": "run_physical_flow",
+      "reason": "Estimated site/row capacity meets the target; real physical verification is still required.",
+      "measured": false,
+      "signoff_clean": false,
+      "tiny_tapeout_ready": false
+    },
+    "stats_path": ".eda/mapped_synth_b6eb5b043cd4409891dc7806d99e79fd/output/runs/map_1c90d6c794c34215/08-checker-yosyssynthchecks/state_out.json",
+    "results_path": ".eda/mapped_synth_b6eb5b043cd4409891dc7806d99e79fd/output/mapped_synth.json"
+  },
+  "mapping_reused_for_full_flow": true,
+  "receipt_summary": [
+    {
+      "tool": "lint",
+      "execution_id": "b58f28e5da0e4824b5b28a8b640634c7",
+      "executed": true,
+      "event": "executed_tool",
+      "result": {
+        "path": ".evidence/tools/b58f28e5da0e4824b5b28a8b640634c7/result.json",
+        "sha256": "80d70901e274d01db242a814b262a9fb40ce6b8e261d1a243b0d7683c4ffb738"
+      },
+      "command_count": 1
+    },
+    {
+      "tool": "run_tests",
+      "execution_id": "7b9077cb42754ab7b624bbe1c650c909",
+      "executed": true,
+      "event": "executed_tool",
+      "result": {
+        "path": ".evidence/tools/7b9077cb42754ab7b624bbe1c650c909/result.json",
+        "sha256": "1f82139e6ccd5ec81024f916d5412f7173dfa2c248345fae90203e85e4d6f8be"
+      },
+      "command_count": 1
+    },
+    {
+      "tool": "synth_stats",
+      "execution_id": "9f85f16075d94cf9a1bd4221d53ce9d4",
+      "executed": true,
+      "event": "executed_tool",
+      "result": {
+        "path": ".evidence/tools/9f85f16075d94cf9a1bd4221d53ce9d4/result.json",
+        "sha256": "2dc64f5f8419112de23f4949dffd5562068a099cfa47e183878255db6412553e"
+      },
+      "command_count": 1
+    },
+    {
+      "tool": "run_flow",
+      "execution_id": "6d93778a86664a96a990626da98151fb",
+      "executed": true,
+      "event": "executed_tool",
+      "result": {
+        "path": ".evidence/tools/6d93778a86664a96a990626da98151fb/result.json",
+        "sha256": "6f6dc836335fc2c2ca4c22629ee5136e309cff2f366f7cf4e564f1fc6f55d085"
+      },
+      "command_count": 1
+    },
+    {
+      "tool": "render_layout",
+      "execution_id": "71276a8d5a17417ba5e3a8cbd526a5cb",
+      "executed": false,
+      "event": "no_execution",
+      "result": {
+        "path": ".evidence/tools/71276a8d5a17417ba5e3a8cbd526a5cb/result.json",
+        "sha256": "cc072f57694d6742bad72811a237c3928e9d57cc08fa776876ca57582d77bbd2"
+      },
+      "command_count": 0
+    }
+  ]
+}

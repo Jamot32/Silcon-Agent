@@ -11,6 +11,8 @@ import os
 from pathlib import Path
 import re
 import stat
+from time import monotonic
+from collections.abc import Callable
 from uuid import uuid4
 
 from pydantic import JsonValue
@@ -71,13 +73,33 @@ class CommandResult:
         return self.returncode == 0 and not self.timed_out
 
 
+@dataclass(frozen=True)
+class CommandObservation:
+    command: tuple[str, ...]
+    input_dir: Path
+    output_dir: Path
+    result: CommandResult
+    duration_seconds: float
+    process_launched: bool
+
+
 class DockerSandbox:
-    def __init__(self, *, image: str | None = None, pdk_dir: Path | None = None, user: str | None = None):
+    def __init__(self, *, image: str | None = None, pdk_dir: Path | None = None, user: str | None = None,
+                 completion_callback: Callable[[CommandObservation], None] | None = None):
         self.image = image or os.getenv("EDA_IMAGE", IMAGE)
         self.pdk_dir = (pdk_dir or Path(os.getenv("EDA_PDK_DIR", REPO_ROOT / "runs/pdk/ciel/sky130/versions" / PDK_REVISION))).resolve()
         self.user = user if user is not None else f"{os.getuid()}:{os.getgid()}"
+        self.completion_callback = completion_callback
+
+    def _observe(self, result: CommandResult, command: list[str], input_dir: Path,
+                 output_dir: Path, started: float, launched: bool) -> CommandResult:
+        if self.completion_callback is not None:
+            self.completion_callback(CommandObservation(tuple(command), input_dir, output_dir,
+                                                        result, monotonic() - started, launched))
+        return result
 
     async def run(self, command: list[str], *, input_dir: Path, output_dir: Path, timeout: float = 60, require_pdk: bool = False, trusted_test_helper: Path | None = None) -> CommandResult:
+        started = monotonic()
         if not math.isfinite(timeout) or timeout <= 0:
             raise ValueError("Timeout must be positive")
         input_dir = input_dir.resolve()
@@ -115,7 +137,9 @@ class DockerSandbox:
                 process = await asyncio.create_subprocess_exec(*args, stdout=log, stderr=asyncio.subprocess.STDOUT)
             except OSError as error:
                 log.write(f"Cannot launch Docker: {error}".encode())
-                return CommandResult(127, False, path, log_tail(output_dir, path))
+                log.flush()
+                return self._observe(CommandResult(127, False, path, log_tail(output_dir, path)),
+                                     command, input_dir, output_dir, started, False)
             try:
                 await asyncio.wait_for(process.wait(), timeout)
             except (TimeoutError, asyncio.CancelledError) as error:
@@ -128,14 +152,21 @@ class DockerSandbox:
                         cleanup.kill()
                         await cleanup.wait()
                         log.write(b"\nDocker cleanup timed out; daemon must be checked.\n")
+                except OSError as cleanup_error:
+                    log.write(f"\nDocker cleanup could not launch: {cleanup_error}\n".encode())
                 finally:
                     if process.returncode is None:
                         process.kill()
                     await process.wait()
                 if isinstance(error, asyncio.CancelledError):
+                    log.flush()
+                    self._observe(CommandResult(process.returncode if process.returncode is not None else -1,
+                                                True, path, log_tail(output_dir, path)),
+                                  command, input_dir, output_dir, started, True)
                     raise
             returncode = process.returncode if process.returncode is not None else -1
-        return CommandResult(returncode, timed_out, path, log_tail(output_dir, path))
+        return self._observe(CommandResult(returncode, timed_out, path, log_tail(output_dir, path)),
+                             command, input_dir, output_dir, started, True)
 
 
 async def pin_sandbox_image(sandbox: DockerSandbox) -> tuple[DockerSandbox, dict[str, str]]:

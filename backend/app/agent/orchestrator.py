@@ -10,6 +10,8 @@ from pydantic import JsonValue, ValidationError
 from app.agent.diagnostics import diagnostic_text, first_diagnostic, prefix
 from app.agent.failures import classify_failure
 from app.agent.memory import Memory, summary_from_evidence
+from app.agent.ledger import format_failure
+from app.agent.recovery import recover_flow
 from app.agent.prompts import STAGE_GOALS, SYSTEM_PROMPT, stage_prompt
 from app.agent.scope import ScopeAssessment, assess_scope, terminal_message
 from app.agent.starters import load_starter
@@ -152,7 +154,8 @@ class Orchestrator:
     def _record_result(self, call: ToolCall, result: dict[str, JsonValue]) -> None:
         summary: dict[str, JsonValue] = {"tool": call.name}
         for key in ("ok", "bytes", "passed", "failed", "skipped", "cell_count", "area_estimate", "run_tag", "metrics", "drc_ok", "lvs_ok",
-                    "log_path", "results_path", "evidence_path", "stats_path", "quality_gate_passed", "error_kind"):
+                    "log_path", "results_path", "evidence_path", "stats_path", "quality_gate_passed", "error_kind",
+                    "tool_evidence", "physical_plan", "planned_config_overrides", "physical_flow_started"):
             if key in result:
                 summary[key] = result[key]
         if isinstance(call.arguments.get("path"), str):
@@ -165,7 +168,7 @@ class Orchestrator:
         self.last_results = self.last_results[-8:]
 
     async def _reject(self, call: ToolCall, reason: str) -> dict[str, JsonValue]:
-        result: dict[str, JsonValue] = {"ok": False, "error": reason}
+        result = self.tools.record_rejection(call, reason)
         await self._emit("tool_started", {"tool": call.name, "tool_call_id": call.id})
         await self._emit("tool_finished", {"tool": call.name, "tool_call_id": call.id, "result": result})
         self._record_result(call, result)
@@ -376,13 +379,52 @@ class Orchestrator:
             evidence = (getattr(metric, flag), result.get(flag))
             setattr(metric, flag, False if False in evidence else True if all(value is True for value in evidence) else None)
         self.candidates.append(metric)
-        if self.best is None or score_metric(metric, self.design_spec.targets) < score_metric(self.best, self.design_spec.targets):
+        if (metric.drc_ok is True and metric.lvs_ok is True
+                and (self.best is None or score_metric(metric, self.design_spec.targets) < score_metric(self.best, self.design_spec.targets))):
             self.best = metric
         render = ToolCall(id=uuid4().hex, name="render_layout", arguments={"run_tag": tag})
         rendered = await self.tools.execute(render, allowed_tools={"render_layout"})
         self._record_result(render, rendered)
         if rendered.get("ok") is not True or not rendered.get("image_url"):
             raise LLMError("The real layout could not be rendered")
+
+    async def _initial_flow(self, overrides: dict[str, JsonValue]) -> dict[str, JsonValue]:
+        """Recover physical setup before asking the model to optimize a design."""
+        assert self.design_spec is not None
+        current = dict(overrides)
+        for attempt in range(3):
+            call = ToolCall(id=uuid4().hex, name="run_flow", arguments={
+                "top": self.design_spec.top_module, "config_overrides": current})
+            result = await self.tools.execute(call, allowed_tools={"run_flow"})
+            self._record_result(call, result)
+            await self._accept_flow(result)
+            await self._remember("FLOW")
+            if self.best is not None:
+                return result
+            status = result if result.get("ok") is not True else {
+                **result, "ok": False, "error": "Physical flow returned failed or unknown DRC/LVS signoff."}
+            failure = classify_failure(stage="FLOW", tool="run_flow", result=status)
+            assert failure is not None
+            planned = result.get("planned_config_overrides")
+            if not isinstance(planned, dict) or attempt == 2:
+                raise LLMError("Physical design did not produce a DRC/LVS-clean layout; " + failure.suggested_action)
+            current = dict(planned)
+            planner = self.tools.physical_planner
+            # An explicitly requested die is a limit, whereas a host-computed
+            # standalone die may grow within the same authorized 500um ceiling.
+            fixed = planner.fixed_tile if planner is not None else True
+            if planner is not None:
+                fixed = fixed or "DIE_AREA" in planner.overrides(overrides)
+            plan = recover_flow(failure.failure_class.value, attempts=attempt,
+                                remaining_flows=6 - self.tools.flow_runs, current=current,
+                                fixed_footprint=fixed)
+            await self._emit("note", {"stage": "FLOW", "text": plan.reason,
+                                       "recovery_action": plan.action, "retry": plan.retry,
+                                       "estimated_config_overrides": plan.overrides})
+            if not plan.retry:
+                raise LLMError("Physical design did not produce a DRC/LVS-clean layout; " + plan.reason)
+            current.update(plan.overrides)
+        raise LLMError("Physical recovery attempts exhausted")
 
     async def _optimize_round(self, *, first_round: bool = False) -> str:
         messages = self._context("OPTIMIZE", first_optimization_round=first_round)
@@ -458,6 +500,8 @@ class Orchestrator:
 
     async def _optimize(self, *, previous_ok: bool) -> None:
         assert self.design_spec is not None
+        if self.best is None or self.best.drc_ok is not True or self.best.lvs_ok is not True:
+            raise LLMError("Optimization requires a measured DRC/LVS-clean baseline")
         stagnant = 0
         for round_index in range(6):
             if self.tools.flow_runs >= 6:
@@ -486,6 +530,16 @@ class Orchestrator:
             "SYNTH": ("synth_stats",), "FLOW": ("run_flow",),
             "OPTIMIZE": ("run_flow", "run_tests", "lint"), "SIGNOFF": ("read_report",),
         }.get(self.stage, ())
+        ledger = self.tools.failure_ledger(relevant) if relevant else None
+        if ledger is not None and (ledger["primary_blocker"] is not None or ledger["latest_blocked_repair"] is not None):
+            blocker = ledger["primary_blocker"]
+            evidence = {"ok": False, "first_error": blocker["diagnostic"]["message"]} if blocker else None
+            tool = blocker["receipt"]["tool"] if blocker else None
+            terminal = classify_failure(stage=self.stage, error=error, tool=tool, result=evidence)
+            detail = classify_failure(stage=self.stage, tool=tool, result=evidence) if evidence else None
+            action = detail.suggested_action if detail else terminal.suggested_action
+            text = prefix(message, 700) + " " + format_failure(ledger)
+            return prefix(text, 2400) + f" Next: {action}", terminal.failure_class.value, action, blocker["diagnostic"] if blocker else None
         tool = next((name for name in relevant if latest.get(name, {}).get("ok") is False), None)
         evidence = latest[tool] if tool is not None else None
         terminal = classify_failure(stage=self.stage, error=error, tool=tool, result=evidence)
@@ -511,6 +565,7 @@ class Orchestrator:
             await self._spec()
             assert self.design_spec is not None
             self.tools.eda.clock_port = None if self.design_spec.purely_combinational else "clk"
+            await self.tools.configure_physics(self.design_spec)
             await self._remember("SPEC")
             await self._rtl()
             if not await self._verify():
@@ -521,12 +576,16 @@ class Orchestrator:
             clock = self.design_spec.targets.get("clock_mhz")
             if clock is not None:
                 overrides["CLOCK_PERIOD"] = 1000 / float(clock)
-            call = ToolCall(id=uuid4().hex, name="run_flow", arguments={"top": self.design_spec.top_module, "config_overrides": overrides})
-            initial = await self.tools.execute(call, allowed_tools={"run_flow"})
-            self._record_result(call, initial)
-            await self._accept_flow(initial)
-            await self._remember("FLOW")
-            await self._optimize(previous_ok=initial.get("ok") is True)
+            initial = await self._initial_flow(overrides)
+            try:
+                await self._optimize(previous_ok=initial.get("ok") is True)
+            except LLMError as error:
+                # Optional improvements cannot discard a source-bound, clean
+                # baseline. Packaging below selects that baseline's snapshot.
+                if self.best is None:
+                    raise
+                await self._emit("note", {"text": "Optional optimization stopped: " + prefix(str(error), 700)
+                                          + ". Preserving the measured DRC/LVS-clean best design."})
             assert self.best is not None
             await self._stage("SIGNOFF")
             for kind in ("timing", "area", "power", "drc"):
