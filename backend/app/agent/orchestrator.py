@@ -9,6 +9,7 @@ from pydantic import JsonValue, ValidationError
 
 from app.agent.memory import Memory
 from app.agent.prompts import STAGE_GOALS, SUMMARY_PROMPT, SYSTEM_PROMPT, stage_prompt
+from app.agent.scope import ScopeAssessment, assess_scope, terminal_message
 from app.agent.starters import load_starter
 from app.agent.tools import ToolRunner, tool_definitions
 from app.llm.types import Budget, Completion, LLM, LLMError, Message, ToolCall
@@ -56,6 +57,7 @@ class Orchestrator:
         if self.event_callback is not None:
             self.tools.event_callback = self.event_callback
         self.design_spec: DesignSpec | None = None
+        self.scope_assessment: ScopeAssessment | None = None
         self.stage = "SPEC"
         self.memory = Memory(tools.work_dir / "memory.json")
         self.fix_loops = 0
@@ -355,6 +357,25 @@ class Orchestrator:
                             f"Validation feedback: {feedback}"),
                 ]
 
+    async def _assess_scope(self) -> Outcome | None:
+        async def complete(messages, tools):
+            if tools:
+                raise ValueError("Scope assessment cannot use tools")
+            return await self._ask(messages, set())
+
+        assessment = await assess_scope(complete, self.spec_text, targets=self.targets)
+        self.scope_assessment = assessment
+        message = terminal_message(assessment)
+        await self._emit("note", {
+            "stage": "SPEC", "text": message,
+            "scope_assessment": assessment.model_dump(mode="json"),
+        })
+        if assessment.decision == "build":
+            return None
+        await self._stage("FAIL", previous_ok=False)
+        return Outcome(status="failed", summary=message, error=message,
+                       scope_decision=assessment.decision, scope_reason=message)
+
     async def _accept_flow(self, result: dict[str, JsonValue]) -> None:
         assert self.design_spec is not None
         if result.get("ok") is not True:
@@ -473,6 +494,9 @@ class Orchestrator:
     async def run(self) -> Outcome:
         try:
             await self._stage("SPEC", previous_ok=None)
+            scoped = await self._assess_scope()
+            if scoped is not None:
+                return scoped
             await self._spec()
             assert self.design_spec is not None
             self.tools.eda.clock_port = None if self.design_spec.purely_combinational else "clk"

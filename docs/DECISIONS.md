@@ -193,3 +193,24 @@ unequal-grader comparisons still reject; `make eval-compare ... BRIDGE=<id>` is
 an explicit, reverified compatibility path. This evidence-backed extension
 precedes the real scope-gate experiment and does not rerun or relabel inference.
 Unit-test Compose runs rebuild images to avoid stale-source verification.
+
+### R1: keep measured scope gate; retain hardware regressions in the report
+
+The complete three-repeat cohort improves overall success from 65/90 to 81/90
+and Tier 4 from 0/18 to 18/18. Keep the general typed scope gate. Hardware
+completion decreases from 65 to 63; Tier 2 is 83.3% and Tier 3 is 77.8%.
+Report every regression, unchanged unknown USD, and the remaining nine unclear
+hardware failures. The audited G0→G1 comparison and sealed source bindings pass;
+no held-out application performance is claimed.
+
+R2 combines the trusted test adapter, preserved diagnostics, deterministic
+stage summaries and actionable failure messages because the observed failures
+couple setup, repair context and bookkeeping budget. Measure this as one
+treatment. The latest reliability brief's preference for deterministic code
+supersedes the original model-written-summary default: real calls after passing
+tests have themselves exhausted budget. Keep the exact EDA image and generic
+legacy simulation route; use an explicit additive adapter for generated plans,
+with helper/context identities bound to the selected verification and package.
+Test coverage tags are declarations with observed execution evidence, not a
+semantic proof or a substitute for private golden tests. Growing a failing
+standalone floorplan remains an untested later repair, not a completed result.

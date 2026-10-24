@@ -224,3 +224,117 @@ keeps measurement tooling; it does not claim a design-pipeline improvement.
 `make test` now rebuilds its API/web unit-test images, using locally verified
 Compose `run --build --quiet-build` flags, so edited source cannot be tested
 against a stale image. No model or EDA calls are made by those regression tests.
+
+### Experiment R1 — early typed scope exit
+
+Before: committed G0 baseline 65/90; T1 100%, T2 86.7%, T3 83.3%, T4 0%.
+Change: a tool-free, schema-validated general scope assessment runs before
+DesignSpec/RTL. Non-build decisions publish a bounded cause and next action,
+optional questions/default proposals or reduced scope, and end without EDA.
+Build defaults are explicitly provisional; this is not the full SPEC critic,
+code-level default application, feasibility estimator, or interactive timeout UI.
+No preset/case-specific answers were added. Keep/revert was pending at admission;
+the completed three-repeat result and decision are recorded below.
+
+Pre-measurement checks: 745 combined offline checks passed (2 integration tests
+excluded); full rebuilt `make test` passed 452 backend checks, TypeScript, 15
+frontend tests and five replay/failure E2E checks (58.7s). `make demo` is healthy.
+Actual public-API smoke `6980546d686d4b798300761aa38a42e1` declined a new analog
+amplifier request in one real Codex call (~6.1s), with visible cause/action and
+zero EDA operations/metrics. Browser GET-only checks confirmed the visible reason
+and no offered layout/bundle. This smoke is not an eval success-rate result;
+evidence is `docs/evidence/reliability-scope-smoke.json`.
+
+The R1 command is `make eval SET=dev N=3 EVAL_JOBS=4`, with unchanged model,
+CLI/image/PDK, concurrency,32-call/300000-token/$1-known-cost/900s limits. G1
+harness is frozen; comparison requires the committed audited G0→G1 bridge.
+Runtime, corpus and grader sources remained unchanged during measurement.
+
+#### R1 completed measurement and decision
+
+`make eval SET=dev N=3 EVAL_JOBS=4` exited 0. Cohort
+`20261024T030824Z_b4b21326` recorded all 90 planned trials, with no missing or
+blocked trials. Runtime snapshot is
+`395e466713bd69a0091a134476965450e0caf4c3ebb43464203abbc90958beef`.
+The original summary SHA256 is
+`c715a8dc66fd646cc19dd72c4cd2b026d95d10d76689411bb654e0b25cdbac2e`.
+All 90 terminal records and 63 successful delivered-source bindings were sealed
+and independently verified. Neither original cohort report was rewritten.
+
+| Metric | G0 before | R1 after | Change |
+| --- | ---: | ---: | ---: |
+| Overall | 65/90 (72.2%) | 81/90 (90.0%) | +17.8 percentage points |
+| Tier 1 | 24/24 (100%) | 24/24 (100%) | 0 points |
+| Tier 2 | 26/30 (86.7%) | 25/30 (83.3%) | −3.3 points |
+| Tier 3 | 15/18 (83.3%) | 14/18 (77.8%) | −5.6 points |
+| Tier 4 | 0/18 (0%) | 18/18 (100%) | +100 points |
+| Bound hidden correctness among completed builds | 65/65 (100%) | 63/63 (100%) | No observed false completed builds |
+| Tier 2 median duration | 232.245 s | 242.201 s | +9.956 s |
+| All-trial median duration | 227.175 s | 228.188 s | +1.013 s |
+| Manually reviewed unclear final outcomes | 25/90 | 9/90 | −17.8 points |
+| Unexpected worker exceptions / deadline hangs / harness errors | 0 / 0 / 0 | 0 / 0 / 0 | Unchanged |
+| Median USD | Unknown | Unknown | Not assessable with plan usage |
+
+R1 repeat rates by tier: T1 100–100%, T2 80–90%, T3 66.7–83.3%,
+T4 100–100%. Overall repeats are 27/30, 28/30 and 26/30. The audited bridge
+comparison paired all 90 trials: 20 improvements and four regressions, with
+zero missing observations. Eighteen improvements are the intended scope
+decisions; two are successful hardware repeats. Four hardware repeats regress,
+so hardware completion falls from 65 to 63. These three repeats do not establish
+the cause or statistical significance of that hardware difference. Scope
+assessment adds one real model call to normal builds and consumes budget margin;
+there is no evidence of a wrong build routing decision in these failures.
+
+**Decision: keep R1.** It repairs the largest measured failure class, improves
+overall success by 16 trials, and handles all 18 policy trials with clear reasons
+and usable next actions, without exceeding the time target. The hardware
+regressions remain failures and motivate the next treatment; they are not
+discarded as randomness. The combined Tier 3 success-and-clarity target and the
+zero-unclear-outcomes target are still missed: all nine failed hardware terminal
+messages lack an actual blocker plus usable next action under the same manual
+criterion. All 18 policy decisions meet that criterion. USD remains unknown,
+and held-out application performance remains unmeasured.
+
+Nine failed hardware trials were audited from actual source, simulator/flow
+logs and public terminal events. Their initial defects rank as follows;
+terminal stop classes remain the original seven budget failures and two generic
+pipeline failures.
+
+| Rank | Audited initial defect | Trials | Secondary observations |
+| --- | --- | ---: | --- |
+| 1 | Pre-reset testbench output reads | 6 | Repeated unchanged tests; one eventually passes then exhausts budget on its summary |
+| 2 | Incorrect test expectations | 2 | LFSR prefix contradicts its recurrence; FIFO latency assertion includes intentional downstream stalls |
+| 3 | Physical placement/space pressure | 1 | Five actual failed flows; fixed 100×100 µm die, DPL-0036 and GPL-0301 diagnostics |
+
+All nine also lose actionable cross-stage diagnostics. In the placement trial,
+the full log tail contains fatal codes, but taking its last 700 characters and
+then first 400 drops the useful ending. Lowering `FP_CORE_UTIL` does not grow a
+die under `FP_SIZING=absolute`; growing this particular die is a plausible fix,
+not a repair already demonstrated by this cohort. The existing implementation
+also spends real model calls on mandatory summaries, including after successful
+verification. No physical metric or clean signoff was invented for failed flows.
+Detailed review is in `docs/evidence/reliability-r1.*` and the cohort analysis.
+
+Actual R1 usage is 1,142 provider calls, 12,211,263 input tokens and 365,934
+output tokens. Mandatory stage summaries account for 611 attempts (606 captured
+responses plus five budget-error calls), 6,135,699 input and 66,963 output tokens:
+50.25% of all input. Removing that bookkeeping inference has a measured resource
+motivation; the future effect on success still requires its own frozen cohort.
+
+Qualified comparison command:
+`make eval-compare A=20261024T010349Z_814bc010 B=20261024T030824Z_b4b21326 BRIDGE=20261024T010349Z_814bc010_scope_G1_391b18e3be9f`.
+Evidence verification: `python3 scripts/seal_eval.py 20261024T030824Z_b4b21326 --verify`
+reports 90 sealed records, 63 selected sources and `verified=true`.
+`make demo` rebuilt healthy API/web and restarted the authenticated host worker.
+The pre-measurement offline/replay tests remain valid because runtime sources
+were frozen throughout R1; no further runtime change was made for publication.
+
+Next treatment R2 is explicitly combined: trusted generated-test clock/reset
+adapter, preserved first diagnostics and artifact references, deterministic
+five-line stage bookkeeping, and actionable terminal failures. Its effect will
+be measured as a whole, not attributed to its individual components. Drafts
+were prepared outside the measured source tree and were never executed during
+R1. Before admission they need real qualification in the unchanged pinned EDA
+image, legacy simulator-route controls, source/proof/package binding and offline
+regression checks. Reference-model/SPEC-critic work follows; placement sizing
+now has a real failing fixture to guide its later deterministic handler.

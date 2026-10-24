@@ -137,7 +137,7 @@ class RecordedEDA(EDA):
         return {"ok": True, "text": path.read_text()}
 
 
-def build_run(tmp_path, script=None, *, budget=None, package=True):
+def build_run(tmp_path, script=None, *, budget=None, package=True, prefix_scope=True):
     events = []
 
     async def record(kind, payload):
@@ -146,7 +146,13 @@ def build_run(tmp_path, script=None, *, budget=None, package=True):
     work = tmp_path / "work"
     eda = RecordedEDA(work)
     tools = ToolRunner(work, "unit-recorded-evidence", eda=eda, event_callback=record)
-    llm = FakeLLM(full_script() if script is None else script, budget=budget)
+    scripted = list(full_script() if script is None else script)
+    if prefix_scope:
+        scripted.insert(0, response(content=json.dumps({
+            "decision": "build", "reason": "The requested finite counter is a small digital design.",
+            "next_action": "Extract and validate its interface before writing RTL.",
+        })))
+    llm = FakeLLM(scripted, budget=budget)
     orchestrator = None
 
     async def bundle(tag):
@@ -244,7 +250,7 @@ def test_parallel_flow_rpc_failure_awaits_sibling_cleanup_before_returning(tmp_p
     from app.remote_store import RemoteStoreError
 
     requests = [call("run_flow", top="counter", config_overrides={}) for _ in range(2)]
-    orchestrator, _, _, _ = build_run(tmp_path, [response(*requests)])
+    orchestrator, _, _, _ = build_run(tmp_path, [response(*requests)], prefix_scope=False)
     orchestrator.design_spec = DesignSpec.model_validate(spec_data())
     cleaned = []
 
@@ -328,6 +334,47 @@ def test_budget_exhaustion_stops_before_eda(tmp_path):
     assert eda.test_results == [] and eda.flow_calls == 0
 
 
+@pytest.mark.parametrize("assessment", [
+    {"decision": "decline", "reason": "An analog amplifier is outside this digital flow.",
+     "next_action": "Describe a small digital controller instead."},
+    {"decision": "scope_down", "reason": "The requested processor exceeds this demo's supported scope.",
+     "next_action": "Confirm a smaller design before starting implementation.",
+     "proposal": "A finite eight-bit arithmetic datapath without an instruction cache."},
+    {"decision": "ask_clarify", "reason": "Two output rules contradict each other.",
+     "next_action": "Choose which rule has priority and update the request.",
+     "questions": [{"id": "priority", "prompt": "Which rule takes priority?",
+                    "options": [{"value": "first", "label": "First rule"},
+                                {"value": "second", "label": "Second rule"}], "default": "first"}]},
+])
+def test_scope_decision_ends_before_any_hardware_activity(tmp_path, assessment):
+    orchestrator, llm, eda, events = build_run(
+        tmp_path, [response(content=json.dumps(assessment))], prefix_scope=False,
+    )
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "failed"
+    assert outcome.scope_decision == assessment["decision"]
+    assert outcome.scope_reason == outcome.summary == outcome.error
+    assert assessment["reason"] in outcome.summary and assessment["next_action"] in outcome.summary
+    assert outcome.design_spec is None and outcome.best_run_tag is None
+    assert orchestrator.design_spec is None and orchestrator.bundle_path is None
+    assert not list((orchestrator.tools.work_dir / "src").glob("*"))
+    assert not list((orchestrator.tools.work_dir / "test").glob("*"))
+    assert eda.test_results == [] and eda.flow_calls == 0
+    assert len(llm.requests) == 1 and llm.requests[0][1] == []
+    assert not any(kind in {"tool_started", "file_written", "metric_recorded"} for kind, _ in events)
+    assert [payload["stage"] for kind, payload in events if kind == "stage_changed"] == ["SPEC", "FAIL"]
+
+
+def test_invalid_scope_output_does_not_become_a_valid_refusal(tmp_path):
+    orchestrator, llm, eda, _ = build_run(
+        tmp_path, [response(content="{}") for _ in range(3)], prefix_scope=False,
+    )
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "failed" and outcome.scope_decision is None
+    assert outcome.scope_reason is None and orchestrator.design_spec is None
+    assert llm.budget.calls == 3 and eda.flow_calls == 0 and eda.test_results == []
+
+
 def test_invalid_spec_gets_metered_correction_before_full_run(tmp_path):
     invalid = spec_data()
     invalid["targets"]["technology"] = "sky130"
@@ -335,12 +382,12 @@ def test_invalid_spec_gets_metered_correction_before_full_run(tmp_path):
     orchestrator, llm, eda, events = build_run(tmp_path, script)
     outcome = asyncio.run(orchestrator.run())
     assert outcome.status == "done", outcome.error
-    assert llm.budget.calls == len(script)
+    assert llm.budget.calls == len(script) + 1
     assert "technology" not in orchestrator.design_spec.targets
-    correction = llm.requests[1][0][-1].content
+    correction = llm.requests[2][0][-1].content
     assert "targets.technology" in correction
     assert "Extra inputs are not permitted" in correction
-    notes = [payload for kind, payload in events if kind == "note" and payload.get("stage") == "SPEC"]
+    notes = [payload for kind, payload in events if kind == "note" and "attempt" in payload]
     assert len(notes) == 1 and notes[0]["attempt"] == 1
     assert "targets.technology" in notes[0]["text"]
     assert eda.flow_calls == 3
@@ -353,10 +400,10 @@ def test_spec_correction_limit_is_three_and_never_starts_eda(tmp_path):
     outcome = asyncio.run(orchestrator.run())
     assert outcome.status == "failed"
     assert "after three attempts" in outcome.error
-    assert llm.budget.calls == 3
+    assert llm.budget.calls == 4  # One scope call followed by three DesignSpec attempts.
     assert orchestrator.design_spec is None
     assert eda.test_results == [] and eda.flow_calls == 0
-    assert len([payload for kind, payload in events if kind == "note" and payload.get("stage") == "SPEC"]) == 3
+    assert len([payload for kind, payload in events if kind == "note" and "attempt" in payload]) == 3
 
 
 def test_missing_package_never_reaches_done(tmp_path):
