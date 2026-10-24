@@ -1,0 +1,34 @@
+Read-only audit after baseline commit aecb8e3
+Command: rg -n 'preset_id|starter_id|load_starter' backend/app
+
+backend/app/main.py:178:    if body.preset_id is not None and body.preset_id not in {preset.id for preset in presets()}:
+backend/app/main.py:181:        run = store().create_run(body.spec_text, preset_id=body.preset_id,
+backend/app/main.py:183:                                 provider=os.getenv("LLM_PROVIDER", "codex"), starter_id=body.starter_id)
+backend/app/storage.py:70:                "preset_id": "VARCHAR", "summary": "VARCHAR", "error": "VARCHAR", "best_run_tag": "VARCHAR",
+backend/app/storage.py:72:                "recording_id": "VARCHAR", "replay_speed": "INTEGER", "starter_id": "VARCHAR",
+backend/app/storage.py:84:    def create_run(self, spec_text: str, *, targets: dict[str, JsonValue] | None = None, preset_id: str | None = None, provider: str = "codex", starter_id: str | None = None,
+backend/app/storage.py:90:            run = Run(spec_text=spec_text, targets_json=json_text(targets or {}), preset_id=preset_id, llm_provider=provider,
+backend/app/storage.py:91:                      starter_id=starter_id, is_replay=recording_id is not None, recording_id=recording_id, replay_speed=replay_speed)
+backend/app/storage.py:103:        return self.create_run(source.spec_text, targets=source.targets, preset_id=source.preset_id,
+backend/app/storage.py:104:                               provider=source.llm_provider, starter_id=source.starter_id,
+backend/app/models.py:23:    preset_id: str | None = None
+backend/app/models.py:32:    starter_id: str | None = None
+backend/app/api_schemas.py:20:    preset_id: str | None = Field(default=None, pattern=r"^[a-z0-9_-]{1,64}$")
+backend/app/api_schemas.py:22:    starter_id: Literal["uart_off_by_one"] | None = None
+backend/app/api_schemas.py:37:    preset_id: str | None
+backend/app/api_schemas.py:53:    starter_id: str | None = None
+backend/app/agent/starters.py:58:def load_starter(starter_id: str) -> Starter:
+backend/app/agent/starters.py:59:    if starter_id != STARTER_ID:
+backend/app/worker.py:163:            starter = {"starter_id": run.starter_id} if run.starter_id is not None else {}
+backend/app/agent/orchestrator.py:12:from app.agent.starters import load_starter
+backend/app/agent/orchestrator.py:46:        starter_id: str | None = None,
+backend/app/agent/orchestrator.py:51:        self.starter = load_starter(starter_id) if starter_id is not None else None
+
+Findings:
+- preset_id validates/catalogs user selection and persists presentation metadata.
+- Worker.execute never forwards preset_id to the design orchestrator.
+- Every preset spec uses the same spec_text/targets path as free text.
+- starter_id separately and explicitly requests a supplied faulty-source repair demo.
+- That optional demo is isolated in agent/starters.py; it is not selected by preset_id.
+- The baseline supplies neither preset_id nor starter_id.
+- No cached RTL/answer or preset-tuned flow config is selected by a preset ID.

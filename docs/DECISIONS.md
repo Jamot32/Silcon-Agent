@@ -171,3 +171,14 @@ fixtures are explicitly evaluator fixtures, never app results. Preserve raw
 external reference bytes with Git attributes. Corpus limitations, provenance,
 qualification evidence and subsequent before/after measurements live in
 `eval/SOURCES.md` and `docs/RELIABILITY_LOG.md`.
+
+### Reliability Phase 2: prioritize proven scope and test-setup failures
+
+The complete 25-trial audit ranks scope protocol failures (18) before testbench
+bootstrap failures (7), so Phase 3 starts with scope handling. Budget exhaustion
+is retained as the observed stop in six trials; it is not substituted for their
+verified test-setup root cause. Unknown simulator values alone receive a
+conservative classifier label. Clarity requires a real final blocker plus a
+usable next action, not only a present message. These are derived engineering
+reviews; the committed G0 measurement is never overwritten. Explicit starter
+repair demonstrations remain isolated from the general preset/free-text path.

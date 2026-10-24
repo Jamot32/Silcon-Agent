@@ -127,3 +127,69 @@ results; its assertion now reads the actual persisted simulator event. No app
 or measured pipeline code changed. `make demo` rebuilt healthy API/web and
 started the authenticated host worker. Historical evidence verification passed
 for all 90 records without rewriting the original summary.
+
+## Phase 2 — diagnosis of every failed baseline trial
+
+All 25 failed development trials were read through their actual public specs,
+terminal snapshots, persisted events, relevant provider responses and failing
+simulator/lint logs. No held-out material was read by this engineering review.
+The original G0 summaries and sealed records are unchanged. Detailed evidence:
+[scope audit](evidence/reliability-phase2-scope.md),
+[build audit](evidence/reliability-phase2-build.md), and
+[per-trial evidence index](evidence/reliability-phase2.json).
+
+The following table ranks **primary causes**, distinct from the already recorded
+resource-limit or policy verdicts. Secondary observations overlap these trials.
+
+| Rank | Primary cause | Trials | Share of failures | Evidence |
+| --- | --- | ---: | ---: | --- |
+| 1 | Missing scope-decision protocol | 18 | 72% | All reached RTL; 13 exhausted tool turns without source; 5 built unrelated or unconfirmed designs |
+| 2 | `tb_boilerplate_bug`: reads before synchronous reset | 7 | 28% | First own-test failure converts an X-valued output before the first reset rising edge |
+
+Seven build failures also lose actionable diagnostics: truncation takes the
+last 512 bytes of a serialized failure containing an 8 KB log tail, preserving
+statistics instead of its exception. The next stage drops useful case messages
+and artifact paths. Three failed I2C candidates additionally violate their
+publicly requested implementation-compatible ready-cycle contract. These
+independent development-test observations establish neither deeper correctness
+nor universal faults in other candidates. The four failed builds with hidden
+passes remain failed because agent verification/physical delivery is missing.
+
+The seven hardware trials used 171 real provider attempts and 2,129,727 tokens.
+Of these, 83 stage-summary requests consumed 888,055 input tokens (43.0% of
+input). No hardware-failure trial reached a physical-flow attempt. These
+observations support deterministic test setup, preserved failure messages and
+bounded repair context rather than merely increasing token limits.
+
+A fixed reader-facing clarity criterion was applied to all 25 failures: the
+final visible explanation must identify the actual blocker **and** offer a
+usable next action. None met both conditions. Intermediate notes are recorded
+separately. The derived clarity outcome is therefore 25/90 unclear trials
+(27.8%); the original G0 report remains marked unreviewed, rather than being
+silently rewritten. All three failed Tier 3 trials are unclear, so the combined
+Tier 3 success-and-clarity target is missed despite its 83.3% build rate.
+Crashes and deadline timeouts remain zero.
+
+`backend/app/agent/failures.py` adds a standalone deterministic classifier with
+64 focused checks. It has **not** been wired into production behavior. Specific
+structured/tool evidence wins over generic wrappers; unknown simulator values
+alone do not establish whether RTL or the test is wrong. Semantic blame
+requires separately verified contract evidence. Generic routing failure is not
+assumed to mean congestion.
+
+The preset audit found no preset-ID-selected RTL, cached answer or tuned flow
+configuration. `preset_id` remains catalog/display metadata and is not passed to
+the orchestrator. The explicitly requested supplied-source repair demo is
+isolated behind `starter_id`; evaluation supplies neither ID. The exact grep
+is retained in [the audit](evidence/reliability-preset-audit.txt).
+
+| Change | Dev before | Dev after | Decision |
+| --- | --- | --- | --- |
+| Failure taxonomy, evidence audit and unused classifier | 65/90; T1 100%, T2 86.7%, T3 83.3%, T4 0% | No pipeline rerun: behavior unchanged; 403 backend checks pass, 2 integration checks excluded | Keep diagnostic tooling |
+
+Measured priority overrides the default implementation order: implement a
+validated public scope exit first (18 failures), then deterministic reset/test
+harness and preserved repair diagnostics (7 failures), followed by model-based
+verification and the remaining generalization work. Before measuring the scope
+change, qualify the explicitly versioned G1 observation extension against all
+90 sealed G0 records; default unequal-grader comparisons must still reject.
