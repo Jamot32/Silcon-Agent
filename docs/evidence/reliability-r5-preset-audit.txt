@@ -1,0 +1,43 @@
+Command: rg -n preset_id|counter|uart|pwm|traffic backend/app
+
+backend/app/main.py:180:    if body.preset_id is not None and body.preset_id not in {preset.id for preset in presets()}:
+backend/app/main.py:183:        run = store().create_run(body.spec_text, preset_id=body.preset_id,
+backend/app/storage.py:71:                "preset_id": "VARCHAR", "summary": "VARCHAR", "error": "VARCHAR", "best_run_tag": "VARCHAR",
+backend/app/storage.py:85:    def create_run(self, spec_text: str, *, targets: dict[str, JsonValue] | None = None, preset_id: str | None = None, provider: str = "codex", starter_id: str | None = None,
+backend/app/storage.py:91:            run = Run(spec_text=spec_text, targets_json=json_text(targets or {}), preset_id=preset_id, llm_provider=provider,
+backend/app/storage.py:104:        return self.create_run(source.spec_text, targets=source.targets, preset_id=source.preset_id,
+backend/app/llm/codex.py:15:from time import perf_counter
+backend/app/llm/codex.py:440:            started, completion, events = perf_counter(), None, []
+backend/app/llm/codex.py:464:                    completion = usage_completion(event, model=model, latency_ms=(perf_counter() - started) * 1000)
+backend/app/llm/codex.py:535:                        "duration_seconds": perf_counter() - started})
+backend/app/observability/trace.py:52:        raise ValueError('Usage counters must be nonnegative integers')
+backend/app/observability/trace.py:54:    if any(v<0 for v in delta.values()):raise ValueError('Usage counters cannot go backwards')
+backend/app/observability/trace.py:59:            raise ValueError('Known cost counters must be finite and monotone')
+backend/app/models.py:23:    preset_id: str | None = None
+backend/app/api_schemas.py:20:    preset_id: str | None = Field(default=None, pattern=r"^[a-z0-9_-]{1,64}$")
+backend/app/api_schemas.py:22:    starter_id: Literal["uart_off_by_one"] | None = None
+backend/app/api_schemas.py:37:    preset_id: str | None
+backend/app/observability/observer.py:301:                    # Shared Budget counters can include overlapping requests.
+backend/app/observability/snapshot.py:143:            raise ValueError("Outcome, repair relevance or command counters unknown in result schema2")
+backend/app/observability/snapshot.py:159:            raise ValueError("Bound observed launch counters required")
+backend/app/observability/snapshot.py:170:            raise ValueError("Launch counters omit recorded commands")
+backend/app/eda/harness.py:455:def _counter(record: dict[str, Any], name: str) -> int:
+backend/app/eda/harness.py:458:        raise EvidenceError(f"Invalid {name} evidence counter")
+backend/app/eda/harness.py:555:        for counter in COUNTERS:
+backend/app/eda/harness.py:556:            _counter(record, counter)
+backend/app/eda/harness.py:577:        if _counter(record, "cycle_count") < 1 or _counter(record, "cycle_comparisons") + _counter(record, "protocol_checks") < 1:
+backend/app/eda/harness.py:579:        if not context["purely_combinational"] and (_counter(record, "reset_assertions") < 1 or _counter(record, "reset_edges") < 1):
+backend/app/eda/harness.py:581:        if record["async_reset_behavior"] is not None and _counter(record, "async_assertion_checks") < 1:
+backend/app/llm/client.py:9:from time import perf_counter
+backend/app/llm/client.py:113:        started = perf_counter()
+backend/app/llm/client.py:126:        return self._parse(response, tools, (perf_counter() - started) * 1000)
+backend/app/eda/parsers.py:1:"""Parse the pinned LibreLane format captured in tests/fixtures/golden_counter."""
+backend/app/agent/orchestrator.py:280:                    "path": "src/uart_tx.v", "content": self.starter.source,
+backend/app/agent/recovery.py:25:        raise ValueError("Recovery counters must be integers")
+backend/app/agent/starters.py:13:STARTER_ID = "uart_off_by_one"
+backend/app/agent/starters.py:18:_SPEC_TEXT = """Evaluate the supplied UART transmitter starter against this required contract before repairing it. This is a deliberately supplied faulty starting design, not a model-generated design or failure. Preserve top module uart_tx and the exact ports: inputs clk, rst_n, send, data[7:0]; outputs busy and tx.
+backend/app/agent/starters.py:61:    directory = ROOT / "designs/starters/uart_off_by_one"
+backend/app/agent/starters.py:62:    path = directory / "src/uart_tx.v"
+backend/app/agent/starters.py:71:        id=STARTER_ID, title="Supplied faulty UART starter", top_module="uart_tx",
+backend/app/eda/sa_tb.py:387:        counter = "cycle_comparisons" if phase in ("before", "after") else "reset_comparisons"
+backend/app/eda/sa_tb.py:392:                self.record[counter] += 1

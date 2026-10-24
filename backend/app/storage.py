@@ -16,6 +16,7 @@ from sqlalchemy.exc import OperationalError
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from app.models import Artifact, Event, Iteration, Metric, Run
+from app.terminal import TerminalAcknowledgement, TerminalAcknowledgementUnavailable
 
 ACTIVE = ("pending", "running", "cancel_requested")
 TERMINAL = ("done", "failed", "cancelled")
@@ -244,7 +245,7 @@ class RunStore:
         self.project(run_id)
         return run
 
-    def finish(self, run_id: str, outcome) -> None:
+    def finish(self, run_id: str, outcome) -> TerminalAcknowledgement:
         values = outcome.model_dump(mode="json") if hasattr(outcome, "model_dump") else dict(outcome)
         with Session(self.engine) as session:
             session.exec(text("BEGIN IMMEDIATE"))
@@ -264,11 +265,16 @@ class RunStore:
                 iteration.ok = run.status == "done"
                 session.add(iteration)
             session.add(Event(run_id=run_id, type="run_finished", payload_json=json_text({key: value for key, value in values.items() if key != "design_spec"})))
+            acknowledgement = TerminalAcknowledgement(run.id, run.status, values.get("failure_class"))
             session.commit()
-        self.project(run_id)
+        try:
+            self.project(run_id)
+        except Exception:
+            raise TerminalAcknowledgementUnavailable("Terminal transaction committed but projection acknowledgement is unavailable") from None
+        return acknowledgement
 
-    def fail(self, run_id: str, error: str, status: str = "failed") -> None:
-        self.finish(run_id, {"status": status, "summary": error, "error": error, "tapeout_ready": False})
+    def fail(self, run_id: str, error: str, status: str = "failed") -> TerminalAcknowledgement:
+        return self.finish(run_id, {"status": status, "summary": error, "error": error, "tapeout_ready": False})
 
     def recover_interrupted(self) -> None:
         with Session(self.engine) as session:

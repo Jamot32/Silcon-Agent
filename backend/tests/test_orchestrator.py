@@ -17,7 +17,7 @@ from app.agent.tools import ToolRunner
 from app.eda.parsers import parse_librelane_metrics
 from app.eda.service import EDA
 from app.llm.fake import FakeLLM
-from app.llm.types import Budget, BudgetExceeded, Completion, ToolCall
+from app.llm.types import Budget, BudgetExceeded, Completion, LLMError, ToolCall
 from app.models import Metric
 from app.packaging import package_design
 from app.schemas import DesignSpec
@@ -133,6 +133,29 @@ class RecordedEDA(EDA):
         return {"ok": True, "text": path.read_text()}
 
 
+class RecordedPlanner:
+    """Controller-only double; real planner arithmetic is tested separately.
+
+    It forwards unit configurations unchanged and does not claim mapped area,
+    actual command execution, a physical estimate or live qualification.
+    """
+    def __init__(self, spec, eda):
+        self.spec, self.eda = spec, eda
+        self.image_identity = None
+        self.fixed_tile = spec.targets.get("fit") == "tt_1x1_tile"
+
+    async def initialize(self):
+        self.image_identity = {"image_id": "sha256:" + "1" * 64, "source": "unit-only"}
+
+    def overrides(self, requested):
+        return dict(requested)
+
+    async def prepare(self, top, requested):
+        synth = await self.eda.synth_stats(top)
+        return {**synth, "mapping_cache_key": "unit-only", "mapping_reused": False,
+                "sizing_plan": {"unit_double": True}, "footprint_policy": "unit-only",
+                "planned_config_overrides": {"CLOCK_PERIOD": 20.0, **requested}}
+
 
 
 def build_run(tmp_path, script=None, *, budget=None, package=True, prefix_scope=True):
@@ -143,7 +166,8 @@ def build_run(tmp_path, script=None, *, budget=None, package=True, prefix_scope=
 
     work = tmp_path / "work"
     eda = RecordedEDA(work)
-    tools = ToolRunner(work, "unit-recorded-evidence", eda=eda, event_callback=record)
+    tools = ToolRunner(work, "unit-recorded-evidence", eda=eda, event_callback=record,
+                       physical_planner_factory=RecordedPlanner)
     scripted = list(full_script() if script is None else script)
     if prefix_scope:
         scripted.insert(0, response(content=json.dumps({
@@ -298,6 +322,65 @@ def test_failed_comparisons_keep_and_package_actual_initial_best(tmp_path):
     assert outcome.best_run_tag == "recorded_1"
     assert len(orchestrator.candidates) == 1
     assert any("preserving" in str(payload.get("text", "")) for kind, payload in events if kind == "note")
+
+
+def test_optional_model_budget_cannot_discard_clean_initial_layout(tmp_path):
+    # Scope + SPEC + the real recorded fail/repair sequence use six proposals.
+    orchestrator, llm, eda, events = build_run(tmp_path, full_script()[:5], budget=Budget(max_calls=6))
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "done", outcome.error
+    assert outcome.block_signoff_clean is True and outcome.best_run_tag == "recorded_1"
+    assert llm.budget.calls == 6 and eda.flow_calls == 1
+    assert any("Optional optimization stopped" in str(payload.get("text")) for kind, payload in events if kind == "note")
+    assert orchestrator.bundle_path.is_file()
+
+
+@pytest.mark.parametrize("flag,value", [("drc_ok", False), ("lvs_ok", False), ("drc_ok", None), ("lvs_ok", None)])
+def test_unclean_or_unknown_flow_never_becomes_best_or_enters_optimize(tmp_path, flag, value):
+    orchestrator, _, eda, events = build_run(tmp_path)
+    orchestrator.design_spec = DesignSpec.model_validate(spec_data())
+
+    async def scenario():
+        (orchestrator.tools.work_dir / "src").mkdir(exist_ok=True)
+        shutil.copyfile(GOLDEN / "src/counter.v", orchestrator.tools.work_dir / "src/counter.v")
+        result = await eda.run_flow("counter", {})
+        result[flag] = result["metrics"][flag] = value
+        await orchestrator._accept_flow(result)
+        assert orchestrator.best is None and len(orchestrator.candidates) == 1
+        with pytest.raises(LLMError, match="Optimization requires"):
+            await orchestrator._optimize(previous_ok=True)
+
+    asyncio.run(scenario())
+    assert not any(kind == "stage_changed" and payload["stage"] == "OPTIMIZE" for kind, payload in events)
+
+
+def test_flow_recovery_runs_before_any_optional_model_proposal(tmp_path):
+    orchestrator, llm, eda, events = build_run(tmp_path, full_script()[:5], budget=Budget(max_calls=6))
+    original = eda.run_flow
+
+    async def fail_first(top, overrides):
+        if eda.flow_calls == 0:
+            eda.flow_calls += 1
+            return {"ok": False, "error": "[ERROR DPL-0036] Detailed placement failed.", "metrics": {}}
+        return await original(top, overrides)
+
+    class RecoveryPlanner(RecordedPlanner):
+        async def prepare(self, top, requested):
+            result = await super().prepare(top, requested)
+            result["planned_config_overrides"] = {
+                "DIE_AREA": [0, 0, 161.0, 111.52], "FP_CORE_UTIL": 45,
+                "PL_TARGET_DENSITY_PCT": 45, **result["planned_config_overrides"]}
+            return result
+
+    orchestrator.tools._physical_planner_factory = RecoveryPlanner
+    eda.run_flow = fail_first
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "done", outcome.error
+    assert outcome.best_run_tag == "recorded_2" and orchestrator.tools.flow_runs == 2
+    assert llm.budget.calls == 6
+    recovery = [payload for kind, payload in events if kind == "note" and "recovery_action" in payload]
+    assert len(recovery) == 1 and recovery[0]["recovery_action"] == "lower_density"
+    assert eda.flow_overrides[0]["PL_TARGET_DENSITY_PCT"] == 40
 
 
 def test_verified_rtl_proposal_is_physically_measured_before_another_proposal(tmp_path):

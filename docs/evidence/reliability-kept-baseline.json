@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "kind": "kept_dev_baseline",
+  "kept": true,
+  "cohort_id": "20261024T064347Z_d341c794",
+  "summary_sha256": "f8eb019d74c23aa4c015160aa13a317551b49b023f35894a19df20f40b61c9e1",
+  "seal_sha256": "e0d5a398c327bafa50e3094b0de551ad2b8e5cce90225316081985543ceab0eb",
+  "repeats": 3,
+  "sealer": "base",
+  "sealer_sha256": "9c60031f75c06a4de5025ca81b51a33d0c19675bdd9d8fe8c2807e6b51a26049",
+  "base_sealer_sha256": "9c60031f75c06a4de5025ca81b51a33d0c19675bdd9d8fe8c2807e6b51a26049"
+}

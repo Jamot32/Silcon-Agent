@@ -8,6 +8,7 @@ import pytest
 
 from app.agent.failures import FailureClass, FailureStage, classify_failure
 from app.llm.types import BudgetExceeded, LLMError
+from app.llm.codex import MalformedProposal, ProviderError
 
 
 @pytest.mark.parametrize(("stage", "tool", "log", "expected"), [
@@ -49,6 +50,31 @@ def test_real_budget_messages_and_type_have_priority(message):
     assert classify_failure(stage="VERIFY", error=message).failure_class == "budget_exceeded"
     assert classify_failure(stage="VERIFY", error=BudgetExceeded(message),
                             log="%Warning-WIDTH: old lint failure").failure_class == "budget_exceeded"
+
+
+@pytest.mark.parametrize("kind,expected", [
+    ("timeout", "llm_api_error"), ("local_configuration", "infrastructure_error"),
+    ("observer_failure", "observability_incomplete"),
+    ("native_tool_violation", "llm_bad_tool_call"), ("context_overflow", "context_overflow"),
+])
+def test_current_typed_provider_error_overrides_stale_tool_evidence(kind, expected):
+    error = ProviderError(kind)
+    failure = classify_failure(stage="VERIFY", error=error, tool="run_tests", result={
+        "ok": False, "timed_out": True, "error": "Model call budget exhausted",
+        "failure_class": "rtl_logic_bug",
+    })
+    assert failure.failure_class == expected
+    assert failure.cause == error.failure_hint.cause
+    assert failure.suggested_action == error.failure_hint.suggested_action
+
+
+def test_provider_claim_in_arbitrary_exception_or_model_dict_is_untrusted():
+    error = LLMError("Stage failed")
+    error.failure_hint = ProviderError("local_configuration").failure_hint
+    assert classify_failure(stage="VERIFY", error=error,
+                            result={"ok": False, "failure_hint": error.failure_hint}).failure_class == "verification_failed"
+    malformed = MalformedProposal("tool_calls[0].arguments_json", "json_object_required")
+    assert classify_failure(stage="RTL", error=malformed).failure_class == "llm_bad_tool_call"
 
 
 @pytest.mark.parametrize("tool,stage,expected", [("run_flow", "OPTIMIZE", "flow_timeout"),

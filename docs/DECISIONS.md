@@ -300,3 +300,36 @@ future explicitly combined treatment, which requires its own full measurement.
 One first-failed OAuth response exposed0USD incorrectly; preserve that history
 and add explicit unknown-cost initialization in a subsequent measured client
 change. Per-run plan dollars remain unassessable.
+
+## R5 combined candidate and evidence authority
+
+R4 remains rejected. R5 combines its qualified physical planner with bounded
+Codex transport/proposal recovery, truthful first-call unknown plan cost, actual
+request/command trace attribution and run-bound committed terminal ACKs. Compare
+the entire fresh DEV3× candidate with kept R3; do not infer an independent
+physical-planner benefit. Preserve every original cohort and hidden failure.
+Ordinary prompts/default effort remain unchanged; optional per-call high effort
+is a separately qualified capability. CLI attempt counts do not establish the
+number of upstream HTTP retries inside Codex.
+
+New result schema2 explicitly binds outcomes/relevance/counts for durable ledger
+reconstruction. Historical schema1 is not silently upgraded. Trace or receipt
+failures cannot be normalized into a claim of complete observability, and a
+trace failure after acknowledged store completion cannot rewrite that actual
+commit. Store ACKs carry the requested run identity and actual final status,
+including cancellation winning the commit race. An unavailable ACK permits no
+second terminal mutation. Explicit fit:null is preserved using exclude_unset.
+
+The admin API serves only host-verified aggregate exports with a disabled-by-
+default server flag; it never mounts eval/results. CI uses a committed kept
+pointer, fixed real DEV T1/T2 N1 jobs4 command, before/after Makefile hashes and
+new-job evidence. Its narrow full-DEV/subset identity proof is separate from the
+unchanged G1 comparator/grader. The self-hosted workflow is manually dispatched
+through a trusted environment; no PR-triggered OAuth/EDA jobs. Official action
+READMEs and action.yml were checked; checkout and upload-artifact are pinned to
+resolved v7 commits using Node24. See docs/RELIABILITY_OPERATIONS.md.
+
+Strict Budget validation accepts an explicit optional token ceiling while
+rejecting bool/nonfinite limits. The user's unlimited app-default preference,
+factory/environment/README edits, and nonempty-metrics guard remain present;
+unrelated default-preference hunks are kept separate from this admission.

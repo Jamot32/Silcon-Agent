@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import fcntl
+import inspect
 import json
 import logging
 import math
@@ -17,10 +18,13 @@ from pydantic import JsonValue
 
 from app.agent.tools import ToolRunner
 from app.llm.factory import create_llm
-from app.llm.types import LLMError
+from app.llm.types import BudgetExceeded, LLMError
+from app.observability import RunObserver
+from app.observability.trace import TraceWriter
 from app.packaging import package_design
 from app.remote_store import RemoteStoreError
 from app.schemas import Outcome
+from app.terminal import TerminalAcknowledgement, TerminalAcknowledgementUnavailable
 
 if TYPE_CHECKING:
     from app.agent.orchestrator import Orchestrator
@@ -30,6 +34,15 @@ logger = logging.getLogger(__name__)
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
+def _run_observer(work_dir: Path, run_id: str) -> RunObserver:
+    # Both supported stores authorize this exact host layout. The trace stays
+    # outside the model's work directory and is never selected by a tool arg.
+    if work_dir.name != "work" or work_dir.parent.name != run_id:
+        raise ValueError("Store must authorize a run/work layout or supply an observer factory")
+    return RunObserver(work_dir, run_id, writer=TraceWriter(work_dir.parent, run_id),
+                       budget_exceptions=(BudgetExceeded,))
+
+
 class WorkerStore(Protocol):
     def recover_interrupted(self) -> None: ...
     def claim_pending(self) -> Run | None: ...
@@ -37,12 +50,13 @@ class WorkerStore(Protocol):
     def emit(self, run_id: str, event_type: str, payload: dict[str, JsonValue]) -> None: ...
     def cancel_requested(self, run_id: str) -> bool: ...
     def register_artifact(self, run_id: str, kind: str, path: Path, run_tag: str | None = None) -> None: ...
-    def finish(self, run_id: str, outcome: Outcome) -> None: ...
-    def fail(self, run_id: str, error: str, status: str = "failed") -> None: ...
+    def finish(self, run_id: str, outcome: Outcome) -> TerminalAcknowledgement | None: ...
+    def fail(self, run_id: str, error: str, status: str = "failed") -> TerminalAcknowledgement | None: ...
 
 
 class Worker:
-    def __init__(self, store: WorkerStore, *, poll_interval: float = 0.5, reconnect_max_delay: float = 10, orchestrator_factory: Callable[..., Orchestrator] | None = None):
+    def __init__(self, store: WorkerStore, *, poll_interval: float = 0.5, reconnect_max_delay: float = 10, orchestrator_factory: Callable[..., Orchestrator] | None = None,
+                 observer_factory: Callable[[Path, str], RunObserver] | None = _run_observer):
         if not math.isfinite(poll_interval) or poll_interval <= 0:
             raise ValueError("Worker polling interval must be positive")
         self.store = store
@@ -51,6 +65,7 @@ class Worker:
             raise ValueError("Worker reconnect delay must be positive")
         self.reconnect_max_delay = reconnect_max_delay
         self.orchestrator_factory = orchestrator_factory
+        self.observer_factory = observer_factory
         self.stop_event = asyncio.Event()
         self.current_task: asyncio.Task[Outcome] | None = None
 
@@ -65,6 +80,8 @@ class Worker:
         request = asyncio.create_task(asyncio.to_thread(method, *args, **kwargs))
         try:
             return await asyncio.shield(request)
+        except TerminalAcknowledgementUnavailable:
+            raise RemoteStoreError("Store terminal acknowledgement is unavailable") from None
         except asyncio.CancelledError:
             while not request.done():
                 try:
@@ -82,6 +99,43 @@ class Worker:
             await asyncio.wait_for(self.stop_event.wait(), delay)
         except TimeoutError:
             pass
+
+    async def _terminal_call(self, state: dict, method, *args, **kwargs):
+        """Settle one terminal mutation even when execute() is cancelled."""
+        if state["attempted"]:
+            raise RemoteStoreError("A terminal mutation was already attempted; its decision must not be overwritten")
+        state["attempted"] = True
+        request = asyncio.create_task(self._call(method, *args, **kwargs))
+        try:
+            acknowledgement = await asyncio.shield(request)
+        except asyncio.CancelledError:
+            state["interrupted"] = True
+            while not request.done():
+                try:
+                    await asyncio.shield(request)
+                except asyncio.CancelledError:
+                    continue
+                except BaseException:
+                    break
+            if not request.cancelled():
+                try:
+                    state["acknowledgement"] = request.result()
+                except BaseException:
+                    # Preserve cancellation. This mutation may have committed;
+                    # a missing acknowledgement never licenses another write.
+                    pass
+            raise
+        state["acknowledgement"] = acknowledgement
+        return acknowledgement
+
+    def _interrupted_terminal_result(self, state: dict, run_id: str):
+        acknowledgement = state["acknowledgement"]
+        if acknowledgement is not None:
+            try:
+                return self._terminal_result(acknowledgement, run_id, "interrupted", None)
+            except RemoteStoreError:
+                pass
+        return "interrupted", None, False
 
     async def run(self) -> None:
         recovery_needed = True
@@ -117,14 +171,24 @@ class Worker:
 
     async def execute(self, run: Run) -> None:
         llm = None
+        observer = tools = None
+        terminal_write = {"attempted": False, "interrupted": False, "acknowledgement": None}
+        terminal_status, terminal_class, terminal_error, store_confirmed = "interrupted", None, None, False
         try:
+            work_dir = await self._call(self.store.work_dir, run.id)
+            if self.observer_factory is not None:
+                observer = self.observer_factory(work_dir, run.id)
             if run.is_replay:
                 self.current_task = asyncio.create_task(self._replay(run))
-                await self._complete_task(run)
+                terminal_status, terminal_class, store_confirmed = await self._complete_task(run, observer=observer, terminal_write=terminal_write)
+                if terminal_status == "done":
+                    terminal_status = "replay_done"
                 return
             if run.llm_provider != os.getenv("LLM_PROVIDER", "codex"):
                 raise LLMError("Queued provider does not match the worker configuration; restart with the selected LLM_PROVIDER")
             llm = create_llm()
+            if observer is not None:
+                observer.configure_llm(llm, run.llm_provider)
             orchestrator: Orchestrator
 
             async def publish(event_type: str, payload: dict[str, JsonValue]) -> None:
@@ -141,11 +205,12 @@ class Worker:
                             await self._call(self.store.register_artifact, run.id, kind, path, run_tag=tag)
                 await self._call(self.store.emit, run.id, event_type, payload)
 
-            work_dir = await self._call(self.store.work_dir, run.id)
             if self.stop_event.is_set():
-                await self._call(self.store.fail, run.id, "Worker stopped before execution")
+                acknowledgement = await self._terminal_call(terminal_write, self.store.fail, run.id, "Worker stopped before execution")
+                terminal_status, terminal_class, store_confirmed = self._terminal_result(
+                    acknowledgement, run.id, "failed", None)
                 return
-            tools = ToolRunner(work_dir, run_id=run.id, event_callback=publish)
+            tools = ToolRunner(work_dir, run_id=run.id, event_callback=publish, observer=observer)
 
             async def package(best_run_tag: str) -> Path:
                 if orchestrator.design_spec is None:
@@ -161,20 +226,48 @@ class Worker:
                 factory = Orchestrator
             targets = json.loads(run.targets_json) if run.targets_json else None
             starter = {"starter_id": run.starter_id} if run.starter_id is not None else {}
-            orchestrator = factory(llm, tools, spec_text=run.spec_text, targets=targets, package_callback=package, event_callback=publish, **starter)
+            parameters = inspect.signature(factory).parameters
+            observer_option = ({"observer": observer} if observer is not None and
+                ("observer" in parameters or any(p.kind == inspect.Parameter.VAR_KEYWORD for p in parameters.values())) else {})
+            orchestrator = factory(llm, tools, spec_text=run.spec_text, targets=targets, package_callback=package, event_callback=publish, **starter, **observer_option)
             self.current_task = asyncio.create_task(orchestrator.run())
-            await self._complete_task(run)
-        except RemoteStoreError:
+            terminal_status, terminal_class, store_confirmed = await self._complete_task(run, observer=observer, tools=tools, llm=llm, terminal_write=terminal_write)
+        except RemoteStoreError as error:
+            terminal_error = error
             raise
-        except asyncio.CancelledError:
-            cancelled = await self._call(self.store.cancel_requested, run.id)
-            await self._call(self.store.fail, run.id, "Run cancelled by the user" if cancelled else "Worker stopped during the run", status="cancelled" if cancelled else "failed")
+        except asyncio.CancelledError as error:
+            terminal_error = error
+            if terminal_write["attempted"]:
+                terminal_status, terminal_class, store_confirmed = self._interrupted_terminal_result(terminal_write, run.id)
+            else:
+                cancelled = await self._call(self.store.cancel_requested, run.id)
+                acknowledgement = await self._terminal_call(terminal_write, self.store.fail, run.id, "Run cancelled by the user" if cancelled else "Worker stopped during the run", status="cancelled" if cancelled else "failed")
+                terminal_status, terminal_class, store_confirmed = self._terminal_result(
+                    acknowledgement, run.id, "cancelled" if cancelled else "failed", None)
         except Exception as error:
+            terminal_error = error
+            from app.agent.failures import classify_failure
+            diagnosis = classify_failure(error=error)
+            terminal_class = diagnosis.failure_class.value if diagnosis is not None else None
+            observer_fault = observer is not None and observer.failure is not None and not isinstance(error, (BudgetExceeded, LLMError))
+            if observer_fault:
+                terminal_class = "observability_incomplete"
             # Provider errors already exclude credentials; unexpected exceptions expose only their class.
             detail = str(error) if isinstance(error, LLMError) else f"Worker failed ({type(error).__name__})"
+            if observer_fault:
+                detail = "Host observability is incomplete; inspect retained artifacts and repair the trace/evidence path."
             logger.error("run_failed run_id=%s error_type=%s", run.id, type(error).__name__)
-            await self._call(self.store.fail, run.id, detail)
+            if isinstance(error, LLMError) or observer_fault:
+                acknowledgement = await self._terminal_call(terminal_write, self.store.finish, run.id, Outcome(status="failed", summary=detail, error=detail,
+                    failure_class=terminal_class, suggested_action=("Inspect retained artifacts and repair the trace/evidence path."
+                        if observer_fault else diagnosis.suggested_action if diagnosis is not None else None)))
+            else:
+                acknowledgement = await self._terminal_call(terminal_write, self.store.fail, run.id, detail)
+            terminal_status, terminal_class, store_confirmed = self._terminal_result(
+                acknowledgement, run.id, "failed", terminal_class)
         finally:
+            if terminal_write["interrupted"]:
+                terminal_status, terminal_class, store_confirmed = self._interrupted_terminal_result(terminal_write, run.id)
             if self.current_task and not self.current_task.done():
                 if not self.current_task.cancelling():
                     self.current_task.cancel()
@@ -186,8 +279,33 @@ class Worker:
                     await close()
                 except Exception:
                     logger.error("provider_close_failed run_id=%s", run.id)
+            if observer is not None:
+                # A lost store ACK is ambiguous; a failed trace after an ACK
+                # never rewrites the actual committed run as failed.
+                try:
+                    observer.finish_run(terminal_status, failure_class=terminal_class, error=terminal_error,
+                                        outcome_authority="store_confirmed" if store_confirmed else "worker_local")
+                except BaseException:
+                    logger.error("trace_terminal_failed run_id=%s", run.id)
+                try:
+                    observer.close()
+                except BaseException:
+                    logger.error("trace_close_failed run_id=%s", run.id)
 
-    async def _complete_task(self, run: Run) -> None:
+    @staticmethod
+    def _terminal_result(acknowledgement, run_id: str, local_status: str,
+                         local_class: str | None) -> tuple[str, str | None, bool]:
+        if acknowledgement is None:
+            # Legacy custom stores acknowledge transport only. Their final
+            # transaction decision is unknown, even when submission succeeded.
+            return local_status, local_class, False
+        if type(acknowledgement) is not TerminalAcknowledgement or acknowledgement.run_id != run_id:
+            raise RemoteStoreError("Store returned an invalid terminal acknowledgement")
+        return acknowledgement.status, acknowledgement.failure_class, True
+
+    async def _complete_task(self, run: Run, *, observer=None, tools=None, llm=None, terminal_write=None) -> tuple[str, str | None, bool]:
+        if terminal_write is None:
+            terminal_write = {"attempted": False, "interrupted": False, "acknowledgement": None}
         async def watch_cancellation() -> None:
             while self.current_task and not self.current_task.done():
                 if await self._call(self.store.cancel_requested, run.id):
@@ -205,9 +323,20 @@ class Worker:
                 await monitor
             outcome = await self.current_task
             if await self._call(self.store.cancel_requested, run.id):
-                await self._call(self.store.fail, run.id, "Run cancelled by the user", status="cancelled")
+                acknowledgement = await self._terminal_call(terminal_write, self.store.fail, run.id, "Run cancelled by the user", status="cancelled")
+                return self._terminal_result(acknowledgement, run.id, "cancelled", None)
             else:
-                await self._call(self.store.finish, run.id, outcome)
+                incomplete = (observer is not None and observer.failure is not None or
+                              tools is not None and tools.observability is not None and tools.observability.incomplete or
+                              getattr(llm, "observer_failed", False))
+                if outcome.status == "done" and incomplete:
+                    outcome = outcome.model_copy(update={"status": "failed", "failure_class": "observability_incomplete",
+                        "summary": "Host observability is incomplete; retained artifacts require review.",
+                        "error": "Host observability is incomplete; retained artifacts require review.",
+                        "tapeout_ready": False,
+                        "suggested_action": "Inspect retained artifacts and repair the trace/evidence path."})
+                acknowledgement = await self._terminal_call(terminal_write, self.store.finish, run.id, outcome)
+                return self._terminal_result(acknowledgement, run.id, outcome.status, outcome.failure_class)
         finally:
             monitor.cancel()
             await asyncio.gather(monitor, return_exceptions=True)

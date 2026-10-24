@@ -49,6 +49,18 @@ def test_request_validation_and_unknown_artifacts(client):
     assert client.get(f"/api/runs/{run_id}/layout/unknown.png").status_code == 404
 
 
+@pytest.mark.parametrize("targets", [{"fit": None}, {"clock_mhz": 25.0},
+                                     {"clock_mhz": 25.0, "fit": None}, {}])
+def test_explicit_target_null_survives_api_without_inventing_omitted_fields(client, targets):
+    created = client.post("/api/runs", json={"spec_text": "Build a small digital counter", "targets": targets})
+    assert created.status_code == 202
+    run_id = created.json()["run_id"]
+    assert client.get(f"/api/runs/{run_id}").json()["targets"] == targets
+    assert json.loads(main.app.state.store.get_run(run_id).targets_json) == targets
+    claimed = main.app.state.store.claim_pending()
+    assert claimed.id == run_id and json.loads(claimed.targets_json) == targets
+
+
 def test_atomic_claim_and_global_active_limit(tmp_path):
     store = RunStore(tmp_path)
     with ThreadPoolExecutor(2) as pool:

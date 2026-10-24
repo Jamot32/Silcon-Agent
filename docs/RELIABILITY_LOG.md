@@ -685,3 +685,105 @@ Rollback acceptance: `make demo` starts healthy API/web and the host worker.
 `make test` passes655backend tests (36integration deselected), TypeScript,
 15frontend units and5real replay/failure E2E checks in58.8s. The staged backend
 diff against `1987da9` is empty; original user changes remain separate.
+
+## R5 admission — physical planning plus bounded provider recovery and trace
+
+Change → a new combined candidate, not a retrospective keep of R4. Before →
+kept R3 **86/90 (95.56%)**, with R4's rejected **85/90 (94.44%)** retained.
+After → **not measured yet**. Decision → pending a fresh unchanged full DEV3×.
+The comparison will include every planned trial, provider failure and hidden
+failure. No held-out application evaluation has run.
+
+The candidate reintroduces R4's qualified mapped-area planner, conservative
+physical recovery and executed-tool ledger, then adds bounded Codex recovery:
+three CLI invocations at most per application request, sharing the correction
+and transient retry limit. Every invocation reserves the existing budget;
+failed requests with unreported usage remain unknown. Exact native-event guards
+stay active. Auth, quota, configuration and unknown fatal errors fail fast with
+fixed actionable text. A 90,000 UTF-8-byte limit covers the final wrapper; it is
+not a claim about a percentage of the model's context window. Ordinary prompt
+bytes and default effort arguments are unchanged. Optional high effort has been
+qualified separately; it is not automatically selected by stage in this cohort.
+
+Actual response usage is recorded before post-response budget guards and is
+attributed to the requesting task, rather than overlapping shared-counter
+windows. Plan cost is unknown from client construction, including first-call
+failures. New infrastructure and observability diagnoses require actual typed
+host exceptions, not model-provided dictionaries. Earlier test failures cannot
+replace a current provider cause or its recovery action.
+
+Each real Worker now records a private bounded `runs/<id>/trace.jsonl`, hashes
+actual request context and captures actual provider attempts and command
+completions. New schema2 tool evidence binds outcome, repair relevance and
+observation counts; ledger snapshots reconstruct from result/log/receipt hashes.
+Historical schema1 files remain unchanged. Missing evidence latches failure
+before result normalization. Finalizers preserve cancellation and budget errors.
+The worker accepts run-bound terminal acknowledgements from the committed store
+transaction; a cancellation winning the commit race is recorded as cancelled.
+Lost acknowledgements never trigger a second terminal mutation. Legacy custom
+stores returning no acknowledgement retain explicitly local authority.
+
+The API preserves explicit `fit:null` through submission and claiming. The dev
+only dashboard reads separately verified aggregate exports, including rejected
+R2/R4, with unknown USD and comparison groups preserved. The CI gate reads the
+committed kept-baseline pointer (R3), binds the actual new Make job and recipe,
+and verifies original seals. A CI-only DEV subset proof is necessary because
+the unchanged corpus digest hashes the selected cases: full DEV N3 and DEV
+T1/T2 N1 have different hashes. The trusted host rehashes both exact selections;
+only that prescribed subset is admitted. The ordinary comparator and fixed G1
+grader remain strict and unchanged. CI has not yet run a real job.
+
+Qualification before admission:
+
+- Two actual production-adapter OAuth calls, default and explicitly high effort,
+  return the expected parsed `add(2,3)` proposals. Their12 trace rows reconcile
+  17,250 input/82 output tokens, null USD, unique sequences and hashes. This is
+  provider/trace qualification, not a chip success rate.
+- A new public standalone saturating-counter spec completes in150.33s:6 own
+  tests pass,4 real clean flows produce594.32/614.339/594.32/689.411µm² at50MHz,
+  and the selected594.32µm² source/layout/package binds. Independent audit checks
+  104 trace rows,6 reported responses (68,205 input/2,813 output),18 schema2
+  envelopes,7 receipts and10 actual successful commands, with3 concurrent flow
+  variants. No hidden oracle was consulted. This real run used the pre-fix
+  terminal-ACK protocol; it does not qualify the subsequently fixed cancel race.
+- Peer review reproduced and fixed exited-parent CLI/preflight descendants,
+  missing evidence-begin failure latches, cancellation-finalizer replacement,
+  missing Makefile source binding and the terminal cancellation-ACK race.
+  Harmless local subprocess controls and deterministic race tests exercise these
+  paths; they are not provider or EDA performance measurements.
+
+Public qualification records are
+`docs/evidence/reliability-r5-provider-qualification.json` and
+`docs/evidence/reliability-r5-live-qualification.json`. The first simultaneous
+browser runs collided in their shared Playwright artifact directory; a separate
+output directory resolves that test-runner error. All5 replay/failure checks then
+pass in58.2s;2 enabled aggregate browser checks pass, with the disabled check
+explicitly skipped in that enabled environment. Final post-ACK acceptance and
+source freeze are recorded below before the cohort is started.
+
+Reference-model, strict-static, pattern retrieval, TT-wrapper, spec-critic,
+surgical-repair and stage-retry prototypes remain separately qualified drafts,
+not active features of this candidate. Their production integration and the
+final held-out proof are still outstanding. Numeric cost targets remain
+unassessable with plan OAuth. No complete master-prompt success is claimed.
+
+Final R5 admission acceptance: `make demo` starts healthy API/web and the new
+host Worker. `PLAYWRIGHT_OUTPUT_DIR=/tmp/silicon-r5-final-check-001 make test`
+passes1,010backend tests,92subtests (36integration deselected), TypeScript,
+34frontend units and5replay/failure browser checks in58.4s. The original
+`qa/e2e/replay-regression.spec.ts` suite passes3checks in54.6s.
+`make eval-test` equivalent command passes355checks and15subtests. Enabled admin
+browser2checks and disabled admin browser1check pass in their respective server
+environments; opposite-mode tests are explicitly skipped. The new ACK protocol
+is exercised by actual replay: stored DONE matches trace replay_done with
+store_confirmed authority. Deterministic race tests, rather than that replay,
+qualify cancellation at commit and cancellation while waiting for an ACK.
+
+The default-disabled dashboard reads4verified historical cohorts. The refreshed
+[preset grep](evidence/reliability-r5-preset-audit.txt) finds catalog metadata and
+the explicitly requested supplied-faulty-source demo; no preset-specific build
+branch or source retrieval was added. G1 remains391b18e3…2669; both original
+sealer hashes and EDA image9b62eb4f…f3cc8 verify unchanged. Next: freeze and run
+`make eval SET=dev N=3 EVAL_JOBS=4` with32calls/300,000tokens/$1known-cost guard/
+900s per trial. The result remains pending until all90 trials are recorded and
+sealed. Only isolated outside-production drafts may advance during measurement.

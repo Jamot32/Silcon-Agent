@@ -6,7 +6,8 @@ from pathlib import Path
 import pytest
 
 from app.llm import codex
-from app.llm.codex import CodexCLIClient, build_command, child_environment, parse_completion, proposal_schema
+from app.llm.codex import (CodexCLIClient, ProviderError, MalformedProposal, build_command,
+                          child_environment, parse_completion, proposal_schema)
 from app.llm.types import Budget, BudgetExceeded, LLMError, Message, ToolDefinition
 
 FIXTURE = Path(__file__).parent / "fixtures" / "codex_smoke" / "events.jsonl"
@@ -38,8 +39,9 @@ def test_real_codex_fixture_and_plan_budget():
 
 @pytest.mark.parametrize("kind", ["command_execution", "file_change", "mcp_tool_call", "web_search", "plan", "code_mode", "unknown"])
 def test_native_tool_events_rejected(kind):
-    with pytest.raises(LLMError, match="native Codex"):
+    with pytest.raises(ProviderError) as caught:
         parse([{"type": "item.started", "item": {"type": kind}}, *real_events()])
+    assert caught.value.kind == "native_tool_violation"
 
 
 @pytest.mark.parametrize("usage", [None, {}, {"input_tokens": True, "cached_input_tokens": 0, "output_tokens": 1}, {"input_tokens": 1, "cached_input_tokens": 2, "output_tokens": 1}])
@@ -67,8 +69,9 @@ def test_invalid_proposal_consumed_tokens_are_recorded(change):
         call["arguments_json"] = '{"a":NaN,"b":3}'
     events[0]["item"]["text"] = "invalid" if change == "bad_json" else json.dumps(response)
     budget = Budget()
-    with pytest.raises(LLMError, match="invalid tool proposal"):
+    with pytest.raises(MalformedProposal) as caught:
         parse(events, budget)
+    assert caught.value.failure_hint.failure_class == "llm_bad_tool_call"
     assert budget.total_tokens == 8534
     assert budget.cost_usd is None
 
@@ -146,7 +149,7 @@ def test_complete_passes_prompt_via_stdin_and_records_usage(monkeypatch):
             assert args[-1] == "-"
             assert kwargs["start_new_session"] is True
             return process
-        async def checked(_):
+        async def checked(_, executable):
             pass
         monkeypatch.setattr(codex.asyncio, "create_subprocess_exec", launch)
         client = CodexCLIClient(executable="/test/codex")
@@ -165,23 +168,28 @@ def test_process_group_stopped_on_failure(monkeypatch, cause):
         events = [{"type": "item.started", "item": {"type": "command_execution"}}] if cause == "native_event" else []
         if cause == "output_limit":
             events = [{"type": "item.completed", "item": {"type": "agent_message", "text": "x" * (codex.MAX_OUTPUT_BYTES + 1)}}]
-        process = FakeProcess(events, hang=cause == "timeout")
+        processes = []
         async def launch(*args, **kwargs):
+            process = FakeProcess(events, hang=cause == "timeout")
+            process.pid += len(processes)
+            processes.append(process)
             return process
-        async def checked(_):
+        async def checked(_, executable):
             pass
         killed = []
         def killpg(pid, signal):
             killed.append(pid)
-            process.returncode = -9
+            next(p for p in processes if p.pid == pid).returncode = -9
         monkeypatch.setattr(codex.asyncio, "create_subprocess_exec", launch)
         monkeypatch.setattr(codex.os, "killpg", killpg)
-        client = CodexCLIClient(executable="/test/codex", timeout=0.01)
+        client = CodexCLIClient(executable="/test/codex", timeout=0.01,
+                               sleep=lambda delay: asyncio.sleep(0), jitter=lambda: 0)
         monkeypatch.setattr(client, "_check_cli", checked)
         with pytest.raises(LLMError):
             await client.complete([Message(role="user", content="Return JSON")], [ADD])
-        assert killed == [process.pid]
-        assert client.budget.calls == 1
+        expected = 3 if cause == "timeout" else 1
+        assert killed == [p.pid for p in processes]
+        assert len(processes) == client.budget.calls == expected
     asyncio.run(run())
 
 
@@ -193,7 +201,7 @@ def test_cli_version_and_chatgpt_login_checked(monkeypatch):
             launched.append(args)
             return responses.pop(0)
         monkeypatch.setattr(codex.asyncio, "create_subprocess_exec", launch)
-        await CodexCLIClient(executable="/test/codex")._check_cli({})
+        await CodexCLIClient(executable="/test/codex")._check_cli({}, "/test/codex")
         assert launched == [("/test/codex", "--version"), ("/test/codex", "login", "status")]
     asyncio.run(run())
 
@@ -205,6 +213,7 @@ def test_other_cli_versions_and_api_key_login_rejected(monkeypatch, version, log
         async def launch(*args, **kwargs):
             return responses.pop(0)
         monkeypatch.setattr(codex.asyncio, "create_subprocess_exec", launch)
-        with pytest.raises(LLMError, match="0.163.0 with a ChatGPT login"):
-            await CodexCLIClient(executable="/test/codex")._check_cli({})
+        with pytest.raises(ProviderError, match="authentication or version check") as caught:
+            await CodexCLIClient(executable="/test/codex")._check_cli({}, "/test/codex")
+        assert caught.value.kind == "local_authentication_or_version"
     asyncio.run(run())

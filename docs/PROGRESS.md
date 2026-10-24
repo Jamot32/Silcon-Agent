@@ -82,3 +82,7 @@ Next — Commit admission and freeze `make eval SET=dev N=3 EVAL_JOBS=4` under t
 R4 result: REJECT — full DEV3×86/90→85/90; original sealer verifies90 terminal records/67 successful selected sources and independent audit binds all69 app-DONE artifacts.
 Restored all29 changed tracked backend paths exactly to R3 `1987da9`; original user edits stay unstaged. `make demo` starts healthy; `make test` passes655backend/15frontend/TypeScript/5E2E(58.8s). Detailed class/clarity/cost audit is in `docs/evidence/reliability-r4.{md,json}`.
 Next: qualification of isolated generic components, then a separately admitted frozen candidate; no held-out app measurement or dollar-target claim.
+
+R5 admission: provider/physical/trace/ACK candidate qualified; dev before R3 86/90, after pending full DEV3×.
+Checks: make demo; make test (1010 backend +92subtests,34frontend,5E2E); eval tests355+15subtests; original QA3 pass.
+Next: commit/freeze and run90 real dev trials with unchanged G1/toolchain/caps; held-out remains unopened.

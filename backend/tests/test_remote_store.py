@@ -32,6 +32,9 @@ def test_all_remote_operations_have_auth_and_preserve_payloads(tmp_path):
             return httpx.Response(200, json=run_json(status="running"))
         if request.method == "GET":
             return httpx.Response(200, json=run_json(cancel_requested=True))
+        if request.url.path.endswith(("/finish", "/fail")):
+            return httpx.Response(200, json={"run_id": RUN_ID,
+                "status": "cancelled" if request.url.path.endswith("/fail") else "failed", "failure_class": None})
         return httpx.Response(200, json={})
 
     store = adapter(tmp_path, handle)

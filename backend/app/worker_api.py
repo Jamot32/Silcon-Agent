@@ -99,15 +99,13 @@ def finish(run_id: str, body: Finish, database: RunStore = Depends(store)):
         outcome = Outcome.model_validate(body.outcome)
     except ValueError:
         raise HTTPException(422, "Invalid worker outcome") from None
-    database.finish(run_id, outcome)
-    return {}
+    return database.finish(run_id, outcome).plain()
 
 
 @router.post("/runs/{run_id}/fail")
 def fail(run_id: str, body: Failure, database: RunStore = Depends(store)):
     require_run(database, run_id)
-    database.fail(run_id, body.error, body.status)
-    return {}
+    return database.fail(run_id, body.error, body.status).plain()
 
 
 @router.post("/runs/{run_id}/artifacts")

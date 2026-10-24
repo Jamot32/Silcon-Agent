@@ -1,0 +1,62 @@
+{
+  "kind": "production_provider_qualification",
+  "qualification_only": true,
+  "proof_eligible": false,
+  "run_id": "f4f2d393c2ca47719efbc93e35ab89bd",
+  "checked_at": "2026-10-24T10:55:51.399020+00:00",
+  "cli_version": "0.163.0",
+  "selected_model": "gpt-6.1-sol",
+  "serving_model_revision": null,
+  "cost_usd": null,
+  "cases": [
+    {
+      "requested_effort": null,
+      "parsed_tool_call": {
+        "id": "call_1",
+        "name": "add",
+        "arguments": {
+          "a": 2,
+          "b": 3
+        }
+      },
+      "input_tokens": 8624,
+      "cached_input_tokens": 0,
+      "output_tokens": 41,
+      "latency_ms": 3693.2716669980437,
+      "cost_usd": null
+    },
+    {
+      "requested_effort": "high",
+      "parsed_tool_call": {
+        "id": "call_1",
+        "name": "add",
+        "arguments": {
+          "a": 2,
+          "b": 3
+        }
+      },
+      "input_tokens": 8626,
+      "cached_input_tokens": 0,
+      "output_tokens": 41,
+      "latency_ms": 3345.218874979764,
+      "cost_usd": null
+    }
+  ],
+  "status": "passed",
+  "calls": 2,
+  "reported_input_tokens": 17250,
+  "reported_output_tokens": 82,
+  "trace_sha256": "ce2645c0e0abfbd3ffab3d46da9627d4df0e079390b3f84c643c56017284f96a",
+  "qualification_report_sha256": "03012390a9805f5993e365a791f5e5a1f5cacd5c6f28d8c07caeff00a1c82f6e",
+  "script_sha256": "f87c539fdc0b5959b1365f37ffb48e2b012e33a86dc3e65581c9d9abec927c8f",
+  "actual_trace_audit": {
+    "passed": true,
+    "rows": 12,
+    "reported_response_records": 2,
+    "reported_token_sums_reconciled": true,
+    "unknown_usd_preserved": true,
+    "sequence_and_sha256_verified": true,
+    "forbidden_raw_prompt_env_output_strings_absent": true
+  },
+  "scope": "Two actual production-adapter calls and trace attribution; no EDA, app functional correctness, held-out performance or measurable plan-dollar claim."
+}

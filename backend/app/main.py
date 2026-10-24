@@ -18,6 +18,7 @@ from app.models import Metric
 from app.replay import RecordingMetadata, list_recordings, load_recording
 from app.storage import BusyRunError, RunStore, TERMINAL
 from app.worker_api import router as worker_router
+from app.reliability.router import router as reliability_router
 
 RUNS_DIR = Path(os.getenv("RUNS_DIR", "runs"))
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{RUNS_DIR}/silicon-agent.db")
@@ -38,6 +39,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="Silicon Agent", version="0.1.0", lifespan=lifespan)
 app.include_router(worker_router)
+app.include_router(reliability_router)
 
 
 class Check(BaseModel):
@@ -179,7 +181,7 @@ def create_run(body: CreateRun) -> dict[str, str]:
         raise HTTPException(422, "Unknown preset")
     try:
         run = store().create_run(body.spec_text, preset_id=body.preset_id,
-                                 targets=body.targets.model_dump(exclude_none=True) if body.targets else None,
+                                 targets=body.targets.model_dump(exclude_unset=True) if body.targets else None,
                                  provider=os.getenv("LLM_PROVIDER", "codex"), starter_id=body.starter_id)
     except BusyRunError as error:
         raise HTTPException(409, str(error)) from None

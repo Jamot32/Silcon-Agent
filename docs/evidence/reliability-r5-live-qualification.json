@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "kind": "actual_public_live_smoke_audit",
+  "run_id": "66de10e08a9d43969a3635438512c9eb",
+  "status": "pass",
+  "scope": "Own-test and retained tool/artifact binding qualification only; no hidden-oracle correctness, Tiny Tapeout wrapper or shuttle-readiness claim.",
+  "public_run_sha256": "6fa0ec9a19370f221b86e29e7bc1fc1ae8faf42dc4927dcc32935285482bf078",
+  "events_sha256": "62f3bfb8a5dcc45ab27dff47980666189fdd4c0477f37cea573968fc643e0c26",
+  "trace_sha256": "c3a6856701bb377832143d1fe16ef6186e088311e311c325568a1ef92a1fca2a",
+  "trace_records": 104,
+  "trace_terminal_authority": "store_confirmed",
+  "usage": {
+    "call_count": 6,
+    "input_tokens": 68205,
+    "output_tokens": 2813,
+    "cost_usd": null
+  },
+  "provider_attempts": 6,
+  "provider_responses": 6,
+  "schema2_events": 18,
+  "evidence_events": {
+    "no_execution": 11,
+    "executed_tool": 7
+  },
+  "commands": {
+    "observed": 10,
+    "launched": 10,
+    "nonzero": 0,
+    "timed_out": 0
+  },
+  "ledger_sha256": "4f2677f11872009e856e18f1021ed529fa7c60c5cf821a48cbec2237a2ad91da",
+  "best_run_tag": "flow_70c6abc26cc04918",
+  "metrics": {
+    "iteration_id": "e7a45808ce2848ff9218ca5ad0b9fe01",
+    "flow_index": 3,
+    "run_id": "66de10e08a9d43969a3635438512c9eb",
+    "area_um2": 594.32,
+    "tns_ns": 0.0,
+    "cell_count": 132,
+    "lvs_ok": true,
+    "run_tag": "flow_70c6abc26cc04918",
+    "id": "d23d163a6c614e6b9bbef9c0073fff92",
+    "clock_mhz": 50.0,
+    "wns_ns": 0.0,
+    "power_mw": 0.07130779704311863,
+    "drc_ok": true
+  },
+  "flow_points": 4,
+  "max_overlapping_flow_calls": 3,
+  "selected_source_sha256": "b3039f1b142a4963384b84495d84acab9e05e65d843528c0068af44d39f4c359",
+  "selected_test_sha256": "02c8feec46b16c97fd890141ab4754ffefce127536c219802daeb30e46d8aaca",
+  "source_files": {
+    "saturating_counter.v": "81cc318aaba98b88578d34643e8c8c877cd582b42624809fd1a65176f2b10de1"
+  },
+  "test_files": {
+    "test_saturating_counter.py": "3577a858abc0f15c10d5ebcde762a39920d352e8a0d5e0834b186623a7a32376"
+  },
+  "selected_own_simulations": [
+    {
+      "xml_sha256": "be85e7a470adec2fb2c227d8683ca5fa8dc034fd3f847fd1e4cba7d0b719f0b8",
+      "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e",
+      "cases": [
+        "synchronous_reset_and_priority",
+        "increment_and_upper_saturation",
+        "decrement_and_lower_saturation",
+        "enable_hold_and_resume",
+        "direction_reversals",
+        "randomized_reference_and_stability"
+      ]
+    }
+  ],
+  "layout": {
+    "width": 1000,
+    "height": 1003,
+    "sha256": "eca4da4d0b6a0bfb5a2116daa6a23023e01fc76b63fbbc6855499c2fd32a838c"
+  },
+  "artifacts": {
+    "gds": "f5884fa992a7c41c8bfc7bbaa54591dc32341121443b0ae563016aa94153e8a0",
+    "lef": "06d351a470eab355e7b003dca3776a45677fa25023f2177d0bc03b5fb2ddba6f",
+    "raw_metrics": "74da5f068817fcd98be23c9b19c4030dedc1903170c1eaa409081d314cf56ad4",
+    "resolved_config": "e2b54ddcc8536040187603b233122bb1d4df422ec1acb68558208704304bbc74"
+  },
+  "bundle_sha256": "c80878b2089b07d5814af52007be425fd755844786b4a367d40aa79f9bed6010",
+  "tiny_tapeout_ready": false,
+  "limitations": [
+    "Actual run used the pre-ACK-race-fix worker; normal no-cancellation completion is qualified. Cancellation-at-commit race is not exercised here.",
+    "No deliberate injected RTL fault or supplied starter.",
+    "No hidden/golden/oracle material inspected; no independent functional correctness claim."
+  ],
+  "independent_audit_sha256": "23f8a541b2783c6f4fa9e37b832def2e42a9efe6501ed50a655671ea93b2e491",
+  "source_qualification_sha256": "2663b85bb5330f565b9a4d323a373d7df255263c53fb51ebcb40445b13ef1254"
+}

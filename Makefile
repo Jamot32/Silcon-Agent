@@ -1,4 +1,4 @@
-.PHONY: setup dev demo down test test-unit test-e2e record-repair eda-setup eda-check eda-tools-check golden-check golden-flow-check llm-smoke meta-smoke logs eval eval-compare eval-test eval-validate eval-selfcheck
+.PHONY: setup dev demo down test test-unit test-e2e record-repair eda-setup eda-check eda-tools-check golden-check golden-flow-check llm-smoke meta-smoke logs eval eval-compare eval-test eval-validate eval-selfcheck reliability-export reliability-ci
 
 SET ?= dev
 TIER ?= 1,2,3,4
@@ -81,3 +81,11 @@ eval-validate:
 
 eval-selfcheck:
 	PYTHONPATH=backend uv run --python 3.12 --with-requirements backend/requirements.txt python -m eval selfcheck --set "$(SET)"
+
+# Publication verifies the sealed cohort; this never runs model or EDA calls.
+reliability-export:
+	uv run --python 3.12 --with-requirements backend/requirements.txt python scripts/reliability_export.py "$(RID)" --sealer "$(or $(SEALER),base)"
+
+# Explicit opt-in: starts a new real DEV T1/T2, N=1, jobs=4 evaluation.
+reliability-ci:
+	uv run --python 3.12 --with-requirements backend/requirements.txt python scripts/reliability_ci.py --run

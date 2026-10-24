@@ -10,6 +10,7 @@ from pydantic import JsonValue, ValidationError
 
 from app.models import Run
 from app.schemas import Outcome
+from app.terminal import TerminalAcknowledgement
 
 RUN_ID = re.compile(r"[0-9a-f]{32}\Z")
 RPC_TIMEOUT = 5
@@ -92,14 +93,24 @@ class HTTPRunStore:
         run_id = self._id(run_id)
         self._request("POST", f"runs/{run_id}/events", {"type": event_type, "payload": payload})
 
-    def finish(self, run_id: str, outcome: Outcome | dict[str, JsonValue]) -> None:
+    def _terminal_acknowledgement(self, value, run_id: str) -> TerminalAcknowledgement:
+        try:
+            return TerminalAcknowledgement.from_wire(value, run_id=run_id)
+        except (TypeError, ValueError):
+            # The mutation may have committed. Never retry it or substitute the
+            # submitted outcome for an invalid/missing transaction response.
+            raise RemoteStoreError("Worker API returned an invalid terminal acknowledgement") from None
+
+    def finish(self, run_id: str, outcome: Outcome | dict[str, JsonValue]) -> TerminalAcknowledgement:
         run_id = self._id(run_id)
         values = outcome.model_dump(mode="json") if isinstance(outcome, Outcome) else outcome
-        self._request("POST", f"runs/{run_id}/finish", {"outcome": values})
+        value = self._request("POST", f"runs/{run_id}/finish", {"outcome": values})
+        return self._terminal_acknowledgement(value, run_id)
 
-    def fail(self, run_id: str, error: str, status: Literal["failed", "cancelled"] = "failed") -> None:
+    def fail(self, run_id: str, error: str, status: Literal["failed", "cancelled"] = "failed") -> TerminalAcknowledgement:
         run_id = self._id(run_id)
-        self._request("POST", f"runs/{run_id}/fail", {"error": error, "status": status})
+        value = self._request("POST", f"runs/{run_id}/fail", {"error": error, "status": status})
+        return self._terminal_acknowledgement(value, run_id)
 
     def cancel_requested(self, run_id: str) -> bool:
         return self.get_run(run_id).cancel_requested
