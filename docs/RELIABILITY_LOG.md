@@ -927,3 +927,52 @@ CLI, image, PDK, caps and concurrency. It is still running; no partial score or
 adoption decision is reported. No held-out application evaluation has run.
 R6 work is isolated in a separate worktree; no new provider/EDA qualification
 competes with this measured cohort.
+
+## R5c — restored-access repeat of unchanged R5b, kept for development
+
+Change → no runtime change from the quota-affected R5b cohort; repeat after
+restored provider access. Before → kept R3 **86/90**. After → full DEV3×
+**87/90**, repeats **29/29/29**, mean96.667%, range96.667–96.667%.
+Decision → **keep as the next development comparison baseline**. The complete
+score improves by1.111 points with one paired graded improvement and zero
+paired graded regressions. This is not completion of the reliability mission.
+
+`make eval SET=dev N=3 EVAL_JOBS=4` completed all90 planned trials for
+`20261024T213704Z_5bf06a02`, unchanged source `22474c39492bd4de9fdce6f9ad0f12cbd5981be0680985109a928f8088a4d816`.
+Tier1 is24/24, Tier2 is30/30, Tier3 is15/18, Tier4 is18/18.
+All72 hardware deliveries have real passing own tests and selected clean
+DRC/LVS, but only69/72 pass the source-bound hidden checks (95.833%). The
+three false positives remain in the denominator. They repeat one predeclared
+implementation-compatibility case; no hidden test, log or reference source was
+opened, and this label does not excuse or filter the failures.
+
+| Ranked terminal failure class | Count | Consequence |
+| --- | ---: | --- |
+| hidden_test_fail | 3 | App reports DONE for incorrect deliveries; independent checks discover them |
+
+Conditional hidden correctness worsens from R3's68/68 to69/72 even though the
+overall graded score improves. This is the next development priority. Manual
+review finds **no app explanation for these three failures**, since the app
+believes they succeeded. The Tier3 every-failure-explained target and the zero
+unclear-failures target are therefore **missed**, not satisfied by a nonempty
+success summary. Original automated clarity fields and grades remain untouched.
+All18 public scope messages give a reason and a next choice; their semantic
+correctness remains the unchanged grader's finding.
+
+Tier2 median is249.122s versus227.860s for R3 (+21.262s, about9.3%), below
+the600s target. Overall median is231.098s (+14.636s). There are509 actual
+completed CLI calls,6,092,919 input and338,924 output tokens,286 physical flow
+attempts and14 fix loops. OAuth plan USD remains unknown; the dollar target
+cannot be claimed. Recorded crashes, hangs and harness errors are zero.
+
+Independent audits reconcile all90 live/sealed states, events and usage; all72
+selected deliveries including the three hidden failures;1,432 tool envelopes,
+543 receipts and742 actual command observations. Historical blockers and22
+nonreceipt rejection entries are retained. The original sealer verifies90
+terminal records/69 successful sources. Summary SHA`fc5899ef4f0ace1d75c3f719520f3c518d6b40eada122314dadadfa086f10d5e`;
+seal SHA`bf45735371ba4ae7bb880769f6554160c03f5659e24f0e6d670093addea16a66`.
+`make eval-compare A=20261024T064347Z_d341c794 B=20261024T213704Z_5bf06a02`
+passes with all90 paired records. [Derived audit](evidence/reliability-r5c.json)
+preserves the explicit limitations. All seven complete development cohorts are
+published; the quota cohort is not replaced. Held-out application evaluation
+remains unopened. R6 is still isolated and must earn a fresh before/after score.

@@ -361,3 +361,14 @@ their real provider/EDA qualification waits until that cohort is complete.
 The restored-access smoke's fixture-overwrite behavior was corrected by retaining
 its new capture separately and restoring the historical fixture from HEAD;
 subsequent qualification utilities must create unique output directories.
+## 2026-10-24 — keep restored-access R5c as development comparison
+
+The unchanged R5b source completes a fresh DEV3× at87/90 versus R3's86/90,
+with all90 original grades retained. Adopt cohort20261024T213704Z_5bf06a02 as
+the next committed comparison baseline. The prior quota-affected9/90 cohort
+remains sealed and published separately. The three hidden failures are app-DONE
+false positives; conditional correctness drops from68/68 to69/72 and their
+missing failure explanations leave two reliability targets unmet. Overall gain
+does not establish a finished product. Tier2 median249.122s is below600s but
+21.262s slower than R3. OAuth USD is unknown. Isolated R6 work stays unactivated
+until qualified and measured; held-out application evaluation remains unopened.
