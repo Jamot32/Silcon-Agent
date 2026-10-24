@@ -288,3 +288,15 @@ known failed I2C hidden status prevents inferring end-to-end recovery from a
 clean physical layout. ChatGPT-plan USD and effective serving revision stay
 unknown. User-owned pre-existing edits remain unstaged and are included in the
 immutable eval working-patch provenance exactly as in R3.
+
+### R4 full-cohort rejection
+
+The complete unchanged DEV3× falls86/90→85/90 versus R3. Restore the29 tracked
+backend paths touched by R4 exactly to `1987da9`; preserve original unstaged user
+changes and all historical admission/qualification/measurement evidence. Do not
+keep R4 by conditioning away3 provider failures or2 delivered hidden failures.
+The independently verified physical route remains qualification material for a
+future explicitly combined treatment, which requires its own full measurement.
+One first-failed OAuth response exposed0USD incorrectly; preserve that history
+and add explicit unknown-cost initialization in a subsequent measured client
+change. Per-run plan dollars remain unassessable.

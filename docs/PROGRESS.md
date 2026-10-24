@@ -78,3 +78,7 @@ Next — R4: qualify and independently measure mapped-area sizing, bounded physi
 Reliability R4 — ADMITTED, after score pending: actual mapped-area/site-based sizing, bounded FLOW recovery, clean-best preservation and separate executed/rejected failure evidence form one treatment against kept R3 86/90. No performance keep claim.
 Check — `make test`:787backend/15frontend/TypeScript/5replay-failureE2E passed(58.1s);69focused final controls passed. Fresh real OAuth Gray-code build:4clean flow points, selected852.067µm²/50MHz, own tests and bundle pass. Final serial production-route qualifier passes real lint/sim/mapping/cached flow/render/package;4actual command receipts independently rehashed. All18old EDA method ASTs unchanged.
 Next — Commit admission and freeze `make eval SET=dev N=3 EVAL_JOBS=4` under the sameG1/caps/image/corpus. Preserve unknownUSD and prior I2C functional caveat; no held-out app use or full-target claim.
+
+R4 result: REJECT — full DEV3×86/90→85/90; original sealer verifies90 terminal records/67 successful selected sources and independent audit binds all69 app-DONE artifacts.
+Restored all29 changed tracked backend paths exactly to R3 `1987da9`; original user edits stay unstaged. `make demo` starts healthy; `make test` passes655backend/15frontend/TypeScript/5E2E(58.8s). Detailed class/clarity/cost audit is in `docs/evidence/reliability-r4.{md,json}`.
+Next: qualification of isolated generic components, then a separately admitted frozen candidate; no held-out app measurement or dollar-target claim.

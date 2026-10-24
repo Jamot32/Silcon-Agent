@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from pydantic import JsonValue
 
-from app.eda import flow, harness, lint, physics, render, sim, synth, verification
+from app.eda import flow, harness, lint, render, sim, synth, verification
 from app.eda.sandbox import DockerSandbox, pin_sandbox_image, read_json_artifact, safe_artifact
 from app.schemas import DesignSpec
 
@@ -158,22 +158,6 @@ class EDA:
         validate_identifier(top)
         source, output = self._snapshot("synth")
         return await synth.synth_stats(self.sandbox, source, output, top)
-
-    async def mapped_synth_stats(self, top: str, config_overrides: dict[str, JsonValue] | None = None, *,
-                                fixed_footprint: bool = False, utilization_pct: float = 45) -> dict[str, JsonValue]:
-        validate_identifier(top)
-        overrides: dict[str, JsonValue] = {}
-        config = safe_artifact(self.work_dir, self.work_dir / "config.json")
-        if config.is_file():
-            contents = read_json_artifact(self.work_dir, config, finite=True)
-            if not isinstance(contents, dict):
-                raise ValueError("Flow overrides must be an object")
-            overrides.update(flow.validate_flow_overrides(contents))
-        overrides.update(flow.validate_flow_overrides({} if config_overrides is None else config_overrides))
-        source, output = self._snapshot("mapped_synth")
-        return await physics.mapped_synth_stats(self.sandbox, source, output, top, self.clock_port, overrides,
-                                               work_dir=self.work_dir, fixed_footprint=fixed_footprint,
-                                               utilization_pct=utilization_pct)
 
     async def run_flow(self, top: str, config_overrides: dict[str, JsonValue]) -> dict[str, JsonValue]:
         validate_identifier(top)

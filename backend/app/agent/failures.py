@@ -105,7 +105,7 @@ _DETAILS: dict[FailureClass, tuple[str, str]] = {
     FailureClass.SIMULATION_UNKNOWN_VALUE: ("The test read an unresolved simulator value.", "Check reset timing and whether the RTL drives the signal before converting it to an integer."),
     FailureClass.VERIFICATION_FAILED: ("A simulation assertion failed; RTL or test correctness is not yet established.", "Compare the failing stimulus and expected result with the frozen specification."),
     FailureClass.SYNTH_FAIL: ("Synthesis did not complete successfully.", "Inspect the synthesis diagnostic and repair the reported RTL problem."),
-    FailureClass.TOO_BIG: ("The mapped design exceeds the selected footprint or supported cell budget.", "Reduce widths or storage depth, or choose a larger supported tile allocation."),
+    FailureClass.TOO_BIG: ("Synthesis reports more cells than the supported budget.", "Reduce widths or storage depth, or choose a larger supported tile allocation."),
     FailureClass.CONFIG_ERROR: ("The physical-design configuration was rejected.", "Correct the reported key or value using the pinned LibreLane configuration schema."),
     FailureClass.DIE_TOO_SMALL: ("The floorplan cannot fit the required cells or power grid.", "Lower utilization and increase the die dimensions within the selected tile budget."),
     FailureClass.PLACEMENT_FAILED: ("The physical cells could not be placed legally.", "Inspect the saved placement report; try more space within the selected size limit, or reduce the design for a fixed tile."),
@@ -237,8 +237,6 @@ def classify_failure(
         return diagnosis(FailureClass.SCOPE_DECISION_WRONG, "Independent scope check: scope_decision_correct=false")
     if result.get("ok") is False and result.get("error_kind") == "harness_error":
         return diagnosis(FailureClass.TEST_HARNESS_ERROR, text or "Trusted test harness rejected execution")
-    if result.get("ok") is False and result.get("error_kind") == "sizing_preflight":
-        return diagnosis(FailureClass.TOO_BIG, text or "Mapped placement estimate exceeds the selected footprint")
     cells = _number(result.get("estimated_cells" if failure_stage == FailureStage.SPEC else "cell_count"))
     limit = _number(result.get("cell_budget"))
     if cells is not None and limit is not None and cells > limit:

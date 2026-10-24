@@ -1,0 +1,4035 @@
+{
+  "schema_version": 1,
+  "artifact_kind": "post_measurement_manual_analysis",
+  "complete": true,
+  "cohort": "20261024T085231Z_fdfe4035",
+  "comparison_cohort": "20261024T064347Z_d341c794",
+  "planned": 90,
+  "terminal": 90,
+  "decision": {
+    "decision": "revert",
+    "primary_kept_comparator": "R3",
+    "reason": "Full DEV3x end-to-end success decreased86/90 to85/90; two delivered hidden failures and three provider failures remain. No conditional physical-success score substitutes for this result.",
+    "runtime_rollback": "All29 tracked backend paths touched by R4 are restored exactly to1987da9 in the index; the original uncommitted user guard and unrelated user edits remain in the worktree.",
+    "future": "A separately declared combined candidate may reuse qualified physical components with provider resilience, but requires its own full frozen DEV3x before any keep decision."
+  },
+  "read_only_measurements": true,
+  "hidden_access": "Recorded DEV result status/count/hash only; hidden tests, logs, golden sources and held-out material never opened.",
+  "provenance": {
+    "summary_sha256": "e165be95a0f31e2515d33799399d0245b7555fcf29160b3623043acb52d5cb95",
+    "evidence_sha256": "4d24bb584239c520f15aa142c6fbdb78d13dd73a96f5491645d5853e6a6b3fb8",
+    "before_summary_sha256": "f8eb019d74c23aa4c015160aa13a317551b49b023f35894a19df20f40b61c9e1",
+    "pipeline_sha256": "cb623bf536e6c69cb1ef9717681303ddc1ff8803eee96cf47da854d83fd34ab3",
+    "harness_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669",
+    "oracle_engine_sha256": "dbb7d7e1d06b9f0699f45a474612e6e20723f6e57025156b4aba2d8c6dad6f4e",
+    "corpus_sha256": "6e6625b9d6b9702064e83db48099843af9aa541c5a9b2d521dddb0de102ba55d",
+    "config": {
+      "repeats": 3,
+      "concurrency": 4,
+      "max_calls": 32,
+      "max_tokens": 300000,
+      "max_usd": 1.0,
+      "time_limit_seconds": 900.0,
+      "snapshot_id": "cb623bf536e6c69cb1ef9717681303ddc1ff8803eee96cf47da854d83fd34ab3"
+    },
+    "provider": "codex",
+    "model": "gpt-6.1-sol",
+    "cli_version": "codex-cli 0.163.0",
+    "tool_versions": {
+      "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+      "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+      "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+      "python": "3.12.13",
+      "openai": "3.37.0",
+      "pydantic": "2.14.1",
+      "sqlmodel": "0.0.48"
+    },
+    "same_G1_caps_tools_corpus_as_R3": true
+  },
+  "comparison": {
+    "before_successful": 86,
+    "after_successful": 85,
+    "delta_percentage_points": -1.1111111111111183,
+    "tiers": [
+      {
+        "tier": 1,
+        "planned": 24,
+        "before_successful": 24,
+        "after_successful": 23,
+        "delta_percentage_points": -4.1666666666666625,
+        "repeat_rates": {
+          "count": 3,
+          "mean": 0.9583333333333334,
+          "median": 1.0,
+          "min": 0.875,
+          "max": 1.0
+        },
+        "measurements_before": {
+          "elapsed_seconds": {
+            "count": 24,
+            "mean": 206.71263502782676,
+            "median": 206.2977798334323,
+            "min": 138.4286243750248,
+            "max": 241.56197512499057
+          },
+          "calls": {
+            "count": 24,
+            "mean": 6.458333333333333,
+            "median": 6.0,
+            "min": 6,
+            "max": 9
+          },
+          "input_tokens": {
+            "count": 24,
+            "mean": 70661.29166666667,
+            "median": 66065.5,
+            "min": 64663,
+            "max": 100916
+          },
+          "output_tokens": {
+            "count": 24,
+            "mean": 2895.125,
+            "median": 2849.5,
+            "min": 2309,
+            "max": 4991
+          },
+          "fix_loops": {
+            "count": 24,
+            "mean": 0.041666666666666664,
+            "median": 0.0,
+            "min": 0,
+            "max": 1
+          },
+          "flow_attempts": {
+            "count": 24,
+            "mean": 4,
+            "median": 4.0,
+            "min": 4,
+            "max": 4
+          }
+        },
+        "measurements_after": {
+          "elapsed_seconds": {
+            "count": 24,
+            "mean": 222.06570488018042,
+            "median": 211.37706502049696,
+            "min": 139.1247127080569,
+            "max": 339.54701133305207
+          },
+          "calls": {
+            "count": 24,
+            "mean": 6.291666666666667,
+            "median": 6.0,
+            "min": 3,
+            "max": 9
+          },
+          "input_tokens": {
+            "count": 24,
+            "mean": 69847.79166666667,
+            "median": 67985.5,
+            "min": 20011,
+            "max": 103799
+          },
+          "output_tokens": {
+            "count": 24,
+            "mean": 2850.4583333333335,
+            "median": 2804.5,
+            "min": 680,
+            "max": 4957
+          },
+          "fix_loops": {
+            "count": 24,
+            "mean": 0.041666666666666664,
+            "median": 0.0,
+            "min": 0,
+            "max": 1
+          },
+          "flow_attempts": {
+            "count": 24,
+            "mean": 3.7083333333333335,
+            "median": 4.0,
+            "min": 0,
+            "max": 4
+          }
+        }
+      },
+      {
+        "tier": 2,
+        "planned": 30,
+        "before_successful": 30,
+        "after_successful": 29,
+        "delta_percentage_points": -3.3333333333333326,
+        "repeat_rates": {
+          "count": 3,
+          "mean": 0.9666666666666667,
+          "median": 1.0,
+          "min": 0.9,
+          "max": 1.0
+        },
+        "measurements_before": {
+          "elapsed_seconds": {
+            "count": 30,
+            "mean": 246.31579020537512,
+            "median": 227.86001858348027,
+            "min": 171.61097362497821,
+            "max": 481.59032054105774
+          },
+          "calls": {
+            "count": 30,
+            "mean": 6.733333333333333,
+            "median": 6.0,
+            "min": 6,
+            "max": 14
+          },
+          "input_tokens": {
+            "count": 30,
+            "mean": 78213.16666666667,
+            "median": 69716.0,
+            "min": 65571,
+            "max": 186935
+          },
+          "output_tokens": {
+            "count": 30,
+            "mean": 4722.966666666666,
+            "median": 3864.5,
+            "min": 2516,
+            "max": 15647
+          },
+          "fix_loops": {
+            "count": 30,
+            "mean": 0.2,
+            "median": 0.0,
+            "min": 0,
+            "max": 3
+          },
+          "flow_attempts": {
+            "count": 30,
+            "mean": 4,
+            "median": 4.0,
+            "min": 4,
+            "max": 4
+          }
+        },
+        "measurements_after": {
+          "elapsed_seconds": {
+            "count": 30,
+            "mean": 251.8015617417676,
+            "median": 254.29715956252767,
+            "min": 50.48550483293366,
+            "max": 360.9439401670825
+          },
+          "calls": {
+            "count": 30,
+            "mean": 6.266666666666667,
+            "median": 6.0,
+            "min": 1,
+            "max": 9
+          },
+          "input_tokens": {
+            "count": 30,
+            "mean": 74285.63333333333,
+            "median": 71593.5,
+            "min": 0,
+            "max": 114715
+          },
+          "output_tokens": {
+            "count": 30,
+            "mean": 4367.4,
+            "median": 3963.0,
+            "min": 0,
+            "max": 8475
+          },
+          "fix_loops": {
+            "count": 30,
+            "mean": 0.1,
+            "median": 0.0,
+            "min": 0,
+            "max": 1
+          },
+          "flow_attempts": {
+            "count": 30,
+            "mean": 3.8666666666666667,
+            "median": 4.0,
+            "min": 0,
+            "max": 4
+          }
+        }
+      },
+      {
+        "tier": 3,
+        "planned": 18,
+        "before_successful": 14,
+        "after_successful": 15,
+        "delta_percentage_points": 5.555555555555558,
+        "repeat_rates": {
+          "count": 3,
+          "mean": 0.8333333333333334,
+          "median": 0.8333333333333334,
+          "min": 0.8333333333333334,
+          "max": 0.8333333333333334
+        },
+        "measurements_before": {
+          "elapsed_seconds": {
+            "count": 18,
+            "mean": 295.8864535208365,
+            "median": 291.6228498755372,
+            "min": 217.06535962503403,
+            "max": 498.500284583075
+          },
+          "calls": {
+            "count": 18,
+            "mean": 7.555555555555555,
+            "median": 6.0,
+            "min": 6,
+            "max": 19
+          },
+          "input_tokens": {
+            "count": 18,
+            "mean": 96176.66666666667,
+            "median": 70817.5,
+            "min": 67951,
+            "max": 292065
+          },
+          "output_tokens": {
+            "count": 18,
+            "mean": 6374.388888888889,
+            "median": 4641.0,
+            "min": 3311,
+            "max": 22907
+          },
+          "fix_loops": {
+            "count": 18,
+            "mean": 0.3333333333333333,
+            "median": 0.0,
+            "min": 0,
+            "max": 4
+          },
+          "flow_attempts": {
+            "count": 18,
+            "mean": 4,
+            "median": 4.0,
+            "min": 4,
+            "max": 4
+          }
+        },
+        "measurements_after": {
+          "elapsed_seconds": {
+            "count": 18,
+            "mean": 328.9553154097068,
+            "median": 284.319854145986,
+            "min": 238.38622933300212,
+            "max": 640.8218254999956
+          },
+          "calls": {
+            "count": 18,
+            "mean": 7.333333333333333,
+            "median": 6.0,
+            "min": 6,
+            "max": 18
+          },
+          "input_tokens": {
+            "count": 18,
+            "mean": 93772.33333333333,
+            "median": 72546.5,
+            "min": 70333,
+            "max": 272259
+          },
+          "output_tokens": {
+            "count": 18,
+            "mean": 6582.166666666667,
+            "median": 4565.0,
+            "min": 3487,
+            "max": 22441
+          },
+          "fix_loops": {
+            "count": 18,
+            "mean": 0.4444444444444444,
+            "median": 0.0,
+            "min": 0,
+            "max": 4
+          },
+          "flow_attempts": {
+            "count": 18,
+            "mean": 3.7222222222222223,
+            "median": 4.0,
+            "min": 0,
+            "max": 4
+          }
+        }
+      },
+      {
+        "tier": 4,
+        "planned": 18,
+        "before_successful": 18,
+        "after_successful": 18,
+        "delta_percentage_points": 0.0,
+        "repeat_rates": {
+          "count": 3,
+          "mean": 1.0,
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "measurements_before": {
+          "elapsed_seconds": {
+            "count": 18,
+            "mean": 8.10891360413128,
+            "median": 8.23823352047475,
+            "min": 4.282167040975764,
+            "max": 12.563928083982319
+          },
+          "calls": {
+            "count": 18,
+            "mean": 1,
+            "median": 1.0,
+            "min": 1,
+            "max": 1
+          },
+          "input_tokens": {
+            "count": 18,
+            "mean": 10511.555555555555,
+            "median": 10514.0,
+            "min": 10493,
+            "max": 10527
+          },
+          "output_tokens": {
+            "count": 18,
+            "mean": 153.16666666666666,
+            "median": 162.0,
+            "min": 67,
+            "max": 235
+          },
+          "fix_loops": {
+            "count": 18,
+            "mean": 0,
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "flow_attempts": {
+            "count": 18,
+            "mean": 0,
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          }
+        },
+        "measurements_after": {
+          "elapsed_seconds": {
+            "count": 18,
+            "mean": 9.878184937496876,
+            "median": 7.671780249511357,
+            "min": 5.696212332928553,
+            "max": 38.915095250005834
+          },
+          "calls": {
+            "count": 18,
+            "mean": 1,
+            "median": 1.0,
+            "min": 1,
+            "max": 1
+          },
+          "input_tokens": {
+            "count": 18,
+            "mean": 10511.777777777777,
+            "median": 10514.5,
+            "min": 10493,
+            "max": 10525
+          },
+          "output_tokens": {
+            "count": 18,
+            "mean": 150.66666666666666,
+            "median": 161.5,
+            "min": 70,
+            "max": 223
+          },
+          "fix_loops": {
+            "count": 18,
+            "mean": 0,
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          },
+          "flow_attempts": {
+            "count": 18,
+            "mean": 0,
+            "median": 0.0,
+            "min": 0,
+            "max": 0
+          }
+        }
+      }
+    ],
+    "repeat_successes": [
+      29,
+      27,
+      29
+    ],
+    "paired_improvements": 1,
+    "paired_regressions": 2,
+    "paired_changes": [
+      {
+        "trial_id": "dev/d0f754d22739/repeat-02",
+        "tier": 1,
+        "before": true,
+        "after": false
+      },
+      {
+        "trial_id": "dev/d164886b7e30/repeat-02",
+        "tier": 2,
+        "before": true,
+        "after": false
+      },
+      {
+        "trial_id": "dev/dab0b0719d10/repeat-02",
+        "tier": 3,
+        "before": false,
+        "after": true
+      }
+    ]
+  },
+  "usage": {
+    "before": {
+      "calls": 511,
+      "input_tokens": 5962654,
+      "output_tokens": 328668,
+      "flow_attempts": 288,
+      "fix_loops": 13
+    },
+    "after": {
+      "calls": 489,
+      "input_tokens": 5782030,
+      "output_tokens": 320624,
+      "flow_attempts": 272,
+      "fix_loops": 12
+    },
+    "before_median_seconds": 216.46195004152833,
+    "after_median_seconds": 243.43122012499953,
+    "cost": {
+      "assessable": false,
+      "known_trials": 0,
+      "unknown_attempted_trials": 90,
+      "total_usd": null,
+      "median_usd": null,
+      "known_subset": {
+        "total_usd": null,
+        "count": 0,
+        "mean": null,
+        "median": null,
+        "min": null,
+        "max": null
+      }
+    },
+    "counterfactual_savings_claim": false
+  },
+  "failure_counts": {
+    "hidden_test_fail": 2,
+    "llm_api_error": 3
+  },
+  "failure_stage_counts": {
+    "HIDDEN": 2,
+    "RTL": 2,
+    "SPEC": 1
+  },
+  "stage_funnel": {
+    "rtl_generated": {
+      "pass": 70,
+      "fail": 0,
+      "not_run": 20,
+      "unknown": 0,
+      "error": 0,
+      "not_applicable": 0
+    },
+    "lint": {
+      "pass": 70,
+      "fail": 0,
+      "not_run": 20,
+      "unknown": 0,
+      "error": 0,
+      "not_applicable": 0
+    },
+    "self_tests": {
+      "pass": 69,
+      "fail": 1,
+      "not_run": 20,
+      "unknown": 0,
+      "error": 0,
+      "not_applicable": 0
+    },
+    "hidden": {
+      "pass": 67,
+      "fail": 3,
+      "not_run": 2,
+      "unknown": 0,
+      "error": 0,
+      "not_applicable": 18
+    },
+    "synthesis": {
+      "pass": 69,
+      "fail": 0,
+      "not_run": 21,
+      "unknown": 0,
+      "error": 0,
+      "not_applicable": 0
+    },
+    "flow": {
+      "pass": 69,
+      "fail": 0,
+      "not_run": 21,
+      "unknown": 0,
+      "error": 0,
+      "not_applicable": 0
+    },
+    "drc": {
+      "pass": 69,
+      "fail": 0,
+      "not_run": 21,
+      "unknown": 0,
+      "error": 0,
+      "not_applicable": 0
+    },
+    "lvs": {
+      "pass": 69,
+      "fail": 0,
+      "not_run": 21,
+      "unknown": 0,
+      "error": 0,
+      "not_applicable": 0
+    },
+    "package": {
+      "pass": 69,
+      "fail": 0,
+      "not_run": 21,
+      "unknown": 0,
+      "error": 0,
+      "not_applicable": 0
+    }
+  },
+  "iterations_per_stage": {
+    "FLOW": 69,
+    "OPTIMIZE": 69,
+    "PACKAGE": 69,
+    "RTL": 83,
+    "SIGNOFF": 69,
+    "SPEC": 90,
+    "SYNTH": 69,
+    "VERIFY": 81
+  },
+  "llm_calls_per_stage": {
+    "OPTIMIZE": 137,
+    "RTL": 101,
+    "SPEC": 161,
+    "VERIFY": 90
+  },
+  "hidden_correctness_on_reported_success": {
+    "denominator": 69,
+    "bound_passes": 67,
+    "rate": 0.9710144927536232,
+    "false_positive_count": 2,
+    "hidden_failure_count": 2,
+    "unverified_count": 0
+  },
+  "budget_compliance": {
+    "call_limit_exceeded": 0,
+    "token_limit_exceeded": 0,
+    "time_limit_exceeded": 0,
+    "usd_limit_exceeded_known": 0,
+    "usd_limit_not_assessable": 90
+  },
+  "official_target_assessment": {
+    "complete_baseline": true,
+    "targets": {
+      "tier_1_success_rate": {
+        "status": "met",
+        "observed": 0.9583333333333334,
+        "threshold": 0.95,
+        "comparison": ">=",
+        "reason": null
+      },
+      "tier_2_success_rate": {
+        "status": "met",
+        "observed": 0.9666666666666667,
+        "threshold": 0.8,
+        "comparison": ">=",
+        "reason": null
+      },
+      "tier_4_success_rate": {
+        "status": "met",
+        "observed": 1.0,
+        "threshold": 1.0,
+        "comparison": ">=",
+        "reason": null
+      },
+      "tier_3_success_and_clear_failures": {
+        "status": "not_assessable",
+        "observed": 0.8333333333333334,
+        "threshold": 0.5,
+        "comparison": ">=",
+        "reason": "Failure explanations require explicit manual clarity review"
+      },
+      "hidden_correctness_on_reported_success": {
+        "status": "met",
+        "observed": 0.9710144927536232,
+        "threshold": 0.9,
+        "comparison": ">=",
+        "reason": null
+      },
+      "tier_2_median_pipeline_seconds": {
+        "status": "met",
+        "observed": 254.29715956252767,
+        "threshold": 600.0,
+        "comparison": "<=",
+        "reason": null
+      },
+      "median_usd_all_trials": {
+        "status": "not_assessable",
+        "observed": null,
+        "threshold": 1.0,
+        "comparison": "<=",
+        "reason": "Measurement is unavailable"
+      },
+      "zero_crashes_hangs_or_unclear_failures": {
+        "status": "not_assessable",
+        "observed": 0.0,
+        "threshold": 0.0,
+        "comparison": "<=",
+        "reason": "Failure explanations require explicit manual clarity review"
+      }
+    }
+  },
+  "success_binding_audit": {
+    "audited_app_DONE": 69,
+    "all_passed": true,
+    "trials": [
+      {
+        "trial_id": "dev/d0989809c8b9/repeat-01",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "a0711c3998a5364964da8e0b13dd79cd6a19ae1e12a8953c3ab973b9c04e84a3",
+        "source_sha256": "a8736762839978ae7275a69665adcb172dd66281547dd8fe230ece362b68cb30",
+        "tests_sha256": "2c5145910c243e4bda5017a7583730882402e9664796cf4eefdf1768e14c9ac6",
+        "selected_run_tag": "flow_dc5f10297f834b29",
+        "bundle_sha256": "f8a930081f1ef58ded3c95b3a9fe20e7040694c4383b4ed8a8014e531dd31879",
+        "layout_sha256": "9255c0239791a00ff4e10dec2714f0a90993450a426b03bf015a9eae2ffaa5f5",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/d112d014b25e455086db1c869d84dba9/work/.eda/sim_76f6f4712e524ac182a5167d46c2719d/output/test_results.xml",
+            "xml_sha256": "41c800f256994cae1505c76d61bface04891be27a28433a65db54150b5df0631",
+            "case_names": [
+              "synchronous_reset_and_priority",
+              "normal_decimal_counting",
+              "repeated_wraparound",
+              "disabled_hold_and_resume",
+              "mixed_reference_sequence",
+              "enable_changes_between_edges"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/d112d014b25e455086db1c869d84dba9/work/.eda/mapped_synth_42e1d991bea14abc987785b89eb93e70/output/mapped_synth.json",
+            "sha256": "4e58ebb000a9f737eaba8a47ab9eedd28e4d98c141dabbf8bf42f33b4d974e78",
+            "area_estimate_um2": 193.936,
+            "cell_count": 17
+          }
+        ],
+        "mapping_cache_key": "b4b85aaca0b269b2da28001b568db2915c409139e55732582458c2e9eaf6ad2b",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "a8736762839978ae7275a69665adcb172dd66281547dd8fe230ece362b68cb30"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_dc5f10297f834b29; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d0f754d22739/repeat-01",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "90f3b8400379db0aa7568a547b19c60db2f3444a4fd88e1236ae3c02524064ed",
+        "source_sha256": "a61c03023c02f4b8f0024bf52d86225b96b6eb1b873f3b9d1dc89c10fda12d6e",
+        "tests_sha256": "2b112d65ec9e120efda1e832f0721b3322475a9c67cbd7dc5b92ab462bedcddd",
+        "selected_run_tag": "flow_611923341dab4508",
+        "bundle_sha256": "252723cfc6851fb2a229954b16dd0b14f67dbc928a4aa6aad43cf201f6a78686",
+        "layout_sha256": "258e6e9f0435b70f131d03c960ddce220f801ba708ed38f6324ad6dade6bda46",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/42f26b42ccdc44f595b84443cf4098e1/work/.eda/sim_d5a3fbf5cf7449fe9ef52ca2b1a89e9b/output/test_results.xml",
+            "xml_sha256": "1ff6e4503589c36106d858440bdbe3338ad1ad6592bc7620327c79976c200b1e",
+            "case_names": [
+              "synchronous_reset",
+              "normal_counting",
+              "decimal_rollover",
+              "repeated_operation",
+              "held_reset_and_restart",
+              "edge_qualification"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/42f26b42ccdc44f595b84443cf4098e1/work/.eda/mapped_synth_3a788b85428a4649bbb1a00ca964f930/output/mapped_synth.json",
+            "sha256": "cd643cf3dfc433ef9c29497737bdc27ad5afd4022304841a7099a2bc41c4233d",
+            "area_estimate_um2": 180.1728,
+            "cell_count": 14
+          }
+        ],
+        "mapping_cache_key": "ce7ea4e4374891b1be8f494424a42c9e6cabaf6b571988e730dd53e0c651bc99",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "a61c03023c02f4b8f0024bf52d86225b96b6eb1b873f3b9d1dc89c10fda12d6e"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_611923341dab4508; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d164886b7e30/repeat-01",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "7e2640367e3f16a1f9064d16feab1f5094f8830c314672e35e8b5c907848382b",
+        "source_sha256": "ca2481945c447cb1a36882ba971371ac71d3c18e94f60d6049857bb3cecd8893",
+        "tests_sha256": "29d11c08b6c1ee5cf602363261a978d6481da298e9adf7f73412f477cdab28ce",
+        "selected_run_tag": "flow_d8e6ec3acdcd4167",
+        "bundle_sha256": "8e21d134ebae9eb7f94fc44c3f451fbab07a11be1184842ce3fd245bd623ec84",
+        "layout_sha256": "f5c4232ecd78dd83c30221dc52d03822fa48fb05b631502b9034f9a16aab3d7d",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/3eafeb2b56b54d82903a2f44745af92e/work/.eda/sim_4a6b594b5aef4a879ae4c206d58a2646/output/test_results.xml",
+            "xml_sha256": "c57f68d96c9828e9f219ac23f663af17b7c945e7ecba7b8844e26c86102968eb",
+            "case_names": [
+              "reset_and_idle",
+              "alternating_frame",
+              "edge_case_bytes",
+              "latched_data_and_valid_gating",
+              "continuous_valid_scoreboard",
+              "synchronous_reset_in_each_frame_phase"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/3eafeb2b56b54d82903a2f44745af92e/work/.eda/mapped_synth_63b019288c554b47bcd29f6bd065bea0/output/mapped_synth.json",
+            "sha256": "8a9f3c57727bc0a5c125f6dba07bec978ae112f08cfac66d980a74406371595e",
+            "area_estimate_um2": 854.5696,
+            "cell_count": 69
+          }
+        ],
+        "mapping_cache_key": "5a75f6be568bf345f081faba9cc3eb1ea4c20261876fb624d82a5cd84245acee",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "ca2481945c447cb1a36882ba971371ac71d3c18e94f60d6049857bb3cecd8893"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_d8e6ec3acdcd4167; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d192f81d9472/repeat-01",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "a5a82abbdc0e9463872f198d39c40db7ed783256de35997fe2257633d09df950",
+        "source_sha256": "87ce209d1928ef551edde8b294be74261c43b78cbf9ab31ad4684f716e55b18c",
+        "tests_sha256": "019a7c9462fa595fae427edfc445780dc196fa18704256261657d04dad6e1cd8",
+        "selected_run_tag": "flow_10a43fdac3a942a3",
+        "bundle_sha256": "6b4dfa9dd1a1afb8846dd899bba430a36771fb7a033ca6828c59ff87b6537408",
+        "layout_sha256": "c606d14a357d2ee1364c991b2e7c2e139ee26b6637a821f0e08bb51a0d9e36fa",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/75d43bc612c5401ea3fd6efd020c8058/work/.eda/sim_197968d730614a8dbb0b2712a96584ab/output/test_results.xml",
+            "xml_sha256": "b1d528a218ba7543f59a3f2912dfe83805244d5cc3a2a335e5cbd215054ab52f",
+            "case_names": [
+              "normal_reception",
+              "data_patterns_and_idle",
+              "consecutive_frames",
+              "invalid_stop_recovery",
+              "synchronous_reset_states",
+              "reset_priority_at_stop",
+              "randomized_cycle_reference"
+            ],
+            "runtime_sha256": "d80a05d1635c7b23e456fdecf6a928b8944fbbe7ba0c6e33d93ad25070e5bf61"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/75d43bc612c5401ea3fd6efd020c8058/work/.eda/mapped_synth_a699a22fa8544a488c60fcb0c09fe7ef/output/mapped_synth.json",
+            "sha256": "78e2fb21d324b4bdaa874a97ecfc5317b371f5067c7823c3568587b2b2ed636f",
+            "area_estimate_um2": 1059.7664,
+            "cell_count": 89
+          }
+        ],
+        "mapping_cache_key": "faa306dd90d9ddc75db0b00e40aa47b6ef610f84bf74490fc66089cfa9e8b332",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "87ce209d1928ef551edde8b294be74261c43b78cbf9ab31ad4684f716e55b18c"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_10a43fdac3a942a3; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d2c2f10775a6/repeat-01",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "528c999071a34039405bf3749fe6d9dae955f0f5175840482fd63158945277e5",
+        "source_sha256": "205fcdbe3bc9ee31f673bd4c52a6d7d9cdd6180b22599938feb90a56bfb8331e",
+        "tests_sha256": "a05b92b200ad6942fec2808c58fcfb16c0757b87004b360ecb25afee6d8d019a",
+        "selected_run_tag": "flow_9c813f73b81f4206",
+        "bundle_sha256": "2c5005865748cb56f3e881658cc66e5f7c842b3d768b6065f27a96c1826a3f8c",
+        "layout_sha256": "686ba5fa3e0a57293c48a6d71a094886452c271d5930fe67369c8ae8be7640a1",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/29834e161ec34471ad5057f5e61807d7/work/.eda/sim_b6c3f4dca9ee4f05aabc1c04c408657a/output/test_results.xml",
+            "xml_sha256": "fba15080fbbb1465cce58849a34e44256aa62628f6b5cfb0b00b131ddf705c70",
+            "case_names": [
+              "idle_and_async_reset",
+              "patterns_and_timing",
+              "latched_data_and_ignored_busy_request",
+              "abort_and_resume"
+            ],
+            "runtime_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/29834e161ec34471ad5057f5e61807d7/work/.eda/mapped_synth_b93e2670cd2c470a87aba75d3e0cf195/output/mapped_synth.json",
+            "sha256": "70329f6cd44381a18204455f7d80ae3d239f0c0ee4b8a04648a7d8e63613855e",
+            "area_estimate_um2": 1522.7104,
+            "cell_count": 103
+          }
+        ],
+        "mapping_cache_key": "3c33d6bf2c1532be01d0dc612a44636deef37b7a5a291f47502bf542c14c9262",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "205fcdbe3bc9ee31f673bd4c52a6d7d9cdd6180b22599938feb90a56bfb8331e"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_9c813f73b81f4206; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d335f496651d/repeat-01",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "781341924cbcd6ccaa8071b12a03507b9e3117d41a237b9a8bfd5f51b92cc8d3",
+        "source_sha256": "5e764b635c35b9711025da3a07ffbe4037fd0bb11069f41a0cf74f00afb22a90",
+        "tests_sha256": "c1a9ccd225e8fdd49f8180b80ea3c7e66383a21a966afad18f2e4fdeb50a931e",
+        "selected_run_tag": "flow_d1cf9e7e3e7945c3",
+        "bundle_sha256": "b9697afdf1d0bea73724bdd9f2de7c04e50b47640bc260184332003e4c3aeaf3",
+        "layout_sha256": "3487f8ddbfce6ba4ed2d06ef7329394ce47d5e151240d28eb0456074d22bcea1",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/57e1f5c54c63494e868dd103b1f5f5cb/work/.eda/sim_a3f368f6262f4312ab1cbb1bef9ae3ed/output/test_results.xml",
+            "xml_sha256": "457094dbe140b73c0e6626b647a439b35657fa253a2cad5e7e0d862f5330e6a1",
+            "case_names": [
+              "repeated_samples",
+              "both_polarities_and_clearing",
+              "independent_bits",
+              "between_edge_changes_are_ignored",
+              "reserved_reset_has_no_effect",
+              "randomized_40ns_sampling"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/57e1f5c54c63494e868dd103b1f5f5cb/work/.eda/mapped_synth_63b85b9ed92d411ca99d7cd8a0a4150d/output/mapped_synth.json",
+            "sha256": "b75047abaccb24cb0ddc78300c054762468d1775c93f2eb36ac799338d466898",
+            "area_estimate_um2": 470.4512,
+            "cell_count": 24
+          }
+        ],
+        "mapping_cache_key": "319ad61dc418cb6c30fd644ffd31bac3f3aa8ae5866166ca622087ff8e746c07",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "5e764b635c35b9711025da3a07ffbe4037fd0bb11069f41a0cf74f00afb22a90"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_d1cf9e7e3e7945c3; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d397c61538d7/repeat-01",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "f1dbfbdfe0b47cb9ca95655c5943f3e6a6d3d788f5760ac0edc16fd7e6013a78",
+        "source_sha256": "be52ef1f6973dd431c02d13fa89a0f70eaa8d12e91189d2ee2209063501059c0",
+        "tests_sha256": "829b9ed6a85ff23f59023650ae94352d06cb9d2e03fead007c844fd11230c6ed",
+        "selected_run_tag": "flow_fa8789357bcc4b80",
+        "bundle_sha256": "91f811a3932f8e2b0457ad599cc4e271647d1efd89d06d1a431389dbe2368df9",
+        "layout_sha256": "fe8a42aa51d67b54280f88eaf1f4b793decd03e362d3c4b33772d6e28cccdf51",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/e04693deb05b4655838410a97075da42/work/.eda/sim_9924cc99522348fea140ebab79e0c74f/output/test_results.xml",
+            "xml_sha256": "7ac94fb90b23a8805ca436f2cb8dedcc238aa7ac4fce0b6af78ff7c556923218",
+            "case_names": [
+              "simultaneous_and_duration",
+              "independent_bits_and_patterns",
+              "registered_output_and_unsampled_pulse",
+              "reserved_reset_is_ignored",
+              "deterministic_random_samples"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/e04693deb05b4655838410a97075da42/work/.eda/mapped_synth_0ea6621b51c94f6abeb294dcc6767cd2/output/mapped_synth.json",
+            "sha256": "b532f4b31f724fe6a2d27ee43fb32b4186b4e6accf5cddc580aae4ae76bb2f83",
+            "area_estimate_um2": 410.3936,
+            "cell_count": 24
+          }
+        ],
+        "mapping_cache_key": "74afe01fcf93ac516136e80339cefb74829d5b27933436450b15c967fcfa09fe",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "be52ef1f6973dd431c02d13fa89a0f70eaa8d12e91189d2ee2209063501059c0"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_fa8789357bcc4b80; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d421b77f6235/repeat-01",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "149e61a509c1f5e5e2dcd494e2e60ccf65489fcec68a6d4a8c17e9b38f3a82a9",
+        "source_sha256": "081e75663d0720e95391378fffd932927b5e89e936c3049c6a6bb19a3855fb1f",
+        "tests_sha256": "b36d675d75c7b00bf8829c0235a875a0b74e29ca73c9b860b42bce612069108d",
+        "selected_run_tag": "flow_474a0a5b403a44c5",
+        "bundle_sha256": "007b832e3982c0c1fc3a13d59c3e9c1d69a8b3e1c87152018f9c507c199df9f2",
+        "layout_sha256": "311572f51e8603c6e711d311d012602df8cb3b93399cc0f9601eec689c009041",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/84629b2e3f394184b97477feabafb98a/work/.eda/sim_e7aaf0f405f0472686693e5bfa1937e6/output/test_results.xml",
+            "xml_sha256": "eca929781c56922daca37b6e7549f69c4a394782beec19d9a685708148dad858",
+            "case_names": [
+              "two_frame_reference",
+              "horizontal_boundaries_and_line_period",
+              "vertical_active_area_and_frame_period",
+              "synchronous_reset_and_registered_hold"
+            ],
+            "runtime_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/84629b2e3f394184b97477feabafb98a/work/.eda/mapped_synth_d6bd3cb001d7472cbae1b3d495183d50/output/mapped_synth.json",
+            "sha256": "c50761e48b1ed5f9d944f4090889031a7beb15f5c3e1e154c72290959d02d65a",
+            "area_estimate_um2": 1470.16,
+            "cell_count": 125
+          }
+        ],
+        "mapping_cache_key": "55d9684bc859fd5a2330b3fb2082aa40055f1200c4f4fdeb7455d1377d49ab49",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "081e75663d0720e95391378fffd932927b5e89e936c3049c6a6bb19a3855fb1f"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_474a0a5b403a44c5; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d4823a5e4438/repeat-01",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "cd22e23613c5ab9e72c2d67f0fb569e7bf4ae2a38e3cbe1051bf499be61c7278",
+        "source_sha256": "2cf2521f90fc765ac28b66d4c3a588d36f05d86b2d66312047e69d143ec1e973",
+        "tests_sha256": "cf80a573297f6bd73c76a92053c92e166259ac28d1b55b3e7426ad3478613a10",
+        "selected_run_tag": "flow_cfde07da3ec94ca8",
+        "bundle_sha256": "26350829428d279e09bc4bca62880fef7197fb53fe5a6b1daa64f43d29998122",
+        "layout_sha256": "43bc75d3624d0ebf996363ec89884a04eaaba87527cce389a10f9fa1756d3b7b",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/9ba506be9d5b45c098c0dc51b576576a/work/.eda/sim_ec4ab9f760194d929060794742ae9d06/output/test_results.xml",
+            "xml_sha256": "6560f5a28094750252cfe77c4e3a924966e1832ee3ccab8ca121eb0716204c6c",
+            "case_names": [
+              "synchronous_reset",
+              "normal_delivery_and_latency",
+              "exact_capacity",
+              "stalled_output_stability",
+              "simultaneous_and_wraparound",
+              "randomized_handshakes"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/9ba506be9d5b45c098c0dc51b576576a/work/.eda/mapped_synth_5b349a5c4f8e45efb3c5992710862c6f/output/mapped_synth.json",
+            "sha256": "7d421ae719951a6fe5956d194309e93d33a0bf262774df9ccb3fcb3333df044c",
+            "area_estimate_um2": 3286.9024,
+            "cell_count": 217
+          }
+        ],
+        "mapping_cache_key": "f44e6267b41bfac6ee44d531eec0aae263e8d3541570ff6cc241ff3c76b8e083",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "2cf2521f90fc765ac28b66d4c3a588d36f05d86b2d66312047e69d143ec1e973"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_cfde07da3ec94ca8; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d4fc739faad9/repeat-01",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "0ca72541e1fe2d89cb34a28f42d9c704d57388ba5e24fe8b8479b7d8ea31df3f",
+        "source_sha256": "75f2d3b3b9fb08bc85f6449b519022f9ec82f42ebd36b2dd51ddcaeddb863668",
+        "tests_sha256": "34a1f875aa7e19c8a591d9923b57b7be1185a54b688580aec08f4e99d078be99",
+        "selected_run_tag": "flow_c7bac87e997e45d1",
+        "bundle_sha256": "95e99fd3174482515bee26ea07d356f2f37492d934d3ca187ee1673f28311260",
+        "layout_sha256": "24565976f8beb7ddbab7c3c6851398a59546e65950ff845f2a48cc2fe9e6def3",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/a5be65a6200b4ce79eedb8bbbce791c7/work/.eda/sim_77a1d5649c844451bce90265f0706bb2/output/test_results.xml",
+            "xml_sha256": "0f996cc7b9fe6976fc8902bf48f52ba8cb0935e472b1b177b22170869dfad7d8",
+            "case_names": [
+              "asynchronous_reset_and_release",
+              "exhaustive_parallel_load",
+              "exhaustive_load_priority",
+              "logical_right_shift",
+              "hold_and_edge_timing"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/a5be65a6200b4ce79eedb8bbbce791c7/work/.eda/mapped_synth_88d24b9a84614d7e87973a32c160184f/output/mapped_synth.json",
+            "sha256": "a14b3fa00275211d80d6bcbaa1b299a37a2a8b5f379740ebb5456c6e45da86a3",
+            "area_estimate_um2": 188.9312,
+            "cell_count": 12
+          }
+        ],
+        "mapping_cache_key": "6f341ce399ae21d9e1ea038f103fdd3b4317af3255c09f4f5e684422fa6ae21e",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "75f2d3b3b9fb08bc85f6449b519022f9ec82f42ebd36b2dd51ddcaeddb863668"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_c7bac87e997e45d1; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d5b7bf9f0198/repeat-01",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "480782984f7c516e0bee3e9b48b3d3b48c416bb6d36818ee42bbfb26df4c2db0",
+        "source_sha256": "387ff7429780bf6ff10c17d3af9c34e0bed251b22f6f173ef31ee25b4cdb7172",
+        "tests_sha256": "10565306dd9bb891e92430ebe74727c436e97a320c476d4041ee752921171459",
+        "selected_run_tag": "flow_681d54a03c0644e9",
+        "bundle_sha256": "b0b1313ec092d4a5e145aa098774106bc528779be7aa776febc04c0684f921de",
+        "layout_sha256": "fee6aac2267ce787718165613cae22e00176498c8392aa00fc83cd9277515d27",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/5cec3c5ace154b19af32f435c0764bd8/work/.eda/sim_1a19fbfdcd5849caba14efef0fde47ec/output/test_results.xml",
+            "xml_sha256": "32ca4a7f4094788d467aaba381f0b07443783c83ca5fcb4dad4fe6dedf5fbdf7",
+            "case_names": [
+              "short_runs_and_zeros",
+              "discard_flag_and_immediate_restart",
+              "seventh_one_and_long_error_runs",
+              "synchronous_reset_from_all_states",
+              "randomized_reference_comparison"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/5cec3c5ace154b19af32f435c0764bd8/work/.eda/mapped_synth_0efcef9613254f589a731083038640bf/output/mapped_synth.json",
+            "sha256": "e6ee55c278437c72966f7cdda64f8d81acc5981073c7dce7d8d3827781f00477",
+            "area_estimate_um2": 324.0608,
+            "cell_count": 23
+          }
+        ],
+        "mapping_cache_key": "16c1211ecdfc71ddfafc474d55989cc846b45e9606ea92c1bc944f6759f753e3",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "387ff7429780bf6ff10c17d3af9c34e0bed251b22f6f173ef31ee25b4cdb7172"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_681d54a03c0644e9; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d816cb95bbaf/repeat-01",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "facc655cc8f5199677ffe5a7cf2829ee571c20e9de572dcd4ce8db0f9b8c0e56",
+        "source_sha256": "92ce14c954213025e8eb3d9fb74e78d1c7cc8f520e79c50edecd522ca76a3774",
+        "tests_sha256": "208d37cc89e9149db46545a5c29edcf7a50afd220e36724e24444c8253b58908",
+        "selected_run_tag": "flow_c4ddd4ad44fe458f",
+        "bundle_sha256": "146d9973f4d73072a6f79f07c13786755f46264d3b8104bbdafa3cf70bca49a0",
+        "layout_sha256": "581a9b0f52fa55d0121d3f62cc22bc56282431f40e56b67d08974c803a29e24e",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/b7bb990fccfe4c3d8526a4de17c17492/work/.eda/sim_c7c3d3aa5e5d48b6b69119b1f5d5acc9/output/test_results.xml",
+            "xml_sha256": "05b874a84017f29cab1251c26818d3e3678e766d0395d9909e9104ea41e4f762",
+            "case_names": [
+              "synchronous_reset",
+              "normal_counting",
+              "wraparound",
+              "repeated_operation",
+              "held_reset_and_restart",
+              "reset_at_wrap_boundary"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/b7bb990fccfe4c3d8526a4de17c17492/work/.eda/mapped_synth_98a93ca7b86e4a55ab813d8943ca2ace/output/mapped_synth.json",
+            "sha256": "08c2e62dc19c787ff77ec03108f9b1de32f9ef8c1be06de7a660ffb47ba59346",
+            "area_estimate_um2": 183.9264,
+            "cell_count": 15
+          }
+        ],
+        "mapping_cache_key": "0e7032d943f65b6b97eba858d5b9aefa32f28fc18f0566209c489415ce257889",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "92ce14c954213025e8eb3d9fb74e78d1c7cc8f520e79c50edecd522ca76a3774"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_c4ddd4ad44fe458f; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d87d5554d0da/repeat-01",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "4b96ee109808b0994e222fea6592db3d290b21dc0edf38bec3f5df76200c4c2c",
+        "source_sha256": "f5757be70dcf8d3ad380de06c6b6fe74f841707c284d92b82d96212ff99ae00e",
+        "tests_sha256": "2d10dbf0b2e540f3ca8fa5ff70c9b62b9c2315644591e64b7e25fe019f5d234d",
+        "selected_run_tag": "flow_5a32b07153f4429c",
+        "bundle_sha256": "4e0ed0b4acf86c7a09025b677a141d152590e498c87b0893e4be87d58216db9f",
+        "layout_sha256": "7216d1adb94cffa3e1835e99b85e5488862b14cde9f8ebbdbb63a723f463b80b",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/c7fac7279b5d48a0b755c2632c52531a/work/.eda/sim_33264f4d63b6421a8b982b01a65d895d/output/test_results.xml",
+            "xml_sha256": "1e8b330fa6c5c761cae51deafb6b814afaa63536e32925d55d585f4f7affe462",
+            "case_names": [
+              "synchronous_reset",
+              "normal_sequence_50mhz",
+              "repeated_wraparound",
+              "reset_priority_hold_and_resume",
+              "reset_pulses_and_edge_stability"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/c7fac7279b5d48a0b755c2632c52531a/work/.eda/mapped_synth_31d1249cd2684178b574192a59e4dfd8/output/mapped_synth.json",
+            "sha256": "d5846a54d2d713b57da81301d295c265ef01cf11368114040a71f5e2fce7fb6b",
+            "area_estimate_um2": 166.4096,
+            "cell_count": 13
+          }
+        ],
+        "mapping_cache_key": "3fa218b22cc9cc00e48e582facfb3d63a5f5021caa3a16c07c03df1e52f6ee06",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "f5757be70dcf8d3ad380de06c6b6fe74f841707c284d92b82d96212ff99ae00e"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_5a32b07153f4429c; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d8be6197ac01/repeat-01",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "4df4e09055910440c8b219a15ff4c9f14ab16257fdd5eef80a41f275890448be",
+        "source_sha256": "e021a6154f42afd348e64811bc7f4b8226d9c0279fd22fd20296562395063a70",
+        "tests_sha256": "2396bd92d69576e0d275228a4585f43352d63ed2f3193e9f478df3e8e308ffca",
+        "selected_run_tag": "flow_3f5e3f1b3c9b4136",
+        "bundle_sha256": "71eb71fa1d61ecf123502927ae2f074fd3fcca00249215618c411f2f0f5c0a55",
+        "layout_sha256": "2297a9fca62aad5b3318e6e2282324f11daf0c6313de0d8d306432639b1eb61e",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/d22e6a3d3f164122b88256acfe5d089d/work/.eda/sim_355e628b8fb0402e97c66614f7fadd5f/output/test_results.xml",
+            "xml_sha256": "f3a19691ad12c9a0dbc5f75c0a743a8316c675cc1b68d9b406a58bfe77a32ac8",
+            "case_names": [
+              "reset_idle_partial_and_pending",
+              "decode_and_backpressure",
+              "false_starts",
+              "malformed_stop",
+              "latest_byte_replaces_pending",
+              "adjacent_consumed_frames",
+              "consumption_on_publication_edge"
+            ],
+            "runtime_sha256": "d80a05d1635c7b23e456fdecf6a928b8944fbbe7ba0c6e33d93ad25070e5bf61"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/d22e6a3d3f164122b88256acfe5d089d/work/.eda/mapped_synth_f7bc265a3d5d4cf2b7a145c51cf40604/output/mapped_synth.json",
+            "sha256": "a46085028cf58898bc5900b664834572dcf640a79eda27b0cc544487d55088d2",
+            "area_estimate_um2": 1553.9904,
+            "cell_count": 134
+          }
+        ],
+        "mapping_cache_key": "850d5e55959d66403dfd2dc0a818b29e6ea50c61e9847da9828136616da6dcbe",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "e021a6154f42afd348e64811bc7f4b8226d9c0279fd22fd20296562395063a70"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_3f5e3f1b3c9b4136; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d92c6750acb3/repeat-01",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "cf0410681231af7d055f4af886f1299c2d5e3db7cc171d77eb8dab67aeb02d36",
+        "source_sha256": "1ca98eb9b1929cc7e97ca44aed886d72b76154589ee785ef07a98f3fa753f715",
+        "tests_sha256": "fb90f75b0d37c564d9ee67dc5d9891470b9fe2e662f241c6cedad7a1be72cd31",
+        "selected_run_tag": "flow_28c1e27e8f0b4814",
+        "bundle_sha256": "343afadb3a9f09c42d0e57f0de3db06466ba30e9919cf6f78969e442c75d57f7",
+        "layout_sha256": "e189df62e227e4b080a7fbea4da235f434af70679b91e86190a3de0d82fb74ee",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/8d3e7d8ba8e54d058b23cc719b760676/work/.eda/sim_2f61767ab42b4afd81b6eb308dc54d81/output/test_results.xml",
+            "xml_sha256": "b0bacfeafb64e5906a4bf981daf26e91295559af208065317a5a4621673eec5c",
+            "case_names": [
+              "asynchronous_reset",
+              "grounded_direction_and_bumps",
+              "fall_priority_memory_and_landing",
+              "moore_outputs_between_edges",
+              "deterministic_random_sequences"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/8d3e7d8ba8e54d058b23cc719b760676/work/.eda/mapped_synth_d5a670b271bf4a3a9bdd674d3831c571/output/mapped_synth.json",
+            "sha256": "6492a49cf9a0179916455a82dda8c8004ac93b524f8ea014596cc96b11082f30",
+            "area_estimate_um2": 196.4384,
+            "cell_count": 15
+          }
+        ],
+        "mapping_cache_key": "aafebe6091ed9b72db60b8b9e4e3b4e34eefac8668500decfc3400343e5f8e9f",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "1ca98eb9b1929cc7e97ca44aed886d72b76154589ee785ef07a98f3fa753f715"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_28c1e27e8f0b4814; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/daa58c2bc7ec/repeat-01",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "e14722d44e746af97ec3a6650bde6a6742a7ff6d8a0160f89648c0ba0a1650a6",
+        "source_sha256": "d2a9a8be88afb0ff97ee7056eac2ae39b63323e049605023bd954dc2327b0411",
+        "tests_sha256": "ea0d26e1c55522c4884857e25fe075d5066e847c83f31fbcaa5ac86b6868d8ad",
+        "selected_run_tag": "flow_b2da08bffb30485e",
+        "bundle_sha256": "8d92ab5414f156ba7ad2173fedd66f91490a0f9c413c2c385b173441ef0779c8",
+        "layout_sha256": "47f9b2878d6244799e6e50ac7bf7bd71e78df16392cf3db6b3a88e210f488164",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/ef0580c400144deaa98b7b3648e3b0ef/work/.eda/sim_0ec48e0b08154a8aa230667f720d8ba6/output/test_results.xml",
+            "xml_sha256": "566de58a3bf2778d8729365bc4e8471b069ee01bf61f35506bc666e0fa6b3085",
+            "case_names": [
+              "normal_and_retention",
+              "arithmetic_boundaries",
+              "zero_divisors_and_recovery",
+              "captured_operands_and_successive_requests",
+              "synchronous_reset_and_abort"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/ef0580c400144deaa98b7b3648e3b0ef/work/.eda/mapped_synth_c909c75a24cc4b868467386dafa88bdf/output/mapped_synth.json",
+            "sha256": "2467de3c834da54b7fb838c93d1ac96a26103b1674dcf63c56c280c2c43d3f1b",
+            "area_estimate_um2": 2259.6672,
+            "cell_count": 188
+          }
+        ],
+        "mapping_cache_key": "381ebe56523173ee1de7fba7784fa0fca8d2d32d80a3cf14a803ae30c69ff9d3",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "d2a9a8be88afb0ff97ee7056eac2ae39b63323e049605023bd954dc2327b0411"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_b2da08bffb30485e; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/dab0b0719d10/repeat-01",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "e058b878c02646ab509dd5eadaa5cef06636a0a7dc9dbe50bfa27158d3aa80e8",
+        "source_sha256": "220dda756a1186e7ec04adb5edf6a5c150e49e9314af4e309c48da95e37b0ca7",
+        "tests_sha256": "134fef3e87aa27039f223e144aa39cb5344a6b111b716cb1a1989a5bc524cce9",
+        "selected_run_tag": "flow_d039952dbd6044cf",
+        "bundle_sha256": "1c942d4a20e9b3c66493c0d9cc590ae1cbde751bf7ab644fc33e083e9f018fad",
+        "layout_sha256": "56d607a597575b36e273e8dece7e1778a31b0135dcc214ab1304af3d7dde4834",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/b5386c7974124ffdaf0b6be9bec3c6b8/work/.eda/sim_ce43f250e26a4bb1a78389fac6128bb5/output/test_results.xml",
+            "xml_sha256": "48c5fd64c0fba8237f9338255d97fa6fc49fd78552f42c27ae107ca96130ca0b",
+            "case_names": [
+              "exact_products_and_idle_retention",
+              "rounding_and_post_rounding_overflow",
+              "synchronous_reset_priority_and_abort",
+              "exhaustive_signed_operand_pairs"
+            ],
+            "runtime_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/b5386c7974124ffdaf0b6be9bec3c6b8/work/.eda/mapped_synth_7d141d674a1e48f79a9203dad3de8aaa/output/mapped_synth.json",
+            "sha256": "852d9b93ad6c4c985987450c44793e5573f47802bd286befb5f75e48a5565b93",
+            "area_estimate_um2": 4807.1104,
+            "cell_count": 451
+          }
+        ],
+        "mapping_cache_key": "4bd8157a92cad230bb9e585fb088a6a6293d0199d9728061df02276dec4876f6",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "220dda756a1186e7ec04adb5edf6a5c150e49e9314af4e309c48da95e37b0ca7"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_d039952dbd6044cf; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/db46f276ecba/repeat-01",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "9d99275f73012d363c2f68d356580f177f52ea9d5c22f2804f0ae9fd80ac3e3e",
+        "source_sha256": "0edc0bece59a99b96a3f1de0d7d219aba8bf74dc46fe6a7d3544fb799cdfa862",
+        "tests_sha256": "f9a21a818dfb348ddabb2788626a45eee5b3c1170c917f3cbdd7132c7d38df5c",
+        "selected_run_tag": "flow_4836b6a8ceb14d3a",
+        "bundle_sha256": "e7da3be0647fe58cb637338a6e3e54f88867ca0bb7a14c637ca51cfe6220b029",
+        "layout_sha256": "0601a24c68ecdf100405767d13a504d63991bd4b2e685679fa6601f018a65067",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/4b1c0ebe6d314b7a9416b270fd3654be/work/.eda/sim_a260cd6b61e5491db911386237230afe/output/test_results.xml",
+            "xml_sha256": "e5049e0b75b34102ae94b06a94a561001fc98b7aeb4c31d765d1d0585acc0656",
+            "case_names": [
+              "synchronous_reset_and_priority",
+              "directed_rounding_errors_and_retention",
+              "operand_latching_and_pending_reset",
+              "exhaustive_all_operand_codes"
+            ],
+            "runtime_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/4b1c0ebe6d314b7a9416b270fd3654be/work/.eda/mapped_synth_79487ed89b6241a5901e90af184ff52d/output/mapped_synth.json",
+            "sha256": "dba6799c52dcab7f1bd7f7f22b2e84030e94c9e018690bfeececbd01a44e97d8",
+            "area_estimate_um2": 3253.12,
+            "cell_count": 282
+          }
+        ],
+        "mapping_cache_key": "6b0f7bba3c89a5d4a08770f722db2367b85315fc7d28d191bd520bf6de47cae3",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "0edc0bece59a99b96a3f1de0d7d219aba8bf74dc46fe6a7d3544fb799cdfa862"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_4836b6a8ceb14d3a; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/db665c7c5db2/repeat-01",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "4d37396612537b71893edea9680f63c44e1729200168f3e2c1e90710d8319da0",
+        "source_sha256": "2b00e0bf9bebcf124f7d8261098be431982360b6a6f79a57636ffe174d8f723a",
+        "tests_sha256": "c988b5a9cfea9e6f66435f49cadebdebe973643c3112208287d49176663797b7",
+        "selected_run_tag": "flow_2a29390497074e1e",
+        "bundle_sha256": "59a471202e7c6d1f301d148f84ceabf3a5600dec974984cb6a73bcc080ca6680",
+        "layout_sha256": "1465897785fa8d88a5cf99fd2eefdf1efd839610c8116daac95a307c3f68709c",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/c84616bf691246958e84066dcd023d38/work/.eda/sim_9d6a11009bbc4e82b4be8a4eb637cab1/output/test_results.xml",
+            "xml_sha256": "fc67a9066559c0753c69b7fea390760f0c1a5a881c2ce137c1d24e562ded4193",
+            "case_names": [
+              "search_and_single_packet",
+              "payload_marker_combinations",
+              "continuous_packets",
+              "reset_every_phase",
+              "nonmarker_bits_and_gaps",
+              "randomized_reference"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/c84616bf691246958e84066dcd023d38/work/.eda/mapped_synth_c46d5dc21bd2489d9afed29d2afd8746/output/mapped_synth.json",
+            "sha256": "fcdd522847739509fada29e2a67af3400cbfaa461a35dea27e1d86dc59e55a2e",
+            "area_estimate_um2": 128.8736,
+            "cell_count": 10
+          }
+        ],
+        "mapping_cache_key": "ddc186cd06402b22651f175af6e6123cd3871511e4a2fa62b20d3cf57c85d077",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "2b00e0bf9bebcf124f7d8261098be431982360b6a6f79a57636ffe174d8f723a"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_2a29390497074e1e; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/dbe725bd849f/repeat-01",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "e7401a51f4cd211b5c2bdb414c7bc7ee0ddb8bd029c05372ff3294e7023bce2a",
+        "source_sha256": "3d08b1dedc7cb5aa672b020c7f6cfb604f235a17d422eee7a931da6692e44360",
+        "tests_sha256": "9af4728f80b270a966de9734dcfeb0df57b59653421665b617ca2fa45265208f",
+        "selected_run_tag": "flow_50856531cba045e9",
+        "bundle_sha256": "caff6624173d7f6a0f2067896238c48f42792412b2247616e375c99d4dc64d1f",
+        "layout_sha256": "355c0e05a3bf8c1c8cad8c23d51d2e2fa692ab158b67f9f6555c9d75f9615509",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/f6f86181f35e4932a4cf4510829894b1/work/.eda/sim_4aa128bcfe6148eeb78aed76479e347e/output/test_results.xml",
+            "xml_sha256": "30ffa69f00bf981be4fe0869ba1f132e2647b05adcf768355db40aebc8a8ebb6",
+            "case_names": [
+              "synchronous_reset_priority",
+              "standard_check_vector",
+              "empty_and_single_byte_vectors",
+              "idle_cycles_preserve_message",
+              "directed_bit_order",
+              "randomized_streams_and_midstream_reset"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/f6f86181f35e4932a4cf4510829894b1/work/.eda/mapped_synth_36e40fc7de3346cda529b009078c198d/output/mapped_synth.json",
+            "sha256": "11938bf0dd5df00849fbac264cc7d48b97ee3f412f975fc76063d9e5d5951050",
+            "area_estimate_um2": 2416.0672,
+            "cell_count": 206
+          }
+        ],
+        "mapping_cache_key": "03f99b6f75d838b9962d4a881c4c5d0af811ad0731907445a1e1e408c1df66f5",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "3d08b1dedc7cb5aa672b020c7f6cfb604f235a17d422eee7a931da6692e44360"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_50856531cba045e9; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/ddc1a754f53b/repeat-01",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "2dd9566194074ab04623e84bfa744d09884ac182e1f3a1585a896dd1bd6ce956",
+        "source_sha256": "9920bdada14630d5782a006dba87a4de0e3d3243bf7164d01b08a1a95e47487d",
+        "tests_sha256": "d50e3ec95aa8cccde155b1f899f800698c369f34e0b403fc40ec1aafe0703ffe",
+        "selected_run_tag": "flow_978eb4b867684ac6",
+        "bundle_sha256": "b6ebf1eae378ffc56276f896d421d34b13a0506d89b51fa6b07c31f85a13403d",
+        "layout_sha256": "bfe1dce0e7d500664a302313ea2ea58d15522bc40b419f84b22ed5e057905d9b",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/60b4eb3c130642ca9285cb8f63368f5d/work/.eda/sim_f618cff1f4324b84b3ff28598869473d/output/test_results.xml",
+            "xml_sha256": "af5224a35491baaf96e81a68985b198b702cab4161a8370a734d9e9c0b6afb9b",
+            "case_names": [
+              "synchronous_reset",
+              "reference_sequence_two_periods",
+              "maximal_period",
+              "reset_priority_and_recovery",
+              "holds_between_rising_edges"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/60b4eb3c130642ca9285cb8f63368f5d/work/.eda/mapped_synth_654b6d317c254cde9acf6c335dc56f9d/output/mapped_synth.json",
+            "sha256": "c0cca9efc2fb278f4e3c9ea4e1dba8126a2cfd6749feeca7710d3601a5b579be",
+            "area_estimate_um2": 155.1488,
+            "cell_count": 11
+          }
+        ],
+        "mapping_cache_key": "577771aadde474ff1bea3e4f55a9b29a8855a1ba0544f3b68f2acdaaeeef7222",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "9920bdada14630d5782a006dba87a4de0e3d3243bf7164d01b08a1a95e47487d"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_978eb4b867684ac6; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/de3ce0b0745e/repeat-01",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "e8980dd3961756fb69f0d0c0297f56e36db7b2f3243ce48d20e638109b062b80",
+        "source_sha256": "aff91a49e96580233d5dcd7cd5b754359a513ce28972c6d0cc753cc17d652ded",
+        "tests_sha256": "df958f3e791181df9c5d2bf1e731b44f83212a9eb13bf23f24098c0c11a8eedc",
+        "selected_run_tag": "flow_4662b4096d2f4b6c",
+        "bundle_sha256": "6535646efa9d3c8d575c5819a60f37ee4750b851bbd5ebfcf5f04022daf36952",
+        "layout_sha256": "1391ec7fb6fc52621abbbfa6752ab24ae1fb6f6c4ad6bba1fd7381973c624cc0",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/c648eb06d8814db0aaccfb376d8ec595/work/.eda/sim_3abeb076786c44e7a06c48bb8180053e/output/test_results.xml",
+            "xml_sha256": "ab42f323be898a4d22cfd533424e7d8ddd0a9a4d169c2f0bc61384213b0cfe34",
+            "case_names": [
+              "synchronous_reset_and_priority",
+              "enable_pauses_at_carries",
+              "full_day_reference",
+              "randomized_enable_and_reset"
+            ],
+            "runtime_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/c648eb06d8814db0aaccfb376d8ec595/work/.eda/mapped_synth_f8d236aa37be4d3698a992ad23220173/output/mapped_synth.json",
+            "sha256": "893418343e529ac727c56803e37ce3506cc1bac4a43c78e3ed7ccd415e1dc5de",
+            "area_estimate_um2": 1337.5328,
+            "cell_count": 115
+          }
+        ],
+        "mapping_cache_key": "084b797a4cd869cf70aa664221f53268ddbd6fd09e4f049d28df1bc2c0ff5812",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "aff91a49e96580233d5dcd7cd5b754359a513ce28972c6d0cc753cc17d652ded"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_4662b4096d2f4b6c; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/dfc4ef58cce8/repeat-01",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "1aa7e1e4758aa8282e3bb8486c05fdbf36078dfbd4cd4732fa081ee494527140",
+        "source_sha256": "0b56985a1a185b4e13127c328bc627054388a537029f9b4f3eeb82a541f0d352",
+        "tests_sha256": "ec79b09aa5d6e6dc694a58a939b64228552f2271546ebbf72641983e4d6940fe",
+        "selected_run_tag": "flow_86f3646ff4774127",
+        "bundle_sha256": "d21a6c186a5b0dcace788364662e927c4a8585c30d294d4af65026532ba4e183",
+        "layout_sha256": "ad81cd82e1638615fc6857323d992b4100ab2d99988750462a6a7eed020fd785",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/0aa78603d5364fd8b7d5bfe44aed21df/work/.eda/sim_a7a3fc7257114c24ba2c5f5b3da4ab95/output/test_results.xml",
+            "xml_sha256": "6dace16b786d044cd86ee3a4f77704016d35b4888f3c024437ed2cee9c3f83f6",
+            "case_names": [
+              "countdown_three_and_saturation",
+              "zero_load_never_wraps",
+              "full_width_countdown",
+              "consecutive_load_priority",
+              "reserved_reset_and_between_edge_stability",
+              "randomized_reference_model"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/0aa78603d5364fd8b7d5bfe44aed21df/work/.eda/mapped_synth_7ab4dab450a64e52b96cbd7b664de3f7/output/mapped_synth.json",
+            "sha256": "4321773a706f88fa3cf28beba2edb02684e27f92b09ce9c7784df8c17cd66f6a",
+            "area_estimate_um2": 544.272,
+            "cell_count": 50
+          }
+        ],
+        "mapping_cache_key": "4404a3e02391752725098db6eac5355aeecb1512ca639884908bc5e0208b6428",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "0b56985a1a185b4e13127c328bc627054388a537029f9b4f3eeb82a541f0d352"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_86f3646ff4774127; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d0989809c8b9/repeat-02",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "76f5e3dbd6d3bf51987f1ffc6472b07bff9b53590761c37054e62997f78987cf",
+        "source_sha256": "a8736762839978ae7275a69665adcb172dd66281547dd8fe230ece362b68cb30",
+        "tests_sha256": "61ab07877cba2915cd83e1b2c5cd4fe2437e120afc54de67a5cae008c65a6a72",
+        "selected_run_tag": "flow_1a5a4b950149432d",
+        "bundle_sha256": "05bcebf95a69511e8206dcc4b4a676715ec47b4b3552cd14737abebc1ff9693f",
+        "layout_sha256": "e40776cdec8ad749725db89f3b28bff0538943c708ecd21cea7ac76a2b7bd107",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/c9c856dbfebe46088fb3c7c08e494c40/work/.eda/sim_202dbe52c7de4e5c8c9841d23f36ad48/output/test_results.xml",
+            "xml_sha256": "9b8592726ce987a181f57bce034a151edbd76f46dc4ddccf0d99b49dac247e64",
+            "case_names": [
+              "reset_priority",
+              "continuous_decimal_wrap",
+              "disabled_holds_and_resumes",
+              "inputs_only_take_effect_at_rising_edge",
+              "randomized_reference_model"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/c9c856dbfebe46088fb3c7c08e494c40/work/.eda/mapped_synth_b15b6edb37ab462f80147251ba7526c3/output/mapped_synth.json",
+            "sha256": "01825b0b8fd988d090487e0209d9486c341bf9d991c1f362e02fd0ee0c609e3c",
+            "area_estimate_um2": 192.6848,
+            "cell_count": 16
+          }
+        ],
+        "mapping_cache_key": "a3478211a79bd52d7455fc09f438ae0996ff5a8568cd19c6d1380374e56242cf",
+        "tool_envelopes_rehashed": 11,
+        "actual_command_count": 4,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "a8736762839978ae7275a69665adcb172dd66281547dd8fe230ece362b68cb30"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_1a5a4b950149432d; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d192f81d9472/repeat-02",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "92d15c747dea4d4d61505c9321dd0d1618e906c46511b8d77d23397207de9355",
+        "source_sha256": "7b14237c876a2927788a3edae939270d267ea113745b63a3cd73fde7c893b278",
+        "tests_sha256": "3c5491b6b36a65931f37c88c5d6a0f1ef442b4f766723f0ba71af0fe2c9585c9",
+        "selected_run_tag": "flow_4a1a140b4ccf4392",
+        "bundle_sha256": "462635486848ced373e7d92b20bf56c075e421eebc547e7b5d67d8208a8a7447",
+        "layout_sha256": "c606d14a357d2ee1364c991b2e7c2e139ee26b6637a821f0e08bb51a0d9e36fa",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/d5348260c70c4f7d9c68df506bb52f1f/work/.eda/sim_dcbd45518b854c239487e0b2d63e21db/output/test_results.xml",
+            "xml_sha256": "65608c2a6b753cc81d9dacd2683f5c3649637c87b3415ee465ebce19e67ec738",
+            "case_names": [
+              "reset_and_sustained_idle",
+              "isolated_and_back_to_back_frames",
+              "invalid_stop_and_high_recovery",
+              "reset_priority_and_between_edge_pulse",
+              "deterministic_randomized_reference_comparison"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/d5348260c70c4f7d9c68df506bb52f1f/work/.eda/mapped_synth_6152587ae5e7412186a271f9db9fe7c6/output/mapped_synth.json",
+            "sha256": "bd50bbfa9653f7d161f0edc9bfbee7905aca111b806af51351c4fa958c62add9",
+            "area_estimate_um2": 1059.7664,
+            "cell_count": 89
+          }
+        ],
+        "mapping_cache_key": "dad5e009e4a7002948f5f766e35e3ab27d84dff1f38df8b00f3f098870fbe326",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "7b14237c876a2927788a3edae939270d267ea113745b63a3cd73fde7c893b278"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_4a1a140b4ccf4392; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d2c2f10775a6/repeat-02",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "6a3007a6f1bca708669f4c0156e82863f372139d4fdde0ab549f3a351b8307e7",
+        "source_sha256": "e474c20ec52d9e99e0de052b421dca544522a7b284ed7898d7cca1bbe2a51af4",
+        "tests_sha256": "ed6a3de6311cf1371707043e2ab159f6c474a1b6d0efa9f6a910ec7caf9c3fed",
+        "selected_run_tag": "flow_fba98063a4de4f4a",
+        "bundle_sha256": "f3b01ca624b105cc05cc21e0218b2b56ec8f74e954912bac1ef8e33bcbba0cd8",
+        "layout_sha256": "70d924d650345bbdad808540225580296afeab0ea065f798ff7bc98f21452b98",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/dbabfb100aad475c992a4f378603c756/work/.eda/sim_1d47a08e512e486cbb6a8713738948bc/output/test_results.xml",
+            "xml_sha256": "a56424de2920c9b091d7731bbc93ed3fff0b20126e2caefa97c938ff805470f1",
+            "case_names": [
+              "asynchronous_idle_reset",
+              "full_duplex_timing_and_setup",
+              "patterns_and_consecutive_transfers",
+              "latched_input_and_ignored_busy_requests",
+              "asynchronous_abort_and_restart"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/dbabfb100aad475c992a4f378603c756/work/.eda/mapped_synth_379cb3a2d42d442b84aabc9ba1e82db2/output/mapped_synth.json",
+            "sha256": "ba104004410c3c70a086f466b6bfbf374635354e6628598c07b2ec6ea84e5454",
+            "area_estimate_um2": 1367.5616,
+            "cell_count": 86
+          }
+        ],
+        "mapping_cache_key": "9520501048e36122617eb338850bdc923e3ec40f57a14279c9ad96b5ada7e909",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "e474c20ec52d9e99e0de052b421dca544522a7b284ed7898d7cca1bbe2a51af4"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_fba98063a4de4f4a; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d335f496651d/repeat-02",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "1e6f13e724d6388ab8da4a7b77cb43a4fcc2e823cc8892e22c13fc1bcacd625c",
+        "source_sha256": "0c3770f0430ebe6f9cc8c991acc605583a4232c572b0e771f04829a82c8ca16c",
+        "tests_sha256": "6d5a537c86f01d2215643a83af2dbe3ef3cf2c1b5d53c443acbed08d40d4682f",
+        "selected_run_tag": "flow_5c67d14b22a3452c",
+        "bundle_sha256": "c43a4412bf0c5da0ef3a5393d5fbbd2d7dab96567f4e17f3fd253b8837ad9a75",
+        "layout_sha256": "9390cf5633d8fabfe279379fee9fffa424114b5095ad402dd93d5fd6684d2d3b",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/570a1e0c97794734bbca0c6a7c46b420/work/.eda/sim_15abb242a8b44c0eacae3a8301090728/output/test_results.xml",
+            "xml_sha256": "8cffb16ac1cf3637f06c224e1ee2dce163613048a4e606d74ba9033e16caffe3",
+            "case_names": [
+              "constant_samples",
+              "walking_bits",
+              "alternating_and_repeated_samples",
+              "between_edge_glitches",
+              "reset_is_ignored",
+              "random_scoreboard"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/570a1e0c97794734bbca0c6a7c46b420/work/.eda/mapped_synth_c4caff1215d241d78e39258c1f4a94f3/output/mapped_synth.json",
+            "sha256": "415e23fc2f4e3690055cf0050eefdaf56902374502f2d7c65ba92c18e13c0ac0",
+            "area_estimate_um2": 470.4512,
+            "cell_count": 24
+          }
+        ],
+        "mapping_cache_key": "127f958766fa013e98f06372d744f997354714cbb1d23ef18d5f1e8332a91491",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "0c3770f0430ebe6f9cc8c991acc605583a4232c572b0e771f04829a82c8ca16c"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_5c67d14b22a3452c; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d397c61538d7/repeat-02",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "4092e1452e60a0a469201e7d997f2ea408f62ed0597f821a23b124dbc17f5a88",
+        "source_sha256": "bc9384d78e2ffff59c926eae633292a53bb3bccfe9f44347958124e9fba2af1f",
+        "tests_sha256": "2e71a94c83804cc927c94c34b6e1b7a45dc29663c624d40044ed0d5ece4a152e",
+        "selected_run_tag": "flow_713027a641c241a0",
+        "bundle_sha256": "cb06e2c696950cef56e83d8ed07a89204f361103efe0467ca10a9a6511095683",
+        "layout_sha256": "fe8a42aa51d67b54280f88eaf1f4b793decd03e362d3c4b33772d6e28cccdf51",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/91aba184a9e74fd481c5dc8e05dbc8b2/work/.eda/sim_8e7c10ed751941fab83a3c4a36fcfea3/output/test_results.xml",
+            "xml_sha256": "1f8938c8e88e1498e652d3ca05de55681fe5fb540e153f865d418032d83ec082",
+            "case_names": [
+              "full_width_one_cycle_pulse",
+              "independent_walking_and_mixed_bits",
+              "repeated_falling_and_alternating_samples",
+              "output_stable_between_rising_edges",
+              "reserved_reset_never_affects_detection",
+              "arbitrary_first_sample_and_random_reference"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/91aba184a9e74fd481c5dc8e05dbc8b2/work/.eda/mapped_synth_0b1d65d14ed74cf497d420bafda3f247/output/mapped_synth.json",
+            "sha256": "e08204025d14cf27475b7d09b1b7aebaf8f1278c236910e9d63dd3717b6bb09d",
+            "area_estimate_um2": 410.3936,
+            "cell_count": 24
+          }
+        ],
+        "mapping_cache_key": "d22a7f5a0c94ef8442d5bacc8a0b933d973bcbb5dc9b0217805672d6865d9035",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "bc9384d78e2ffff59c926eae633292a53bb3bccfe9f44347958124e9fba2af1f"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_713027a641c241a0; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d421b77f6235/repeat-02",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "e13e0d5bcdeabc7bec0b438d3ec657266435c3c42e47559f3fe636900288cfb7",
+        "source_sha256": "cafba613fb969433fa97ee632f9bf09980c7905296eb6ad4d209821171b6b3ce",
+        "tests_sha256": "9cfcc7e1a6a10748bea50f51694d24e14e34aec13c5811eb5682e632d09719c6",
+        "selected_run_tag": "flow_5ef44de608364b65",
+        "bundle_sha256": "eaea0441af585e779ce3c9dc98f5d0a600225e3067b4992957edbfbe30046daa",
+        "layout_sha256": "311572f51e8603c6e711d311d012602df8cb3b93399cc0f9601eec689c009041",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/5d591c291c4e43cb84ca7c132174d4c9/work/.eda/sim_a8ef3b7789b44ffb83d080ff26a6841d/output/test_results.xml",
+            "xml_sha256": "4245f877008fea1ebf18875f7f1e95cce01d95c3873039e424d3b6582b5cf9e1",
+            "case_names": [
+              "synchronous_reset_and_first_coordinate",
+              "two_complete_frames_reference",
+              "horizontal_sync_and_line_period",
+              "vertical_sync_active_area_and_frame_period",
+              "mid_frame_reset_restarts_raster"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/5d591c291c4e43cb84ca7c132174d4c9/work/.eda/mapped_synth_3519937800904096ac95ac0c2beff3b7/output/mapped_synth.json",
+            "sha256": "4d752665620996a5848d4966c42c7cbc066ed4705a1b02f288ba9ed445e8a0e0",
+            "area_estimate_um2": 1470.16,
+            "cell_count": 125
+          }
+        ],
+        "mapping_cache_key": "967084d40c70062b79e0343fe8caa788bfe7d8bd9c5ace057f3cf73943874003",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "cafba613fb969433fa97ee632f9bf09980c7905296eb6ad4d209821171b6b3ce"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_5ef44de608364b65; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d4823a5e4438/repeat-02",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "e03dc369014e6f0b7dc984e46d6b4dacc4f126df20e937f05ba750a25744462b",
+        "source_sha256": "2eeb783b0c844eeafb032706e5ead54401fdc800ce350e34d1cecdf6e1eed689",
+        "tests_sha256": "4282c9e57c3b6c714d0149c2ef2705c1808c3aa04e4089e2f7a2e1caae8142bc",
+        "selected_run_tag": "flow_9d617b993b814d10",
+        "bundle_sha256": "1785a60f1f2a3b72248977bc7678599cdd3612de7f264ef9963fc78b4a92844a",
+        "layout_sha256": "7c25036a1d236d01102309db48173011308fd8570341ca3ed5fb5670fa272757",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/8db0ecd47894475a9db4a16841ff9eba/work/.eda/sim_e1a621ef02534c27beede0842d4dcc12/output/test_results.xml",
+            "xml_sha256": "6821dd8a1e7a3504a728abaa479afe3c02e734a60b15da7bf0b61faaeb3225f7",
+            "case_names": [
+              "synchronous_reset_and_flush",
+              "exactly_eight_slots_and_held_offer",
+              "output_stability_under_stall",
+              "streaming_latency_randomized_order_and_idle"
+            ],
+            "runtime_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/8db0ecd47894475a9db4a16841ff9eba/work/.eda/mapped_synth_88d24acb5090427d956a3047d145616b/output/mapped_synth.json",
+            "sha256": "730f9e79480090bb7b652f3b1600db863529ec401a2edecd444f121f3535c005",
+            "area_estimate_um2": 3349.4624,
+            "cell_count": 223
+          }
+        ],
+        "mapping_cache_key": "e99040595fd2bb697b4cc824b02236965dc0b10d5936614b5e3f766035db241f",
+        "tool_envelopes_rehashed": 26,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "2eeb783b0c844eeafb032706e5ead54401fdc800ce350e34d1cecdf6e1eed689"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_9d617b993b814d10; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d4fc739faad9/repeat-02",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "7909280a84b854ca8408160b7cbe83c0be69842011432a4e71f3b9384e6403d5",
+        "source_sha256": "75f2d3b3b9fb08bc85f6449b519022f9ec82f42ebd36b2dd51ddcaeddb863668",
+        "tests_sha256": "aff72a4dd6afe546ab69a14e5fe77c0421c02238f250514530bc3a3fc698cdda",
+        "selected_run_tag": "flow_5b624b7e86514d69",
+        "bundle_sha256": "95c4c1a1246e6d7d62bafc649d7e28e3df1b76ee13d0d4f7b9548c9bdb41fffe",
+        "layout_sha256": "24565976f8beb7ddbab7c3c6851398a59546e65950ff845f2a48cc2fe9e6def3",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/98bd60e9bd274966b1931e6a8f105dc6/work/.eda/sim_b03eb15a744b4e0f8af58670754c7bbb/output/test_results.xml",
+            "xml_sha256": "0a8da19cc802b3b15beef2fb696163e8156d1e4f1724f65dcb0678c780d60ba4",
+            "case_names": [
+              "asynchronous_reset_and_priority",
+              "exhaustive_parallel_load",
+              "load_over_shift_priority",
+              "right_shift_zero_fill",
+              "hold_and_between_edge_changes",
+              "randomized_reference_model"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/98bd60e9bd274966b1931e6a8f105dc6/work/.eda/mapped_synth_1e96109f7c1949fa8d4c9f7513624ff2/output/mapped_synth.json",
+            "sha256": "02886f85b8bccd022f7795404b21302097b25382c89c1492a3445bde9046ca36",
+            "area_estimate_um2": 188.9312,
+            "cell_count": 12
+          }
+        ],
+        "mapping_cache_key": "6f341ce399ae21d9e1ea038f103fdd3b4317af3255c09f4f5e684422fa6ae21e",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "75f2d3b3b9fb08bc85f6449b519022f9ec82f42ebd36b2dd51ddcaeddb863668"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_5b624b7e86514d69; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d5b7bf9f0198/repeat-02",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "a69ed54dafe477b0ed17b296f30919eda8e2dfcb6275a7540a6c78730206f856",
+        "source_sha256": "68deb5bfbdc1053fa8614d8f69758e61abb40523c2b7330d67082fba443b7a13",
+        "tests_sha256": "aee0c5bb962241f9f0f5cc0402c217f75b24fd4cbad2e64ee9407e0d8b0a8f4d",
+        "selected_run_tag": "flow_d8512d1db94e437b",
+        "bundle_sha256": "1a7bc16c6edb4bf375ca710cf7e49f30ba21eddd3e9d1327df2982810a3f4bd6",
+        "layout_sha256": "fee6aac2267ce787718165613cae22e00176498c8392aa00fc83cd9277515d27",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/f25d89f32a7a40388aca107ff06642cc/work/.eda/sim_a8559f423a63496d91dba439e3ae7f60/output/test_results.xml",
+            "xml_sha256": "af875b6c37b130da2f54941452084a862f26f1005cc50afd9a7c19797eeec3fa",
+            "case_names": [
+              "short_runs_and_history",
+              "discard_flag_and_immediate_restart",
+              "persistent_error_and_recovery",
+              "synchronous_reset_and_between_edge_stability",
+              "randomized_reference_stream"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/f25d89f32a7a40388aca107ff06642cc/work/.eda/mapped_synth_48d254a9083c4d218e6c78321c17a053/output/mapped_synth.json",
+            "sha256": "c276fba542e4272880582733c11fb0832e23e0d2d9018d4b1f576032b68060fc",
+            "area_estimate_um2": 324.0608,
+            "cell_count": 23
+          }
+        ],
+        "mapping_cache_key": "efdd1de863792043ebea91e62f9192ddcc2b2c08b5a244e101058308e8bdb275",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "68deb5bfbdc1053fa8614d8f69758e61abb40523c2b7330d67082fba443b7a13"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_d8512d1db94e437b; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d816cb95bbaf/repeat-02",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "16ee8a135697897de259ebb5f2d28b918c9d7b9c04310cfd9ead4a45f174c385",
+        "source_sha256": "b70455be163cd274f7f53231ab4c42cea90b1cd5aee7613790b2ed9ffc0061cc",
+        "tests_sha256": "182d887d4f1746e452400e5477ab7b8ed94f3635dcb076f8ca79db1a0ae84240",
+        "selected_run_tag": "flow_d0cf15df565d442c",
+        "bundle_sha256": "8c4c31a76c042c2f175120341e233d4e268683e807757b02560353484479d062",
+        "layout_sha256": "9b13627c37a2b8bd13a1739240e57058f7385eed940909ea3972d164471b488d",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/81e0353b5710402ca92ff4cba9749d80/work/.eda/sim_9e729a720f52437bb073e932bb92de0a/output/test_results.xml",
+            "xml_sha256": "d4adac61bbd48b772d4c7dfa97b92d1258e5bfa89dcc47b56541c64cbef0cd24",
+            "case_names": [
+              "synchronous_reset_and_hold",
+              "normal_counting",
+              "wraparound",
+              "repeated_operation",
+              "reset_during_operation",
+              "edge_sensitivity"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/81e0353b5710402ca92ff4cba9749d80/work/.eda/mapped_synth_53eff1a94282400188de8e3f0c912d2c/output/mapped_synth.json",
+            "sha256": "0c1809d6ba018520b35e5e9599002f8e5f84ddaed8a08b9a462ac1a4873ea282",
+            "area_estimate_um2": 171.4144,
+            "cell_count": 14
+          }
+        ],
+        "mapping_cache_key": "d769dc570336d3f6f554db06d6c993418d461bc1bb51bb29c0e2b8b5ef8b64e4",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "b70455be163cd274f7f53231ab4c42cea90b1cd5aee7613790b2ed9ffc0061cc"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_d0cf15df565d442c; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d87d5554d0da/repeat-02",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "45ca87e2fbe43740d712309366a7ae2442109b45e8a006bd45e5a8e66db046f8",
+        "source_sha256": "388c11359b8d6848039a410c52e64095acfd56e4cddf12495d283eeb830ff588",
+        "tests_sha256": "8af731b117cd84a8ef39226cc2c00a7d3f8e7b7abb5786fef260851d3777d926",
+        "selected_run_tag": "flow_4698d00289df4e7f",
+        "bundle_sha256": "70c5230e9d8273d4542cc2498e3e68a22aa3f2f109727d3d78eba86927a5465c",
+        "layout_sha256": "7216d1adb94cffa3e1835e99b85e5488862b14cde9f8ebbdbb63a723f463b80b",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/736b38c8a4f4458b8c9d812fd685fc7b/work/.eda/sim_3295ffd337634b01926ee5e0f49a2eb5/output/test_results.xml",
+            "xml_sha256": "48cea775d9361157a7b98c3e08775a1c3fbe1536e15e736329f3459f00428b46",
+            "case_names": [
+              "synchronous_reset",
+              "normal_counting",
+              "wraparound",
+              "reset_priority_and_hold",
+              "edge_stability_and_unsampled_reset",
+              "repeated_reference_operation"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/736b38c8a4f4458b8c9d812fd685fc7b/work/.eda/mapped_synth_a9ccf29ea9ba490682c2268750f7917d/output/mapped_synth.json",
+            "sha256": "f8dcc1716e9a96ceea897f9609da271c582b416a5bf0641674f26b87dea3a797",
+            "area_estimate_um2": 166.4096,
+            "cell_count": 13
+          }
+        ],
+        "mapping_cache_key": "bcc1f86753e0383dc1f386515d412c6b491faea0abefa07ea4a924660b929741",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "388c11359b8d6848039a410c52e64095acfd56e4cddf12495d283eeb830ff588"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_4698d00289df4e7f; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d8be6197ac01/repeat-02",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "3e5afef7936eec58c9f6232e00039475e08793b625da91061aa7ec54e50ba555",
+        "source_sha256": "e79d675c5b4a06d2e3130d26c666f82fee3541d7425255189e4f154de735fd7c",
+        "tests_sha256": "b2d000c7f476da212fb67632f827ff042e5c630c56b63b5a20a067275e0ada9e",
+        "selected_run_tag": "flow_59a90b64b6784c87",
+        "bundle_sha256": "46a17b4ca4f57deff602ee7daa2d4830e86fe517d8f30591f450b66a33e21496",
+        "layout_sha256": "1d55ba9f4540729a14c1d4325785b8ce8e42b29eca6b7a98df111be9b88e4ebb",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/0c9003003dfb4e80a560481298fc3946/work/.eda/sim_5f4b12944c2348809059db5204ce6fef/output/test_results.xml",
+            "xml_sha256": "8e914901aa8112d278f562b6cadfcb99176e1b3252dee3d47cc67d003b4d8834",
+            "case_names": [
+              "normal_patterns",
+              "synchronous_reset",
+              "reject_short_starts",
+              "backpressure_and_overrun",
+              "framing_error_preserves_pending",
+              "continuous_frames"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/0c9003003dfb4e80a560481298fc3946/work/.eda/mapped_synth_1ba58c9067d541649ea0903e160559c4/output/mapped_synth.json",
+            "sha256": "b198c8f9556f7cb6edee44d4dd0b614703b50a23c71591c492559576533e6aae",
+            "area_estimate_um2": 1619.0528,
+            "cell_count": 137
+          }
+        ],
+        "mapping_cache_key": "5a06f9feaab92d75954559fdcf0989f9a0edc3d579e41bd22ee7effa3ea0af77",
+        "tool_envelopes_rehashed": 22,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "e79d675c5b4a06d2e3130d26c666f82fee3541d7425255189e4f154de735fd7c"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_59a90b64b6784c87; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d92c6750acb3/repeat-02",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "8eaca736f5ba44a9a8f78fb2e9f8a45611eb3d2816049bd8d4fa3ed1e2735c28",
+        "source_sha256": "3421e6893875a46397444c30b7bacad07253e0d737ac1bb6e841b3596fbfee66",
+        "tests_sha256": "a78e8581f889bfad95605111f6b6543c49f72450582087abdf9d5a7fcc038a5d",
+        "selected_run_tag": "flow_0fb9c1c194d8446c",
+        "bundle_sha256": "510cc0ebe9f7ea5dce5b8dcfd6f4b888e2e5a1edf48d858bbd23a3e11f039c3f",
+        "layout_sha256": "adb9cd317a8083688038874a6b0d6f610e98f14fe23f7ecf4a2c53cba79725fb",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/70751cc231084715840fec27cd5b850c/work/.eda/sim_c7b438001e5a47fa9d4a8d4eccae9440/output/test_results.xml",
+            "xml_sha256": "17b9a70efc4b0961422d3dd38f7d848f9c9b0826b2f00cd42d115ffdbf693fc4",
+            "case_names": [
+              "asynchronous_reset",
+              "walking_directional_bumps",
+              "simultaneous_bumps",
+              "falling_priority_memory_and_landing",
+              "moore_outputs_between_edges",
+              "randomized_reference_model"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/70751cc231084715840fec27cd5b850c/work/.eda/mapped_synth_ac35fa44affa4c1ab1d7c00d5432196d/output/mapped_synth.json",
+            "sha256": "45a62e7978992c31d8c8507f573cae8f58a3d7107f9dfb2cd432c64ec253aa22",
+            "area_estimate_um2": 183.9264,
+            "cell_count": 13
+          }
+        ],
+        "mapping_cache_key": "3357c8576133f835eccbf78078a6c0b509fd0a6d6e9e82afc2b531af33612348",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "3421e6893875a46397444c30b7bacad07253e0d737ac1bb6e841b3596fbfee66"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_0fb9c1c194d8446c; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/daa58c2bc7ec/repeat-02",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "e51b3e240c6256953a79663448e9743a7d34a5fe19ab09d4dac38e06360d3afd",
+        "source_sha256": "ff4ba317170b190316225ff1b4effc88c96088cc72862de55218384eb6a10ee0",
+        "tests_sha256": "63ece658b11368b7394cbabaad45717cdd35ae10074fe50fbadd5898c8daa3a5",
+        "selected_run_tag": "flow_a3e9393d97f94a91",
+        "bundle_sha256": "c39a9770af97b41e1c0a94862249e56728a7cac6dd383ac5d1f82639f802992a",
+        "layout_sha256": "df64c4d677cc5cd122456475e9eaf323ed58f99054ed54ac058742c767b9780e",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/4e8bfbb93ecf404195d31c5f5a3e1dde/work/.eda/sim_e5824e0b09b14a60819c85a26fcb23f3/output/test_results.xml",
+            "xml_sha256": "c6dcabb42bc42eee15511be58a3ed9e832e3c9181237b363650266d5f0993078",
+            "case_names": [
+              "synchronous_reset_and_priority",
+              "representative_divisions",
+              "arithmetic_boundaries",
+              "divide_by_zero_and_recovery",
+              "operand_capture_random_and_hold",
+              "reset_abort_and_restart"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/4e8bfbb93ecf404195d31c5f5a3e1dde/work/.eda/mapped_synth_240921e6f4774b11b5842e99fb7b4cba/output/mapped_synth.json",
+            "sha256": "e5af8a3ab98c3fd9642d6755b846fedbe4a5d33da615cf29b1d0307db24a5a62",
+            "area_estimate_um2": 2293.4496,
+            "cell_count": 194
+          }
+        ],
+        "mapping_cache_key": "bbd59cd3ade9acede2e2b5ac8c21e0cab61427baa3201de127abbe5051706894",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "ff4ba317170b190316225ff1b4effc88c96088cc72862de55218384eb6a10ee0"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_a3e9393d97f94a91; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/dab0b0719d10/repeat-02",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "c284297434dc9066f086190156b8044d448f97c836fe7e850453776e370b24b6",
+        "source_sha256": "0c1807b1427586971510c9341df25c3661c3cf1cef0b3dda445fab2608dd6451",
+        "tests_sha256": "c91aa843626c5de120389f267a7413335afff76253729e9aebf460dc3502c0c3",
+        "selected_run_tag": "flow_3018c03836ed44fb",
+        "bundle_sha256": "fb3557dd23665ce0aa8a9a4e9ea51f6f8d69c60c19c5aa8161eb6175211eb59c",
+        "layout_sha256": "87cf2ba97fe0ce85e80d8867b345fe883319b4b4ca57c43515ada605fc57ca86",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/67842f192d464d68b013b83215afdd23/work/.eda/sim_c399b44a96f74d0a89d52c85568d2884/output/test_results.xml",
+            "xml_sha256": "1a5b80309273cc97a0dfaa3608d7eee6a6b419f8e20ad5bb4e2c9f035ae366c6",
+            "case_names": [
+              "normal_arithmetic",
+              "rounding_ties_and_neighbors",
+              "post_rounding_boundaries",
+              "exhaustive_arithmetic",
+              "protocol_and_retention",
+              "synchronous_reset_and_abort"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/67842f192d464d68b013b83215afdd23/work/.eda/mapped_synth_d159ce7c863c4ba1be356d684fbce809/output/mapped_synth.json",
+            "sha256": "a4814d9e2370a35ae09ae29f3ad24ea3e2313d6365d75f2807f1d490449e83de",
+            "area_estimate_um2": 4809.6128,
+            "cell_count": 447
+          }
+        ],
+        "mapping_cache_key": "49e1e7f54378c10b4f7d8d5e5fdb918c69dbc31183da0dff9e6920fb767bfc47",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 9,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "0c1807b1427586971510c9341df25c3661c3cf1cef0b3dda445fab2608dd6451"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_3018c03836ed44fb; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/db46f276ecba/repeat-02",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "89a712acfccf92b8da5dc8a752e8aa15c260addc396b1c09e544d9e971774a25",
+        "source_sha256": "925b021daaccb743fa802094c718917a5f1cdde01e0b0b2f968375ea4f16f864",
+        "tests_sha256": "2fe1b844382fa3434433078432994ea98585863e802f5a45d6bb1d40e855e87d",
+        "selected_run_tag": "flow_c66a89cad0ae400f",
+        "bundle_sha256": "60500aabd8764a15979359f71fa2a5648710df52844a9c857154c374bf199b24",
+        "layout_sha256": "cab0dafc718c293060af3c8691459e2f07e993a74154f2ac323a9a714b1259e1",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/d9dfffc651a8453284de00fec33ff4c1/work/.eda/sim_cc63c2046b464f9aaba5ae8381fe2b76/output/test_results.xml",
+            "xml_sha256": "55a53019ed34fd165cf7fbb15577faa018924d81429910bf113bd1fd943ff7eb",
+            "case_names": [
+              "synchronous_reset_and_abort",
+              "rounding_signs_and_persistence",
+              "errors_extremes_and_boundaries",
+              "exhaustive_all_operand_pairs"
+            ],
+            "runtime_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/d9dfffc651a8453284de00fec33ff4c1/work/.eda/mapped_synth_17388a921df74dcb9db450525999c689/output/mapped_synth.json",
+            "sha256": "c7813f9867cea1f8cc70351f231af919ac686850368a06cc57acf2af8d441bcc",
+            "area_estimate_um2": 3657.2576,
+            "cell_count": 324
+          }
+        ],
+        "mapping_cache_key": "5d51291ee1c3f9129b77f0ec0d74bdfc2b146a99a5f009f6f8b34836e7ef48fa",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "925b021daaccb743fa802094c718917a5f1cdde01e0b0b2f968375ea4f16f864"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_c66a89cad0ae400f; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/db665c7c5db2/repeat-02",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "6c96dfcc49749b6f95722d4431768464c93720386dfc49c166de09db21e98815",
+        "source_sha256": "aa0f67ccb9211469025e686f0b3098e8066e5295396007789374b4b0562b1c80",
+        "tests_sha256": "c88ca40bb70ddc9c296bd989eb96d70b260b0340249da5d24e9f4d1b801d3304",
+        "selected_run_tag": "flow_f5fd5c75a32d4cf2",
+        "bundle_sha256": "16f64f775db8af94238f8ac6601726bfc4ecd837cab60e1f40d7236c02bd5da4",
+        "layout_sha256": "1465897785fa8d88a5cf99fd2eefdf1efd839610c8116daac95a307c3f68709c",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/d07b2f911da04596b24b813211b2ece8/work/.eda/sim_8177cc28dd0447b8bb37b50d2d16491f/output/test_results.xml",
+            "xml_sha256": "e9671beca0e31d4d1e6b83e2912e666e85f46629a2707bbbc9d4493b1da0c95e",
+            "case_names": [
+              "search_and_exact_completion",
+              "payload_marker_combinations",
+              "back_to_back_packets",
+              "immediate_search_and_gaps",
+              "reset_aborts_every_phase",
+              "reset_is_synchronous_and_pulse_is_held",
+              "randomized_reference"
+            ],
+            "runtime_sha256": "d80a05d1635c7b23e456fdecf6a928b8944fbbe7ba0c6e33d93ad25070e5bf61"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/d07b2f911da04596b24b813211b2ece8/work/.eda/mapped_synth_eec8d58f650d40a89d0ce170e39a26c3/output/mapped_synth.json",
+            "sha256": "86ca34e9473a988afa3b782ce88ca5910dfe0e31b962cdcdd4576450fdc5cb16",
+            "area_estimate_um2": 128.8736,
+            "cell_count": 10
+          }
+        ],
+        "mapping_cache_key": "3b519e804d1257a34962234a04ea42208a10a7fa413c4dc526ffbcf5e6b0d683",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "aa0f67ccb9211469025e686f0b3098e8066e5295396007789374b4b0562b1c80"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_f5fd5c75a32d4cf2; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/dbe725bd849f/repeat-02",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "5fd17a37a0119fb0edc0e868f67b786b046ebe0650c257b2e94b921edf24df2a",
+        "source_sha256": "bc56608d8d0b949031010961fc3ae8aafcb070c9181df1e754739f383b70ab93",
+        "tests_sha256": "f5738f9ea0ed908fb8d6cd9fbbf7fed4a4ea3f52e37b8cb184f7afcdba1ff3c1",
+        "selected_run_tag": "flow_08e1793d094e4b76",
+        "bundle_sha256": "20872e2512b4394dc7ad9782f36597b40469b463fb8614a23ae222debdb45b14",
+        "layout_sha256": "5b865082009f953fea09d251c1e76cd458692a5354aae08ceb0d777814926748",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/37ae3952feee456cbb33a9ea3a18cdc3/work/.eda/sim_341ec59e1d40496a9cfa68d944178eb9/output/test_results.xml",
+            "xml_sha256": "652448b80e807ddcd9351cb2aeba25d94caaa2b0b33bb8832978b680299117f8",
+            "case_names": [
+              "synchronous_reset_and_priority",
+              "known_answer_every_prefix",
+              "independently_reset_single_bytes",
+              "enable_gaps_and_combinational_input_changes",
+              "reproducible_random_streams",
+              "message_restart_and_empty_message"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/37ae3952feee456cbb33a9ea3a18cdc3/work/.eda/mapped_synth_2ccb9287261341989a71809cbda7bde0/output/mapped_synth.json",
+            "sha256": "280ca7134131f066c31b65734135d34c3475cdd74d148d8252e9628c40de9629",
+            "area_estimate_um2": 2416.0672,
+            "cell_count": 206
+          }
+        ],
+        "mapping_cache_key": "c121d73b2611399ffb7d0a8cd5fe929cb45b395dc0fd85fa52f7ebe8f536ae07",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "bc56608d8d0b949031010961fc3ae8aafcb070c9181df1e754739f383b70ab93"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_08e1793d094e4b76; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/dd98c97ee061/repeat-02",
+        "tier": 3,
+        "official_success": false,
+        "result_sha256": "c6f2d67634c75e756b912ae779397e5463bf6cf568baf6e7e31bb6165841d9c9",
+        "source_sha256": "964b9f7b39f9974a53b7686e0c485491823a1822f3579dbb4703b745eb8ff2a3",
+        "tests_sha256": "07ac725bcea27a3d5cc2a3e5657ae83fc7137b729d326ab7b62c4f433847ca70",
+        "selected_run_tag": "flow_371569313fe045ed",
+        "bundle_sha256": "a440f41f30e7d50790d1f03489040bd39a3b329cf87814d57ad5d7976ebfb905",
+        "layout_sha256": "272ef663a0bb0076796300f62d43e6799caff74a376969ed1d4734c887d36953",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/f4931ebaf34b45dd98fb783361b3dd88/work/.eda/sim_ab55f1fb7f6b42078294b1410a63122f/output/test_results.xml",
+            "xml_sha256": "c5b9d51eb96823a99ac7c59e51e3006cf5ac82fe8db62c5510832490d687bf1a",
+            "case_names": [
+              "single_byte_write_and_tlast",
+              "multiple_write_gaps",
+              "continuation_and_repeated_start",
+              "synchronous_reset_during_write_wait",
+              "external_start_stop_monitor"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/f4931ebaf34b45dd98fb783361b3dd88/work/.eda/mapped_synth_89f80566b91d4f6da32507af89450feb/output/mapped_synth.json",
+            "sha256": "ef0cb94974e787841f08e6c8ab65eaafca414616e2a5c722fc25dd2b62bc5dae",
+            "area_estimate_um2": 4451.7696,
+            "cell_count": 424
+          }
+        ],
+        "mapping_cache_key": "9a9464bdbf67e7976080ad30f8003b9a1c5dc5dfb09d4f9979d05207b091d6d5",
+        "tool_envelopes_rehashed": 22,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "fail",
+          "passed": 0,
+          "failed": 4,
+          "source_snapshot_sha256": "964b9f7b39f9974a53b7686e0c485491823a1822f3579dbb4703b745eb8ff2a3"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_371569313fe045ed; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/ddc1a754f53b/repeat-02",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "254ceaf5339c2943d9ac331e0261d324c81b5d95293f0ca2ec435e53dc600db5",
+        "source_sha256": "9920bdada14630d5782a006dba87a4de0e3d3243bf7164d01b08a1a95e47487d",
+        "tests_sha256": "87a268e6f5015306856723bab6f42609c5e555c3b1d5f2cf97e41d396bc9c573",
+        "selected_run_tag": "flow_9349ab49d53f4a87",
+        "bundle_sha256": "83b0518793aa5f91a4f796bc7d61cd5b58ee35c3db00b18b9c2682518a5f2c78",
+        "layout_sha256": "bfe1dce0e7d500664a302313ea2ea58d15522bc40b419f84b22ed5e057905d9b",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/b7bc6d10e59f422fb5cbb739202bf4f5/work/.eda/sim_9cecee5d02e74c6eb563e71e507a7abc/output/test_results.xml",
+            "xml_sha256": "4b3265b49b98381689da5c444ba58a86ceff5be038fc88d80e1575ef9ae0a9da",
+            "case_names": [
+              "synchronous_reset_and_priority",
+              "reference_sequence_two_periods",
+              "maximal_period_and_repeat",
+              "mid_sequence_reset_restarts",
+              "falling_edges_and_unsampled_reset_pulses"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/b7bc6d10e59f422fb5cbb739202bf4f5/work/.eda/mapped_synth_f858817341d84197baa3f438c71f95b2/output/mapped_synth.json",
+            "sha256": "541256d5ed0be6bf81c56d91e1f49c73329bb1e2cb0b802741bf03cc2e89f1ed",
+            "area_estimate_um2": 155.1488,
+            "cell_count": 11
+          }
+        ],
+        "mapping_cache_key": "577771aadde474ff1bea3e4f55a9b29a8855a1ba0544f3b68f2acdaaeeef7222",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "9920bdada14630d5782a006dba87a4de0e3d3243bf7164d01b08a1a95e47487d"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_9349ab49d53f4a87; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/de3ce0b0745e/repeat-02",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "7728c423bc3272b886fec76ba8d01989760730594e7858aa689e59954bb7058b",
+        "source_sha256": "afd8c28f2afa6a1d8121bcef0d8d3a3efa21415bf1965df2a6e58a149bda1607",
+        "tests_sha256": "762517e9dfb7f56a77c0a3a3108db7a2178eab847994948469b2012ae65d39e1",
+        "selected_run_tag": "flow_35d1e288e0314747",
+        "bundle_sha256": "9f007e6e1318f10df9cda18b81dbe8bfc36527bc92f29bc0771232bf06f45fb3",
+        "layout_sha256": "67739dc9583eb435f556315c47ece5ac433e964100968eb00f630a554feb4b02",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/a58a8d2385e6484c835745659505f989/work/.eda/sim_c8acc9a08de443a7ab16259b6d592f75/output/test_results.xml",
+            "xml_sha256": "2141b71cf86b0c672fcab810e8359eeb274cd5bc45ade59e801fbace7ece5b5c",
+            "case_names": [
+              "synchronous_reset_and_priority",
+              "enable_hold_and_edge_updates",
+              "bcd_carries_and_hour_wrap",
+              "full_day_with_pauses_and_pm_reset"
+            ],
+            "runtime_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/a58a8d2385e6484c835745659505f989/work/.eda/mapped_synth_0450ff42e64447bd8cb3c0f1e3572415/output/mapped_synth.json",
+            "sha256": "21368558e7297888ca68cd3b9ae6704a20a2126c6deb727d30caab7c4b0b6a32",
+            "area_estimate_um2": 1368.8128,
+            "cell_count": 119
+          }
+        ],
+        "mapping_cache_key": "7599b54785fffea68c173a82f1bf72395147cabfcf4f356b185f6977c699ba06",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "afd8c28f2afa6a1d8121bcef0d8d3a3efa21415bf1965df2a6e58a149bda1607"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_35d1e288e0314747; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/dfc4ef58cce8/repeat-02",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "1fb2729cd64ce31e83c40c1972bdeb689aa37e273defafd18ececdf334fc27dd",
+        "source_sha256": "298ecd318fd1b18e9925c9420f85e75428edd2a843339f71e0f76a9568a329b5",
+        "tests_sha256": "094586108a7417ef3291c41b1947c163ea6b7f78a6b1b179a0949971b317b6ca",
+        "selected_run_tag": "flow_aa075bc5044545b4",
+        "bundle_sha256": "a4d966e86ecd3cb61530cbab6be639e3cd27238cd9d6b2bbf50ce7260170b3f2",
+        "layout_sha256": "ad81cd82e1638615fc6857323d992b4100ab2d99988750462a6a7eed020fd785",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/7abed646d2de4c85af064b63a0a5bd31/work/.eda/sim_955418a590ed4551b8355224121fa060/output/test_results.xml",
+            "xml_sha256": "d074400a88b44cb9635b65f204f7fa9b2044a0f8a0b4c2f60864907b6954be78",
+            "case_names": [
+              "countdown_three",
+              "zero_saturates",
+              "maximum_count",
+              "consecutive_loads_and_reload",
+              "inputs_have_no_combinational_effect",
+              "reserved_reset_is_ignored"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/7abed646d2de4c85af064b63a0a5bd31/work/.eda/mapped_synth_5a44536d75d24cc78db34b0c87de6836/output/mapped_synth.json",
+            "sha256": "68ed6c06e8ef999689ab3f88b482a4a24f9e668cc3ffeaffe7a9328bb837ce3d",
+            "area_estimate_um2": 544.272,
+            "cell_count": 50
+          }
+        ],
+        "mapping_cache_key": "c2748d7085b197e504826db99c84f2e05ec1c48a92be9b10f1e7b259d257da1c",
+        "tool_envelopes_rehashed": 26,
+        "actual_command_count": 13,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "298ecd318fd1b18e9925c9420f85e75428edd2a843339f71e0f76a9568a329b5"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_aa075bc5044545b4; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d0989809c8b9/repeat-03",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "456aa90419dd51c18605926b77dcd1ed0d0b44c2247469f3878b5f5252b0a28c",
+        "source_sha256": "a8736762839978ae7275a69665adcb172dd66281547dd8fe230ece362b68cb30",
+        "tests_sha256": "fc3547fd363ad0c65e5792f7333425aa66a48c19aa8457bfacd6356ac84252d6",
+        "selected_run_tag": "flow_751d7ac8b9ff4faa",
+        "bundle_sha256": "4e8004e8bdb84e1e5b8ef8559d782b940bb3f31ef5cef49c2d2c88ecb14992fd",
+        "layout_sha256": "9255c0239791a00ff4e10dec2714f0a90993450a426b03bf015a9eae2ffaa5f5",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/a0b02430a4d2492b9e0b73af91322688/work/.eda/sim_907798276ea34cacbb2c95d2294315d5/output/test_results.xml",
+            "xml_sha256": "df017fb6b4dd6609f286b64454a69f7aa4f99458b01fb16252dfb5ad934ed0a7",
+            "case_names": [
+              "synchronous_reset",
+              "reset_has_priority",
+              "normal_counting",
+              "decimal_wraparound",
+              "disabled_hold_and_resume",
+              "mixed_sequences_and_edge_stability"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/a0b02430a4d2492b9e0b73af91322688/work/.eda/mapped_synth_66203381d4c44427adeceadc1329f695/output/mapped_synth.json",
+            "sha256": "734f1fe40b4bd37f4b89e06e506a012a864383431e5b1ba2350671b290e7b591",
+            "area_estimate_um2": 193.936,
+            "cell_count": 17
+          }
+        ],
+        "mapping_cache_key": "b4b85aaca0b269b2da28001b568db2915c409139e55732582458c2e9eaf6ad2b",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "a8736762839978ae7275a69665adcb172dd66281547dd8fe230ece362b68cb30"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_751d7ac8b9ff4faa; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d0f754d22739/repeat-03",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "9b2127d54df333b81daf1b21e2b5fd3f5bd3bf65c28666ffad4dc60e73bc7fb9",
+        "source_sha256": "f6c094c9897012cdac30c2e90e12e8c1d4b502df1123c9e994e0c20c91262b58",
+        "tests_sha256": "502abc3fcb0d16e9a2919da837fa6cd97a020adc61ac79d143b82d57a352bd24",
+        "selected_run_tag": "flow_d77e6b0e8b1e4cb8",
+        "bundle_sha256": "6a53aa925f561dae7e277554a3bda356f224e825b319f5ba6a79099269923593",
+        "layout_sha256": "258e6e9f0435b70f131d03c960ddce220f801ba708ed38f6324ad6dade6bda46",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/bfa482e358cc459db19fcf6daa24243b/work/.eda/sim_3c8a6e7f9381483ea3f94e2208e10613/output/test_results.xml",
+            "xml_sha256": "30acd6f71d44adf43038147b3f09c50a7a09f812f9354b0582fe6cbcb6d6c4b5",
+            "case_names": [
+              "reset_priority_and_hold",
+              "ordered_digits_and_wrap",
+              "extended_modulo_reference",
+              "synchronous_reset_between_edges",
+              "falling_edges_and_reset_pulses_hold",
+              "unused_encodings_recover"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/bfa482e358cc459db19fcf6daa24243b/work/.eda/mapped_synth_5442b730bcb6452da7a9dc727a53f9ba/output/mapped_synth.json",
+            "sha256": "3b3daf8a26a3cec2fef7be09276bc59cf93b5e61af6dffbdcb382944465b4158",
+            "area_estimate_um2": 180.1728,
+            "cell_count": 14
+          }
+        ],
+        "mapping_cache_key": "2f0b905e61e9ccb0f2e0be27da36d98be74789e262da1a3a5aa975173827f731",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "f6c094c9897012cdac30c2e90e12e8c1d4b502df1123c9e994e0c20c91262b58"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_d77e6b0e8b1e4cb8; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d164886b7e30/repeat-03",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "39b9a032fce31a14f09aef411e85ebb113852ccce2a7732bd12a57be363ae457",
+        "source_sha256": "9c22332cafddcb72f80398df07a5e66871e72e456ef6b8173ab7b123e98a12e7",
+        "tests_sha256": "26eb2350f784cb2686e19ba02d422a70597a0a9dfba6dfba51f8c6f1cfdf3f69",
+        "selected_run_tag": "flow_f0c7f9e988ec4417",
+        "bundle_sha256": "9cb5a3c086a810c4a71edc51bae733e77da39f8161a754c87ad09fc5087e492f",
+        "layout_sha256": "c7df24b55d9e22174df50d848ea54c6da22636a567f603e21853aa92698f148d",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/f7696b52c37e454ca9de992a8f9f621b/work/.eda/sim_f0a75d06067d485e8d196f2f27c5a990/output/test_results.xml",
+            "xml_sha256": "b6131fc79735ff1b52fb7817d6b6fce6dbb10c29f777026656c0f296d0f893e1",
+            "case_names": [
+              "reset_and_idle",
+              "normal_a5_frame",
+              "edge_patterns",
+              "input_capture_and_no_extra_frames",
+              "continuous_valid_handshake_order",
+              "synchronous_reset_aborts_all_phases"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/f7696b52c37e454ca9de992a8f9f621b/work/.eda/mapped_synth_01033478ae024844ac8c6c20a1e4ef3f/output/mapped_synth.json",
+            "sha256": "5e93037cf6eef96907f99a20f13a4f9ecf3d1fd73431e02dfa4e937cdfa8d09a",
+            "area_estimate_um2": 882.096,
+            "cell_count": 74
+          }
+        ],
+        "mapping_cache_key": "e802103c2c3f6f7a6a7299e4e70e9ca6622762536e3162f59bcc517bf10badc4",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "9c22332cafddcb72f80398df07a5e66871e72e456ef6b8173ab7b123e98a12e7"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_f0c7f9e988ec4417; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d192f81d9472/repeat-03",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "063d8500895b80c911f5ee8d4cfbd55c5c5f7b043841547a0dd8c27e348f6064",
+        "source_sha256": "b225cceaa08efefc23bbeb673fd673331c25afeb01ff408510d4d66d7a186071",
+        "tests_sha256": "2e8f4f81c6ced8a6c89e9aedc80a91cf3a54970195933043acc791b1bea3764b",
+        "selected_run_tag": "flow_ba3f1be1c0c44f83",
+        "bundle_sha256": "f0b2c079eb0aebc7eef94c5a760ee156457217cd3297e7bf839c4f95fd560b2a",
+        "layout_sha256": "c606d14a357d2ee1364c991b2e7c2e139ee26b6637a821f0e08bb51a0d9e36fa",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/615d29dc2746475e9ad8dcf8443c467f/work/.eda/sim_450566d86ad443c4a1f6291584fbfa66/output/test_results.xml",
+            "xml_sha256": "890682802b2481f82dad29f8be8beac018becd325f0b23e70dac7e6aa043c41f",
+            "case_names": [
+              "directed_bytes_and_pulse",
+              "idle_and_consecutive_frames",
+              "bad_stop_long_low_immediate_recovery",
+              "bad_stop_with_idle_recovery",
+              "reset_in_all_reception_phases",
+              "randomized_frames"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/615d29dc2746475e9ad8dcf8443c467f/work/.eda/mapped_synth_32073a8b71ee4afcb703a870b0a5af28/output/mapped_synth.json",
+            "sha256": "defcb4fa94c61a9bdbb20068c65d42fa6712b60ebd6e95e6b639906036597380",
+            "area_estimate_um2": 1059.7664,
+            "cell_count": 89
+          }
+        ],
+        "mapping_cache_key": "f4952dd3e76e240bd17035bc28227b04f49d483a7773bcefc597354d79a35fd6",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "b225cceaa08efefc23bbeb673fd673331c25afeb01ff408510d4d66d7a186071"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_ba3f1be1c0c44f83; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d2c2f10775a6/repeat-03",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "a8920680d7e74de6e9ea945e5e06ab5ba48c882fb8d5197e827302f4f4c38b53",
+        "source_sha256": "2ca6bb750fec963d835c7445aa068673659f9bafc1252443072fdef41a942a37",
+        "tests_sha256": "471e15d06575a496edb65b7a762d85d91b102f6de14d769bbc833c73aa68f485",
+        "selected_run_tag": "flow_e661e7cbf1c5410b",
+        "bundle_sha256": "a7b075537fb80970d11f538c6c8e84bf3043a574a52267d8be5a66a214f6a2e6",
+        "layout_sha256": "007fa4daf834740e7c0a2bad8be32cf6cf6d50e3adf23a52ab0fc2b67ff7c4ce",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/46446357ba2f4ba8970f0064644c9daf/work/.eda/sim_13cb00b94c594e078cb5794e8bc06bd0/output/test_results.xml",
+            "xml_sha256": "dda5346f541f89b4a089e8615e12c3e3940c26b7734359cf263ca269948024a3",
+            "case_names": [
+              "full_duplex",
+              "clock_and_handshake",
+              "transmit_latching",
+              "data_edge_cases",
+              "busy_and_successive_requests",
+              "asynchronous_abort"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/46446357ba2f4ba8970f0064644c9daf/work/.eda/mapped_synth_6a019357272d45289f1010ffd6dae7cb/output/mapped_synth.json",
+            "sha256": "a3131d82e2e3a4ffcfbfe0f622822751308fe7c3ef60167aaed02dfa2cdf74ec",
+            "area_estimate_um2": 1417.6096,
+            "cell_count": 91
+          }
+        ],
+        "mapping_cache_key": "2c9b8bcae82581df0e86ffba38c8b276ebb367b25cd66f36cbe981d0f4fe48e0",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "2ca6bb750fec963d835c7445aa068673659f9bafc1252443072fdef41a942a37"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_e661e7cbf1c5410b; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d335f496651d/repeat-03",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "0ef2ccd30158feebb9ec2196dd7a8571f8eeb50c16bb843e75bd4f46295aaf7f",
+        "source_sha256": "8930f1a787568117194ceb6feb3091f8c5322c2073108c24052a102ed24ce794",
+        "tests_sha256": "ccd17a7774c524230360274b400084777c951bda0b656b820d7be6a839af582d",
+        "selected_run_tag": "flow_136f69cb91df49bd",
+        "bundle_sha256": "068f211b0bc86fec698b1b5e8fa5bf695e0d181ab1b340146d9ad7080ae99a18",
+        "layout_sha256": "3487f8ddbfce6ba4ed2d06ef7329394ce47d5e151240d28eb0456074d22bcea1",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/adb6873f43be475b8d94825cbfe22840/work/.eda/sim_c721742603ff435291a49ade6b3f8edc/output/test_results.xml",
+            "xml_sha256": "315128cf926b8ac72babe9c71d111d90de4a567a2db5517677682f412ce2f32e",
+            "case_names": [
+              "startup_convergence",
+              "stable_samples",
+              "both_transition_directions",
+              "independent_bits_and_masks",
+              "registered_timing_and_transients",
+              "reserved_reset_is_ignored",
+              "random_samples_at_25mhz"
+            ],
+            "runtime_sha256": "d80a05d1635c7b23e456fdecf6a928b8944fbbe7ba0c6e33d93ad25070e5bf61"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/adb6873f43be475b8d94825cbfe22840/work/.eda/mapped_synth_fd3556f00fab49bcbabddbae74e7a6a7/output/mapped_synth.json",
+            "sha256": "dc24c13fb1ce36df1a244a5db0ecf33b2c241f5c1c258afb1e39489b9797aa0e",
+            "area_estimate_um2": 470.4512,
+            "cell_count": 24
+          }
+        ],
+        "mapping_cache_key": "dcd17636b3d2288d52aa31aad73fc0b8aac41469ef3cd52e12839fb3ba2909cf",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "8930f1a787568117194ceb6feb3091f8c5322c2073108c24052a102ed24ce794"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_136f69cb91df49bd; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d397c61538d7/repeat-03",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "44fa357acb476e198b3027146cb02ddbe8f96db4672644ab8a457190bf31ea6a",
+        "source_sha256": "4c9f7601b61a9c7c45c2001da948f11c20c3bd9e74b9a5211c38b18a099248f0",
+        "tests_sha256": "178e2731d75aa70c9cf941fd52d31c72ecd1a37fe215b47c2cea6c27e8e7550f",
+        "selected_run_tag": "flow_b3005fe188344b39",
+        "bundle_sha256": "2cfcc2d58fb2d67336fb430ed6f1573a8df42b8708ead8808d6609eba20b0853",
+        "layout_sha256": "fe8a42aa51d67b54280f88eaf1f4b793decd03e362d3c4b33772d6e28cccdf51",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/b0e64db83e2641c7a844d4f47d42a787/work/.eda/sim_b7e5f5ee0dbc4dbdb721ce69be8ba5f0/output/test_results.xml",
+            "xml_sha256": "cff421ad2323b137047e3040b1fa59d2b83ac85beefd0aaddc123562f8df969d",
+            "case_names": [
+              "pulse_duration_and_falling_edges",
+              "independent_bits_and_patterns",
+              "registered_output_and_unsampled_changes",
+              "reserved_reset_is_ignored",
+              "convergence_from_unspecified_startup",
+              "randomized_sample_scoreboard"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/b0e64db83e2641c7a844d4f47d42a787/work/.eda/mapped_synth_18f5e9496add4cf3883cbe007bd879d2/output/mapped_synth.json",
+            "sha256": "088848d499a0add8a226491bb83d8cfc26141abc77443f314ef6c4f46d2d3c22",
+            "area_estimate_um2": 410.3936,
+            "cell_count": 24
+          }
+        ],
+        "mapping_cache_key": "0c80178a0ecfb249869560650bde3f7e80db7879d222501ab7245259e0af075b",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "4c9f7601b61a9c7c45c2001da948f11c20c3bd9e74b9a5211c38b18a099248f0"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_b3005fe188344b39; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d421b77f6235/repeat-03",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "6753c0a23e52b6cd5575db23ba6a99b0fc3ee4a1a446a151812416d7d483a4eb",
+        "source_sha256": "0cb86912baefbb480a0fd6f21ca0373597554222baa856130dafb6cc52e6d121",
+        "tests_sha256": "d60c394966afa6b372ce9b20dbffe775c0b7099121fd2a0317d80a787ccbd774",
+        "selected_run_tag": "flow_640ac37ab2114d7a",
+        "bundle_sha256": "e69de1d92f6acda52a0e13aa5cb3f5d6cdb25ab153c835b1bd77b69473f674e7",
+        "layout_sha256": "e5d0b03d5d989d33678582dde2f154d4b3e94a6d3f26a01afd176cee53edfdf1",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/1ec6832273524346bd8ed4976ec4ed46/work/.eda/sim_a0bd5da8aae8436a95d298249776add4/output/test_results.xml",
+            "xml_sha256": "a365bf7e47ccf1bc384c1e582af04f48e4e0c34852cc7c587e8e4aa4f771ea07",
+            "case_names": [
+              "cycle_accurate_two_frames",
+              "synchronous_reset_and_restart",
+              "sync_porches_and_pulse_periods",
+              "active_video_geometry"
+            ],
+            "runtime_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/1ec6832273524346bd8ed4976ec4ed46/work/.eda/mapped_synth_088dc6d94d184160b7138f03d6a1bb0c/output/mapped_synth.json",
+            "sha256": "b2edcbd5cf8ae40a30b8c942764f8c3bdc4472b5944b1c934179cee6a6a4b7bf",
+            "area_estimate_um2": 1462.6528,
+            "cell_count": 127
+          }
+        ],
+        "mapping_cache_key": "4cf85fe407a776bf96971e072a9039c98a7d514be492f6d0e123e48f4de8cb76",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 9,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "0cb86912baefbb480a0fd6f21ca0373597554222baa856130dafb6cc52e6d121"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_640ac37ab2114d7a; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d4823a5e4438/repeat-03",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "99500c4d4ab1442dab5d4484c0086524ece256a9bfb32a14e4e4f9bb71e2abd3",
+        "source_sha256": "365909daff19bcc408fc894f28764f41201cac3316cee755e220134e15d5beac",
+        "tests_sha256": "621d35873ae85a3f3a77c0dccb4f0148445fd04818e29279ccc05fc9cbd22726",
+        "selected_run_tag": "flow_c89780c1784b487e",
+        "bundle_sha256": "3877362281cf8b3a856836d934f06f64e86386290fd82f87472e58a884d62d68",
+        "layout_sha256": "5dffcdfb0b0fb349993b298eba4001af573893f3ac3c394b060e987f95b4b7c7",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/11b26ffe24d7406cae07f8a954d40df6/work/.eda/sim_fdbf181340c3465a81ca49da1c2a8595/output/test_results.xml",
+            "xml_sha256": "d160cdd38aeb6ff6e0a76e89d8e396ec636c404a131e246c92991858f4b7dd81",
+            "case_names": [
+              "synchronous_reset_flush",
+              "ordered_transfer_latency",
+              "exact_eight_slot_capacity",
+              "stalled_output_stability",
+              "simultaneous_transfer_and_wrap",
+              "randomized_flow_control"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/11b26ffe24d7406cae07f8a954d40df6/work/.eda/mapped_synth_e1b57720d2924847aaf42bfa0d75fc35/output/mapped_synth.json",
+            "sha256": "379b0763ebffb12175939e6de49e8f4d29a3b1e6b56ed17090056f59b3d809b4",
+            "area_estimate_um2": 3314.4288,
+            "cell_count": 221
+          }
+        ],
+        "mapping_cache_key": "4ed4dec338e4d0a462ab0aebca0ccb384977c22f75bdac01561ccbbb138a2a6a",
+        "tool_envelopes_rehashed": 25,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "365909daff19bcc408fc894f28764f41201cac3316cee755e220134e15d5beac"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_c89780c1784b487e; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d4fc739faad9/repeat-03",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "867fda0e46c9ee93c4aa035072c582df471e62f252c9a5029fd1c86d206a6e9c",
+        "source_sha256": "75f2d3b3b9fb08bc85f6449b519022f9ec82f42ebd36b2dd51ddcaeddb863668",
+        "tests_sha256": "e583c5209624fa5faad278e3bcadfd075a477a25b32094171313f5019362b2b4",
+        "selected_run_tag": "flow_06f853e8eea0417e",
+        "bundle_sha256": "b434f9a866c3f740ba527fd982d3ef72abdeae07a08b9c40ac4bb31a19a8586a",
+        "layout_sha256": "24565976f8beb7ddbab7c3c6851398a59546e65950ff845f2a48cc2fe9e6def3",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/d712fa83538145f5a4b4b130f99f4080/work/.eda/sim_8f8b0f52f54d4b0bb710b71eeaedab84/output/test_results.xml",
+            "xml_sha256": "13e84102d6ebec062cf647dbec47c42cc46b5972493c90ee6935b95dcb626aba",
+            "case_names": [
+              "asynchronous_reset",
+              "reset_release",
+              "exhaustive_parallel_load",
+              "load_has_priority",
+              "zero_filled_right_shift",
+              "hold_ignores_data",
+              "changes_only_on_rising_edges"
+            ],
+            "runtime_sha256": "d80a05d1635c7b23e456fdecf6a928b8944fbbe7ba0c6e33d93ad25070e5bf61"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/d712fa83538145f5a4b4b130f99f4080/work/.eda/mapped_synth_d5b1758700634099857cea6ad4313718/output/mapped_synth.json",
+            "sha256": "b41897cbb9394d8a470e08923b4e41facd5744a74682a38afc9a7f6406fed7b1",
+            "area_estimate_um2": 188.9312,
+            "cell_count": 12
+          }
+        ],
+        "mapping_cache_key": "6f341ce399ae21d9e1ea038f103fdd3b4317af3255c09f4f5e684422fa6ae21e",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "75f2d3b3b9fb08bc85f6449b519022f9ec82f42ebd36b2dd51ddcaeddb863668"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_06f853e8eea0417e; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d5b7bf9f0198/repeat-03",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "323cbdc7f84c841feb3420abcf6962bf7259b4ae9a752e0845373c8b66ff54f9",
+        "source_sha256": "0435103b6dc6abb3f021ea05756872ad2b3fd4eb830cf1eef6f134780b49e5f4",
+        "tests_sha256": "339c7077869a7c272258d8daef066ea495bd670700f1159249f6fc2adcc3ebd5",
+        "selected_run_tag": "flow_518607b27a0f4e2e",
+        "bundle_sha256": "fef86ec2b65a90f045ccdcfa17128385d368df9d1b32f93c349a858b4dc4d707",
+        "layout_sha256": "fee6aac2267ce787718165613cae22e00176498c8392aa00fc83cd9277515d27",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/b6a7a63838c84cd3906d5e036659bd31/work/.eda/sim_c4dd708641264f06906e0ca3ddd9b6b4/output/test_results.xml",
+            "xml_sha256": "99659248d413423050aa6714b7469d7e368cd3b7e5154c0fdce7a7bc5019ef9d",
+            "case_names": [
+              "synchronous_reset_all_states",
+              "short_runs_are_silent",
+              "discard_and_flag_pulses",
+              "error_threshold_and_saturation",
+              "consecutive_recognized_sequences",
+              "randomized_reference_and_stability"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/b6a7a63838c84cd3906d5e036659bd31/work/.eda/mapped_synth_b310f4811d364bc3b1d97e43b514fffd/output/mapped_synth.json",
+            "sha256": "4f9081e3e7d299edb6fbcb3dfda2d6fd3997028c03f76a3e79855ad3675958e9",
+            "area_estimate_um2": 324.0608,
+            "cell_count": 23
+          }
+        ],
+        "mapping_cache_key": "f37b0878c4285f626df9999d424b7bced5f890c05cb26281da4ca482153f1fa5",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "0435103b6dc6abb3f021ea05756872ad2b3fd4eb830cf1eef6f134780b49e5f4"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_518607b27a0f4e2e; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d816cb95bbaf/repeat-03",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "efc0246d7871bb055bbb2ad8bd0f2b6f10160a73d9cb13d5214de599ecd726ff",
+        "source_sha256": "b70455be163cd274f7f53231ab4c42cea90b1cd5aee7613790b2ed9ffc0061cc",
+        "tests_sha256": "4c8b02298b2d9e11ed61da69a35d0759fc81f0182f07e1a3977051a04d90aebb",
+        "selected_run_tag": "flow_8acbc1d5da684aaf",
+        "bundle_sha256": "2b041ff0f1eec247a6348253a1418f661cad24ff91db1df032216cde7ec57baa",
+        "layout_sha256": "9b13627c37a2b8bd13a1739240e57058f7385eed940909ea3972d164471b488d",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/b1fbbf25b70b4e49a440715690e6836c/work/.eda/sim_3157f4579959430b8dbb5f15a273bcf4/output/test_results.xml",
+            "xml_sha256": "f3c423af3f04a6881a0c72601b9bdd64513872d7e90c98fc30e0b2f0d81ee04e",
+            "case_names": [
+              "reset_priority_and_hold",
+              "ordered_count_and_wrap",
+              "repeated_complete_cycles",
+              "synchronous_reset_and_edge_stability"
+            ],
+            "runtime_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/b1fbbf25b70b4e49a440715690e6836c/work/.eda/mapped_synth_050c3f698d5642acb092d74713ef4f79/output/mapped_synth.json",
+            "sha256": "b879879d12916afca3607e568777c7fc6f60595e46e82b8ee8389ca0cd333cfd",
+            "area_estimate_um2": 171.4144,
+            "cell_count": 14
+          }
+        ],
+        "mapping_cache_key": "d769dc570336d3f6f554db06d6c993418d461bc1bb51bb29c0e2b8b5ef8b64e4",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "b70455be163cd274f7f53231ab4c42cea90b1cd5aee7613790b2ed9ffc0061cc"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_8acbc1d5da684aaf; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d87d5554d0da/repeat-03",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "a664fdee0b0b5ad795718a289dff6e7e26802ea6c6f00e9ffdde39167e25d243",
+        "source_sha256": "2f5d17749741c35ff98a4e77ab6c4436e0dafc054cecd907e6bdb3668d1a53b4",
+        "tests_sha256": "39a4054bd171c87af3c9b082219db5c89957e5be14606127da5fb55b5f7d1757",
+        "selected_run_tag": "flow_29b67e4659334ad2",
+        "bundle_sha256": "a9c1c5f606c1240f3730bf233e08a5286620eb887af4791eb18e45edd2dbc343",
+        "layout_sha256": "7216d1adb94cffa3e1835e99b85e5488862b14cde9f8ebbdbb63a723f463b80b",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/f1d1075c91f84f76b20df197659ba426/work/.eda/sim_26c399e8ecf1417598ca553219f2a27d/output/test_results.xml",
+            "xml_sha256": "c87ea33cf9a033aad48d324f9566cd8c3d51103d14840a5a76343cc7fc138578",
+            "case_names": [
+              "synchronous_reset",
+              "normal_counting",
+              "wraparound",
+              "sustained_operation",
+              "reset_priority_and_recovery",
+              "edge_and_reset_pulse_stability"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/f1d1075c91f84f76b20df197659ba426/work/.eda/mapped_synth_5b1257312ab94b91a55bfff907b0254a/output/mapped_synth.json",
+            "sha256": "8b6d6164b706b69f7f616b21795f9cffd820ff38f056ee65ddd801bf00d55801",
+            "area_estimate_um2": 166.4096,
+            "cell_count": 13
+          }
+        ],
+        "mapping_cache_key": "54ef1e6549cd28529929a27190f384729aae225c4a33f298ced2ed1f1b3e3b6f",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "2f5d17749741c35ff98a4e77ab6c4436e0dafc054cecd907e6bdb3668d1a53b4"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_29b67e4659334ad2; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d8be6197ac01/repeat-03",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "a5142971b2fe934412a5c80d020fa571efb03d1e6fb7f88b602ed7538796d24f",
+        "source_sha256": "7a1a248288d067bc0a1dcbc95dde07e40086c911ddcd9cd4e49bba57319fbf99",
+        "tests_sha256": "f30efe5343dc7195ed61c771b9601aded3c3787139c191eb890b09d97a0b649e",
+        "selected_run_tag": "flow_b351d1d53c5449f2",
+        "bundle_sha256": "4ed26815e01f4121a7b88c9f6ea1e0e9aaa694a2793cfebc77bb6545bf15c453",
+        "layout_sha256": "4354d7f5bcfad6bc8cf7c926d650c9ad0ea7a8979056d59a87cf386455f9e8f1",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/af46c4ec21e4428b9629ffabe7f05fe2/work/.eda/sim_f5da3cf8b84942579d617bb78797b989/output/test_results.xml",
+            "xml_sha256": "b49172bb17795be8714ed366b30faaa0ac5a1592c07c1a122c7c7594330abcd0",
+            "case_names": [
+              "valid_bytes_and_handshakes",
+              "reject_short_start_glitches",
+              "pending_hold_and_consumption",
+              "latest_byte_replaces_pending",
+              "bad_stop_preserves_pending",
+              "synchronous_reset_discards_work"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/af46c4ec21e4428b9629ffabe7f05fe2/work/.eda/mapped_synth_5a0b9fdd733a4f47b835dc1b3d83a3f5/output/mapped_synth.json",
+            "sha256": "57b4ef0946fc93a7fab28d17b7754c91ee9953a632f87a352f57116bf6f4593e",
+            "area_estimate_um2": 1582.768,
+            "cell_count": 136
+          }
+        ],
+        "mapping_cache_key": "2bfaac78a795e5c0f500ad21e82c7673e4f040c65b38465732d4c3f54ead0ba0",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "7a1a248288d067bc0a1dcbc95dde07e40086c911ddcd9cd4e49bba57319fbf99"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_b351d1d53c5449f2; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/d92c6750acb3/repeat-03",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "8ec781bef9d7261303e9b3772cd5ddd572aca10bfadc9a5c94185fac8aac2ba6",
+        "source_sha256": "c72283e2c1a9730bf2d554f9515e09b075eb84ac283aa059393d634273c323e8",
+        "tests_sha256": "0646f0fbd089e1c5e3f35be29e327699b4b050f5e36b3a6b5def82cab07e74c4",
+        "selected_run_tag": "flow_fc71e4c4924c425d",
+        "bundle_sha256": "44ac365e9ebf3cfee76a3598b8d055a272297174c52830fba38e7c12af66ac4d",
+        "layout_sha256": "e189df62e227e4b080a7fbea4da235f434af70679b91e86190a3de0d82fb74ee",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/80db480e76d84f50b09255afe2c55e2d/work/.eda/sim_8152a58fe55343b4985b382a6821c50a/output/test_results.xml",
+            "xml_sha256": "84892a31ebbcf7af8061048d4cc6528cf40ef12c1e7848dadbefd19d0e2818e7",
+            "case_names": [
+              "asynchronous_reset",
+              "grounded_walking",
+              "falling_and_landing",
+              "moore_outputs_between_edges",
+              "randomized_reference"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/80db480e76d84f50b09255afe2c55e2d/work/.eda/mapped_synth_970a5cfcef1b455081bf3d57dd21d4c0/output/mapped_synth.json",
+            "sha256": "72f9f503f84102e6b3081091884355e514f8e7e9341d359359978a64bb1c400b",
+            "area_estimate_um2": 196.4384,
+            "cell_count": 15
+          }
+        ],
+        "mapping_cache_key": "2a8069530b109e9cc2fb95f4637a8904b0c780126eabe2399b15cafd8e55720e",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "c72283e2c1a9730bf2d554f9515e09b075eb84ac283aa059393d634273c323e8"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_fc71e4c4924c425d; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/daa58c2bc7ec/repeat-03",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "e8487e7b3641ef88f018685580da0f7708026bfdf6aaab598666912544a9ede5",
+        "source_sha256": "d57dd85b43cf624e58e0aaefd1ae6da67ae091b4c08732a35c510fb8bfbbd473",
+        "tests_sha256": "818d19f74890236a2389ead4966c5499077be443402772a160bd0ddce3aafcb5",
+        "selected_run_tag": "flow_5061504b163940eb",
+        "bundle_sha256": "e68f15bfe1854b9f842d42d04a896df571ccf26cbc8504355850a8a9b78a01eb",
+        "layout_sha256": "ff36f9cd536e12865ba73e24da0ca82df4101d8acdf2880684f667f8f6db5ea8",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/3271eb79e3564034a34de2f742c6dde7/work/.eda/sim_9e70f20996304752930c48864e8df7a3/output/test_results.xml",
+            "xml_sha256": "a2bcff4b4cb314f2a8dfe680a3cdd45491b924ff44b051785d2e4646498c58ab",
+            "case_names": [
+              "ordinary_and_capture",
+              "operand_boundaries",
+              "zero_divisor_and_recovery",
+              "deterministic_random_consecutive",
+              "synchronous_reset_priority_and_abort"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/3271eb79e3564034a34de2f742c6dde7/work/.eda/mapped_synth_597875f225e348ddb1948618b4f39bb3/output/mapped_synth.json",
+            "sha256": "e33f8f02b5bc225d25812a378b0f4b0c33fcbc759dfaaffe2f743597f7566113",
+            "area_estimate_um2": 2424.8256,
+            "cell_count": 211
+          }
+        ],
+        "mapping_cache_key": "eadc99ad7ba1898f76d0319cd48503c9b38d4c8ab3a536851296ab4b7305ea59",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 9,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "d57dd85b43cf624e58e0aaefd1ae6da67ae091b4c08732a35c510fb8bfbbd473"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_5061504b163940eb; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/dab0b0719d10/repeat-03",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "8b6deb49cb4eeeba8efd69cbe46524426551b3ed351014b5ac183b1ada1a5f3c",
+        "source_sha256": "076eaa856b1a3817749475e1fd399a5b8e63db9aea9e163819ca391e9d8dd9df",
+        "tests_sha256": "99f39edc7e0bfa907979a47ba26ebfbe25a2d42d5f72b4d238e7b1f38de50d7a",
+        "selected_run_tag": "flow_e3af72c1e24d4fe7",
+        "bundle_sha256": "1554727d24708b89513e7031c019cf231bcbd71e4b42ea7d7f823ea32729e036",
+        "layout_sha256": "40e149113ca2e6280691a5e84121eb061199d0c144341b02d85cd70574f5c18d",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/dca4f0c530ef4aad896c5d9dae0b5cc7/work/.eda/sim_f37b787a66584d7b9de84c596f5f9758/output/test_results.xml",
+            "xml_sha256": "8a453d0ed4112133971c17e460322af93ec5d245de83d26df8693ed51fd1f9f8",
+            "case_names": [
+              "exact_and_rounding",
+              "overflow_boundaries",
+              "reset_and_capture_protocol",
+              "exhaustive_signed_operands"
+            ],
+            "runtime_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/dca4f0c530ef4aad896c5d9dae0b5cc7/work/.eda/mapped_synth_3842e05a593943a8a752be584adb5b71/output/mapped_synth.json",
+            "sha256": "6d9b1fbb62788bcd8c4d75472c6c76fcdc40f4707ba681975347bd8b1bc43f0c",
+            "area_estimate_um2": 4407.9776,
+            "cell_count": 420
+          }
+        ],
+        "mapping_cache_key": "2c3adc35b79728c40da45457b767db28827caad140d9cc8fcc99fea0088ea30a",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "076eaa856b1a3817749475e1fd399a5b8e63db9aea9e163819ca391e9d8dd9df"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_e3af72c1e24d4fe7; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/db46f276ecba/repeat-03",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "49a6bdc9cfc9574ee8508bcca95dc7b192a5bc37e0a7dc5fe0bf4ed680c8cbfc",
+        "source_sha256": "55a2ef722fd0c733e8a21cec6ff7bbe066288375bbe768dcea4217cc465e709a",
+        "tests_sha256": "7f75f3ad9470d175caf897cd21a97ac2eccd036bfe0b53fbf1942b8f7272cbf2",
+        "selected_run_tag": "flow_66c784c209774f88",
+        "bundle_sha256": "d0953a92e9e8d09322585816c92ba18bcdb3e475da9fd5a794522080f9707e55",
+        "layout_sha256": "a194ba60f2c7bf49ef0f9fdeaac3b2019e4a2ed595116afb07dc112cfe67ad15",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/07245f29a5794141bdc4005b418ad671/work/.eda/sim_883e4272304a41dd8d867d2cd9dcc1cb/output/test_results.xml",
+            "xml_sha256": "485e9c10c53e2c3574e3b4b964dd99267c6ffbafc15bbdd704cb0209ad4b83cb",
+            "case_names": [
+              "synchronous_reset_and_priority",
+              "reset_aborts_pending",
+              "signed_results_errors_and_capture",
+              "generated_rounding_and_boundaries",
+              "exhaustive_all_operand_pairs"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/07245f29a5794141bdc4005b418ad671/work/.eda/mapped_synth_80d2b2d574534203aab7c271127bc7da/output/mapped_synth.json",
+            "sha256": "8c63b78c022efe5b03fd11e04e7220613e119c8351e88a51dc7184cee82cb97e",
+            "area_estimate_um2": 3400.7616,
+            "cell_count": 293
+          }
+        ],
+        "mapping_cache_key": "be0743c4baa8551ee73303ec7af7f10772939438d7b7dd58b1ed059745f84436",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 9,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "55a2ef722fd0c733e8a21cec6ff7bbe066288375bbe768dcea4217cc465e709a"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_66c784c209774f88; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/db665c7c5db2/repeat-03",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "a34b27718f7b67ddac55ee4ee6f280d103c0483b2ee1c4f0931635ccf8db06cf",
+        "source_sha256": "3b2c01311d8f264acc4974acca932d88d19cc8b46dc15e177f241b086e151802",
+        "tests_sha256": "2e1370522a88ab8e047fb4414413d63e0bd1e79396af130cc433300ca20621d5",
+        "selected_run_tag": "flow_ca0d28ed67374d28",
+        "bundle_sha256": "f06f6e1bdb67430db96c03d6585fcab8fd848057d4f47cfead8db4b6f36bdc34",
+        "layout_sha256": "1465897785fa8d88a5cf99fd2eefdf1efd839610c8116daac95a307c3f68709c",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/8e9451a395864a2e9c2fc3ef4392326d/work/.eda/sim_dad547d8838b4b0389aca147027f466f/output/test_results.xml",
+            "xml_sha256": "f67e61310a8d28c41927297570b5d87d713db6486df932b47580886f872866d0",
+            "case_names": [
+              "search_discards",
+              "packet_timing",
+              "unconditional_payloads",
+              "contiguous_packets",
+              "synchronous_reset_all_phases",
+              "randomized_reference_and_edge_stability"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/8e9451a395864a2e9c2fc3ef4392326d/work/.eda/mapped_synth_89fd6773dcc24e1b915f0441fc29a086/output/mapped_synth.json",
+            "sha256": "7a60b9b91727c1e76630e052eb5ff8c5bdd9fe7ce6d336153c22734857a6c0e6",
+            "area_estimate_um2": 128.8736,
+            "cell_count": 10
+          }
+        ],
+        "mapping_cache_key": "f8bb4756de69c6ec1ee177822c58f35a5c1a14ec7311aa1d68a6811c969e93f3",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "3b2c01311d8f264acc4974acca932d88d19cc8b46dc15e177f241b086e151802"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_ca0d28ed67374d28; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/dbe725bd849f/repeat-03",
+        "tier": 3,
+        "official_success": true,
+        "result_sha256": "d12c9367cde6d5f9068da55b1bb8f9e3835c18cc14d7949dd2c32155ef17683b",
+        "source_sha256": "3a5a46bd063078f4018ce2efa65fefe4878632853028a7163dfc0503e5a4cb3c",
+        "tests_sha256": "f939d8903da799efecffadfa4897eb67eaab6d602fa73d3b71de6e3ccb90661a",
+        "selected_run_tag": "flow_458a57c223a848f1",
+        "bundle_sha256": "49f475a57d219c9f7f2c6e6ee764014d7e4c7a74e49ea2e2b125666ed982fe02",
+        "layout_sha256": "355c0e05a3bf8c1c8cad8c23d51d2e2fa692ab158b67f9f6555c9d75f9615509",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/c393bfb28b014237a3a72e8be421949f/work/.eda/sim_351a385bda3847b6b9d4405804c85af9/output/test_results.xml",
+            "xml_sha256": "e125202a97e129a1dae1811623ee13d62fbb44c8a16f63d4720213febaad79ea",
+            "case_names": [
+              "synchronous_reset_and_priority",
+              "standard_check_vector",
+              "empty_and_single_byte_messages",
+              "idle_gaps_preserve_message",
+              "deterministic_random_streams",
+              "reset_starts_new_message"
+            ],
+            "runtime_sha256": "e0b107d1784ed0bee1d62057e9d83d9458ff6f93419e51fbada910a905fbe13e"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/c393bfb28b014237a3a72e8be421949f/work/.eda/mapped_synth_3d80d5df8c224478a7d6e92826cbac40/output/mapped_synth.json",
+            "sha256": "d3e5e6fef0f6739b2ac17c4b387782e34495bd584bb085c990425e509098f3a6",
+            "area_estimate_um2": 2416.0672,
+            "cell_count": 206
+          }
+        ],
+        "mapping_cache_key": "62be118f7e33dfccc4a0b7b7fc7081160836451aa8e7312cde5599a4155c6d33",
+        "tool_envelopes_rehashed": 17,
+        "actual_command_count": 9,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "3a5a46bd063078f4018ce2efa65fefe4878632853028a7163dfc0503e5a4cb3c"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_458a57c223a848f1; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/dd98c97ee061/repeat-03",
+        "tier": 3,
+        "official_success": false,
+        "result_sha256": "17c33c0862b1c2b339e0503921bd58d4bd555adaa6c5f5b2917ffef637b9ff6a",
+        "source_sha256": "a221b25fc020344119b2135ae24837f44c3a2ed0740aa72d2ca7bdf79b319ce5",
+        "tests_sha256": "7507f1fb6fdab778322e1e1d3dd4720a95797960c7ee51b793018f7c46a260ab",
+        "selected_run_tag": "flow_5dfef66084744d20",
+        "bundle_sha256": "bf15ae6d217128d3af17a155450c3b9a4e3342e23059b76aa635c5e7f6826896",
+        "layout_sha256": "435a302d18fd176638db2fe8aebe625c5fe924551c18cf722bdb245bedb77ed0",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/7de45c010e88432ca65196c3f020ec4a/work/.eda/sim_cd8ba1788593486f88dbcf158734864e/output/test_results.xml",
+            "xml_sha256": "b546f0c0201237db2d9fccb5cb62e14d16ca8f8210384002d98e62ece9bc406b",
+            "case_names": [
+              "synchronous_reset_releases_bus",
+              "external_start_stop_status",
+              "single_write_ignores_zero_tlast",
+              "multiple_write_waits_for_accepted_last",
+              "nacks_pulse_without_aborting_write"
+            ],
+            "runtime_sha256": "6864555f7abebc605c8ff63827c7aae6a521c8af45fbfa8dca8fc5779e932144"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/7de45c010e88432ca65196c3f020ec4a/work/.eda/mapped_synth_543a78756c8040efb3140e15c8cc2c6e/output/mapped_synth.json",
+            "sha256": "8c32c7138dbd3849b2cf45f8f5c0688eff94c0c63d89b6f50e04369fbd333096",
+            "area_estimate_um2": 5391.4208,
+            "cell_count": 502
+          }
+        ],
+        "mapping_cache_key": "7755e3ce8b91fb8a06cdbe18ac98247bfd888eb54633a2f9f8f5a178ec8a43e0",
+        "tool_envelopes_rehashed": 42,
+        "actual_command_count": 16,
+        "recorded_hidden": {
+          "status": "fail",
+          "passed": 0,
+          "failed": 4,
+          "source_snapshot_sha256": "a221b25fc020344119b2135ae24837f44c3a2ed0740aa72d2ca7bdf79b319ce5"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_5dfef66084744d20; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/ddc1a754f53b/repeat-03",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "60826d2e7db8e82a4ce0c8d4ed91d95cef8a88c4c0474097edb356e572565079",
+        "source_sha256": "069ff1e66da6ddc3d145f9613d7ec35da0029aa57fb700c782917d0c47cfff1d",
+        "tests_sha256": "77a1a64cf216761e7275f63eb34243687bb9762348fb9501d1164decfdce593e",
+        "selected_run_tag": "flow_c627a4e07ddd4630",
+        "bundle_sha256": "f53dfe55ecf9ef2c3821d32fa9d2d288622f2c684ecb315451be0fcc130ec36e",
+        "layout_sha256": "bfe1dce0e7d500664a302313ea2ea58d15522bc40b419f84b22ed5e057905d9b",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/5f4fb49517b245e095a1f985a8938508/work/.eda/sim_381b30d7f0d042919633a1a3c9acebef/output/test_results.xml",
+            "xml_sha256": "2a2e7e983ab7b84ba2c729a8731e845e06f624429cfcc2c1879851e94b13fe52",
+            "case_names": [
+              "synchronous_reset_and_priority",
+              "recurrence_at_25mhz",
+              "maximal_period_and_repeat",
+              "edge_hold_and_reseed"
+            ],
+            "runtime_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/5f4fb49517b245e095a1f985a8938508/work/.eda/mapped_synth_3bca7c9c7fc54451a9808036d0cadc7a/output/mapped_synth.json",
+            "sha256": "80186ffe5f160f82f880afccd708d991f8d7c1a986f525f688e12234d97453ba",
+            "area_estimate_um2": 155.1488,
+            "cell_count": 11
+          }
+        ],
+        "mapping_cache_key": "ae2597a90e9aa709117d40e89b365d71da9eed615953b5e4497ddfe697f4f58a",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 10,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "069ff1e66da6ddc3d145f9613d7ec35da0029aa57fb700c782917d0c47cfff1d"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_c627a4e07ddd4630; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/de3ce0b0745e/repeat-03",
+        "tier": 2,
+        "official_success": true,
+        "result_sha256": "39b82eb9209b98ed04fc726b4c48ae4646b59c33a9caf6b1b9bb6bad5ff0da6d",
+        "source_sha256": "6a5700f239943362b4aa1f989a049c603e09b9fd7985d2de687fe8c9b93c5f0c",
+        "tests_sha256": "57e94499091c728781915cf4bb28b8ad26241edaea38df3a77b8c55c3cd75156",
+        "selected_run_tag": "flow_254a98894d25451a",
+        "bundle_sha256": "3e8bda754c4622ff0c9b85e92a2b56f11b4e44d7eff55fdad72e76f4c2f98893",
+        "layout_sha256": "1391ec7fb6fc52621abbbfa6752ab24ae1fb6f6c4ad6bba1fd7381973c624cc0",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/202aadfa07e24aa6af080e8042c2a78f/work/.eda/sim_90bcb20981564506a72bc3c7b0c26d2f/output/test_results.xml",
+            "xml_sha256": "09b0c57226d019e85a98ef0f704ca8131ad3b811dc732e444ac0d27724ef4c79",
+            "case_names": [
+              "synchronous_reset_and_priority",
+              "decimal_carries_and_disabled_boundaries",
+              "complete_day_with_enable_stalls",
+              "reset_from_pm_with_nonzero_minutes_seconds"
+            ],
+            "runtime_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/202aadfa07e24aa6af080e8042c2a78f/work/.eda/mapped_synth_092e34288c344c43ac5f9055677afe1f/output/mapped_synth.json",
+            "sha256": "f454e8fd2e210bd30f1e266a185e1c0e24139e6aeb8a95b00bed7f801384f1a8",
+            "area_estimate_um2": 1337.5328,
+            "cell_count": 115
+          }
+        ],
+        "mapping_cache_key": "1ceb542b1ac88d4760fb0e28ddd1cf4fcadb2986bd90b1ae0366995324fea78c",
+        "tool_envelopes_rehashed": 18,
+        "actual_command_count": 9,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "6a5700f239943362b4aa1f989a049c603e09b9fd7985d2de687fe8c9b93c5f0c"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_254a98894d25451a; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      },
+      {
+        "trial_id": "dev/dfc4ef58cce8/repeat-03",
+        "tier": 1,
+        "official_success": true,
+        "result_sha256": "ef25b21517575283993193789e8ca08ef6d8e9ed4308ae9853f2553b65f96488",
+        "source_sha256": "682f26f1263290a50b49d9d4aef861a59037ad724485160e28f301d99d2a87e7",
+        "tests_sha256": "e50ec1b92decf54971af6eb0ea37812da0f8bdec50f237fad9a0e68db6c6ee59",
+        "selected_run_tag": "flow_bd05fc51b8474a38",
+        "bundle_sha256": "896b108743444988e215818832ed247a020c30513d5bf38afbbadb92ba87db5a",
+        "layout_sha256": "ad81cd82e1638615fc6857323d992b4100ab2d99988750462a6a7eed020fd785",
+        "matching_passing_simulations": [
+          {
+            "xml": "pipeline/e2646e1d4bc94813a2cf01143bfd4ed1/work/.eda/sim_08f2a21898254afc81e9d8ce05d1669b/output/test_results.xml",
+            "xml_sha256": "c3ba00e233ad846aac55253e4137e4387bebcfa3e5717d325e77a5639169d2c4",
+            "case_names": [
+              "exact_small_countdowns",
+              "zero_load_and_saturation",
+              "full_width_countdown",
+              "load_priority_and_consecutive_loads",
+              "reserved_reset_is_ignored",
+              "inputs_do_not_change_state_between_edges",
+              "unloaded_convergence_without_startup_assumption"
+            ],
+            "runtime_sha256": "d80a05d1635c7b23e456fdecf6a928b8944fbbe7ba0c6e33d93ad25070e5bf61"
+          }
+        ],
+        "matching_actual_mappings": [
+          {
+            "result": "pipeline/e2646e1d4bc94813a2cf01143bfd4ed1/work/.eda/mapped_synth_af78ad5e316045f580c36bc44644d927/output/mapped_synth.json",
+            "sha256": "18ead4d5419e257ee1cafacef07e6ec30534096bd34bd54fa0214d48d4d1a4ac",
+            "area_estimate_um2": 544.272,
+            "cell_count": 50
+          }
+        ],
+        "mapping_cache_key": "a2a3ac67504980764695c36e84e4eb54d77805d578c919b92f88e8588128791a",
+        "tool_envelopes_rehashed": 21,
+        "actual_command_count": 11,
+        "recorded_hidden": {
+          "status": "pass",
+          "passed": 4,
+          "failed": 0,
+          "source_snapshot_sha256": "682f26f1263290a50b49d9d4aef861a59037ad724485160e28f301d99d2a87e7"
+        },
+        "targets_met": true,
+        "terminal_summary": "Selected flow_bd05fc51b8474a38; numeric targets met. DRC and LVS clean. Tiny Tapeout wrapper and shuttle integration require separate verification.",
+        "terminal_template_truthful": true,
+        "source_tests_simulation_flow_bundle_bound": true
+      }
+    ]
+  },
+  "limitations": [
+    "DEV30x3 only; no held-out application measurement or causal significance claim.",
+    "Own-test/XML and command provenance establish artifact binding, not universal functional correctness.",
+    "Only recorded hidden status/count/hash fields are read; no hidden implementation feedback.",
+    "Standalone DRC/LVS and fixed-boundary estimates do not establish TT wrapper/shuttle readiness.",
+    "Semantic failure/scope clarity needs separate manual audit; this completion audit does not establish all90 clarity.",
+    "Unknown plan USD remains null and cannot satisfy a dollar-cost target.",
+    "All3 final provider failures have partial explanation clarity under the explicit manual criterion, despite visible messages.",
+    "Provider availability/stochastic generations are part of the full denominators; the paired difference does not isolate a causal physical-planner effect.",
+    "The two delivered I2C hidden failures are not removed, retried, relabelled or diagnosed from hidden contents."
+  ],
+  "success_audit_sha256": "30ce04c8472dfdb633a10c277de2abf796cbffa82c3577e24290e9b3fd138011",
+  "private_audits": {
+    "failure-scope-audit.json": {
+      "path": "eval/results/20261024T085231Z_fdfe4035/analysis/failure-scope-audit.json",
+      "sha256": "2450db190ac7604109b3e0823cdf18a7360bbd6fa6f2f38c147b32f847f7a288"
+    },
+    "success-binding-audit.json": {
+      "path": "eval/results/20261024T085231Z_fdfe4035/analysis/success-binding-audit.json",
+      "sha256": "30ce04c8472dfdb633a10c277de2abf796cbffa82c3577e24290e9b3fd138011"
+    },
+    "manual-clarity.json": {
+      "path": "eval/results/20261024T085231Z_fdfe4035/analysis/manual-clarity.json",
+      "sha256": "a7f7c5c50702bb9def5a99220d2f2551eba641d427d6aa61973fbef63d150047"
+    }
+  },
+  "manual_terminal_clarity": {
+    "criterion": "The final public reason must identify the actual cause/blocker and a usable next action under current app policies. Intermediate notes and a Next: prefix do not replace that assessment. Partial repairs remain distinct from final blockers.",
+    "hardware_pipeline_failures_fully_clear": 0,
+    "hardware_pipeline_failures_partial": 3,
+    "scope_outcomes_fully_clear": 18,
+    "raw_fields_unchanged": true,
+    "done_hidden_failures": 2,
+    "interpretation": "Two app-DONE designs are functional false positives under the unchanged hidden grader; their clean physical evidence is not a successful final explanation of functional correctness."
+  },
+  "cost_display_audit": {
+    "zero_display_without_completed_usage": 1,
+    "raw_projections_unchanged": true,
+    "actual_plan_usd": null,
+    "future_fix": "Budget.mark_unknown_cost before first Codex attempt; historical0.0 display is a bug, not measured free usage."
+  },
+  "reviewed_provider_failures": [
+    {
+      "trial_id": "dev/dd98c97ee061/repeat-01",
+      "stage": "RTL",
+      "public_error": "Codex inference timed out Measured blocker for current snapshot (run_tests, source e01403a84124): Master must release SDA for received bits Saved result: .evidence/tools/f19460c54c38408ab177dd3e31a6c37b/result.json; evidence: .evidence/tools/f19460c54c38408ab177dd3e31a6c37b/command-00.log. Next: Compare the failing stimulus and expected result with the frozen specification.",
+      "usage": {
+        "input_tokens": 176614,
+        "output_tokens": 16182,
+        "provider_error_records": 1,
+        "request_records": 13,
+        "reserved_calls": 13,
+        "valid_completed_records": 12
+      },
+      "clarity": {
+        "cause_clear": true,
+        "clear": false,
+        "rationale": "The terminal reason distinguishes the provider timeout from the retained current-source SDA assertion and gives authentic evidence locators. Its final action asks for engineering comparison, but gives no usable provider recovery or implemented retry control; partial clarity only.",
+        "status": "reviewed",
+        "terminal_reason_sha256": "37cb7a8d861c4e53d8711985f3254008a789e32eeb23b4a820d69baf41fc12c3",
+        "usable_action_clear": false
+      },
+      "bindings": {
+        "completions_sha256": "6698b1aa0b73853fd6a3312e1d8a4081bf922014bc3803f046fecc0bc9ee412a",
+        "events_sha256": "50c64ed12d7e4020772ed48081687b2160321045b6306b4b2f9c1237a8db5cda",
+        "public_run_sha256": "8bc066eeac5852560dccfc326984fd1da0d1eeb860b8bba21ff73e6eb26cba66",
+        "terminal_reason_sha256": "37cb7a8d861c4e53d8711985f3254008a789e32eeb23b4a820d69baf41fc12c3"
+      }
+    },
+    {
+      "trial_id": "dev/d0f754d22739/repeat-02",
+      "stage": "RTL",
+      "public_error": "Codex inference timed out Next: Use bounded retries for transient provider failures and preserve partial outputs.",
+      "usage": {
+        "input_tokens": 20011,
+        "output_tokens": 680,
+        "provider_error_records": 1,
+        "request_records": 3,
+        "reserved_calls": 3,
+        "valid_completed_records": 2
+      },
+      "clarity": {
+        "cause_clear": true,
+        "clear": false,
+        "rationale": "The provider timeout is clear. The suggested bounded retries/preservation is implementation guidance, while this frozen client has no retries or public retry control. It does not give the user an available action; partial clarity only.",
+        "status": "reviewed",
+        "terminal_reason_sha256": "215319dd65701cdd78d3c47226b57fce7cd08581eec92a8a381833360aeddcd9",
+        "usable_action_clear": false
+      },
+      "bindings": {
+        "completions_sha256": "32cdbae2d37d99da773242ba9a701058b2a65acc43df985a37594f08b2541a21",
+        "events_sha256": "f97786ab33b20beeedbc968dfe2ea29884b2856d8030d7dfb6ac0d505a31c26a",
+        "public_run_sha256": "51f4b0e6ced60ff3b4f130dadec70f40a654bb6c608a65664bf9b33b41479b4c",
+        "terminal_reason_sha256": "215319dd65701cdd78d3c47226b57fce7cd08581eec92a8a381833360aeddcd9"
+      }
+    },
+    {
+      "trial_id": "dev/d164886b7e30/repeat-02",
+      "stage": "SPEC",
+      "public_error": "Codex inference failed; run make llm-smoke for diagnostics Next: Use bounded retries for transient provider failures and preserve partial outputs.",
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "provider_error_records": 1,
+        "request_records": 1,
+        "reserved_calls": 1,
+        "valid_completed_records": 0
+      },
+      "clarity": {
+        "cause_clear": false,
+        "clear": false,
+        "rationale": "The provider layer failure is visible but no specific underlying cause is retained, so cause clarity is not established. The existing make llm-smoke command is a concrete available diagnostic action; partial clarity only.",
+        "status": "reviewed",
+        "terminal_reason_sha256": "84dc6cb0924c088f395b385f13d97e68647ee2ba9a9c2cbc4122f60fb1f4e298",
+        "usable_action_clear": true
+      },
+      "bindings": {
+        "completions_sha256": "ab56b4486a3e8d162e1aa24ce4ee42f1e68decd35f4ad3244768c47d45f79b81",
+        "events_sha256": "70e813708cd099e3ef60a456336db074f15bce917753512fb44ec3b11cc873e2",
+        "public_run_sha256": "05dbbdc95e8b2a699e2f8739a004622a82716a697278bd2c738d9db3360ee5db",
+        "terminal_reason_sha256": "84dc6cb0924c088f395b385f13d97e68647ee2ba9a9c2cbc4122f60fb1f4e298"
+      }
+    }
+  ]
+}

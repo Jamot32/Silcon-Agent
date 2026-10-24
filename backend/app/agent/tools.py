@@ -15,10 +15,6 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationError
 
 from app.agent.diagnostics import bounded_result
-from app.agent.evidence import ToolEvidence
-from app.agent.ledger import config_key_diagnostic
-from app.agent.physical import PhysicalPlanner, canonical
-from app.eda.flow import ALLOWED_CONFIG_KEYS
 from app.eda.flow import validate_flow_overrides
 from app.eda.service import EDA
 from app.eda import harness
@@ -174,7 +170,6 @@ class ToolRunner:
     def __init__(
         self, work_dir: Path, run_id: str, eda: EDA | None = None,
         event_callback: Callable[[str, dict[str, JsonValue]], Awaitable[None]] | None = None,
-        physical_planner_factory: Callable[[DesignSpec, EDA], PhysicalPlanner] = PhysicalPlanner,
     ):
         self.work_dir = work_dir.resolve()
         self.work_dir.mkdir(parents=True, exist_ok=True)
@@ -189,54 +184,6 @@ class ToolRunner:
         self._harness_spec: DesignSpec | None = None
         self._harness_proof: dict[str, JsonValue] | None = None
         self._flow_proofs: dict[str, dict[str, JsonValue]] = {}
-        self._physical_planner_factory = physical_planner_factory
-        self.physical_planner: PhysicalPlanner | None = None
-        self.evidence: ToolEvidence | None = None
-        self._last_evidence_inputs: dict[str, tuple[str, str]] = {}
-
-    async def configure_physics(self, spec: DesignSpec) -> None:
-        """Pin the real tool image once before accepting measured design work."""
-        planner = self._physical_planner_factory(spec, self.eda)
-        await planner.initialize()
-        self.physical_planner = planner
-        self.evidence = ToolEvidence(self.work_dir, planner.image_identity["image_id"])
-        self.eda.sandbox.completion_callback = self.evidence.observe
-
-    def evidence_revision(self, tool: str, arguments: dict) -> tuple[str, str]:
-        # Empty sources are a real pre-generation state, never an execution claim.
-        source = self.rtl_digest() if list((self.work_dir / "src").glob("*.v")) else hashlib.sha256(b"").hexdigest()
-        inputs = {"tool": tool, "arguments": arguments, "source_revision": source}
-        if self.physical_planner is not None:
-            inputs["contract"] = self.physical_planner.spec.model_dump(mode="json")
-            inputs["image"] = self.physical_planner.image_identity
-        if tool in {"run_tests", "run_flow"}:
-            inputs["tests"] = self._source_digest("test", ".py") if list((self.work_dir / "test").glob("*.py")) else None
-        if tool in {"synth_stats", "run_flow"}:
-            path = self.work_dir / "config.json"
-            if path.exists():
-                with self._file("config.json") as descriptor:
-                    inputs["stored_config_sha256"] = hashlib.sha256(os.read(descriptor, MAX_WRITE_BYTES + 1)).hexdigest()
-        return source, hashlib.sha256(canonical(inputs)).hexdigest()
-
-    def record_rejection(self, call: ToolCall, reason: str) -> dict[str, JsonValue]:
-        result: dict[str, JsonValue] = {"ok": False, "error": reason}
-        if self.evidence is not None and call.name in _TOOLS:
-            source, inputs = self.evidence_revision(call.name, call.arguments)
-            self._last_evidence_inputs[call.name] = (source, inputs)
-            context = self.evidence.begin(call.id, call.name, source, inputs)
-            result.update(self.evidence.finish(context, result, rejection_kind="policy_rejection",
-                                              relevant_to=("lint", "run_tests", "run_flow")))
-        return result
-
-    def failure_ledger(self, relevant: tuple[str, ...]) -> dict | None:
-        if self.evidence is None:
-            return None
-        selected = next((self._last_evidence_inputs[name] for name in relevant if name in self._last_evidence_inputs), None)
-        if selected is None:
-            return None
-        source = self.rtl_digest() if list((self.work_dir / "src").glob("*.v")) else hashlib.sha256(b"").hexdigest()
-        return self.evidence.ledger.summary(source_revision=source, input_revision=selected[1], relevant_tools=relevant,
-                                           current_input_revisions_by_tool={name: revision[1] for name, revision in self._last_evidence_inputs.items()})
 
     def configure_test_harness(self, spec: DesignSpec) -> None:
         """Host-owned generated-test mode; never selected by model tool arguments."""
@@ -332,50 +279,20 @@ class ToolRunner:
 
     async def execute(self, call: ToolCall, allowed_tools: set[str] | None = None) -> dict[str, JsonValue]:
         await self._emit("tool_started", {"tool": call.name, "tool_call_id": call.id})
-        context = None
-        rejection_kind = None
-        rejection_detail = None
         try:
-            if self.evidence is not None and call.name in _TOOLS:
-                source, inputs = self.evidence_revision(call.name, call.arguments)
-                self._last_evidence_inputs[call.name] = (source, inputs)
-                context = self.evidence.begin(call.id, call.name, source, inputs)
             if call.name not in _TOOLS or (allowed_tools is not None and call.name not in allowed_tools):
-                rejection_kind = "policy_rejection"
                 raise ValueError("Tool is not allowed in this stage")
             arguments = _TOOLS[call.name][0].model_validate(call.arguments)
             result = await asyncio.wait_for(
                 self._dispatch(call.name, arguments),
-                timeout=FLOW_TIMEOUT_SECONDS + TOOL_TIMEOUT_SECONDS if call.name == "run_flow" else TOOL_TIMEOUT_SECONDS,
+                timeout=FLOW_TIMEOUT_SECONDS if call.name == "run_flow" else TOOL_TIMEOUT_SECONDS,
             )
+            result = _bounded_result(result)
         except TimeoutError:
             result = {"ok": False, "error": "Tool command timed out"}
-        except asyncio.CancelledError:
-            if context is not None:
-                self.evidence.finish(context, {"ok": False, "error": "Tool command was cancelled"})
-            raise
         except Exception as error:
-            if isinstance(error, ValidationError):
-                first = error.errors(include_input=False, include_context=False, include_url=False)[0]
-                message = f"Invalid tool arguments at {'.'.join(str(part) for part in first['loc'])}: {first['msg']}"
-            else:
-                message = str(error)
+            message = "Invalid tool arguments" if isinstance(error, ValidationError) else str(error)
             result = {"ok": False, "error": _tail(f"{type(error).__name__}: {message}", 4 * 1024)}
-            overrides = call.arguments.get("config_overrides")
-            if call.name == "run_flow" and isinstance(overrides, dict) and set(overrides) - ALLOWED_CONFIG_KEYS:
-                rejection_detail = config_key_diagnostic(sorted(set(overrides) - ALLOWED_CONFIG_KEYS))
-                result.update(first_diagnostic=rejection_detail, error=rejection_detail["message"])
-                rejection_kind = "schema_rejection"
-        if context is not None:
-            result.update(self.evidence.finish(context, result, rejection_kind=rejection_kind,
-                                              rejection_detail=rejection_detail,
-                                              relevant_to=("run_flow",) if call.name == "write_file" and call.arguments.get("path") == "config.json" else None))
-            # Full commands and receipts are retained in the immutable envelope.
-            # The live event/model result needs its locator, not a second log.
-            result["tool_evidence"] = {key: value for key, value in result["tool_evidence"].items()
-                                       if key in {"execution_id", "executed", "event", "result", "receipt", "outcome",
-                                                  "observed_command_count", "launched_command_count"}}
-        result = _bounded_result(result)
         await self._emit("tool_finished", {"tool": call.name, "tool_call_id": call.id, "result": result})
         return result
 
@@ -452,23 +369,10 @@ class ToolRunner:
                 await self._emit("test_result", _bounded_result(result))
             return result
         if name == "synth_stats" and isinstance(arguments, _Top):
-            if self.physical_planner is not None:
-                return await self.physical_planner.prepare(arguments.top, {})
             return await self.eda.synth_stats(arguments.top)
         if isinstance(arguments, _Flow):
             overrides = validate_flow_overrides(arguments.config_overrides)
             self._require_verified(arguments.top)
-            if self.flow_runs >= 6:
-                raise ValueError("Flow budget exhausted: at most 6 attempts per run")
-            planning = None
-            if self.physical_planner is not None:
-                planning = await self.physical_planner.prepare(arguments.top, overrides)
-                if planning.get("ok") is not True:
-                    return planning
-                overrides = validate_flow_overrides(planning["planned_config_overrides"])
-            # Planning may await a shared mapping. Reserve the attempt only
-            # afterward, atomically in this event loop, so siblings cannot
-            # oversubscribe the six-command limit.
             if self.flow_runs >= 6:
                 raise ValueError("Flow budget exhausted: at most 6 attempts per run")
             self.flow_runs += 1
@@ -481,14 +385,6 @@ class ToolRunner:
                                 else self.eda.run_flow(arguments.top, overrides))
                 if proof is not None and isinstance(result.get("run_tag"), str):
                     self._flow_proofs[result["run_tag"]] = proof
-            if planning is not None:
-                result.update(physical_plan={key: planning[key] for key in (
-                    "mapping_cache_key", "mapping_reused", "sizing_plan", "footprint_policy")},
-                    planned_config_overrides=overrides, physical_flow_started=True)
-                if result.get("metrics") == {}:
-                    # A failed physical attempt is evidence of failure, never
-                    # an empty measurement for the dashboard or controller.
-                    result.pop("metrics")
             if isinstance(result.get("metrics"), dict):
                 result["metrics"]["flow_index"] = flow_index
                 await self._emit("metric_recorded", {"run_tag": result.get("run_tag"), "flow_index": flow_index, "metrics": result["metrics"]})

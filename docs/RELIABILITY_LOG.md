@@ -622,3 +622,66 @@ cohort. Reference/static/pattern/trace/TT prototypes stay outside the active pat
 The three earlier incomplete I2C hidden failures remain a separate correctness
 risk; physical improvement alone cannot prove their functional recovery. No
 held-out application run has been opened, and the full targets are not claimed.
+
+## R4 result — reject and restore R3
+
+Change → mapped-area physical planning/recovery and actual executed-failure
+evidence. Before → kept R3 **86/90 (95.56%)**. After → complete frozen
+`20261024T085231Z_fdfe4035` **85/90 (94.44%)**, repeats29/27/29. Decision →
+**revert**, not a successful independent treatment. The29 tracked backend paths
+changed by R4 are restored byte-for-byte to R3 `1987da9` in the index; original
+user edits, including the nonempty-metrics guard, remain unstaged and preserved.
+
+| Tier | R3 | R4 | R4 repeat mean (min–max) |
+| --- | ---: | ---: | ---: |
+| 1 |24/24|23/24|95.83% (87.5–100%)|
+| 2 |30/30|29/30|96.67% (90–100%)|
+| 3 |14/18|15/18|83.33% (83.33–83.33%)|
+| 4 |18/18|18/18|100% (100–100%)|
+
+The unchanged G1 grader, corpus, selected model/provider, image/PDK and caps
+remain identical to R3. Every reported completion is audited, including the two
+hidden failures:69/69 have matching source/test/passing-own-simulation/physical/
+package/command evidence and clean DRC/LVS, but only **67/69 (97.10%)** pass
+bound hidden checks. The two delivered I2C designs remain functional false
+positives. Auditors read only recorded hidden status/count/hash; no hidden test,
+hidden log, golden source or held-out contents enter diagnosis or prompts.
+
+| Ranked observed failure class | Trials |
+| --- | ---: |
+| `llm_api_error` |3|
+| `hidden_test_fail` |2|
+
+All90 trials terminate; crashes, deadline hangs and evaluator errors are0.
+Manual review finds18/18 scope outcomes fully clear and all3 provider-failure
+messages only partially clear under the actual-cause plus usable-action rule.
+Two timeout messages suggest retry implementation rather than a working user
+control; the generic provider failure offers the real smoke command but retains
+no specific underlying cause. Presence of a message is not semantic clarity.
+One first-response failure exposes0.0USD in its historical public projection;
+the eval row correctly remains null. It is a display bug, never measured free
+usage. All original records/projections remain unchanged.
+
+Calls511→489; input5,962,654→5,782,030; output328,668→320,624; flow attempts
+288→272. Early failures remain in those totals, so no savings claim follows.
+Tier2 median227.860→254.297s; overall216.462→243.431s. USD is unknown for
+all90. Paired outcomes show1 improvement and2 regressions; provider availability
+and stochastic generation are part of the full outcome, not discarded trials.
+Conditional physical completion cannot substitute for overall success.
+
+`scripts/seal_eval.py ... --verify` reports90 terminal records and67 bound
+successful sources. Independent audit verifies all69 app-DONE outputs. The
+[derived report](evidence/reliability-r4.md) and
+[JSON evidence](evidence/reliability-r4.json) bind full private clarity/artifact
+audits and untouched official hashes. No held-out app evaluation has run.
+
+Next: qualify the prepared generic components independently, then declare the
+next treatment. A combined physical-plus-provider candidate may reuse qualified
+components only with a fresh full frozen DEV3×; it does not retrospectively keep
+R4 or establish a separate physics benefit. Reference/static/TT/trace/UI drafts
+remain outside the production path until their own admission and measurements.
+
+Rollback acceptance: `make demo` starts healthy API/web and the host worker.
+`make test` passes655backend tests (36integration deselected), TypeScript,
+15frontend units and5real replay/failure E2E checks in58.8s. The staged backend
+diff against `1987da9` is empty; original user changes remain separate.

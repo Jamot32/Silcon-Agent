@@ -257,7 +257,6 @@ def test_cleanup_spawn_failure_still_kills_and_reaps_command(tmp_path, monkeypat
         raise OSError("controlled cleanup launch failure")
     monkeypatch.setattr(module.asyncio, "create_subprocess_exec", spawn)
     accelerate_timeouts(monkeypatch)
-    result = asyncio.run(module.DockerSandbox().run(["true"], input_dir=source, output_dir=output, trusted_test_helper=helper))
-    assert result.timed_out is True and result.ok is False
-    assert "cleanup launch failure" in result.log_tail
+    with pytest.raises(OSError, match="cleanup launch failure"):
+        asyncio.run(module.DockerSandbox().run(["true"], input_dir=source, output_dir=output, trusted_test_helper=helper))
     assert command.kills == 1 and command.waits == 2
