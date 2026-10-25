@@ -1,0 +1,202 @@
+{
+  "active_app_changed": false,
+  "active_dev_source_changed": false,
+  "created_at": "2026-10-25T19:10:59.103223+00:00",
+  "heldout_application_evaluated": false,
+  "kind": "synthetic_read_boundary_qualification_status",
+  "limitations": [
+    "Synthetic OS process path controls only; not a production Codex/native/OAuth integration or held-out access authorization.",
+    "Preexisting readable hardlinks bypass a path-only denial. No-alias/nlink1 admission, closed non-stdio descriptors and host rename/root-roster discipline remain required and unqualified for the real private corpus.",
+    "Named command policy does not itself prove whole CLI bootstrap confinement. Outer wrapper is a separate prototype, not integrated into the frozen app.",
+    "Pinned0.163 source associates exec with an in-process app-server; separate remote environment backends/privileged brokers and installed build identity are not universally excluded by that source lookup.",
+    "No root-policy failure is erased; exact cause of the first two permitted-read outcomes remains unasserted. No historical contamination/exploit or safety guarantee is claimed."
+  ],
+  "neutral_saved_OAuth_client_compatible": true,
+  "observations": {
+    "named_policy_Python_004": {
+      "allowed_hardlink_read": true,
+      "direct_child_future_symlink_denied": true,
+      "scope": "One fixed Python parent/child under named command policy; no explicit inherited-FD test."
+    },
+    "named_policy_explicit_subtree_003": {
+      "results": [
+        "seatbelt",
+        "READ",
+        "DENIED",
+        "DENIED"
+      ],
+      "scope": "Allowed/direct denied/symlink synthetic reads; not whole CLI."
+    },
+    "named_policy_root_deny_001": {
+      "environment": "Inherited full environment; synthetic paths only.",
+      "qualified": false,
+      "results": [
+        "READ",
+        "READ",
+        "READ"
+      ]
+    },
+    "named_policy_root_deny_002": {
+      "environment": "Actual app child allowlist keys HOME/PATH/TMPDIR, no values retained.",
+      "qualified": false,
+      "results": [
+        "READ",
+        "READ",
+        "READ"
+      ]
+    },
+    "outer_help_001": {
+      "HOME_or_CODEX_HOME_override": false,
+      "actual_complete": true,
+      "actual_exit_code": 0,
+      "fixed_help_invocations": 1,
+      "host_root_roster_before_after_match": true,
+      "protected_root_count": 6,
+      "provider_EDA_inference": 0,
+      "scope": "Fixed exec --help bootstrap only; no native, full client argv, OAuth availability or production read-isolation claim.",
+      "source_and_binary_before_after_match": true
+    },
+    "outer_neutral_client_001": {
+      "actual_complete": true,
+      "actual_exit_code": 0,
+      "application_tool_dispatched": false,
+      "client_launches": 3,
+      "cost_usd": null,
+      "full70_source_before_after_match": true,
+      "hardlink_admission_qualified": false,
+      "local_preflights": 2,
+      "native_tool_isolation_qualified": false,
+      "neutral_add_proposal_validated": true,
+      "protected_root_count": 6,
+      "provider_attempts": 1,
+      "reported_input_tokens": 8631,
+      "reported_output_tokens": 41,
+      "scope": "One neutral unchanged-client completion under an external launch hook. All original CLI argv retained; local preflight stdin narrowed to DEVNULL. No general language/capacity/pipeline/score claim.",
+      "whole_production_isolation_qualified": false
+    },
+    "outer_process_OS_001": {
+      "actual_complete": true,
+      "actual_exit_code": 0,
+      "future_after_READY": true,
+      "hardlink_nlink": 2,
+      "production_admission_passed": false,
+      "results": {
+        "allowed": "READ",
+        "ancestor_rename": "DENIED",
+        "child_read": "DENIED",
+        "future_read": "DENIED",
+        "hardlink_read": "READ",
+        "project_direct": "DENIED",
+        "project_rename": "DENIED",
+        "protected_write": "DENIED",
+        "symlink_read": "DENIED",
+        "unrelated_inheritable_fd": "CLOSED",
+        "worktree_direct": "DENIED"
+      },
+      "whole_Codex_or_OAuth_qualified": false
+    }
+  },
+  "production_admission_qualified": false,
+  "protected_corpus_contents_accessed_by_these_probes": false,
+  "references": {
+    "canary001": {
+      "path": "/tmp/silicon-named-read-policy-canary-001/completed.json",
+      "sha256": "5f6d60f8427bfbeaa5aff018e11424449a9bf1589e466e31d65fc35cab4d7226"
+    },
+    "canary002": {
+      "path": "/tmp/silicon-named-read-policy-canary-002/completed.json",
+      "sha256": "af90173a882eb01e19e78359e131cf7da5b0ee1732b7fb1fd3cbbe7057f43dce"
+    },
+    "canary003": {
+      "path": "/tmp/silicon-named-read-policy-canary-003/completed.json",
+      "sha256": "01681ffa3834d94d2dc1654971929f4796bf00bca3947b36dd7563cfa9eaa692"
+    },
+    "canary004": {
+      "path": "/tmp/silicon-named-read-policy-canary-004/completed.json",
+      "sha256": "8d33b6ad937de50012c0812c4236adf88d9290616efcca3762321c6a29054482"
+    },
+    "installed_sandbox_help": {
+      "path": "/tmp/silicon-read-isolation-sandbox-help-001/completed.json",
+      "sha256": "5967c2cdfc32ca5f79ce2c864716a1bd6a4ae9e6b9aca2eabe41a1f62e65a0a9"
+    },
+    "outer_OS_actual": {
+      "path": "/tmp/silicon-codex-outer-read-deny-qualification-001/actual-001/completed.json",
+      "sha256": "5a63996b207243608d3ec99db0a3174f18ef7063a92cc1429582f12232b6e3d5"
+    },
+    "outer_builder_peer": {
+      "path": "/tmp/silicon-codex-outer-read-deny-prototype-peer-001/REVIEW.json",
+      "sha256": "123fe077edd15d47c37a6813f6de6381dde18f6ef1dea0ab4f7770c2f9caa00f"
+    },
+    "outer_builder_preparation": {
+      "path": "/tmp/silicon-codex-outer-read-deny-prototype-001/HANDOFF.json",
+      "sha256": "36644116f19a1b6c4aacdfbe9c5b399933999d06f4f77e7ccf68f929229ad02d"
+    },
+    "outer_closure_peer": {
+      "path": "/tmp/silicon-codex-outer-read-deny-qualification-peer-001/REVIEW.json",
+      "sha256": "fdf0dce45853197fe1ec1f14043228c8665eb4dc166e6d8330c64c5cf02cd546"
+    },
+    "outer_driver_preparation": {
+      "path": "/tmp/silicon-codex-outer-read-deny-qualification-001/HANDOFF.json",
+      "sha256": "10aa74d2752e4372fe4d2f89d23b4905b4b21054bbfc4934b8da99e2569aa805"
+    },
+    "outer_help_actual": {
+      "path": "/tmp/silicon-codex-outer-read-deny-help-qualification-001/actual-001/completed.json",
+      "sha256": "ce07e5f8fe3abf27d42c5fd84a13562e343c9772cb4eefbcfb3c241e452e0fc9"
+    },
+    "outer_help_closure": {
+      "path": "/tmp/silicon-codex-outer-read-deny-help-qualification-001/closure.json",
+      "sha256": "d42a7b6f2295423c068c108edc62754b930dfb9fe72b6cb0a064234929af034a"
+    },
+    "outer_help_execution": {
+      "path": "/tmp/silicon-codex-outer-read-deny-help-qualification-001/execution-001/completed.json",
+      "sha256": "45217c138eb13ef20bd75481328e4dbce1a8084c4dfd8f1ab7903c8324a048fb"
+    },
+    "outer_help_preparation": {
+      "path": "/tmp/silicon-codex-outer-read-deny-help-qualification-001/HANDOFF.json",
+      "sha256": "8ffe2ba964259251fd4392ad098fe4bcefdec6e99b2e5553da5206ee92697cc7"
+    },
+    "outer_neutral_actual": {
+      "path": "/tmp/silicon-codex-outer-oauth-probe-preparation-001/outer-execution-001/completed.json",
+      "sha256": "1ba0be1d8b35715100d05b5b1fd01744231bf88edf8863edb62e7cdd5187f4fa"
+    },
+    "outer_neutral_closure": {
+      "path": "/tmp/silicon-codex-outer-oauth-probe-preparation-001/actual-001/closure.json",
+      "sha256": "570c366445385a811b6394862766f8bbf9e962ec1bc3c4ecfba11757372d794d"
+    },
+    "outer_neutral_preparation": {
+      "path": "/tmp/silicon-codex-outer-oauth-probe-preparation-001/HANDOFF-v003.json",
+      "sha256": "de2de057a2185d987a01aac78ebdc8006636d309567e591600d0a8411c8cc1e0"
+    },
+    "outer_neutral_result": {
+      "path": "/tmp/silicon-codex-outer-oauth-probe-preparation-001/actual-001/qualification.json",
+      "sha256": "7c9530643da7cd2c137e4090650ec86ae7d8f4bfe00b7adc279483de49cad02f"
+    },
+    "outer_neutral_root_release": {
+      "path": "/tmp/silicon-codex-outer-oauth-probe-preparation-001/root-release-001.json",
+      "sha256": "37b69d8dab5aaca503662043e9b8b9d06e763bd5abab80eb975c9608a4ea474d"
+    },
+    "outer_neutral_source_peer": {
+      "path": "/tmp/silicon-codex-outer-oauth-probe-peer-001/REVIEW-002.json",
+      "sha256": "2c303cfe5b7d931253f3653150c068d14cdb3873a19d0f51af26d71a72b43a42"
+    },
+    "outer_root_wrapper": {
+      "path": "/tmp/silicon-codex-outer-read-deny-qualification-001/root-execution-001/completed.json",
+      "sha256": "81a4b7c370cb2b341578dab349ead57aec46c94b2f64e2f2f367e17978e55e3e"
+    },
+    "tagged_exec_dispatch": {
+      "path": "/tmp/silicon-codex-0163-exec-dispatch-review-001/completion.json",
+      "sha256": "c9f68f402a268784c04f73e69e0189c38d1b8eb1aa10f5e0cac4bb652e736bc1"
+    },
+    "tagged_native_handlers": {
+      "path": "/tmp/silicon-codex-0163-read-handlers-source-001/REPORT.md",
+      "sha256": "509055a95e4659ebbe7246df531ef2a232f844c4b05ea1c8a2f36e04c567374e"
+    },
+    "tagged_policy_source": {
+      "path": "/tmp/silicon-codex-0163-read-policy-source-001/REPORT.md",
+      "sha256": "a26988deba905278ad3f376ad53eadcd763b255223e45b83fb68c4af8bc793a8"
+    }
+  },
+  "schema_version": 1,
+  "updated_at": "2026-10-25T20:29:36.096256+00:00",
+  "whole_Codex_OAuth_qualified": false
+}

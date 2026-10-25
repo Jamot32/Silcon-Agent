@@ -1,0 +1,706 @@
+{
+  "accounting": {
+    "caps": {
+      "budget_exceeded_rows": 0,
+      "calls_over_declared_cap": 0,
+      "limits": {
+        "concurrency": 4,
+        "max_calls": 32,
+        "max_tokens": 300000,
+        "max_usd": 1.0,
+        "repeats": 3,
+        "snapshot_id": "22474c39492bd4de9fdce6f9ad0f12cbd5981be0680985109a928f8088a4d816",
+        "time_limit_seconds": 900.0
+      },
+      "max_recorded_cli_invocations": 17,
+      "max_recorded_input_plus_output_tokens": 275802,
+      "max_recorded_pipeline_elapsed_seconds": 592.8164200830506,
+      "note": "Retained observations only. The 32-call cap concerns CLI invocations; the 300000-token observation covers reported input+output only, with cached input included rather than added; absent response usage is unknown. The 900-second pipeline wall observation may include cleanup. These counts do not prove enforcement or bound unreported consumption and do not regrade.",
+      "pipeline_wall_over_declared_deadline": 0,
+      "timed_out_rows": 0,
+      "tokens_over_declared_cap": 0
+    },
+    "cli_attempt_kinds": {
+      "completed": 515
+    },
+    "counts": {
+      "actual_physical_flow_toolcalls": 287,
+      "cached_input_tokens": 1894528,
+      "cli_invocations": 515,
+      "executed_receipts": 547,
+      "input_tokens": 6155469,
+      "launched_commands": 746,
+      "nonreceipt_outer_envelopes": 892,
+      "nonzero_commands": 0,
+      "observed_commands": 746,
+      "outer_envelopes": 1439,
+      "output_tokens": 340425,
+      "reported_responses": 515,
+      "root_ledger_snapshots": 72,
+      "row_flow_attempts": 287,
+      "timed_out_commands": 0,
+      "trace_records": 8442
+    },
+    "usage": {
+      "cli_invocations": 515,
+      "invocations_with_reported_usage": 515,
+      "invocations_without_reported_usage": 0,
+      "reported_cached_input_tokens": 1894528,
+      "reported_input_tokens": 6155469,
+      "reported_output_tokens": 340425,
+      "reported_usage_complete": true,
+      "scope": "Returned response usage only. Cached inputs are included in reported inputs. Missing usage is unknown, not zero; reported-token cap observations do not bound unreported consumption.",
+      "unreported_attempt_token_consumption": null
+    }
+  },
+  "additive_manual_target_interpretation": {
+    "median_usd": "not_assessable",
+    "tier_3_numerical_threshold": "met",
+    "tier_3_with_every_failure_explained": "not_met",
+    "zero_crashes_hangs_or_unclear_failures": "not_met: 3 graded failures have no public explanation; 0 observed crashes/hangs"
+  },
+  "after": {
+    "attempted": 90,
+    "blocked": 0,
+    "missing": 0,
+    "planned": 90,
+    "recorded": 90,
+    "successful": 87
+  },
+  "before": {
+    "cohort_id": "20261024T213704Z_5bf06a02",
+    "planned": 90,
+    "successful": 87
+  },
+  "cohort_id": "20261025T190230Z_c06c9729",
+  "created_at": "2026-10-25T20:31:59.830123+00:00",
+  "decision": "Keep the unchanged ordinary route. This is fresh reproducibility evidence, not a new treatment or overall reliability/held-out completion.",
+  "delivery_custody": {
+    "all_app_DONE_audited": 72,
+    "clean_selected_block_DRC_LVS": 72,
+    "graded_success_sources_sealed": 69,
+    "hidden_failures_preserved": 3,
+    "public_policy_outcomes": 18
+  },
+  "heldout_evaluated": false,
+  "kind": "exact_kept_dev_requalification_result",
+  "limitations": [
+    "All90 planned trials and all3 incorrect-DONE outcomes remain in the comparison. No case-family exclusion or timeout-filtered score.",
+    "Manual clarity is additive; original summary grades/unreviewed fields remain unchanged. Public prior repair notes do not explain hidden failure causes.",
+    "No hidden/golden/oracle assertions were used for this diagnosis. A shared RTL defect or hidden assertion cause is not established.",
+    "Source equality checks are named point-in-time full70 checks, not continuous or loaded-server-module attestation.",
+    "Reported usage is not upstream HTTP count or serving-weight identity. Cached input is a subset of input; OAuth USD is unknown for all90.",
+    "Clean standalone block DRC/LVS does not establish Tiny Tapeout wrapper/tile/shuttle readiness.",
+    "Neutral wrapper, OS controls and CLI startup evidence do not qualify real corpus aliases, native tools or whole production isolation."
+  ],
+  "manual_clarity_review": {
+    "correct_policy_outcomes_reviewed": 18,
+    "correct_policy_outcomes_with_specific_reason_and_action": 18,
+    "graded_failures_reviewed": 3,
+    "graded_failures_with_public_attempted_remedy_for_that_failure": 0,
+    "graded_failures_with_public_cause_explanation": 0,
+    "graded_failures_with_public_useful_next_action_for_that_failure": 0,
+    "graded_failures_without_public_explanation": 3,
+    "policy_repair_attempt_applicability": "not_applicable_scope_halts",
+    "raw_grader_clarity_for_negative_grades": "unreviewed (unchanged); this separate manual assessment does not overwrite it."
+  },
+  "manual_taxonomy": {
+    "application_failed_statuses": {
+      "build_tier_pipeline_failed_count": 0,
+      "canonical_public_failure_class_counts": {
+        "__null__": 18
+      },
+      "correct_Tier4_policy_outcomes": 18,
+      "count": 18,
+      "recorded_scope_decisions": {
+        "ask_clarify": 9,
+        "decline": 6,
+        "scope_down": 3
+      }
+    },
+    "original_grader_unsuccessful": {
+      "application_DONE_count": 3,
+      "count": 3,
+      "failure_class_counts": {
+        "hidden_test_fail": 3
+      },
+      "stage_counts": {
+        "HIDDEN": 3
+      }
+    },
+    "public_failure_classes_for_graded_failures": {
+      "__null__": 3
+    }
+  },
+  "neutral_outer_wrapper_probe": {
+    "actual_exit_code": 0,
+    "application_tools_dispatched": 0,
+    "cost_usd": null,
+    "production_isolation_qualified": false,
+    "provider_attempts": 1,
+    "reported_input_tokens": 8631,
+    "reported_output_tokens": 41
+  },
+  "next": "Measure the generic essential-unavailable-external-reference scope policy separately. Complete trusted corpus/read-boundary admission before held-out evaluation.",
+  "original_hidden_correctness": {
+    "bound_passes": 69,
+    "denominator": 72,
+    "false_positive_count": 3,
+    "hidden_failure_count": 3,
+    "rate": 0.9583333333333334,
+    "unverified_count": 0
+  },
+  "original_operational_observations": {
+    "crash_count": 0,
+    "crash_hang_or_unclear_count": 0,
+    "crash_or_hang_count": 0,
+    "crash_rate": 0.0,
+    "denominator": 90,
+    "explanation_reviews": {
+      "clear": 0,
+      "not_applicable": 0,
+      "unclear": 0,
+      "unreviewed": 3
+    },
+    "hang_count": 0,
+    "hang_rate": 0.0,
+    "harness_error_count": 0,
+    "terminal_message_missing_count": 0,
+    "terminal_message_proxy_denominator": 90,
+    "terminal_message_unknown_count": 0
+  },
+  "original_results_changed": false,
+  "pipeline_sha256": "22474c39492bd4de9fdce6f9ad0f12cbd5981be0680985109a928f8088a4d816",
+  "public_measurement": {
+    "comparison_conditions": {
+      "cli_version": "codex-cli 0.163.0",
+      "config": {
+        "concurrency": 4,
+        "max_calls": 32,
+        "max_tokens": 300000,
+        "max_usd": 1.0,
+        "repeats": 3,
+        "time_limit_seconds": 900.0
+      },
+      "corpus_sha256": "6e6625b9d6b9702064e83db48099843af9aa541c5a9b2d521dddb0de102ba55d",
+      "grader_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669",
+      "model": "gpt-6.1-sol",
+      "plan_sha256": "f1a10de56bb01764b985f5e5254d84e1795d895ade4c97c0e610a3d85ff2b3c9",
+      "provider": "codex",
+      "tool_versions": {
+        "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+        "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+        "openai": "3.37.0",
+        "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+        "pydantic": "2.14.1",
+        "python": "3.12.13",
+        "sqlmodel": "0.0.48"
+      }
+    },
+    "comparison_group_sha256": "acd4eb4928e10a47b10d6788683f23c5142a46e8536075ecfa24f179bc18b3d6",
+    "complete": true,
+    "cost": {
+      "assessable": false,
+      "known_subset": {
+        "count": 0,
+        "max": null,
+        "mean": null,
+        "median": null,
+        "min": null,
+        "total_usd": null
+      },
+      "known_trials": 0,
+      "median_usd": null,
+      "total_usd": null,
+      "unknown_attempted_trials": 90
+    },
+    "failure_counts": {
+      "hidden_test_fail": 3
+    },
+    "hardware_survival_funnel": [
+      {
+        "check": "planned_hardware",
+        "count": 72
+      },
+      {
+        "check": "rtl_generated",
+        "count": 72
+      },
+      {
+        "check": "lint",
+        "count": 72
+      },
+      {
+        "check": "self_tests",
+        "count": 72
+      },
+      {
+        "check": "synthesis",
+        "count": 72
+      },
+      {
+        "check": "flow",
+        "count": 72
+      },
+      {
+        "check": "drc",
+        "count": 72
+      },
+      {
+        "check": "lvs",
+        "count": 72
+      },
+      {
+        "check": "package",
+        "count": 72
+      },
+      {
+        "check": "bound_hidden_pass",
+        "count": 69
+      }
+    ],
+    "independent_stage_checks": {
+      "drc": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 18,
+        "pass": 72,
+        "unknown": 0
+      },
+      "flow": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 18,
+        "pass": 72,
+        "unknown": 0
+      },
+      "hidden": {
+        "error": 0,
+        "fail": 3,
+        "not_applicable": 18,
+        "not_run": 0,
+        "pass": 69,
+        "unknown": 0
+      },
+      "lint": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 18,
+        "pass": 72,
+        "unknown": 0
+      },
+      "lvs": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 18,
+        "pass": 72,
+        "unknown": 0
+      },
+      "package": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 18,
+        "pass": 72,
+        "unknown": 0
+      },
+      "rtl_generated": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 18,
+        "pass": 72,
+        "unknown": 0
+      },
+      "self_tests": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 18,
+        "pass": 72,
+        "unknown": 0
+      },
+      "synthesis": {
+        "error": 0,
+        "fail": 0,
+        "not_applicable": 0,
+        "not_run": 18,
+        "pass": 72,
+        "unknown": 0
+      }
+    },
+    "known_cost_distribution_usd": [],
+    "pipeline_sha256": "22474c39492bd4de9fdce6f9ad0f12cbd5981be0680985109a928f8088a4d816",
+    "pipeline_time_seconds": {
+      "count": 90,
+      "max": 592.8164200830506,
+      "mean": 205.9358467735544,
+      "median": 216.42257264599903,
+      "min": 4.62026875000447
+    },
+    "planned": 90,
+    "repeats": 3,
+    "split": "dev",
+    "success_rate": 0.9666666666666667,
+    "successful": 87,
+    "tiers": {
+      "1": {
+        "attempted": 24,
+        "cases": 8,
+        "cost": {
+          "assessable": false,
+          "known_subset": {
+            "count": 0,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "total_usd": null
+          },
+          "known_trials": 0,
+          "median_usd": null,
+          "total_usd": null,
+          "unknown_attempted_trials": 24
+        },
+        "pipeline_time_seconds": {
+          "count": 24,
+          "max": 259.9238127080025,
+          "mean": 211.49644135407289,
+          "median": 207.87592902051983,
+          "min": 166.43048120802268
+        },
+        "planned": 24,
+        "recorded": 24,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 1.0,
+          "mean": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "success_rate": 1.0,
+        "successful": 24
+      },
+      "2": {
+        "attempted": 30,
+        "cases": 10,
+        "cost": {
+          "assessable": false,
+          "known_subset": {
+            "count": 0,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "total_usd": null
+          },
+          "known_trials": 0,
+          "median_usd": null,
+          "total_usd": null,
+          "unknown_attempted_trials": 30
+        },
+        "pipeline_time_seconds": {
+          "count": 30,
+          "max": 416.42613566608634,
+          "mean": 248.22181019306106,
+          "median": 239.56487704149913,
+          "min": 163.7423060410656
+        },
+        "planned": 30,
+        "recorded": 30,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 1.0,
+          "mean": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "success_rate": 1.0,
+        "successful": 30
+      },
+      "3": {
+        "attempted": 18,
+        "cases": 6,
+        "cost": {
+          "assessable": false,
+          "known_subset": {
+            "count": 0,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "total_usd": null
+          },
+          "known_trials": 0,
+          "median_usd": null,
+          "total_usd": null,
+          "unknown_attempted_trials": 18
+        },
+        "pipeline_time_seconds": {
+          "count": 18,
+          "max": 592.8164200830506,
+          "mean": 326.2019415229701,
+          "median": 291.9742231244454,
+          "min": 208.3562264579814
+        },
+        "planned": 18,
+        "recorded": 18,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 0.8333333333333334,
+          "mean": 0.8333333333333334,
+          "median": 0.8333333333333334,
+          "min": 0.8333333333333334
+        },
+        "success_rate": 0.8333333333333334,
+        "successful": 15
+      },
+      "4": {
+        "attempted": 18,
+        "cases": 6,
+        "cost": {
+          "assessable": false,
+          "known_subset": {
+            "count": 0,
+            "max": null,
+            "mean": null,
+            "median": null,
+            "min": null,
+            "total_usd": null
+          },
+          "known_trials": 0,
+          "median_usd": null,
+          "total_usd": null,
+          "unknown_attempted_trials": 18
+        },
+        "pipeline_time_seconds": {
+          "count": 18,
+          "max": 10.474057583021931,
+          "mean": 7.779020217603021,
+          "median": 8.14479674998438,
+          "min": 4.62026875000447
+        },
+        "planned": 18,
+        "recorded": 18,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 1.0,
+          "mean": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "success_rate": 1.0,
+        "successful": 18
+      }
+    },
+    "time_distribution_seconds": [
+      170.91818924993277,
+      208.06543045805302,
+      268.88740458292887,
+      9.0696418749867,
+      302.8917730420362,
+      285.48715562501457,
+      204.81852954102214,
+      237.18849574995693,
+      237.78073616605252,
+      355.6374798748875,
+      8.376553250011057,
+      215.02689858397935,
+      213.01648041699082,
+      5.489460582961328,
+      250.62464391603135,
+      217.8182467080187,
+      232.0443728340324,
+      4.731371792033315,
+      238.7857289579697,
+      254.31126670807134,
+      298.76987504109275,
+      347.89760441693943,
+      238.26592220796738,
+      284.3227275409736,
+      571.5343919160077,
+      197.48238545807544,
+      190.275191374938,
+      10.474057583021931,
+      9.066137916990556,
+      213.54535487492103,
+      207.8964057910489,
+      200.77169975009747,
+      301.726482209051,
+      8.912397083011456,
+      257.1307156670373,
+      283.40261370909866,
+      259.9238127080025,
+      207.85545224999078,
+      208.3562264579814,
+      416.42613566608634,
+      8.170086917001754,
+      196.88563525001518,
+      190.54741229093634,
+      5.358519917004742,
+      197.11129179189447,
+      199.45889037498273,
+      235.79152304201853,
+      7.428062582970597,
+      212.08503066690173,
+      265.87874483305495,
+      292.64617520791944,
+      350.50699687504675,
+      255.45504516700748,
+      246.42618020810187,
+      592.8164200830506,
+      206.3120807079831,
+      208.40600054198876,
+      9.74364537501242,
+      6.9533218749566,
+      187.7255678330548,
+      192.66133708297275,
+      204.60552066692617,
+      268.21539554197807,
+      7.847900292021222,
+      206.76509412494488,
+      286.3222764590755,
+      172.90420099999756,
+      237.2767695840448,
+      238.93328337499406,
+      287.68293637491297,
+      8.119506582967006,
+      237.89084020792507,
+      244.61939791589975,
+      7.933521667029709,
+      235.98244533292018,
+      166.43048120802268,
+      261.72372899996117,
+      4.62026875000447,
+      163.7423060410656,
+      321.97377391706686,
+      291.3022710409714,
+      380.489626542083,
+      240.34402512502857,
+      227.54396129201632,
+      460.1446857920382,
+      175.66680008301046,
+      221.51541108300444,
+      8.770924749900587,
+      8.956985124968924,
+      252.5284525839379
+    ],
+    "unknown_cost_trials": 90
+  },
+  "references": {
+    "accounting": {
+      "path": "/tmp/silicon-kept-r5c-cohort-accounting/completed-019/audit.json",
+      "sha256": "32701b3cac12875cea8ae3b9e719665662181cefe92ba29d7d964cd1a3ae5992"
+    },
+    "accounting_ack": {
+      "path": "/tmp/silicon-kept-r5c-cohort-accounting/final-source-release-ack-001.json",
+      "sha256": "97e8f6f9e502a36926c9c917fc56d3968a1ff7ac792a840f11b409e10c3e846b"
+    },
+    "anchors": {
+      "path": "/tmp/silicon-kept-r5c-finalization-001/anchors.json",
+      "sha256": "db360f6cee7b359d039e7cd95f6086240984355874e283e2673ecb49e4f8857b"
+    },
+    "comparison": {
+      "path": "/tmp/silicon-kept-r5c-finalization-001/04.stdout.log",
+      "sha256": "bcf7f2248fb7fa58bfe6ecef7466a2152f9310929cf95db597ea27679db2fd2f"
+    },
+    "delivery": {
+      "path": "/tmp/silicon-kept-r5c-delivery-audit/final-audit-001/report.json",
+      "sha256": "8a7d34ee1a23853a09ad8ec0003934d82dc29ef02bfc816adfaedcb79a68675c"
+    },
+    "delivery_and_clarity_ack": {
+      "path": "/tmp/silicon-kept-r5c-delivery-audit/final-source-release-ack-001.json",
+      "sha256": "ef94ee5b63d83e6a579a47807d8e31f8c8d3d083a3d0df45d89f9252490c777a"
+    },
+    "evaluator": {
+      "path": "/tmp/silicon-kept-r5c-dev-preparation-001/eval-execution-001/completed.json",
+      "sha256": "f82dd3d012b6f9eb71b3cc6b6b013161a2e5c0bdc648cd21d6d6dc5f73b66bc8"
+    },
+    "finalizer": {
+      "path": "/tmp/silicon-kept-r5c-finalization-001/completed.json",
+      "sha256": "908b86da5b37de836c6769c21f2fda7c138464513c263009ff7afd3d3ecf7667"
+    },
+    "finalizer_outer": {
+      "path": "/tmp/silicon-kept-r5c-finalization-root-release-001/completed.json",
+      "sha256": "4ea0e0802458a6e075c0c648aa42765ba9441e7a663b4654a356198aaa9482d6"
+    },
+    "main_source_point": {
+      "path": "/tmp/silicon-kept-r5c-finalization-root-release-001/main-source-point.json",
+      "sha256": "afa5d31bf82c77f6f091ed04328bc91a606ee4fa96b5bca949f51bfbefe6292f"
+    },
+    "manual_clarity": {
+      "path": "/tmp/silicon-kept-r5c-public-failure-review-001/final-001/substantive-review.json",
+      "sha256": "e6b566ad2bfad3bf4e88bad63cb9ff441ebf4d541e7f64d3e0d6564b5ef27724"
+    },
+    "neutral_probe": {
+      "path": "/tmp/silicon-codex-outer-oauth-probe-preparation-001/actual-001/qualification.json",
+      "sha256": "7c9530643da7cd2c137e4090650ec86ae7d8f4bfe00b7adc279483de49cad02f"
+    },
+    "neutral_probe_closure": {
+      "path": "/tmp/silicon-codex-outer-oauth-probe-preparation-001/actual-001/closure.json",
+      "sha256": "570c366445385a811b6394862766f8bbf9e962ec1bc3c4ecfba11757372d794d"
+    },
+    "neutral_probe_outer": {
+      "path": "/tmp/silicon-codex-outer-oauth-probe-preparation-001/outer-execution-001/completed.json",
+      "sha256": "1ba0be1d8b35715100d05b5b1fd01744231bf88edf8863edb62e7cdd5187f4fa"
+    },
+    "public_export": {
+      "path": "/tmp/silicon-kept-r5c-qualification-001/runs/reliability-public/20261025T190230Z_c06c9729.json",
+      "sha256": "6e52fc67254f4c18bf99c6b2673cae2e2d883557f7ea6962fa77c26b24e4f945"
+    },
+    "seal": {
+      "path": "/tmp/silicon-kept-r5c-qualification-001/eval/results/20261025T190230Z_c06c9729/EVIDENCE.json",
+      "sha256": "077662edef2b32dd51d19c924e375d18f0d4140dbb8b97cbc0c4aebafb0c82a8"
+    },
+    "summary": {
+      "path": "/tmp/silicon-kept-r5c-qualification-001/eval/results/20261025T190230Z_c06c9729/summary.json",
+      "sha256": "28c757644d6ab0b1efab79f2f5976d555aa9d29bf1147848e916b5adf2499ac0"
+    },
+    "summary_markdown": {
+      "path": "/tmp/silicon-kept-r5c-qualification-001/eval/results/20261025T190230Z_c06c9729/summary.md",
+      "sha256": "33abb0580ff5c97e2f5af10541f7b464a9528ff88c576e332046cc761017e167"
+    }
+  },
+  "repeat_totals": [
+    {
+      "planned": 30,
+      "success_rate": 0.9666666666666667,
+      "successful": 29
+    },
+    {
+      "planned": 30,
+      "success_rate": 0.9666666666666667,
+      "successful": 29
+    },
+    {
+      "planned": 30,
+      "success_rate": 0.9666666666666667,
+      "successful": 29
+    }
+  ],
+  "runtime_file_count": 70,
+  "schema_version": 1,
+  "strict_full90_comparison": {
+    "baseline_missing": 0,
+    "baseline_snapshot": "22474c39492bd4de9fdce6f9ad0f12cbd5981be0680985109a928f8088a4d816",
+    "candidate_missing": 0,
+    "candidate_snapshot": "22474c39492bd4de9fdce6f9ad0f12cbd5981be0680985109a928f8088a4d816",
+    "improvements": [],
+    "median_pipeline_seconds_delta": -14.67570502043236,
+    "paired_recorded_trials": 90,
+    "planned_trials": 90,
+    "regressions": [],
+    "success_rate_delta": 0.0,
+    "tier_success_rate_deltas": {
+      "1": 0.0,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+    },
+    "total_usd_delta": null
+  }
+}

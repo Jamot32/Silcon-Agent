@@ -1,0 +1,21 @@
+# Model host-read boundary: qualification in progress
+
+Held-out application evaluation remains closed. Same-owner `0700` directories, an empty CLI working directory and a legacy read-only sandbox do not establish evaluator-only host reads. None of the experiments below accesses protected corpus contents or changes the active 70-file DEV pipeline.
+
+| Actual synthetic experiment | Observed result | What it establishes |
+| --- | --- | --- |
+| Named profile with broad root denial, inherited environment | Allowed, denied and symlink reads all succeed | That configuration fails the intended check |
+| Same profile with the app child-environment allowlist | All three reads still succeed | The first observation cannot be attributed solely to the extra inherited environment |
+| Explicit canonical denied-directory rule | Allowed read succeeds; direct and symlink reads are denied | Narrow named-command path restriction |
+| Fixed Python parent/child plus a future-created file | Direct, child, future and symlink reads denied; preexisting allowed hardlink readable | Path restriction with an explicit hardlink limitation |
+| Whole-process OS wrapper over fresh synthetic roots | Ten expected read/write/rename/descriptor controls pass; hardlink readable | Synthetic process policy only; production admission remains false |
+| Whole-process wrapper with six host-known roots and fixed `codex exec --help` | One help call exits 0; empty stderr; source, binaries and roster match | CLI help/bootstrap compatibility only |
+| Unchanged client with all CLI launches externally wrapped | Version, login-status and one neutral inference exit 0; valid `add(2,3)` proposal; source/roster/binary points match | Narrow saved-OAuth client compatibility only |
+
+The last experiment closes an intentionally inheritable unrelated descriptor, blocks protected writes and attempts to rename the protected root or an ancestor, and creates the future file after the process reports READY. The hardlink fixture has link count two and fails the proposed no-alias admission condition. No general hardlink-inclusive protection, real-corpus admission, native-tool or OAuth confinement is claimed.
+
+The external macOS prototype puts fixed policy syntax in the policy argument and host-derived canonical roots in separate `-D` data arguments. It preserves the original inner read-only/native-disable argv. A production integration still needs a verified root roster covering original repositories, worktrees and independent private copies, including when the app runs from a nested frozen snapshot. It also needs host-owned stdio/closed unrelated descriptors, no readable hardlink aliases and stable protected namespace ownership. No global config, credential relocation or active application edit is part of these probes.
+
+The pinned 0.163.0 source sends `exec` to its in-process app-server client; `--ephemeral` controls persistence. The TUI's `--no-daemon` flag is not forwarded through that exec branch, so adding it is unwarranted for this route. Remote execution environments are a separate configuration seam: source inspection and a version string do not prove a reproducible installed build or exclude every privileged broker. [Pinned CLI dispatch](https://github.com/openai/codex/blob/83086188ae0614bd882818ff1aa23f3194962012/codex-rs/cli/src/main.rs#L1152), [pinned exec runtime](https://github.com/openai/codex/blob/83086188ae0614bd882818ff1aa23f3194962012/codex-rs/exec/src/lib.rs#L1022).
+
+Source/archive hashes, actual closed receipts, raw observations, failed configurations and scope limits are bound in `docs/evidence/read-boundary-qualification.json`, SHA256 `3b1baea51320dfed729f61f8b7b151700b671d59d62df45168ab685a817c6c18`. After the full DEV cohort closed, one neutral unchanged-client request passed with 8,631 reported input/41 output tokens and unknown USD. Both local preflights and inference retained their full CLI argv after the external wrapper; local preflight stdin was narrowed to DEVNULL. It made no application-tool or EDA call. Earlier external driver retry-accounting/label issues were corrected before first actual use and remain retained. Native-tool behavior, real-corpus no-alias admission and production integration remain unqualified. Neither check authorizes held-out evaluation or replaces a measured application change.

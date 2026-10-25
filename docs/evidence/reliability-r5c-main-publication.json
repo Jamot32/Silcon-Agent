@@ -1,0 +1,25 @@
+{
+  "actual_export_exit_code": 0,
+  "actual_export_receipt": {
+    "path": "/tmp/silicon-kept-r5c-main-publication-001/completed.json",
+    "sha256": "84180da4cc574ccba2de2f6382657fd9b53fb61b48176235446036ee9e2898fa"
+  },
+  "application_source_changed": false,
+  "at": "2026-10-25T20:35:05.953992+00:00",
+  "cohort_id": "20261025T190230Z_c06c9729",
+  "kind": "verified_main_publication_of_fresh_kept_DEV",
+  "provider_or_EDA_calls": 0,
+  "public_report": {
+    "path": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/reliability-public/20261025T190230Z_c06c9729.json",
+    "sha256": "6e52fc67254f4c18bf99c6b2673cae2e2d883557f7ea6962fa77c26b24e4f945"
+  },
+  "root_loader_observation": {
+    "actual_exit_code": 0,
+    "cohort_present": true,
+    "planned": 90,
+    "scope": "Actual direct load_admin(enabled=True) assertions in root tool output; no separate on-disk command receipt claimed.",
+    "state": "ready",
+    "successful": 87,
+    "tool_chunk_id": "7d9dc1"
+  }
+}

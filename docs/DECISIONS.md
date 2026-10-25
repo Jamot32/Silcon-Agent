@@ -372,3 +372,9 @@ missing failure explanations leave two reliability targets unmet. Overall gain
 does not establish a finished product. Tier2 median249.122s is below600s but
 21.262s slower than R3. OAuth USD is unknown. Isolated R6 work stays unactivated
 until qualified and measured; held-out application evaluation remains unopened.
+
+### Fresh kept-source reproduction and next behavioral boundary
+
+Keep the unchanged70-file ordinary pipeline after a new fullDEV3× reproduces87/90 exactly; broader canonical research remains separate. Raw summary, grades, successful/failed artifacts and all90 denominators stay immutable. Additive manual clarity review marks the3incorrect-DONE deliveries as unexplained, while18scope outcomes have useful reasons/actions; do not substitute terminal-message presence for clarity. OAuth-plan USD remains unknown.
+
+The next candidate will use the existing tool-free scope assessment to clarify only an essential exact external implementation acceptance schedule that is not completely supplied or host-verified. A name/URL/digest alone is not verified evidence; a fully specified observable/numeric contract or protocol mention stays buildable. No default may silently weaken exact compatibility. This is a separately measured proposal, not a claimed recovered design. Held-out stays closed until dev/clarity and trusted read-boundary gates are satisfied. The external wrapper's neutral OAuth success does not by itself qualify production isolation.

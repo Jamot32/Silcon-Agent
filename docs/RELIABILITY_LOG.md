@@ -976,3 +976,30 @@ passes with all90 paired records. [Derived audit](evidence/reliability-r5c.json)
 preserves the explicit limitations. All seven complete development cohorts are
 published; the quota cohort is not replaced. Held-out application evaluation
 remains unopened. R6 is still isolated and must earn a fresh before/after score.
+
+### Fresh exact-kept DEV3× — reproduced87/90; remaining hidden-failure explanation gap
+
+Change → historical R5c87/90 → fresh87/90 → keep the unchanged ordinary route. No new pipeline treatment is promoted. The full original90 planned/recorded/attempted trials,0missing/blocked, remain in `20261025T190230Z_c06c9729`. Actual documented evaluator invocation exits0 in4741.036s; unchanged base seal, verify, export and strict90-pair comparison all exit0. All90 pairs retain their grades:0improvements/0regressions; allthree repeats29/30 (96.7%, range96.7–96.7%).
+
+| Tier | Before | Fresh | Fresh repeat mean (min–max) | Numeric target |
+| --- | ---: | ---: | --- | --- |
+| 1 | 24/24 | 24/24 | 100% (100–100%) | 95% |
+| 2 | 30/30 | 30/30 | 100% (100–100%) | 80% |
+| 3 | 15/18 | 15/18 | 83.3% (83.3–83.3%) | 50%, plus clear failures |
+| 4 | 18/18 | 18/18 | 100% (100–100%) | 100% |
+
+There are72app-DONE hardware builds and18correct scope outcomes. All72 selected hardware deliveries have passing own tests/final lint, physical flow, clean blockDRC/LVS and a package. Independent hidden tests pass69/72 (95.8%); the three incorrect-DONE outcomes remain `hidden_test_fail`, never filtered or regraded. The full planned hardware funnel is72 through package→69bound hidden passes. Overall pipeline median216.423s (−14.676s versus historical), Tier2 median239.565s. All90 USD values remain unknown under saved ChatGPT-plan OAuth; no zero-cost or ≤$1 claim.
+
+| Ranked observed failure class | Count | Public diagnosis limit |
+| --- | ---: | --- |
+| hidden_test_fail | 3 | AppDONE; own tests4/5/5 pass on selected sources, but no hidden cause is established |
+
+No other negative-grade class is observed. Manual public-text review covers all18correct policy outcomes and all3unsuccessful grades:18policies have specific reasons/actions; all3failed grades lack a public explanation/remedy for their independent-test mismatch. Earlier self-test repair notes are separate. Thus numerical tier/hidden/time thresholds are met, while Tier3-with-every-failure-explained and zero-unclear-failures remain unmet after this additive review; the original summary's unreviewed fields and grades are unchanged. Observed worker crashes, deadline hangs and harness errors are0; terminal-message presence alone is not clarity.
+
+Accounting reconciles515CLI attempts/515returned usage reports,6,155,469input/340,425output tokens;1,894,528cached input is an input subset. There are1,439outer tool envelopes,547execution receipts,746root commands and287recorded flow attempts. No observed outer-command timeout/nonzero, terminal deadline or recorded cap excess. Max17calls/275,802reportedtokens/592.816s; observations are not universal enforcement or upstream-request/serving-weight proof. Original32calls/300kreportedtokens/$1ifknown/900seconds, fourjobs,120s provider attempts, model, grader, corpus and EDA pins stay fixed.
+
+Final accounting and delivery/public-review ACKs bind the exact publications and full70-file live/archive maps at their stated audit/binder points. A separate root postpublication point shows main, evaluated copy and archive all equal `22474c39492bd4de9fdce6f9ad0f12cbd5981be0680985109a928f8088a4d816`; no continuous or loaded-server attestation. Main remains the measured ordinary route; the separate128-file canonical research branch is not credited with this score. The original accounting wrapper SyntaxError happened before any data operation and is retained.
+
+Baseline summary: `eval/baselines/r5c-requalification-20261025/summary.md`; curated evidence: `docs/evidence/reliability-r5c-requalification.json` SHA256 `5fa9d5d94cf197ceb1eb090269e3667d7b5f90bc07118621536c9774c09eeac3`. The verified export is published to main's reliability data directory and its loader validates it, with identical public JSON SHA256 `6e52fc67254f4c18bf99c6b2673cae2e2d883557f7ea6962fa77c26b24e4f945`.
+
+Next: separately measure the generic essential-unavailable-external-implementation acceptance policy, with no case IDs/protocol-name shortcut and no change to fully stated numeric/protocol contracts. It can produce an honest clarification rather than a recovered success; all90 labels remain fixed. Own-test semantic coverage is still an independent limitation. Before held-out evaluation, finish trusted corpus/read-boundary admission. Synthetic OS controls, help startup and one externally wrapped neutral saved-OAuth call pass at narrow scopes; production/native/real-corpus alias isolation remains unqualified. No held-out application run has occurred.

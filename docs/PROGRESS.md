@@ -101,3 +101,7 @@ Next: user-restored OAuth smoke passed; unchanged full90-trial cohort20261024T21
 R5c: `make eval SET=dev N=3 EVAL_JOBS=4` completed90/90,87 graded successes; tiers24/24,30/30,15/18,18/18.
 Checks: original sealer90terminal/69successful sources; independent audits90states/72deliveries/742commands; same-G1 comparison+1.111points, zero paired graded regressions.
 Decision: keep for development comparison;3unexplained hidden false positives and unknown OAuth USD remain unresolved; next qualify and measure the isolated general reference-model pipeline.
+
+Fresh exact-kept DEV3× complete:87/90→87/90, repeats29/30each; tiers100/100/83.3/100%, hidden69/72; all90 outcomes preserved and ordinary seal/verify/export/strictcompare0.
+Final accounting/custody/public-review ACKs pass:515reported CLI responses/746rootcommands/287flowattempts;0observed crashes/hangs, USDunknown,3incorrect-DONE failures lack useful public explanations; main/fresh/archive70-source points match.
+Next: commit this reproducible baseline, then separately measure generic missing-external-acceptance clarification; complete read-boundary admission before held-out. No new treatment or canonical-route promotion.
