@@ -1,0 +1,114 @@
+{
+  "cleanup": {
+    "path": "/tmp/silicon-r15-public-shadow-qa-003/cleanup.json",
+    "sha256": "400955c8c331d3fe67f1f5981bd29a1df2a6914effeca5c1f99379874c330539"
+  },
+  "controller": {
+    "path": "/tmp/silicon-r15-public-shadow-qa-003/completed.json",
+    "sha256": "2290b14e596738ef6dd35e795b7441580fc5d9080e948105b364d9a07da1751b"
+  },
+  "kind": "R15_public_shadow_Docker_replay_QA",
+  "limits": [
+    "Code/editor/log regions intentionally masked; no claim of their full visual/content review.",
+    "Configured clock is not measured Fmax. Bundle GET is availability, not new ZIP signoff audit.",
+    "Screenshots are discrete replay observations, not live EDA or general design correctness.",
+    "All copied380 public inputs/main state/env metadata/source73/public export match at cleanup; no continuous or loaded-model attestation.",
+    "Dev score stays87/90; replay QA adds no design-accuracy result.",
+    "Held-out application evaluation has not begun at this evidence point."
+  ],
+  "main_head_at_QA": "6311cc35cd6384f70f072c015796d56e30184b08",
+  "main_refresh": {
+    "path": "/tmp/silicon-r15-main-refresh-001/completed.json",
+    "sha256": "c117d0d60f9ff39ddaf3130f57856bfe24b9cbcfe36fc7acbf5278ee150e03ff"
+  },
+  "passed": true,
+  "portable_units_peer": {
+    "path": "/tmp/silicon-r15-portable-unit-source-peer-001/REVIEW.json",
+    "sha256": "3bd540cb678adb17f68943b4e9744c47800d92b13c8f2b5b08aea8d77469d771"
+  },
+  "results": {
+    "Docker_pytest_9_builtin_Subtests": true,
+    "all_QA_wall_seconds": 150.618160708,
+    "backend_integration_deselected": 36,
+    "backend_passed": 1076,
+    "backend_subtests_passed": 92,
+    "frontend_E2E_pass_scope": "One actual UART replay plus one unavailable-API case.",
+    "frontend_E2E_passed": 2,
+    "frontend_E2E_skipped": 3,
+    "frontend_typecheck_exit": 0,
+    "frontend_units": 38,
+    "make_demo_exit": 0,
+    "make_test_seconds": 76.315,
+    "new_model_or_EDA_calls": 0,
+    "root_viewed_screenshots": 6,
+    "user_QA_passed": 3
+  },
+  "retained_failed_attempts": [
+    {
+      "attempt": 1,
+      "cause": "Explicit public copy missed scripts/llm_smoke_test.py required by Docker COPY.",
+      "correction": "New independent copy roster adds that script plus17 public directory-completeness assets.",
+      "exit_code": 1,
+      "root_execution": {
+        "path": "/tmp/silicon-r15-public-shadow-qa-001/root-execution-001/completed.json",
+        "sha256": "0a5d7f6336eedb346455415be26472f40c6fe08b04be80366d110cd6f6d6eb06"
+      }
+    },
+    {
+      "attempt": 2,
+      "cause": "Two unit fixtures cleared HOME for an unnamed Docker UID.",
+      "correction": "Preserve inherited HOME unchanged; no production change or test skips.",
+      "exit_code": 1,
+      "root_execution": {
+        "path": "/tmp/silicon-r15-public-shadow-qa-002/root-execution-001/completed.json",
+        "sha256": "1239984c474175eecb47a84bfb3f6bc9eb0e7d1bcd313235cabd4f5bcf4c2d30"
+      }
+    }
+  ],
+  "root_execution": {
+    "path": "/tmp/silicon-r15-public-shadow-qa-003/root-execution-001/completed.json",
+    "sha256": "0fc91e058280e249b7a17564471c5a7662f63e21e8990309701ef8c46a6450cf"
+  },
+  "runtime_count": 73,
+  "runtime_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1",
+  "schema_version": 1,
+  "source_peer": {
+    "path": "/tmp/silicon-r15-public-shadow-qa-peer-003/REVIEW.json",
+    "sha256": "1cd1858127b9cea288a60e137f71bcbbbb6ffceb5c749413ebb59e3df44bddac"
+  },
+  "source_preparation": {
+    "path": "/tmp/silicon-r15-public-shadow-qa-003/preparation.json",
+    "sha256": "26d3e50b59414c1ccc1f0ea3b782804a0f3772406f159d959c381bec2268e62c"
+  },
+  "unit_fixes": {
+    "commit": "6311cc35cd6384f70f072c015796d56e30184b08",
+    "focused_Docker_after": {
+      "passed": 30,
+      "receipt": {
+        "path": "/tmp/silicon-r15-docker-HOME-diagnosis-001/focused-after/completed.json",
+        "sha256": "382dae3f283fed57762ff6e7940adead8ff1939423d6b52d42fd3ea837ff40b4"
+      }
+    },
+    "focused_Docker_before": {
+      "failed": 20,
+      "passed": 10
+    },
+    "offline_evaluator_after": {
+      "observation": {
+        "path": "/tmp/silicon-r15-eval-offline-fixture-fix-001/after-observation.json",
+        "sha256": "349a51ba85e2b1516fd24d903f499fcbecd133d91f669b521ea2d95db77c9c00"
+      },
+      "passed": 355,
+      "subtests_passed": 15
+    },
+    "offline_evaluator_before": {
+      "failed": 1,
+      "passed": 354
+    },
+    "pipeline_and_grader_changed": false
+  },
+  "visual_review": {
+    "path": "/tmp/silicon-r15-public-shadow-qa-003/root-visual-review.json",
+    "sha256": "c25eccfe2c97e492da1f09652f210b841abf12efd9aa3b385974682077f94e5a"
+  }
+}

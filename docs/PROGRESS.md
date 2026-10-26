@@ -119,3 +119,7 @@ Next: qualify the73-file guarded Codex candidate; dev score remains87/90 and hel
 R15 — PASS: full guarded DEV3×87/90, same grades asR14; tiers100%/100%/83.3%/100%; all69 reported builds pass hidden checks.
 Evidence — actual host OS/OAuth qualification, ordinary publications/custody/accounting and both source ACKs pass; source73/9df2; USDunknown. Existing preference/metric fixes are recorded separately for clean-clone parity.
 Next — public-shadow Docker/replay/userQA check, then one held-out3× measurement; no held-out app run yet.
+
+R15 QA — PASS: exactmake demo/test76.315s;1076backend+92subtests/38frontend units/typecheck/E2E2pass3skip/userQA3;6masked screenshots reviewed.
+Fixes — two retained failed QA attempts lead only to public copy completeness and3portable test-fixture changes; focusedDocker20fail→0, evalunit1fail→0; pipeline73/9df2 and dev87/90 unchanged.
+Next — freeze this source and perform the one held-out3× cohort; OAuthUSD remainsunknown and no held-out app run has begun.
