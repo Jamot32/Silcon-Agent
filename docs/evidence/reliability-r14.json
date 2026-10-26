@@ -1,0 +1,161 @@
+{
+  "accounting": {
+    "actual_physical_flow_toolcalls": 273,
+    "cached_input_tokens": 2990720,
+    "cli_invocations": 472,
+    "executed_receipts": 513,
+    "input_tokens": 5544713,
+    "launched_commands": 706,
+    "nonreceipt_outer_envelopes": 818,
+    "nonzero_commands": 0,
+    "observed_commands": 706,
+    "outer_envelopes": 1331,
+    "output_tokens": 286511,
+    "reported_responses": 472,
+    "root_ledger_snapshots": 69,
+    "row_flow_attempts": 273,
+    "timed_out_commands": 0,
+    "trace_records": 7830
+  },
+  "after": {
+    "all_usd_unknown": true,
+    "app_done": 69,
+    "explicit_clarification_failures": 3,
+    "hidden_pass": 69,
+    "incorrect_done": 0,
+    "median_pipeline_seconds": 239.52372622897383,
+    "planned": 90,
+    "successful": 87,
+    "tier2_median_seconds": 243.6380562709528,
+    "tiers": {
+      "1": {
+        "planned": 24,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 1.0,
+          "mean": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "successful": 24
+      },
+      "2": {
+        "planned": 30,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 1.0,
+          "mean": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "successful": 30
+      },
+      "3": {
+        "planned": 18,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 0.8333333333333334,
+          "mean": 0.8333333333333334,
+          "median": 0.8333333333333334,
+          "min": 0.8333333333333334
+        },
+        "successful": 15
+      },
+      "4": {
+        "planned": 18,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 1.0,
+          "mean": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "successful": 18
+      }
+    }
+  },
+  "before": {
+    "app_done": 72,
+    "cohort_id": "20261025T190230Z_c06c9729",
+    "hidden_pass": 69,
+    "incorrect_done": 3,
+    "median_pipeline_seconds": 216.42257264599903,
+    "planned": 90,
+    "successful": 87,
+    "tier2_median_seconds": 239.56487704149913
+  },
+  "bindings": {
+    "accounting_public_ack": {
+      "path": "/tmp/silicon-r14-cohort-audit-001/final-source-release-ack-001.json",
+      "sha256": "c739e119591ac6811034e8886d1e2a07b934d13b782e603661f98b7b4e249cbb"
+    },
+    "anchors": {
+      "path": "/tmp/silicon-r14-finalization-001/anchors.json",
+      "sha256": "ce61d512a5e8280cd8c055337a566307b97563f9aadb6b4818e29e909871b7c2"
+    },
+    "comparison_sha256": "5cc6fb500c3d8042f9a704d7474148592a0bb3358d9b0108385ece92e0301b3c",
+    "custody_ack": {
+      "path": "/tmp/silicon-r14-delivery-audit-001/final-source-release-ack-001.json",
+      "sha256": "50b186d2556d49d052b90a77e17bc126b0566e2d21b3b342a1e63663a49cc9ad"
+    },
+    "evaluator": {
+      "path": "/tmp/silicon-r14-dev-evaluation-001/execution-001/completed.json",
+      "sha256": "b6e3b4426465209e94880f9ee81f06be4a9c49375b7dddc48ea717975c545c49"
+    },
+    "finalizer": {
+      "path": "/tmp/silicon-r14-finalization-001/completed.json",
+      "sha256": "88811516973a1bc47a422fad4c84f1dbeccb24c88b7c3be454befab28f59b4ac"
+    },
+    "pipeline_sha256": "014c3fd6ca21ee94764e847aeaea78485050d7134db7d42173c7e1611846b8ec",
+    "public_export_sha256": "9cf62a2b4184d7e4cb6b6c39abceb83a39b9a1bffba5f1c46a723c22e00f7b9f",
+    "runtime_source_count": 70,
+    "seal_sha256": "863b72dc92ead0620b0214863fa08325adb60f05161ecd507cd1b850d6050245",
+    "summary_sha256": "03f368c8e175c129dce124fbf7498f2224df9df9294850e78daa443a0ffbd4c0"
+  },
+  "cohort_id": "20261025T210708Z_4bd202b0",
+  "comparison": {
+    "baseline_missing": 0,
+    "baseline_snapshot": "22474c39492bd4de9fdce6f9ad0f12cbd5981be0680985109a928f8088a4d816",
+    "candidate_missing": 0,
+    "candidate_snapshot": "014c3fd6ca21ee94764e847aeaea78485050d7134db7d42173c7e1611846b8ec",
+    "improvements": [],
+    "median_pipeline_seconds_delta": 23.101153582974803,
+    "paired_recorded_trials": 90,
+    "planned_trials": 90,
+    "regressions": [],
+    "success_rate_delta": 0.0,
+    "tier_success_rate_deltas": {
+      "1": 0.0,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+    },
+    "total_usd_delta": null
+  },
+  "decision": "keep_for_success_claim_precision_and_clear_failures; no end-to-end recovery",
+  "kind": "R14_measured_scope_policy_adoption",
+  "limits": [
+    "All90 original grades unchanged. Three new clarifications are failures, not recovered designs; hardware build coverage is69/72 instead of72/72.",
+    "Successful-claim hidden precision improves69/72 to69/69 by returning three explicit clarification stops; it does not fix the old RTL.",
+    "Public explanations are clear at text level; claimed missingness in the original specs and hidden causes were not independently verified.",
+    "Strict full90 comparison shows no E2E improvement or regression; overall median is23.101s slower, Tier2 remains below600s.",
+    "USD remains unknown under saved ChatGPT-plan OAuth; no dollar-budget or zero-cost claim.",
+    "Source checks cover named live/archive files at recorded points, not continuous or loaded-code attestation.",
+    "No heldout application evaluation has run. Production Codex guard and real inventory/OAuth composition remain unqualified.",
+    "Accounting binder original attempt failed on macOS path spelling; original receipts/source retained and narrow canonical-reference correction passed."
+  ],
+  "neutral_qualification": {
+    "accuracy_gain_observed": false,
+    "baseline_expected_decisions": 12,
+    "candidate_expected_decisions": 12,
+    "expected_decisions_per_arm": 12,
+    "separate_original_requests": true
+  },
+  "public_review": {
+    "attempted_RTL_repairs_for_these_scope_stops": 0,
+    "correct_scope_outcomes_clear_at_public_text_level": 18,
+    "negative_grades_clear_at_public_text_level": 3,
+    "original_grading_clarity_values_changed": false
+  },
+  "schema_version": 1
+}

@@ -105,3 +105,8 @@ Decision: keep for development comparison;3unexplained hidden false positives an
 Fresh exact-kept DEV3× complete:87/90→87/90, repeats29/30each; tiers100/100/83.3/100%, hidden69/72; all90 outcomes preserved and ordinary seal/verify/export/strictcompare0.
 Final accounting/custody/public-review ACKs pass:515reported CLI responses/746rootcommands/287flowattempts;0observed crashes/hangs, USDunknown,3incorrect-DONE failures lack useful public explanations; main/fresh/archive70-source points match.
 Next: commit this reproducible baseline, then separately measure generic missing-external-acceptance clarification; complete read-boundary admission before held-out. No new treatment or canonical-route promotion.
+
+
+R14 PASS: full DEV3×, ordinary seal/verify/export and strict90-pair comparison all exit0;87/90→87/90,29/30 each repeat.
+Keep for reported-success hidden correctness69/72→69/69 and clear public failures3/3; three clarifications still fail, no recovered builds; Tier2 median243.638s, USD unknown.
+Next: finish guarded host-inventory/OAuth qualification and measure that rollout; held-out evaluation remains unopened.

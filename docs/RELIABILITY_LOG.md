@@ -1003,3 +1003,31 @@ Final accounting and delivery/public-review ACKs bind the exact publications and
 Baseline summary: `eval/baselines/r5c-requalification-20261025/summary.md`; curated evidence: `docs/evidence/reliability-r5c-requalification.json` SHA256 `5fa9d5d94cf197ceb1eb090269e3667d7b5f90bc07118621536c9774c09eeac3`. The verified export is published to main's reliability data directory and its loader validates it, with identical public JSON SHA256 `6e52fc67254f4c18bf99c6b2673cae2e2d883557f7ea6962fa77c26b24e4f945`.
 
 Next: separately measure the generic essential-unavailable-external-implementation acceptance policy, with no case IDs/protocol-name shortcut and no change to fully stated numeric/protocol contracts. It can produce an honest clarification rather than a recovered success; all90 labels remain fixed. Own-test semantic coverage is still an independent limitation. Before held-out evaluation, finish trusted corpus/read-boundary admission. Synthetic OS controls, help startup and one externally wrapped neutral saved-OAuth call pass at narrow scopes; production/native/real-corpus alias isolation remains unqualified. No held-out application run has occurred.
+
+
+## R14 — exact external contracts: clearer failures, unchanged end-to-end score
+
+Change → generic scope policy distinguishes a complete observable contract from an essential, unavailable exact external implementation. Before → fresh R5c87/90. After → **87/90**,29/30 on every repeat (mean96.7%, range96.7–96.7%). Decision → **keep for measured correctness of success claims and clear failures**, with no end-to-end recovery claimed. The strict full90 comparison has0 improved and0 regressed grades; all original denominators, grades, corpus, G1 and limits remain unchanged. This retention uses the separate hidden-correctness and explanation targets despite an E2E tie.
+
+| Tier | Before | R14 | Repeat mean (min–max) |
+| --- | ---: | ---: | --- |
+| 1 | 24/24 | 24/24 | 100% (100–100%) |
+| 2 | 30/30 | 30/30 | 100% (100–100%) |
+| 3 | 15/18 | 15/18 | 83.3% (83.3–83.3%) |
+| 4 | 18/18 | 18/18 | 100% (100–100%) |
+
+Incorrect app-DONE outcomes fall3→0: baseline hidden passes69/72 reported builds, candidate69/69. This comes from three explicit SPEC clarifications, **not repaired RTL or three recovered designs**. Planned hardware coverage falls72/72→69/72; the same three cases remain graded failures. All69 delivered designs pass actual own tests, final lint, synthesis, physical flow, block DRC/LVS, packaging and bound independent hidden checks. The three unbuilt cases have no hidden result.
+
+| Ranked original failure class | Count | Public outcome |
+| --- | ---: | --- |
+| pipeline_failed | 3 | SPEC asks for missing exact external observable details; no RTL attempted |
+
+Additive public review covers all21 stopped outcomes:3 negative grades and18 correctly handled Tier4 requests. Every negative has a concrete public reason and next action; no RTL repair applies. The claimed missingness in the original specs and any hidden cause are not independently established. The grader's original unreviewed clarity fields stay unchanged. Clarification remains a terminal suggestion, without interactive timeout/resume or automatic consent.
+
+Overall median239.524s is23.101s slower than216.423s; Tier2 median243.638s versus239.565s remains below600s. Actual cohort wall time4485.160s. OAuth USD is unknown for all90 trials, so the dollar target is unassessable. Accounting reconciles472 CLI invocations/472 returned usage reports,5,544,713 input and286,511 output tokens;2,990,720 cached input is an input subset. There are1,331 outer envelopes,513 execution receipts,706 observed commands and273 physical flow attempts. Observed command timeouts/nonzero exits and terminal deadline/harness failures are0; observations are not universal enforcement proof.
+
+Before this measurement,12 new neutral scope requests were evaluated once per arm: both baseline and candidate12/12 expected decisions,24 public outputs manually reviewed. This is no neutral accuracy gain or causal speed/cost proof. Focused scripted checks54+4 passed. Only24 prompt lines are the runtime treatment; no preset/case/protocol shortcut, external-reference attestation or hidden source entered the policy.
+
+Evaluator, ordinary base seal, verify, aggregate export and strict full90 comparison all close integer0. All69 app-DONE deliveries have independent custody checks. Both final binders pass, binding unchanged90 grades and70-file live/archive source points at `014c3fd6ca21ee94764e847aeaea78485050d7134db7d42173c7e1611846b8ec`. The accounting binder's first attempt failed solely on `/tmp` versus `/private/tmp` metadata-reference spelling; original source/exit1 are retained, and an exact-hash plus canonical-file comparison passes in a separate version. No original record was changed. These are point checks, not loaded-server or continuous attestation.
+
+Curated evidence: `docs/evidence/reliability-r14.json`; committed aggregate: `eval/baselines/r14-reference-scope/`. The verified public export is also available to the main reliability dashboard. Held-out application evaluation remains unopened. Next is completing actual host-inventory/Codex read-boundary/OAuth composition before a separately measured guard rollout and held-out evaluation.

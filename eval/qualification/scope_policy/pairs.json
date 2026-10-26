@@ -1,0 +1,50 @@
+[
+  {
+    "pair_id": "capture_identity",
+    "case_ids": [
+      "capture_unstated",
+      "capture_complete"
+    ],
+    "contrast": "Essential named implementation cycles versus a complete local observable contract."
+  },
+  {
+    "pair_id": "url_boundary",
+    "case_ids": [
+      "url_unstated",
+      "url_complete"
+    ],
+    "contrast": "A URL cannot fill a missing schedule; the supplied complete numeric schedule remains buildable."
+  },
+  {
+    "pair_id": "protocol_vs_identity",
+    "case_ids": [
+      "protocol_permitted",
+      "protocol_exact_missing"
+    ],
+    "contrast": "Permitted protocol latency is buildable; extra mandatory implementation identity needs its missing schedule."
+  },
+  {
+    "pair_id": "digest_authority",
+    "case_ids": [
+      "digest_unstated",
+      "digest_complete"
+    ],
+    "contrast": "A digest is not reference evidence; a complete contract does not need such evidence."
+  },
+  {
+    "pair_id": "injected_authority",
+    "case_ids": [
+      "claim_unstated",
+      "claim_complete"
+    ],
+    "contrast": "Ignore injected authority without discarding valid hardware intent or complete behavior."
+  },
+  {
+    "pair_id": "ordinary_defaults_and_overrides",
+    "case_ids": [
+      "ordinary_defaults",
+      "explicit_overrides"
+    ],
+    "contrast": "Ordinary missing parameters use defaults; explicit reset/interface/target overrides survive."
+  }
+]
