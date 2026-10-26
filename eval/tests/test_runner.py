@@ -11,6 +11,7 @@ from pydantic import ValidationError
 from app.llm.types import Budget, BudgetExceeded, Completion, LLMError, Message
 from eval.contracts import EvalCase, EvalConfig, HiddenResult, TrialResult, source_snapshot_sha256
 from eval import runner
+from backend.tests.boundary_test_support import codex_host_policy
 
 
 def async_test(function):
@@ -352,7 +353,7 @@ def test_runtime_requires_frozen_import_and_explicit_real_budget_caps(tmp_path, 
 
 
 @async_test
-async def test_actual_worker_fault_injection_keeps_oracles_out_and_preserves_failed_trial(tmp_path, monkeypatch):
+async def test_actual_worker_fault_injection_keeps_oracles_out_and_preserves_failed_trial(tmp_path, monkeypatch, codex_host_policy):
     """Exercise production Worker/Orchestrator; abort before any paid subprocess."""
     from app.llm.codex import CodexCLIClient
     item = case(tmp_path)
@@ -368,7 +369,7 @@ async def test_actual_worker_fault_injection_keeps_oracles_out_and_preserves_fai
     monkeypatch.setattr(CodexCLIClient, "complete", offline_fault)
     monkeypatch.setattr(runner, "validate_runtime", lambda *args: None)
     monkeypatch.setenv("LLM_PROVIDER", "codex")
-    trial = tmp_path / "unit-trial"
+    trial = codex_host_policy["run"] / "unit-trial"
     result = await runner.run_trial(item, 0, trial, config)
     assert result.pipeline_status == "failed" and result.stage == "SPEC"
     assert result.observed_stages == ["SPEC", "FAIL"]

@@ -34,7 +34,12 @@ def host(tmp_path,monkeypatch):
     monkeypatch.setattr(host_policy.subprocess,'run',git)
     monkeypatch.setattr(read_boundary,'SANDBOX_EXEC',str(binary))
     monkeypatch.setattr(read_boundary.sys,'platform','darwin')
-    with patch.dict(os.environ,{'LLM_PROVIDER':'codex','CODEX_MODEL':'gpt-6.1-sol','LLM_MAX_CALLS':'32','LLM_MAX_TOKENS':'300000','RUN_BUDGET_USD':'1'},clear=True):
+    # Keep the normal home for unnamed container UIDs; never invent a fallback.
+    inherited_home=os.environ.get('HOME')
+    env={'LLM_PROVIDER':'codex','CODEX_MODEL':'gpt-6.1-sol','LLM_MAX_CALLS':'32','LLM_MAX_TOKENS':'300000','RUN_BUDGET_USD':'1'}
+    if inherited_home is not None:env['HOME']=inherited_home
+    with patch.dict(os.environ,env,clear=True):
+        assert os.environ.get('HOME')==inherited_home
         yield {'project':project,'objects':objects,'run':run,'source':source,'value':value,'save':save,
             'generation':tmp_path/'generation','binary':binary,'actual':actual,'calls':calls}
 
