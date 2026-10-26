@@ -1,0 +1,154 @@
+{
+  "after": {
+    "browser_console_errors": 0,
+    "browser_http_errors": 0,
+    "browser_pageerrors": 0,
+    "existing_user_QA_passed": 3,
+    "frontend_unit_passed": 38,
+    "inspected_completed_replay_mismatches": 0,
+    "optional_missing_failure_fixture_skips": 3,
+    "root_viewed_screenshots": 6,
+    "selected_image_tag_and_configured_clock_agree_after_DONE_and_reload": true,
+    "strengthened_replay_E2E_passed": 2,
+    "typecheck_exit_code": 0
+  },
+  "before": {
+    "evidence": {
+      "path": "/tmp/silicon-r14-demo-qa-001/qualification.json",
+      "sha256": "03df6cb59965b560bbf1689bec48cdad3ebbd77730063bfddb7f471a0ea9955a"
+    },
+    "inspected_completed_replay_mismatches": 1,
+    "latest_tag": "flow_c0c9886dede04b46",
+    "selected_tag": "flow_41725ad89a984a1f"
+  },
+  "browser_selection_observations": [
+    {
+      "image_url": "/api/runs/c0243625ab7a423e879f2f0c7c7861e4/layout/flow_41725ad89a984a1f.png",
+      "label": "flow_41725ad89a984a1f \u00b7 50 MHz target",
+      "phase": "done",
+      "tag": "flow_41725ad89a984a1f"
+    },
+    {
+      "image_url": "/api/runs/c0243625ab7a423e879f2f0c7c7861e4/layout/flow_41725ad89a984a1f.png",
+      "label": "flow_41725ad89a984a1f \u00b7 50 MHz target",
+      "phase": "reload",
+      "tag": "flow_41725ad89a984a1f"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "make",
+        "demo"
+      ],
+      "elapsed_seconds": 8.249,
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "docker",
+        "compose",
+        "exec",
+        "-T",
+        "web",
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "elapsed_seconds": 0.469,
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "npm",
+        "run",
+        "test:unit"
+      ],
+      "elapsed_seconds": 0.593,
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "npm",
+        "run",
+        "test:e2e",
+        "--",
+        "e2e/replay.spec.ts",
+        "e2e/run-failure.spec.ts"
+      ],
+      "elapsed_seconds": 57.224,
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "./frontend/node_modules/.bin/playwright",
+        "test",
+        "--config",
+        "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/qa/e2e/playwright.config.ts",
+        "--output",
+        "/private/tmp/silicon-selected-layout-after-qa-001/user-playwright"
+      ],
+      "elapsed_seconds": 54.969,
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "node",
+        "/private/tmp/silicon-selected-layout-after-qa-001/browser-check.cjs"
+      ],
+      "elapsed_seconds": 1.982,
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "make",
+        "down"
+      ],
+      "elapsed_seconds": 1.866,
+      "exit_code": 0
+    }
+  ],
+  "evidence": {
+    "browser": {
+      "path": "/tmp/silicon-selected-layout-after-qa-001/browser-evidence.json",
+      "sha256": "4c84a61de91f989252b5751ed25280c3124cfc186a151de868f8c1c25361312e"
+    },
+    "cleanup": {
+      "path": "/tmp/silicon-selected-layout-after-qa-001/cleanup.json",
+      "sha256": "56751292d89639ad1f088ae6a1fa0b1b399fba4394f798a69467d6591ab2758f"
+    },
+    "completed": {
+      "path": "/tmp/silicon-selected-layout-after-qa-001/completed.json",
+      "sha256": "d490b33174cbdba69dfddf56770dc7681e37886f63cd39971c120ddf159c59fb"
+    },
+    "source_peer": {
+      "path": "/tmp/silicon-selected-layout-after-qa-peer-001/REVIEW.json",
+      "sha256": "86ba9b201d732bba183da93a34fba57b9b3fd573f4705011c9e4d9b14eb1e24a"
+    }
+  },
+  "kind": "selected_layout_dashboard_bugfix_qualification",
+  "limits": [
+    "No new model/EDA call; authentic historical runs remain visibly REPLAY. This frontend change does not alter the frozen dev score87/90.",
+    "Only one actual completed replay inspected for the mismatch; four focused unit cases cover additional state/selection conditions.",
+    "Code and event-log screenshot regions intentionally masked; no full code/log visual validation claimed.",
+    "Immediate reload screenshot captured chart before its plot rendered; this capture is not proof of a settled chart after reload. Original replay/chart checks passed.",
+    "Configured clock is a real flow target, not measured Fmax.",
+    "Browser downloaded authentic bundle bytes; no additional ZIP-content/signoff semantic audit claimed.",
+    "Owned QA services/links/env were cleaned; main services and R14 publications/source remained intact at QA checkpoints."
+  ],
+  "schema_version": 1,
+  "screenshot_sha256": {
+    "dashboard-desktop.png": "9c0731ba23339de736a9e7eabc29450e4be14db51a961f45a1ce8552b3b1af48",
+    "dashboard-mobile-layout.png": "86017a2893b3c53e6c55b3cd513bbd91d07f9683a80704f60baf693442c24867",
+    "dashboard-mobile.png": "1d5676c5e4f3ceff575c98bb59fcf4a57a3d151c4e30c51c1f5f120bb127780e",
+    "dashboard-reload.png": "cb906c781ff6777163754301ef30b249a5de8ef61216806585803d9c62eb5d6e",
+    "home-desktop.png": "69e67148890178453a21765b687fd9cb421870919d00c3d2d3c41c0f2b3b5914",
+    "result-desktop.png": "dd7686eccbdc1acc9aca03dfac6157da36dc1cd6476435d6f1e0410dec074c9c"
+  },
+  "sources_sha256": {
+    "frontend/components/run/run-dashboard.tsx": "651b6ff99a28e1fb4547d9ae2f265c052047c4585a11f8f967fc60ec5ed54bc5",
+    "frontend/e2e/replay.spec.ts": "ca89f0965b10ca797b6f611a8a7fadf2441ace52822fc5dd1b77072257679976",
+    "frontend/lib/run-state.ts": "375762804ce20370b4c3d0eb9f2e85b49c7fba404882ef7903d4e8dc0e2e9faa",
+    "frontend/tests/run-layout.test.mjs": "5296b51bad62bd24d6ec7a7e9128ee4a7379827d25d8a0cf731f9c99db4a1db0"
+  }
+}

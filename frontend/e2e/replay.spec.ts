@@ -64,7 +64,15 @@ test("recorded UART replays at 4× with actual metrics and artifacts @replay", a
   await expect(page.getByTestId("metrics-chart").locator("svg.recharts-surface").first()).toBeVisible();
   const layout = page.getByTestId("layout-image");
   await expect(layout).toBeVisible();
-  await expect(layout).toHaveAttribute("src", new RegExp(`/api/runs/${runId}/layout/`));
+  expect(run.best_run_tag, "Completed replay must retain its selected flow").toBeTruthy();
+  const selected = metrics.find((metric) => metric.run_tag === run.best_run_tag);
+  expect(selected, "Selected layout clock must come from the same flow").toBeDefined();
+  const selectedLayout = `/api/runs/${runId}/layout/${encodeURIComponent(run.best_run_tag!)}.png`;
+  const layoutTag = page.locator("#final-layout .layout-tag");
+  const selectedClock = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(selected!.clock_mhz);
+  await expect(layout).toHaveAttribute("src", selectedLayout);
+  await expect(layoutTag).toHaveAttribute("title", run.best_run_tag!);
+  await expect(layoutTag).toContainText(`${selectedClock} MHz target`);
   await expect.poll(async () => layout.evaluate((node) => node instanceof HTMLImageElement && node.complete && node.naturalWidth > 0)).toBeTruthy();
   expect(bundleResponse.headers()["content-type"]).toContain("application/zip");
   expect(bundleResponse.headers()["content-disposition"]).toContain(`silicon-agent-${runId}.zip`);
@@ -93,4 +101,10 @@ test("recorded UART replays at 4× with actual metrics and artifacts @replay", a
   }
   expect(blockedMutations).toEqual([]);
   expect(pageErrors).toEqual([]);
+  // The terminal snapshot still owns selection while history arrives on reload.
+  await page.reload();
+  await expect(page.getByTestId("run-status")).toHaveAttribute("data-status", "done");
+  await expect(layout).toHaveAttribute("src", selectedLayout);
+  await expect(layoutTag).toHaveAttribute("title", run.best_run_tag!);
+  await expect(layoutTag).toContainText(`${selectedClock} MHz target`);
 });

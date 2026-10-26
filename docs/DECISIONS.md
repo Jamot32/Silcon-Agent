@@ -385,3 +385,8 @@ The next candidate will use the existing tool-free scope assessment to clarify o
 Keep the measured generic scope prompt:87/90→87/90, with incorrect-DONE3→0 and clear public messages on all3 remaining negative grades. This is a deliberate retention for the separate success-claim correctness and failure-explanation targets despite an E2E tie; it is not an E2E improvement. Three clarifications remain failures and hardware coverage is69/72. Overall median rises23.101s, Tier2 stays4.06min, and USD remains unknown. No hidden tests, case labels, grades or expected outcomes are changed.
 
 A citation/digest or a user's “verified” claim does not establish a host-verified external implementation. Complete numeric/protocol contracts remain buildable; missing essential external identity gets at most two bounded questions with an exactness-preserving default. Current clarification stops are terminal suggestions, not timeout-applied choices. Source/publication and delivery/accounting binders pass; their scope is recorded in `docs/evidence/reliability-r14.json`.
+
+
+### Select the same completed layout on dashboard and result page
+
+Derive DONE layout directly from public `best_run_tag`, using the existing encoded layout URL; keep active/interrupted behavior. This fixes1→0 mismatches in an inspected authentic replay without new fetch/effect/schema/backend logic. Four focused state/render tests and strengthened DONE/reload E2E checks retain existing replay assertions. Evidence: `docs/evidence/selected-layout-fix.json`; clock labels describe configured targets, not Fmax.

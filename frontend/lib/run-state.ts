@@ -7,6 +7,11 @@ export interface RunState {
 }
 export const emptyRunState = (): RunState => ({ run: null, events: [], files: {}, metrics: [], latestLayout: null, testResults: null, latestDiffs: {}, lastEventId: 0 });
 export const isTerminal = (status: string): boolean => ["done", "failed", "cancelled"].includes(status);
+export function dashboardLayout(run: Pick<PublicRun, "id" | "status" | "best_run_tag">, latest: Layout | null): Layout | null {
+  if (run.status !== "done") return latest;
+  const tag = run.best_run_tag;
+  return tag ? { run_tag: tag, image_url: `/api/runs/${encodeURIComponent(run.id)}/layout/${encodeURIComponent(tag)}.png` } : null;
+}
 const object = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === "object" && !Array.isArray(value);
 const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 const count = (value: unknown): value is number => finite(value) && Number.isInteger(value) && value >= 0;

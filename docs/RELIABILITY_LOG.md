@@ -1031,3 +1031,10 @@ Before this measurement,12 new neutral scope requests were evaluated once per ar
 Evaluator, ordinary base seal, verify, aggregate export and strict full90 comparison all close integer0. All69 app-DONE deliveries have independent custody checks. Both final binders pass, binding unchanged90 grades and70-file live/archive source points at `014c3fd6ca21ee94764e847aeaea78485050d7134db7d42173c7e1611846b8ec`. The accounting binder's first attempt failed solely on `/tmp` versus `/private/tmp` metadata-reference spelling; original source/exit1 are retained, and an exact-hash plus canonical-file comparison passes in a separate version. No original record was changed. These are point checks, not loaded-server or continuous attestation.
 
 Curated evidence: `docs/evidence/reliability-r14.json`; committed aggregate: `eval/baselines/r14-reference-scope/`. The verified public export is also available to the main reliability dashboard. Held-out application evaluation remains unopened. Next is completing actual host-inventory/Codex read-boundary/OAuth composition before a separately measured guard rollout and held-out evaluation.
+
+
+### Dashboard selection repair (separate frontend change)
+
+Before:1 inspected completed replay displayed the latest comparison layout instead of the host-selected best run, including after reload. After:0 mismatches in the same authentic replay; image URL, visible tag and configured clock agree with the selected result. DONE now derives the layout from `best_run_tag`; active/interrupted runs retain their actual latest layout. Dev reliability stays87/90; no model/EDA rerun or score improvement is claimed for this UI fix.
+
+Actual isolated `make demo`, typecheck,38frontend units, strengthened replay checks (2passed/3optional skips), existing user QA (3passed), browser and cleanup all pass. Main38units/typecheck also pass on the promoted files. Root viewed six masked screenshots; code/log panels are intentionally excluded, and the immediate-reload chart capture precedes plot rendering. These limits and exact receipts are in `docs/evidence/selected-layout-fix.json`.

@@ -110,3 +110,8 @@ Next: commit this reproducible baseline, then separately measure generic missing
 R14 PASS: full DEV3×, ordinary seal/verify/export and strict90-pair comparison all exit0;87/90→87/90,29/30 each repeat.
 Keep for reported-success hidden correctness69/72→69/69 and clear public failures3/3; three clarifications still fail, no recovered builds; Tier2 median243.638s, USD unknown.
 Next: finish guarded host-inventory/OAuth qualification and measure that rollout; held-out evaluation remains unopened.
+
+
+UI selection PASS: completed replay layout mismatch1→0;38frontend units/typecheck,2replay checks (+3honest skips),3existing QA and browser/cleanup pass.
+Dashboard/result selected image, tag and configured clock agree after DONE/reload; source/log screenshots remain masked and chart reload capture has a documented timing limit.
+Next: qualify the73-file guarded Codex candidate; dev score remains87/90 and held-out evaluation remains unopened.
