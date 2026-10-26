@@ -367,6 +367,25 @@ def test_flow_budget_six_and_parallel_limit_three(tmp_path):
     assert eda.calls.count("run_flow") == 6
 
 
+def test_failed_flow_without_metrics_records_no_metric(tmp_path):
+    # A LibreLane failure (e.g. GPL-0301 utilization) yields metrics={}; recording it
+    # used to make the API reject the event and kill the run as "Worker API is unavailable".
+    events = []
+
+    async def record(kind, payload):
+        events.append(kind)
+
+    runner = ToolRunner(tmp_path, "unit", eda=FakeEDA(), event_callback=record)
+
+    async def scenario():
+        await verify_golden(runner)
+        return await runner.execute(call("run_flow", top="counter"))
+
+    result = asyncio.run(scenario())
+    assert result["metrics"] == {}
+    assert "metric_recorded" not in events
+
+
 def test_design_notes_append_and_finish_only_accepts_known_flow(tmp_path):
     eda = FakeEDA()
     eda.flows.add("unit_flow")

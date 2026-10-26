@@ -541,7 +541,8 @@ class ToolRunner:
                     # A failed physical attempt is evidence of failure, never
                     # an empty measurement for the dashboard or controller.
                     result.pop("metrics")
-            if isinstance(result.get("metrics"), dict):
+            # A failed flow returns metrics={}; never record it as a measured row.
+            if isinstance(result.get("metrics"), dict) and result["metrics"]:
                 result["metrics"]["flow_index"] = flow_index
                 await self._emit("metric_recorded", {"run_tag": result.get("run_tag"), "flow_index": flow_index, "metrics": result["metrics"]})
             return result

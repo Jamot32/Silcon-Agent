@@ -395,3 +395,8 @@ Derive DONE layout directly from public `best_run_tag`, using the existing encod
 ### R15 source parity: record existing token preference
 
 The measured working runtime already includes the user-requested unlimited token default: unset/blank `LLM_MAX_TOKENS` maps to `None`. Record the existing factory/types/example/README changes in a separate named commit so the guard migration is reproducible from a clean checkout. These are preserved working bytes, not a new evaluation treatment. The evaluator still sets32 calls/300000 reported tokens/$1-if-known/900 seconds explicitly. Existing tracked edits are recorded by scope rather than silently bundled; unrelated untracked `qa/` and `graphify-out/` remain untouched. Original file hashes are retained in the root adoption receipt.
+
+
+### R15 source parity: retain the existing empty-metric correction
+
+Record the existing nonempty-metrics guard and its regression separately. A flow returning `metrics={}` must not gain a synthetic `flow_index` or emit a measurement event; otherwise storage can reject the incomplete Metric. The regression covers the empty-result/event behavior with FakeEDA, not a real flow-failure diagnosis. These exact working bytes were already present in R14/R15 measurement and remain unchanged; recording them makes the clean checkout match that measured source.
