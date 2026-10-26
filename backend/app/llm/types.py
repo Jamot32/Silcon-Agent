@@ -62,7 +62,7 @@ class LLM(Protocol):
 class Budget:
     max_usd: float = 2.0
     max_calls: int = 50
-    max_tokens: int | None = 300_000
+    max_tokens: int | None = None  # None = unlimited
     calls: int = field(default=0, init=False)
     input_tokens: int = field(default=0, init=False)
     output_tokens: int = field(default=0, init=False)

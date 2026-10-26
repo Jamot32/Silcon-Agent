@@ -390,3 +390,8 @@ A citation/digest or a user's “verified” claim does not establish a host-ver
 ### Select the same completed layout on dashboard and result page
 
 Derive DONE layout directly from public `best_run_tag`, using the existing encoded layout URL; keep active/interrupted behavior. This fixes1→0 mismatches in an inspected authentic replay without new fetch/effect/schema/backend logic. Four focused state/render tests and strengthened DONE/reload E2E checks retain existing replay assertions. Evidence: `docs/evidence/selected-layout-fix.json`; clock labels describe configured targets, not Fmax.
+
+
+### R15 source parity: record existing token preference
+
+The measured working runtime already includes the user-requested unlimited token default: unset/blank `LLM_MAX_TOKENS` maps to `None`. Record the existing factory/types/example/README changes in a separate named commit so the guard migration is reproducible from a clean checkout. These are preserved working bytes, not a new evaluation treatment. The evaluator still sets32 calls/300000 reported tokens/$1-if-known/900 seconds explicitly. Existing tracked edits are recorded by scope rather than silently bundled; unrelated untracked `qa/` and `graphify-out/` remain untouched. Original file hashes are retained in the root adoption receipt.

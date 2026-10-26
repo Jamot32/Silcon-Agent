@@ -30,7 +30,7 @@ make record-repair    # explicit REAL model build from a disclosed faulty UART s
 make down
 ```
 
-`make dev` restarts the host worker to apply code/environment changes. An interrupted run is marked failed with its partial evidence retained. The worker reconnects after API outages; an ambiguous in-flight job is never automatically repeated. One build/playback is allowed at a time. Per-run limits are 50 model calls, 300,000 tokens, six physical-flow attempts, and three concurrent flows; known Meta cost is capped by `RUN_BUDGET_USD` (default $2). Live tools run without network, with immutable inputs and CPU/memory/time/output limits.
+`make dev` restarts the host worker to apply code/environment changes. An interrupted run is marked failed with its partial evidence retained. The worker reconnects after API outages; an ambiguous in-flight job is never automatically repeated. One build/playback is allowed at a time. Per-run limits are 50 model calls, six physical-flow attempts, and three concurrent flows; tokens are unlimited unless `LLM_MAX_TOKENS` is set; known Meta cost is capped by `RUN_BUDGET_USD` (default $2). Live tools run without network, with immutable inputs and CPU/memory/time/output limits.
 
 The API alone owns SQLite. The host worker uses private authenticated HTTP; `make setup` creates a server-only worker token without printing it. Real source snapshots, logs, metrics, events and images remain in ignored `runs/<id>/`. [Recording manifests](demo_recordings/README.md) hash every committed playback asset. API health at http://localhost:8000/api/health reports cached real smoke/tool checks and fresh authenticated worker contact without paid requests.
 
