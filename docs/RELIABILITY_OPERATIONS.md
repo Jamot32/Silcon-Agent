@@ -18,10 +18,10 @@ Unknown ChatGPT-plan dollar costs remain unknown. Displayed historical cohorts
 include rejected candidates and are not endorsements.
 
 The kept-baseline pointer is committed at
-`docs/evidence/reliability-kept-baseline.json`. It currently selects R3's original
-three-repeat development summary and evidence seal. R4 was rejected; a pending
-candidate does not replace the pointer. Updating it requires a completed,
-verified keep decision.
+`docs/evidence/reliability-kept-baseline.json`. It selects the completed, verified
+R15 three-repeat development summary and evidence seal. Historical rejected
+candidates and pending work do not replace the pointer. Updating it requires a
+completed, verified keep decision.
 
 ```sh
 make reliability-ci
