@@ -11,6 +11,7 @@ COPY designs /designs
 COPY demo_recordings /demo_recordings
 COPY scripts/manage_worker.py /scripts/manage_worker.py
 COPY scripts/setup_env.py /scripts/setup_env.py
+COPY scripts/setup_codex_boundary.py scripts/guarded_codex_smoke.py scripts/provider_smoke_test.py scripts/codex_smoke_test.py scripts/llm_smoke_test.py /scripts/
 USER silicon
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

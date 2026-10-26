@@ -115,3 +115,7 @@ Next: finish guarded host-inventory/OAuth qualification and measure that rollout
 UI selection PASS: completed replay layout mismatch1→0;38frontend units/typecheck,2frontend E2E cases (one replay; +3honest skips),3existing QA and browser/cleanup pass.
 Dashboard/result selected image, tag and configured clock agree after DONE/reload; source/log screenshots remain masked and chart reload capture has a documented timing limit.
 Next: qualify the73-file guarded Codex candidate; dev score remains87/90 and held-out evaluation remains unopened.
+
+R15 — PASS: full guarded DEV3×87/90, same grades asR14; tiers100%/100%/83.3%/100%; all69 reported builds pass hidden checks.
+Evidence — actual host OS/OAuth qualification, ordinary publications/custody/accounting and both source ACKs pass; source73/9df2; USDunknown. Existing preference/metric fixes are recorded separately for clean-clone parity.
+Next — public-shadow Docker/replay/userQA check, then one held-out3× measurement; no held-out app run yet.

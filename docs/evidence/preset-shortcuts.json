@@ -1,0 +1,166 @@
+{
+  "at": "2026-10-26T04:03:44.770761+00:00",
+  "conclusion": "No preset-specific RTL/verification/physical-flow/retrieval shortcut found in inspected main or R15 ordinary live production paths. Presets and arbitrary spec use the same live pipeline. Explicit disclosed supplied-starter and recorded-replay paths remain, so do not claim every path is model-generated or every handwritten source path was removed.",
+  "evidence": {
+    "collection": {
+      "path": "/tmp/silicon-preset-shortcut-audit-001/collection.json",
+      "sha256": "ac9dd44d10fa97879a410538be00b26f21aea24a7187d8cb2dcce48abb46bad6"
+    },
+    "focused_greps": {
+      "path": "/tmp/silicon-preset-shortcut-audit-001/focused-greps.json",
+      "sha256": "08d86a3e61a9a842c23637776e4a59d7b59c180d3674816486b00800e0bf5831"
+    },
+    "public_presets": [
+      {
+        "id": "counter",
+        "name": "Counter"
+      },
+      {
+        "id": "pwm",
+        "name": "PWM"
+      },
+      {
+        "id": "uart",
+        "name": "UART TX"
+      },
+      {
+        "id": "alu",
+        "name": "4-bit ALU"
+      },
+      {
+        "id": "traffic",
+        "name": "Traffic light"
+      }
+    ],
+    "public_source_differences": [
+      "backend/app/llm/boundary_metadata.py",
+      "backend/app/llm/codex.py",
+      "backend/app/llm/factory.py",
+      "backend/app/llm/host_policy.py",
+      "backend/app/llm/read_boundary.py",
+      "backend/app/worker.py"
+    ],
+    "source_pins": {
+      "R15": {
+        "path": "/private/tmp/silicon-preset-shortcut-audit-001/R15/source-pins.json",
+        "sha256": "b0d0f1fbb2f4e4a82c7c4001323ba384901f23704659023a559603f81b03d0a1"
+      },
+      "main": {
+        "path": "/private/tmp/silicon-preset-shortcut-audit-001/main/source-pins.json",
+        "sha256": "8620b02c2ead608f9153c5ff77526c543089ccb4a6ada9f985efcd9c155d217c"
+      }
+    }
+  },
+  "findings": [
+    {
+      "classification": "legitimate UI selection and labels",
+      "detail": "Selecting a preset changes editor spec_text and attached preset_id. Editing text clears preset selection. API only validates ID membership, stores caller spec_text and metadata. Worker never forwards preset_id to the generator; live generator/EDA/LLM/packaging/Worker preset grep has zero matches in both roots.",
+      "refs": [
+        "frontend/components/new-design.tsx:69",
+        "frontend/components/new-design.tsx:103",
+        "frontend/components/new-design.tsx:106",
+        "backend/app/main.py:180",
+        "backend/app/main.py:183",
+        "backend/app/storage.py:91",
+        "frontend/components/run/run-dashboard.tsx:34",
+        "frontend/components/run/run-result.tsx:21",
+        "frontend/components/run-history.tsx:36"
+      ],
+      "topic": "Presets are UI/spec input plus metadata"
+    },
+    {
+      "classification": "same live route for preset and arbitrary spec",
+      "detail": "Both live inputs use store run.spec_text/targets, same ToolRunner and Orchestrator. General scope then SPEC/RTL/VERIFY/repair/synthesis/flow/optimization/signoff/package; tools snapshot actual work/src and work/test and package selected flow. No preset key reaches these stages. R15 worker line positions differ only due guard wiring.",
+      "refs": [
+        "backend/app/worker.py:181",
+        "backend/app/worker.py:218",
+        "backend/app/worker.py:228",
+        "backend/app/worker.py:232",
+        "backend/app/agent/orchestrator.py:148",
+        "backend/app/agent/orchestrator.py:378",
+        "backend/app/agent/orchestrator.py:587",
+        "backend/app/agent/orchestrator.py:593",
+        "backend/app/eda/service.py:130",
+        "backend/app/packaging.py:128"
+      ],
+      "topic": "Shared ordinary production pipeline"
+    },
+    {
+      "classification": "intentional disclosed handwritten RTL path, not automatic preset exception",
+      "detail": "starter_id is independent optional UART literal, default None. Only explicit starter_id loads provenance-hashed supplied source, freezes required ports, emits model_generated=False/supplied faulty origin, writes starter then actual lint/independent tests/repair. No automatic preset-name trigger. Actual starter RTL/provenance/test payloads were not opened by this audit.",
+      "refs": [
+        "backend/app/api_schemas.py:22",
+        "backend/app/agent/orchestrator.py:57",
+        "backend/app/agent/orchestrator.py:64",
+        "backend/app/agent/orchestrator.py:156",
+        "backend/app/agent/orchestrator.py:274",
+        "backend/app/agent/starters.py:58",
+        "frontend/components/run/run-origin.tsx:25"
+      ],
+      "topic": "Explicit faulty starter remains"
+    },
+    {
+      "classification": "explicit recorded playback, not live inference/flow claim",
+      "detail": "POST/api/replays validates hash-bound recording; is_replay worker branch occurs before create_llm; playback emits source event IDs and REPLAY/no new model or EDA notice. Main live endpoint cannot silently select recording by preset/spec.",
+      "refs": [
+        "backend/app/main.py:282",
+        "backend/app/storage.py:101",
+        "backend/app/worker.py:181",
+        "backend/app/worker.py:348",
+        "backend/app/replay.py:238",
+        "backend/app/replay.py:254",
+        "backend/app/replay.py:279",
+        "frontend/components/recorded-runs.tsx:11"
+      ],
+      "topic": "Replay remains separate and labeled"
+    },
+    {
+      "classification": "health, report display, generic diagnostics/helper counters, R15 protection",
+      "detail": "Golden marker is health-only; parser doc cites format, EDA default golden is a run label while ToolRunner passes real run_id. Failure label describes a category; report case IDs are read-only sealed aggregate projection. R15 eval namespace strings perform metadata protection, not design retrieval. Core routing/tools/prompts/scope have zero eval/golden/case lookup matches.",
+      "refs": [
+        "backend/app/main.py:112",
+        "backend/app/eda/parsers.py:1",
+        "backend/app/eda/service.py:24",
+        "backend/app/agent/failures.py:132",
+        "backend/app/reliability/router.py:13",
+        "backend/app/reliability/public.py:61",
+        "backend/app/llm/boundary_metadata.py:13"
+      ],
+      "topic": "Golden/eval/case matches are isolated from generation"
+    },
+    {
+      "classification": "bounded negative grep",
+      "detail": "Exact retained prompt query has zero matches in both roots for public preset words, corpus paths, hidden/golden/case_id or timestamp-style trial IDs. General product defaults and protocol/external-reference policy apply to all requests. Explicit starter-only contract is separately disclosed, not included as a general prompt example.",
+      "refs": [
+        "backend/app/agent/prompts.py",
+        "backend/app/agent/scope_prompts.py"
+      ],
+      "topic": "Prompts contain no preset IDs or evaluation-path/trial patterns searched"
+    }
+  ],
+  "kind": "independent_current_public_source_preset_shortcut_audit",
+  "limits": [
+    "Current static source audit, not historical proof of deletion, runtime qualification, arbitrary-spec success guarantee or reliability score.",
+    "Keyword searches and followed source paths cannot prove absence of all imaginable semantic special cases. No corpus comparison was performed, deliberately.",
+    "The explicit supplied starter injects handwritten RTL; keep this exception and replay disclosure visible rather than claiming all demo paths are generated.",
+    "Named public-source maps were stable at recorded collection/focused-check points, not continuous or loaded-code proof."
+  ],
+  "scope": {
+    "excluded": "No corpus, golden/oracle/heldout files, test payloads, recordings payloads, generated source, actual environment or credentials opened. Only public preset IDs/names projected from designs/presets.json.",
+    "operations": "Read-only source review, exact ripgrep commands/matches, opaque public-source SHA maps; no app imports, model/provider/EDA/services/tests or source changes.",
+    "public_source_counts": {
+      "R15": 94,
+      "main": 91
+    },
+    "public_source_directories": [
+      "backend/app",
+      "frontend/app",
+      "frontend/components",
+      "frontend/lib"
+    ],
+    "roots": {
+      "R15": "/tmp/silicon-r15-codex-read-boundary",
+      "main": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026"
+    }
+  }
+}

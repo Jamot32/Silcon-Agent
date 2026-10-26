@@ -14,6 +14,9 @@ from app.llm.codex import (CodexCLIClient, ProviderError, MalformedProposal,
     build_command, check_event, classify_fatal, MAX_OUTPUT_BYTES, wrapped_prompt,parse_completion)
 from app.llm.types import Budget, BudgetExceeded, Message, ToolDefinition
 from app.llm.policy import RequestOptions, MAX_PROMPT_BYTES
+import pytest
+from boundary_test_support import checked_client, request_client, assert_wrapped_launch
+pytestmark = pytest.mark.usefixtures("configured_codex_transport")
 
 
 SECRET = 'DO_NOT_LOG_PRIVATE_PROMPT_ERROR_AUTH_OR_MODEL_CODE'
@@ -36,13 +39,13 @@ class Harness(CodexCLIClient):
         async def sleep(delay):
             self.delays.append(delay)
         kwargs.setdefault('model','gpt-6.1-sol')
-        super().__init__(executable='SYNTHETIC_CODEX', callback=self.records.append,
+        super().__init__(executable='/synthetic/CODEX', callback=self.records.append,
             sleep=sleep, jitter=lambda:0, environment_factory=lambda:{}, **kwargs)
 
-    async def _check_cli(self, env, executable):
+    async def _check_cli(self, env, executable, boundary):
         self.preflights += 1
 
-    async def _request(self, args, prompt, env, incoming):
+    async def _request(self, args, prompt, env, incoming, boundary):
         self.requests.append((args, prompt))
         outcome = self.outcomes.pop(0)
         if isinstance(outcome, BaseException):
@@ -285,15 +288,15 @@ class ProviderTests(unittest.TestCase):
     def test_executable_and_timeout_are_captured_before_preflight_await(self):
         client=Harness([events()],timeout=1)
         captured=[]
-        async def check(env,executable):
+        async def check(env,executable,boundary):
             captured.append(executable)
             client.executable='MUTATED_WHILE_PENDING'
             client.timeout=True
             await asyncio.sleep(0)
         client._check_cli=check
         self.complete(client)
-        self.assertEqual(captured,['SYNTHETIC_CODEX'])
-        self.assertEqual(client.requests[0][0][0],'SYNTHETIC_CODEX')
+        self.assertEqual(captured,['/synthetic/CODEX'])
+        self.assertEqual(client.requests[0][0][0],'/synthetic/CODEX')
 
     def test_timeout_requires_finite_positive_exact_numeric_value(self):
         for timeout in (True,False,0,-1,float('nan'),float('inf'),'1',None):
@@ -305,7 +308,7 @@ class ProviderTests(unittest.TestCase):
 
     def test_options_immutable_and_parallel_calls_keep_distinct_invocation_overrides(self):
         class Parallel(Harness):
-            async def _request(self,args,prompt,env,incoming):
+            async def _request(self,args,prompt,env,incoming,boundary):
                 self.requests.append((args,prompt))
                 await asyncio.sleep(0)
                 for event in events():incoming(event)
@@ -360,7 +363,7 @@ class ProviderTests(unittest.TestCase):
 
     def test_local_authentication_failure_stops_before_reserve_and_cost_stays_unknown(self):
         client=Harness([events()])
-        async def check(env, executable):raise ProviderError('local_authentication_or_version')
+        async def check(env, executable,boundary):raise ProviderError('local_authentication_or_version')
         client._check_cli=check
         with self.assertRaises(ProviderError):self.complete(client)
         self.assertEqual((client.budget.calls,len(client.requests)),(0,0))
@@ -473,8 +476,8 @@ class FakeProcess:
 
 class ProcessTests(unittest.TestCase):
     def run_client(self,process,*,timeout=1):
-        client=CodexCLIClient(executable='SYNTHETIC',timeout=timeout,environment_factory=lambda:{})
-        async def check(env, executable):pass
+        client=CodexCLIClient(executable='/synthetic/codex',timeout=timeout,environment_factory=lambda:{})
+        async def check(env, executable,boundary):pass
         async def spawn(*args,**kwargs):return process
         client._check_cli=check
         def killpg(pid,sig):process.kill()
@@ -515,9 +518,9 @@ class ProcessTests(unittest.TestCase):
 
     def test_process_timeout_cleanup_and_budget_retry_cap_use_no_real_process(self):
         processes=[]
-        client=CodexCLIClient(executable='SYNTHETIC',timeout=.001,environment_factory=lambda:{},
+        client=CodexCLIClient(executable='/synthetic/codex',timeout=.001,environment_factory=lambda:{},
             sleep=lambda delay:asyncio.sleep(0),jitter=lambda:0)
-        async def check(env, executable):pass
+        async def check(env, executable,boundary):pass
         client._check_cli=check
         async def spawn(*args,**kwargs):
             p=FakeProcess(block=True);processes.append(p);return p
@@ -554,9 +557,9 @@ class ProcessTests(unittest.TestCase):
 
     def test_exited_parent_timeout_cleans_each_group_before_retry(self):
         processes=[]
-        client=CodexCLIClient(executable='SYNTHETIC',timeout=.001,environment_factory=lambda:{},
+        client=CodexCLIClient(executable='/synthetic/codex',timeout=.001,environment_factory=lambda:{},
             sleep=lambda delay:asyncio.sleep(0),jitter=lambda:0)
-        async def check(env,executable):pass
+        async def check(env,executable,boundary):pass
         async def spawn(*args,**kwargs):
             self.assertTrue(all(p.killed for p in processes))
             p=FakeProcess(block=True);p.returncode=0;processes.append(p);return p
@@ -624,15 +627,16 @@ class ProcessTests(unittest.TestCase):
         parent="import subprocess,sys\nsubprocess.Popen([sys.executable,'-u','-c',"+repr(child)+"])\n"
         original_spawn=asyncio.create_subprocess_exec
         processes=[];parent_codes=[]
-        async def spawn(*args,**kwargs):
-            process=await original_spawn(*args,**kwargs);processes.append(process);return process
+        async def spawn(args,env,boundary,*,stdin,limit=None):
+            self.assertEqual(args,[sys.executable,'-u','-c',parent])
+            process=await original_spawn(*args,stdin=stdin,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE,start_new_session=True,limit=limit);processes.append(process);return process
         def incoming(event):parent_codes.append(processes[0].returncode);check_event(event)
         async def exercise():
-            client=CodexCLIClient(executable='SYNTHETIC',environment_factory=lambda:{})
+            client=CodexCLIClient(executable='/synthetic/codex',environment_factory=lambda:{})
             try:
-                with patch('app.llm.codex.asyncio.create_subprocess_exec',spawn):
+                with patch.object(client,'_spawn',spawn):
                     with self.assertRaises(ProviderError) as caught:
-                        await asyncio.wait_for(client._request([sys.executable,'-u','-c',parent],'{}',{},incoming),5)
+                        await asyncio.wait_for(request_client(client,[sys.executable,'-u','-c',parent],'{}',{},incoming),5)
                 self.assertEqual(caught.exception.kind,'native_tool_violation')
                 self.assertEqual(parent_codes,[0])
                 self.assertEqual(await asyncio.wait_for(processes[0].stdout.read(),1),b'')
@@ -680,7 +684,7 @@ class ProcessTests(unittest.TestCase):
                 if self.block:await asyncio.Event().wait()
                 self.returncode=0
                 return self.output,b''
-        client=CodexCLIClient(executable='SYNTHETIC',environment_factory=lambda:{})
+        client=CodexCLIClient(executable='/synthetic/codex',environment_factory=lambda:{})
         processes=[Local(b'codex-cli 0.163.0'),Local(SECRET.encode())]
         async def spawn(*args,**kwargs):return processes.pop(0)
         with patch('app.llm.codex.asyncio.create_subprocess_exec',spawn):
@@ -703,14 +707,14 @@ class ProcessTests(unittest.TestCase):
             def __init__(self):super().__init__();self.returncode=0;self.entered=asyncio.Event()
             async def communicate(self):self.entered.set();await asyncio.Event().wait()
         for kind in ('timeout','cancel'):
-            process=Local();client=CodexCLIClient(executable='SYNTHETIC',environment_factory=lambda:{})
+            process=Local();client=CodexCLIClient(executable='/synthetic/codex',environment_factory=lambda:{})
             original_wait_for=asyncio.wait_for
             async def bounded(awaitable,timeout):return await original_wait_for(awaitable,.001)
             async def spawn(*args,**kwargs):
                 self.assertTrue(kwargs['start_new_session']);return process
             caught=[]
             async def exercise():
-                task=asyncio.create_task(client._check_cli({},'SYNTHETIC'))
+                task=asyncio.create_task(checked_client(client,{},'/synthetic/codex'))
                 if kind=='cancel':await process.entered.wait();task.cancel()
                 try:await task
                 except BaseException as error:caught.append(error)
@@ -726,10 +730,10 @@ class ProcessTests(unittest.TestCase):
         class Local(FakeProcess):
             def __init__(self):super().__init__();self.returncode=0;self.entered=asyncio.Event()
             async def communicate(self):self.entered.set();await asyncio.Event().wait()
-        process=Local();client=CodexCLIClient(executable='SYNTHETIC',environment_factory=lambda:{})
+        process=Local();client=CodexCLIClient(executable='/synthetic/codex',environment_factory=lambda:{})
         async def spawn(*args,**kwargs):return process
         async def exercise():
-            task=asyncio.create_task(client._check_cli({},'SYNTHETIC'))
+            task=asyncio.create_task(checked_client(client,{},'/synthetic/codex'))
             await process.entered.wait();task.cancel()
             with self.assertRaises(asyncio.CancelledError) as caught:await task
             self.assertEqual(caught.exception.__notes__,['Codex process-group cleanup incomplete.'])
@@ -745,15 +749,15 @@ class ProcessTests(unittest.TestCase):
         parent="import subprocess,sys\nsubprocess.Popen([sys.executable,'-u','-c','import time; time.sleep(30)'])\n"
         original_spawn=asyncio.create_subprocess_exec
         processes=[]
-        async def spawn(*args,**kwargs):
-            self.assertEqual(args,('SYNTHETIC','--version'));self.assertTrue(kwargs['start_new_session'])
-            process=await original_spawn(sys.executable,'-u','-c',parent,**kwargs);processes.append(process);return process
+        async def spawn(args,env,boundary,*,stdin,limit=None):
+            self.assertEqual(args,['/synthetic/codex','--version'])
+            process=await original_spawn(sys.executable,'-u','-c',parent,stdin=stdin,stdout=asyncio.subprocess.PIPE,stderr=asyncio.subprocess.PIPE,start_new_session=True);processes.append(process);return process
         async def exercise():
-            client=CodexCLIClient(executable='SYNTHETIC',environment_factory=lambda:{})
+            client=CodexCLIClient(executable='/synthetic/codex',environment_factory=lambda:{})
             task=None
             try:
-                with patch('app.llm.codex.asyncio.create_subprocess_exec',spawn):
-                    task=asyncio.create_task(client._check_cli({},'SYNTHETIC'))
+                with patch.object(client,'_spawn',spawn):
+                    task=asyncio.create_task(checked_client(client,{},'/synthetic/codex'))
                     for _ in range(1000):
                         if processes and processes[0].returncode==0:break
                         await asyncio.sleep(.001)

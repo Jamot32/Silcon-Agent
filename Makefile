@@ -16,7 +16,7 @@ setup:
 dev: setup
 	python3 scripts/manage_worker.py stop
 	docker compose up --build -d --wait
-	python3 scripts/manage_worker.py start
+	python3 scripts/manage_worker.py start $(if $(CODEX_POLICY),--codex-policy "$(CODEX_POLICY)")
 	@echo "Silicon Agent: http://localhost:3000 | API: http://localhost:8000/api/health"
 
 demo: dev
@@ -59,7 +59,7 @@ golden-flow-check:
 	uv run --python 3.12 --with-requirements backend/requirements.txt python scripts/check_golden.py --flow
 
 llm-smoke: setup
-	uv run --env-file .env --python 3.12 --with-requirements backend/requirements.txt python scripts/provider_smoke_test.py
+	PYTHONPATH=backend $(if $(CODEX_POLICY),SILICON_CODEX_BOUNDARY_CONFIG="$(CODEX_POLICY)") uv run --env-file .env --python 3.12 --with-requirements backend/requirements.txt python scripts/provider_smoke_test.py
 
 meta-smoke: setup
 	uv run --env-file .env --python 3.11 --with-requirements scripts/requirements-smoke.txt python scripts/llm_smoke_test.py

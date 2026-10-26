@@ -22,6 +22,7 @@ import re
 from .policy import (RequestOptions, ProviderFailureHint, codex_override, MAX_PROMPT_BYTES,
                      provider_failure_hint)
 from .types import BudgetExceeded
+from .read_boundary import CodexReadBoundary, CodexLaunchPolicy, ReadBoundaryError
 from pydantic import ValidationError
 
 from .types import Budget, Completion, LLMError, Message, ToolCall, ToolDefinition
@@ -368,7 +369,8 @@ async def _cleanup_owned_process(process, *, primary_exception, drain_task=None)
 
 class CodexCLIClient:
     def __init__(self, *, budget=None, model=None, executable=None, timeout=120,
-                 callback=None, sleep=asyncio.sleep, jitter=None, environment_factory=child_environment):
+                 callback=None, sleep=asyncio.sleep, jitter=None, environment_factory=child_environment,
+                 launch_policy=None):
         self.budget = budget if budget is not None else Budget()
         self.budget.mark_unknown_cost()  # Honest even if the first call never returns usage.
         self.model = model or os.getenv("CODEX_MODEL") or "gpt-6.1-sol"
@@ -378,6 +380,7 @@ class CodexCLIClient:
         self.observer_failure_count = 0
         self.jitter = jitter or (lambda: random.uniform(0, 0.25))
         self.environment_factory = environment_factory
+        self.launch_policy = launch_policy
 
     def _emit(self, payload):
         if self.callback is not None:
@@ -390,14 +393,35 @@ class CodexCLIClient:
                 self.observer_failure_count = min(self.observer_failure_count + 1, 2**31 - 1)
                 raise ProviderError("observer_failure") from None
 
-    async def _check_cli(self, env, executable):
+    @staticmethod
+    def _validate_boundary(boundary):
+        if type(boundary) is not CodexReadBoundary:
+            raise ProviderError("local_configuration")
+        try:
+            boundary.command(("/usr/bin/true",))
+        except ReadBoundaryError:
+            raise ProviderError("local_configuration") from None
+
+    async def _spawn(self, args, env, boundary, *, stdin, limit=None):
+        self._validate_boundary(boundary)
+        try:
+            plan = boundary.command(args)
+        except ReadBoundaryError:
+            raise ProviderError("local_configuration") from None
+        kwargs = {"stdin": stdin, "stdout": asyncio.subprocess.PIPE,
+            "stderr": asyncio.subprocess.PIPE, "env": env, "cwd": plan.cwd,
+            "close_fds": True, "start_new_session": True}
+        if limit is not None:
+            kwargs["limit"] = limit
+        return await asyncio.create_subprocess_exec(*plan.argv, **kwargs)
+
+    async def _check_cli(self, env, executable, boundary):
         if not executable:
             raise ProviderError("local_configuration")
         try:
             for args, expected in ((["--version"], b"codex-cli 0.163.0"), (["login", "status"], b"Logged in using ChatGPT")):
-                process = await asyncio.create_subprocess_exec(executable, *args,
-                    stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, env=env,
-                    start_new_session=True)
+                process = await self._spawn([executable, *args], env, boundary,
+                    stdin=asyncio.subprocess.DEVNULL)
                 primary_exception = None
                 try:
                     stdout, stderr = await asyncio.wait_for(process.communicate(), 10)
@@ -416,6 +440,16 @@ class CodexCLIClient:
             raise ProviderError("local_launch_failure") from None
 
     async def complete(self, messages, tools, options: RequestOptions | None = None):
+        policy = self.launch_policy
+        if type(policy) is not CodexLaunchPolicy:
+            raise ProviderError("local_configuration")
+        try:
+            with policy.open_boundary() as boundary:
+                return await self._complete_in_boundary(messages, tools, options, boundary)
+        except ReadBoundaryError:
+            raise ProviderError("local_configuration") from None
+
+    async def _complete_in_boundary(self, messages, tools, options, boundary):
         # Capture client configuration and inputs before any await. Per-call
         # options never mutate shared client/global configuration.
         model = self.model
@@ -432,7 +466,8 @@ class CodexCLIClient:
         # Local checks consume no provider attempt or reserve. Auth/version/config
         # failure is failfast, outside the transport retry loop.
         wrapped_prompt(conversation, definitions)  # Reject initial overflow before local preflight too.
-        await self._check_cli(env, executable)
+        self._validate_boundary(boundary)
+        await self._check_cli(env, executable, boundary)
         for attempt in range(1, 4):
             last = None
             body, prompt = wrapped_prompt(conversation, definitions)
@@ -481,7 +516,7 @@ class CodexCLIClient:
                     schema = workdir / "proposal.schema.json"
                     schema.write_text(json.dumps(proposal_schema(definitions)))
                     args = build_command(executable, model, workdir, schema, options)
-                    await asyncio.wait_for(self._request(args, prompt, env, incoming), timeout)
+                    await asyncio.wait_for(self._request(args, prompt, env, incoming, boundary), timeout)
                 if completion is None:
                     raise ProviderError("missing_usage")
                 return parse_proposal(events, completion=completion, tools=definitions)
@@ -550,11 +585,10 @@ class CodexCLIClient:
                 await self.sleep(delay)
         raise last
 
-    async def _request(self, args, prompt, env, incoming):
+    async def _request(self, args, prompt, env, incoming, boundary):
         try:
-            process = await asyncio.create_subprocess_exec(*args, stdin=asyncio.subprocess.PIPE,
-                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, env=env,
-                limit=MAX_OUTPUT_BYTES, start_new_session=True)
+            process = await self._spawn(args, env, boundary, stdin=asyncio.subprocess.PIPE,
+                limit=MAX_OUTPUT_BYTES)
         except OSError:
             raise ProviderError("local_launch_failure") from None
         async def drain():

@@ -16,8 +16,10 @@ For live builds with the user-selected ChatGPT plan, authenticate the pinned hos
 ```sh
 npm install -g @openai/codex@0.163.0
 codex login
-make eda-setup eda-check llm-smoke demo
+make eda-setup eda-check
 ```
+
+For Codex live builds on macOS, complete the [external host read-boundary setup](docs/CODEX_BOUNDARY.md), then use its policy-pinned smoke and start commands. Recorded playback still needs no key or policy; Meta keeps its existing setup.
 
 Choose a preset or type a spec, then click **Build my chip**. A small build takes several minutes. OAuth remains with the host CLI; it never enters an application/EDA container. Plan calls report actual token/call usage and unavailable USD cost. To use competition credentials, set `LLM_PROVIDER=meta` and `META_API_KEY` in ignored `.env`, run `make meta-smoke`, then `make dev`. Meta live acceptance remains deferred until those credentials are available; there is no automatic provider fallback.
 

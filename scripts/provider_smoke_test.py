@@ -8,7 +8,7 @@ import sys
 def main() -> int:
     provider = os.getenv("LLM_PROVIDER", "codex")
     if provider == "codex":
-        from codex_smoke_test import main as smoke
+        from guarded_codex_smoke import main as smoke
     elif provider == "meta":
         from llm_smoke_test import main as smoke
     else:

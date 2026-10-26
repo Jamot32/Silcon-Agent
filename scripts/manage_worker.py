@@ -75,7 +75,7 @@ def _worker_pid(metadata: dict, root: Path) -> int | None:
         return None
 
 
-def start(root: Path) -> int:
+def start(root: Path, *, codex_policy: str | None = None) -> int:
     existing = _metadata(root)
     if _owned(existing, root):
         print(f"Host worker already running (PID {existing['pid']}).")
@@ -84,10 +84,17 @@ def start(root: Path) -> int:
     if not uv:
         print("Install uv before starting the host worker.")
         return 2
+    # Do not read .env here: the existing uv child selects its provider there.
+    # Missing Codex policy still fails closed in the factory; Meta needs none.
+    locator = codex_policy or os.getenv("SILICON_CODEX_BOUNDARY_CONFIG")
+    # Provider selection/admission happens in the actual child factory after uv
+    # loads .env; stale Codex locators never block the ordinary Meta branch here.
     token = uuid4().hex
     args = [uv, "run", "--env-file", str(ROOT / ".env"), "--python", "3.12", "--with-requirements", str(ROOT / "backend/requirements.txt"),
             "python", "-m", "app.worker", "--runs-dir", str(root), "--owner-token", token]
     env = {**os.environ, "PYTHONPATH": str(ROOT / "backend")}
+    if locator:
+        env["SILICON_CODEX_BOUNDARY_CONFIG"] = locator
     with (root / "worker.log").open("ab") as log:
         process = subprocess.Popen(args, cwd=ROOT, env=env, stdin=subprocess.DEVNULL, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
     metadata = {"pid": process.pid, "token": token, "runs_dir": str(root)}
@@ -132,13 +139,14 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("start", "stop", "status"))
     parser.add_argument("--runs-dir", type=Path, default=ROOT / "runs")
+    parser.add_argument("--codex-policy", help="Explicit installed host policy locator; never stored in .env")
     options = parser.parse_args()
     root = options.runs_dir.resolve()
     root.mkdir(parents=True, exist_ok=True)
     with (root / "worker-manager.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         if options.action == "start":
-            return start(root)
+            return start(root, codex_policy=options.codex_policy)
         if options.action == "stop":
             return stop(root)
         running = _owned(_metadata(root), root)

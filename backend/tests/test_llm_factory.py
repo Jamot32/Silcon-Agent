@@ -10,12 +10,12 @@ def test_invalid_provider_never_falls_back(monkeypatch):
         create_llm()
 
 
-def test_codex_factory_keeps_run_budget(monkeypatch):
+def test_codex_factory_keeps_run_budget(monkeypatch, codex_host_policy):
     from app.llm.codex import CodexCLIClient
 
     monkeypatch.setenv("LLM_PROVIDER", "codex")
     budget = Budget(max_calls=3)
-    client = create_llm(budget=budget)
+    client = create_llm(budget=budget, run_work_dir=codex_host_policy["run"])
     assert isinstance(client, CodexCLIClient)
     assert client.budget is budget
 

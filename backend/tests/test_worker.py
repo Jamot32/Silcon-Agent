@@ -45,7 +45,10 @@ def prepare(monkeypatch, tmp_path, factory):
     store.create_run("Golden counter", targets={"clock_mhz": 50.0})
     run = store.claim_pending()
     llm = UnitLLM()
-    monkeypatch.setattr(worker, "create_llm", lambda: llm)
+    def configured_llm(*, run_work_dir):
+        assert run_work_dir == store.work_dir(run.id)
+        return llm
+    monkeypatch.setattr(worker, "create_llm", configured_llm)
     host = worker.Worker(store, poll_interval=0.001, orchestrator_factory=factory)
     return host, store, run, llm
 
@@ -159,7 +162,7 @@ def test_startup_recovers_interrupted_jobs_without_inference(monkeypatch, tmp_pa
     run = store.create_run("Interrupted")
     store.claim_pending()
     host = worker.Worker(store, poll_interval=0.001)
-    monkeypatch.setattr(worker, "create_llm", lambda: pytest.fail("No model call should occur"))
+    monkeypatch.setattr(worker, "create_llm", lambda *, run_work_dir: pytest.fail("No model call should occur"))
 
     async def scenario():
         pending = asyncio.create_task(host.run())
@@ -189,7 +192,7 @@ def test_idle_worker_reconnects_after_claim_transport_failure_without_inference(
 
     store = InterruptedStore()
     host = worker.Worker(store, poll_interval=0.001)
-    monkeypatch.setattr(worker, "create_llm", lambda: pytest.fail("No model initialization during reconnect"))
+    monkeypatch.setattr(worker, "create_llm", lambda *, run_work_dir: pytest.fail("No model initialization during reconnect"))
     asyncio.run(asyncio.wait_for(host.run(), 2))
     assert store.claims == 2 and store.recoveries == 2
 
@@ -223,7 +226,7 @@ def test_lost_claim_ack_fails_abandoned_job_before_another_claim(monkeypatch, tm
 
     remote = HTTPRunStore(tmp_path / "host", token="unit", base_url="http://api.local", client=httpx.Client(transport=httpx.MockTransport(handler)))
     host = worker.Worker(remote, poll_interval=0.001)
-    monkeypatch.setattr(worker, "create_llm", lambda: pytest.fail("An ambiguous claim must never start inference"))
+    monkeypatch.setattr(worker, "create_llm", lambda *, run_work_dir: pytest.fail("An ambiguous claim must never start inference"))
     asyncio.run(asyncio.wait_for(host.run(), 1))
     assert calls == [("GET", "heartbeat"), ("POST", "recover"), ("POST", "claim"), ("GET", "heartbeat"), ("POST", "recover"), ("POST", "claim")]
     assert sum(event.type == "run_finished" for event in database.events(run.id)) == 1
@@ -237,7 +240,10 @@ def test_cancellation_monitor_transport_failure_stops_owned_work_before_recovery
     cleaned = []
     llm = UnitLLM()
     monkeypatch.setenv("LLM_PROVIDER", "codex")
-    monkeypatch.setattr(worker, "create_llm", lambda: llm)
+    def configured_llm(*, run_work_dir):
+        assert run_work_dir == database.work_dir(run.id)
+        return llm
+    monkeypatch.setattr(worker, "create_llm", configured_llm)
 
     class Store:
         recoveries = 0
@@ -289,7 +295,10 @@ def test_lost_terminal_ack_does_not_rerun_or_overwrite_terminal_job(monkeypatch,
     llm = UnitLLM()
     executions = []
     monkeypatch.setenv("LLM_PROVIDER", "codex")
-    monkeypatch.setattr(worker, "create_llm", lambda: llm)
+    def configured_llm(*, run_work_dir):
+        assert run_work_dir == database.work_dir(run.id)
+        return llm
+    monkeypatch.setattr(worker, "create_llm", configured_llm)
 
     class Store:
         recoveries = 0
@@ -397,7 +406,7 @@ def test_stop_during_claim_does_not_begin_model_run(monkeypatch, tmp_path):
         return original()
 
     monkeypatch.setattr(store, "claim_pending", slow_claim)
-    monkeypatch.setattr(worker, "create_llm", lambda: pytest.fail("Stopping must prevent model initialization"))
+    monkeypatch.setattr(worker, "create_llm", lambda *, run_work_dir: pytest.fail("Stopping must prevent model initialization"))
 
     async def scenario():
         pending = asyncio.create_task(host.run())
@@ -413,7 +422,7 @@ def test_stop_during_claim_does_not_begin_model_run(monkeypatch, tmp_path):
 def test_provider_mismatch_never_uses_a_different_provider(monkeypatch, tmp_path):
     host, store, run, _ = prepare(monkeypatch, tmp_path, None)
     monkeypatch.setenv("LLM_PROVIDER", "meta")
-    monkeypatch.setattr(worker, "create_llm", lambda: pytest.fail("Provider must not be called"))
+    monkeypatch.setattr(worker, "create_llm", lambda *, run_work_dir: pytest.fail("Provider must not be called"))
     asyncio.run(host.execute(run))
     assert store.get_run(run.id).status == "failed"
     assert "does not match" in store.get_run(run.id).error
@@ -422,7 +431,8 @@ def test_provider_mismatch_never_uses_a_different_provider(monkeypatch, tmp_path
 def test_unexpected_failure_does_not_expose_provider_context(monkeypatch, tmp_path):
     host, store, run, _ = prepare(monkeypatch, tmp_path, None)
 
-    def failure():
+    def failure(*, run_work_dir):
+        assert run_work_dir == store.work_dir(run.id)
         raise ValueError("sensitive context must not be copied to events")
 
     monkeypatch.setattr(worker, "create_llm", failure)

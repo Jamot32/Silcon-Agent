@@ -121,10 +121,13 @@ class FakeOrchestrator:
 
 def prepare_worker(tmp_path, monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "codex")
-    monkeypatch.setattr(worker, "create_llm", FakeLLM)
     store = RunStore(tmp_path / "runs")
     run = store.create_run("Synthetic acknowledgement race")
     run = store.claim_pending()
+    def configured_llm(*, run_work_dir):
+        assert run_work_dir == store.work_dir(run.id)
+        return FakeLLM()
+    monkeypatch.setattr(worker, "create_llm", configured_llm)
     host = worker.Worker(store, orchestrator_factory=FakeOrchestrator, poll_interval=0.001)
     return host, store, run
 

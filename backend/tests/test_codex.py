@@ -10,6 +10,9 @@ from app.llm.codex import (CodexCLIClient, ProviderError, MalformedProposal, bui
                           child_environment, parse_completion, proposal_schema)
 from app.llm.types import Budget, BudgetExceeded, LLMError, Message, ToolDefinition
 
+from boundary_test_support import checked_client, assert_wrapped_launch
+pytestmark = pytest.mark.usefixtures("configured_codex_transport")
+
 FIXTURE = Path(__file__).parent / "fixtures" / "codex_smoke" / "events.jsonl"
 ADD = ToolDefinition(name="add", description="Add two integers", parameters={
     "type": "object", "properties": {"a": {"type": "integer"}, "b": {"type": "integer"}},
@@ -146,10 +149,10 @@ def test_complete_passes_prompt_via_stdin_and_records_usage(monkeypatch):
     async def run():
         process = FakeProcess(real_events(), stderr=b"ignored diagnostics" * 10000)
         async def launch(*args, **kwargs):
-            assert args[-1] == "-"
+            assert assert_wrapped_launch(args, kwargs)[-1] == "-"
             assert kwargs["start_new_session"] is True
             return process
-        async def checked(_, executable):
+        async def checked(_, executable, boundary):
             pass
         monkeypatch.setattr(codex.asyncio, "create_subprocess_exec", launch)
         client = CodexCLIClient(executable="/test/codex")
@@ -174,7 +177,7 @@ def test_process_group_stopped_on_failure(monkeypatch, cause):
             process.pid += len(processes)
             processes.append(process)
             return process
-        async def checked(_, executable):
+        async def checked(_, executable, boundary):
             pass
         killed = []
         def killpg(pid, signal):
@@ -198,10 +201,10 @@ def test_cli_version_and_chatgpt_login_checked(monkeypatch):
         responses = [FakeProcess(stdout=b"codex-cli 0.163.0\n"), FakeProcess(stderr=b"Logged in using ChatGPT\n")]
         launched = []
         async def launch(*args, **kwargs):
-            launched.append(args)
+            launched.append(assert_wrapped_launch(args, kwargs))
             return responses.pop(0)
         monkeypatch.setattr(codex.asyncio, "create_subprocess_exec", launch)
-        await CodexCLIClient(executable="/test/codex")._check_cli({}, "/test/codex")
+        await checked_client(CodexCLIClient(executable="/test/codex"), {}, "/test/codex")
         assert launched == [("/test/codex", "--version"), ("/test/codex", "login", "status")]
     asyncio.run(run())
 
@@ -214,6 +217,6 @@ def test_other_cli_versions_and_api_key_login_rejected(monkeypatch, version, log
             return responses.pop(0)
         monkeypatch.setattr(codex.asyncio, "create_subprocess_exec", launch)
         with pytest.raises(ProviderError, match="authentication or version check") as caught:
-            await CodexCLIClient(executable="/test/codex")._check_cli({}, "/test/codex")
+            await checked_client(CodexCLIClient(executable="/test/codex"), {}, "/test/codex")
         assert caught.value.kind == "local_authentication_or_version"
     asyncio.run(run())

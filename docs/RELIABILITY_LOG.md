@@ -1038,3 +1038,18 @@ Curated evidence: `docs/evidence/reliability-r14.json`; committed aggregate: `ev
 Before:1 inspected completed replay displayed the latest comparison layout instead of the host-selected best run, including after reload. After:0 mismatches in the same authentic replay; image URL, visible tag and configured clock agree with the selected result. DONE now derives the layout from `best_run_tag`; active/interrupted runs retain their actual latest layout. Dev reliability stays87/90; no model/EDA rerun or score improvement is claimed for this UI fix.
 
 Actual isolated `make demo`, typecheck,38frontend units, frontend E2E command (one strengthened replay and one unavailable-API case passed;3optional skips), existing user QA (3passed), browser and cleanup all pass. Main38units/typecheck also pass on the promoted files. Root viewed six masked screenshots; code/log panels are intentionally excluded, and the immediate-reload chart capture precedes plot rendering. These limits and exact receipts are in `docs/evidence/selected-layout-fix.json`.
+
+
+## R15 — guarded Codex host, unchanged dev result
+
+Change → installed inventory/metadata admission and macOS native-launch read boundary. Before → R14 **87/90**. After → **87/90**,29/30 each repeat, mean96.7% (96.7–96.7%). Decision → **keep for required evaluation-input isolation**, with no accuracy gain claimed. Strict90-pair comparison has0 improvements/0 regressions; original G1/corpus/oracles/budgets/image and all denominators remain unchanged.
+
+Tier1 24/24; Tier2 30/30; Tier3 15/18; Tier4 18/18. All69 app-DONE designs pass own tests, final lint, physical flow, clean block DRC/LVS, packaging and bound hidden tests. The three SPEC clarifications remain `pipeline_failed`; they are not recovered builds. Additive public review finds stated causes/actions clear in all21 stopped outcomes, but original-spec missingness is not independently verified; original clarity labels stay unchanged.
+
+Overall median 225.848s versus239.524s; Tier2 242.669s versus243.638s. These observations do not establish a causal speed effect. All90 USD values remain unknown. Reconciliation:472 CLI attempts/472 usage reports,5,540,303 input and283,297 output tokens;2,313,728 cached input is a subset. There are1,328 outer envelopes,510 receipts,704 command observations and276 physical-flow calls. No observed command timeout/nonzero, terminal deadline or reported cap excess.
+
+Before evaluation:1,076 backend tests+92 subtests pass; actual host admission and12 owned OS checks pass; new hardlink creation denied while the existing hardlink alias remains readable; one guarded OAuth request reports8,628 input/41 output tokens, USDunknown. Original registry/private-input contents are not read by the model. Known-copy completeness is trusted, and the controls do not prove whole-filesystem/continuous isolation.
+
+Evaluator, base seal/verify/export/strict comparison, all-DONE custody, final accounting and both final source acknowledgements close integer0. Source73 live/archive points match `9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1`. Curated evidence: `docs/evidence/reliability-r15.json`; aggregate: `eval/baselines/r15-codex-read-boundary/`. Current source audit finds no preset-specific live-generation shortcut; explicit starter/replay exceptions are documented in `docs/PRESET_AUDIT.md`.
+
+Next: clean-public-shadow Docker/replay/userQA verification, then the one frozen held-out3× application cohort. No held-out application run has occurred.

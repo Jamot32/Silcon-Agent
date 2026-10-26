@@ -400,3 +400,8 @@ The measured working runtime already includes the user-requested unlimited token
 ### R15 source parity: retain the existing empty-metric correction
 
 Record the existing nonempty-metrics guard and its regression separately. A flow returning `metrics={}` must not gain a synthetic `flow_index` or emit a measurement event; otherwise storage can reject the incomplete Metric. The regression covers the empty-result/event behavior with FakeEDA, not a real flow-failure diagnosis. These exact working bytes were already present in R14/R15 measurement and remain unchanged; recording them makes the clean checkout match that measured source.
+
+
+### R15 — keep the guarded Codex host path
+
+Before87/90 → after87/90 on the same full DEV3×/G1/corpus/caps/image; all90 paired grades tie. Keep this as the required private-evaluation-input isolation control, not a quality optimization or claimed accuracy gain. Actual metadata admission, twelve owned OS outcomes and one guarded neutral OAuth request precede the measurement; all69 reported hardware deliveries pass hidden checks. Existing provider inner options/parser/120s deadline and prompts are unchanged; private native cwd and installed host policy are deliberate transport changes. Setup is external/explicit, macOS Codex only; Meta and labeled replay keep their existing paths. Preexisting hardlink READ and arbitrary-copy/continuous/loaded-code limits stay explicit. USD is unknown. The exact guard26 paths are promoted only after ordinary publications and both independent final acknowledgements. CI pointer now selects this committed kept DEV cohort; actual clean-public-shadow Docker/replay QA and held-out proof are next.

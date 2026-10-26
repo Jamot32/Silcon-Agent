@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import pytest
+pytestmark = pytest.mark.usefixtures("configured_codex_transport")
 
 from app.llm.codex import CodexCLIClient, ProviderError
 from app.llm.types import Budget, BudgetExceeded, Completion, Message
@@ -32,9 +33,9 @@ class FakeTransport(CodexCLIClient):
         super().__init__(model="gpt-6.1-sol", executable="NEVER_EXECUTED", environment_factory=lambda: {}, budget=budget)
         self.failure, self.concurrent = failure, concurrent
         self.preflights, self.requests, self.prompts, self.arrived = 0, 0, [], 0
-    async def _check_cli(self, env, executable):
+    async def _check_cli(self, env, executable, boundary):
         self.preflights += 1
-    async def _request(self, args, prompt, env, incoming):
+    async def _request(self, args, prompt, env, incoming, boundary):
         self.requests += 1
         self.prompts.append(prompt)
         if self.failure is not None:

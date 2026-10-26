@@ -186,7 +186,7 @@ class Worker:
                 return
             if run.llm_provider != os.getenv("LLM_PROVIDER", "codex"):
                 raise LLMError("Queued provider does not match the worker configuration; restart with the selected LLM_PROVIDER")
-            llm = create_llm()
+            llm = create_llm(run_work_dir=work_dir)
             if observer is not None:
                 observer.configure_llm(llm, run.llm_provider)
             orchestrator: Orchestrator

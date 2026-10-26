@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from uuid import uuid4
 
 import pytest
+pytestmark = pytest.mark.usefixtures("configured_codex_transport")
 
 from app.agent.evidence import ToolEvidence
 from app.agent.tools import ToolRunner
@@ -295,9 +296,9 @@ def test_production_codex_callback_format_binds_without_any_process(requested_ef
     from app.llm.codex import CodexCLIClient
     from app.llm.policy import RequestOptions
     class FakeTransport(CodexCLIClient):
-        async def _check_cli(self, env, executable):
+        async def _check_cli(self, env, executable, boundary):
             pass
-        async def _request(self, args, prompt, env, incoming):
+        async def _request(self, args, prompt, env, incoming, boundary):
             for event in [
                 {"type": "turn.started"},
                 {"type": "item.completed", "item": {"id": "synthetic", "type": "agent_message",

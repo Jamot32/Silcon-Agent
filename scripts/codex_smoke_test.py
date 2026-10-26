@@ -149,10 +149,14 @@ def self_test() -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--raw-diagnostic", action="store_true", help="Explicit unguarded CLI diagnostic; no read-boundary assurance")
     options = parser.parse_args()
     if options.self_test:
         self_test()
         return 0
+    if not options.raw_diagnostic:
+        print("Use provider_smoke_test.py for the guarded path; raw CLI requires --raw-diagnostic.", file=sys.stderr)
+        return 2
     executable = shutil.which("codex")
     if not executable:
         print("BLOCKED: Install Codex CLI 0.163.0 and sign in using codex login.", file=sys.stderr)
@@ -169,6 +173,7 @@ def main() -> int:
             events = asyncio.run(asyncio.wait_for(request(command(executable, model, workdir), env), timeout=120))
         call, usage = parse_response(events)
         result = {
+            "scope": "explicit unguarded CLI diagnostic; no protected-read assurance",
             "provider": "codex", "status": "passed", "checked_at": datetime.now(timezone.utc).isoformat(),
             "model": model, "model_source": "CLI selected model; actual serving model is not reported",
             "cli_version": CLI_VERSION, "tool_call": call, "usage": usage,
@@ -178,11 +183,6 @@ def main() -> int:
         marker = ROOT / "runs" / "llm-smoke-codex.json"
         marker.parent.mkdir(parents=True, exist_ok=True)
         marker.write_text(json.dumps(result, indent=2) + "\n")
-        fixture = ROOT / "backend" / "tests" / "fixtures" / "codex_smoke"
-        fixture.mkdir(parents=True, exist_ok=True)
-        sanitized = [event for event in events if event.get("type") == "turn.completed" or (event.get("type") == "item.completed" and event.get("item", {}).get("type") == "agent_message")]
-        (fixture / "events.jsonl").write_text("".join(json.dumps(event) + "\n" for event in sanitized))
-        (fixture / "provenance.json").write_text(json.dumps(result, indent=2) + "\n")
         print(json.dumps(result, indent=2))
         return 0
     except (OSError, ValueError, asyncio.TimeoutError) as error:

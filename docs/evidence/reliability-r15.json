@@ -1,0 +1,253 @@
+{
+  "accounting": {
+    "cap_observations": {
+      "budget_exceeded_rows": 0,
+      "calls_over_declared_cap": 0,
+      "limits": {
+        "concurrency": 4,
+        "max_calls": 32,
+        "max_tokens": 300000,
+        "max_usd": 1.0,
+        "repeats": 3,
+        "snapshot_id": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1",
+        "time_limit_seconds": 900.0
+      },
+      "max_recorded_cli_invocations": 12,
+      "max_recorded_input_plus_output_tokens": 162489,
+      "max_recorded_pipeline_elapsed_seconds": 432.86684833304025,
+      "note": "Retained observations only. The 32-call cap concerns CLI invocations; the 300000-token observation covers reported input+output only, with cached input included rather than added; absent response usage is unknown. The 900-second pipeline wall observation may include cleanup. These counts do not prove enforcement or bound unreported consumption and do not regrade.",
+      "pipeline_wall_over_declared_deadline": 0,
+      "timed_out_rows": 0,
+      "tokens_over_declared_cap": 0
+    },
+    "counts": {
+      "actual_physical_flow_toolcalls": 276,
+      "cached_input_tokens": 2313728,
+      "cli_invocations": 472,
+      "executed_receipts": 510,
+      "input_tokens": 5540303,
+      "launched_commands": 704,
+      "nonreceipt_outer_envelopes": 818,
+      "nonzero_commands": 0,
+      "observed_commands": 704,
+      "outer_envelopes": 1328,
+      "output_tokens": 283297,
+      "reported_responses": 472,
+      "root_ledger_snapshots": 69,
+      "row_flow_attempts": 276,
+      "timed_out_commands": 0,
+      "trace_records": 7815
+    },
+    "reported_usage": {
+      "cli_invocations": 472,
+      "invocations_with_reported_usage": 472,
+      "invocations_without_reported_usage": 0,
+      "reported_cached_input_tokens": 2313728,
+      "reported_input_tokens": 5540303,
+      "reported_output_tokens": 283297,
+      "reported_usage_complete": true,
+      "scope": "Returned response usage only. Cached inputs are included in reported inputs. Missing usage is unknown, not zero; reported-token cap observations do not bound unreported consumption.",
+      "unreported_attempt_token_consumption": null
+    }
+  },
+  "before_cohort_id": "20261025T210708Z_4bd202b0",
+  "bindings": {
+    "canonical_reference_capsules": "not_applicable_ordinary_base",
+    "cohort_id": "20261026T034744Z_d939d36e",
+    "comparison_sha256": "66ee501df5b9215aa008f5c7c06a262eabe1a8e558ecf310a7d88e1ad26161fa",
+    "evaluator_completed": {
+      "path": "/tmp/silicon-r15-dev-preparation-001/eval-execution-001/completed.json",
+      "sha256": "ca3d1825a48084184fdcc80591032e2250e5d4996c62d09d09a0d320e4fc7b14"
+    },
+    "export_sha256": "ebdf4434488262cc569c93af04b9fd87f08237d635d853d41270d5ad667c1a4c",
+    "invocation_sha256": "979c639634310fed9fe21d77e9979b17981737ed6c8d7cf90885abdd08e61edc",
+    "manifest_sha256": "d61588c70aa62a3b9a2cb7f5ee2cc907f6ca040798dd5b8469ce83a142c2826c",
+    "pipeline_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1",
+    "seal_sha256": "8d97a6e1a7648a84b147d4e20ccf27df6c86853d0bccba1f7efcf78f349d0a53",
+    "selected_success_sources_verified": 69,
+    "source_count": 73,
+    "summary_sha256": "6a373bf622c304018c3c5e506ad7d09f797687ef69f41af4b8370d585ac8f207",
+    "terminal_records_sealed": 90
+  },
+  "cohort_id": "20261026T034744Z_d939d36e",
+  "decision": "keep_for_required_private_input_isolation_with_unchanged_dev_grades",
+  "evidence": {
+    "accounting": {
+      "path": "/tmp/silicon-r15-cohort-audit-001/completed-090/audit.json",
+      "sha256": "36b11633abf999f76cbdb70defe6ad7a39ef32365a3899310c3491b1d5a0d63b"
+    },
+    "accounting_ACK": {
+      "path": "/tmp/silicon-r15-cohort-audit-001/final-source-release-ack-001.json",
+      "sha256": "7f3c4f9dd12a68d6908a0b50d83ba5d04cecf20e09d598a586c66be16ed357f8"
+    },
+    "accounting_command": {
+      "path": "/tmp/silicon-r15-cohort-audit-001/final-090-command.json",
+      "sha256": "5392975d89d5d10ac7b564b3b2709b12510c4ac0fb4c45488e6d6cf57dbda0ab"
+    },
+    "anchors": {
+      "path": "/tmp/silicon-r15-finalization-001/anchors.json",
+      "sha256": "f2641cff7328c61cc6a670e30dea768d38d407458cfc3a53193a494a43df3dfd"
+    },
+    "delivery": {
+      "path": "/tmp/silicon-r15-delivery-audit-001/probe-001/report.json",
+      "sha256": "ffdc32cb27d31b4e4c7f02c1e90a355b176140a6fabbed0aaf3f81ea35ff23bd"
+    },
+    "delivery_ACK": {
+      "path": "/tmp/silicon-r15-delivery-audit-001/final-source-release-ack-001.json",
+      "sha256": "fd1ca4d3a92e572de8eba4e851e63c63ca3f6b7e4ad69e6e4e0d2ab53e7a8c8f"
+    },
+    "evaluator": {
+      "path": "/tmp/silicon-r15-dev-preparation-001/eval-execution-001/completed.json",
+      "sha256": "ca3d1825a48084184fdcc80591032e2250e5d4996c62d09d09a0d320e4fc7b14"
+    },
+    "finalizer": {
+      "path": "/tmp/silicon-r15-finalization-001/completed.json",
+      "sha256": "56672b29f4b4e8613b7836e1d3dc353295969376f587af0f405381a03517b503"
+    },
+    "host_qualification": {
+      "path": "/tmp/silicon-r15-host-qualification-001/actual-001/qualification.json",
+      "sha256": "b7cc935c3c01b9b9966ff7fe1e1510b0273d271a7cede259f5bdd0c1f0d94141"
+    },
+    "host_review_ACK": {
+      "path": "/tmp/silicon-r15-host-qualification-actual-review-001/ACK.json",
+      "sha256": "0771a735e8377d869ce4954cabeffea341bb12722247a93bd6bdacfb00922b10"
+    },
+    "host_root_execution": {
+      "path": "/tmp/silicon-r15-host-qualification-001/root-execution-001/completed.json",
+      "sha256": "14e0de9b44f0c53744d9d7d40927a2fd8d49e5704052d0ce9130d3341067b605"
+    },
+    "ordinary_suite": {
+      "path": "/tmp/silicon-r15-host-qualification-001/root-ordinary-suite-001.json",
+      "sha256": "10e7bc16b0edc30df50429165d597390b53d9232dc69cbaee490b17dde5b6872"
+    },
+    "preset_audit": {
+      "path": "/tmp/silicon-preset-shortcut-audit-001/REPORT.json",
+      "sha256": "a742055bac6e53a25d958ebbb4ee204732a137cb5724b067bb54544b75f532f8"
+    },
+    "public_projection": {
+      "path": "/tmp/silicon-r15-public-failure-review-001/projection.json",
+      "sha256": "0f5e746d51a3dd17bb791763c266de67a648375a7e13dd9b6b9c7407eb74078d"
+    },
+    "public_review": {
+      "path": "/tmp/silicon-r15-public-failure-review-001/review.json",
+      "sha256": "7fc4a68d49ed158142ac111602c876e097e2d48e621e3a6b1224302004ca19d9"
+    },
+    "root_evaluator": {
+      "path": "/tmp/silicon-r15-dev-preparation-001/root-eval-execution-001/completed.json",
+      "sha256": "285a6fc3c036d33c421e7e864ff635f60e21d0256978782e724b277e4f8b7ca1"
+    }
+  },
+  "kind": "kept_R15_guarded_codex_dev_measurement",
+  "limits": [
+    "Required evaluation-input isolation control retained despite an E2E tie; no accuracy or causal speed improvement claimed.",
+    "Same-UID path protection has observed preexisting-hardlink/copy limitations; owner permissions alone are not CLI isolation. Inventory completeness is trusted. Named registry/metadata/source checks are points, not continuous/whole-filesystem or loaded-server attestation.",
+    "Original source/hidden/golden bodies did not enter this engineering review. All original90 grades, denominators and failures remain unchanged.",
+    "Own tests/block signoff/package custody and independent hidden checks do not establish Tiny Tapeout integration/pin fit/tapeout readiness.",
+    "OAuth USD/serving model/unreported consumption remain unknown. Cached input is a subset of input; CLI attempts are not upstream HTTP counts.",
+    "Main guard source is promoted after this closed measurement. Docker/replay QA and held-out application evaluation remain pending at this evidence point."
+  ],
+  "qualification": {
+    "OS_controls_matched": 12,
+    "OS_protected_roots_with_owned_canary": 11,
+    "core_protected_roots": 10,
+    "integration_deselected": 36,
+    "neutral_OAuth_attempts": 1,
+    "new_hardlink_creation": "DENIED",
+    "ordinary_unit_passed": 1076,
+    "preexisting_hardlink": "READ_expected_limitation",
+    "reported_input_tokens": 8628,
+    "reported_output_tokens": 41,
+    "subtests_passed": 92,
+    "usd": null
+  },
+  "results": {
+    "app_DONE_hardware": 69,
+    "attempted": 90,
+    "before_median_seconds": 239.52372622897383,
+    "before_successful": 87,
+    "before_tier2_median_seconds": 243.6380562709528,
+    "blocked": 0,
+    "bound_hidden_passes": 69,
+    "cohort_wall_seconds": 4489.164140790999,
+    "correct_scope_outcomes_reviewed": 18,
+    "median_seconds": 225.8484906249796,
+    "median_usd": null,
+    "missing": 0,
+    "not_built_hardware": 3,
+    "original_failure_classes": {
+      "pipeline_failed": 3
+    },
+    "paired_improvements": 0,
+    "paired_regressions": 0,
+    "planned": 90,
+    "public_negative_grades_reviewed": 3,
+    "public_review_scope": "Stated public cause and next action clear for all21 selected outcomes; alleged original missingness/reference availability was not independently verified. Original G1 clarity labels/grades unchanged.",
+    "recorded": 90,
+    "repeat_max": 0.9666666666666667,
+    "repeat_mean": 0.9666666666666667,
+    "repeat_min": 0.9666666666666667,
+    "repeat_successful": [
+      29,
+      29,
+      29
+    ],
+    "successful": 87,
+    "tier2_median_seconds": 242.6689921875368,
+    "tiers": {
+      "1": {
+        "planned": 24,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 1.0,
+          "mean": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "successful": 24
+      },
+      "2": {
+        "planned": 30,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 1.0,
+          "mean": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "successful": 30
+      },
+      "3": {
+        "planned": 18,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 0.8333333333333334,
+          "mean": 0.8333333333333334,
+          "median": 0.8333333333333334,
+          "min": 0.8333333333333334
+        },
+        "successful": 15
+      },
+      "4": {
+        "planned": 18,
+        "repeat_success_rates": {
+          "count": 3,
+          "max": 1.0,
+          "mean": 1.0,
+          "median": 1.0,
+          "min": 1.0
+        },
+        "successful": 18
+      }
+    },
+    "usd_known_trials": 0,
+    "usd_unknown_trials": 90
+  },
+  "runtime": {
+    "before_file_count": 70,
+    "before_pipeline_sha256": "014c3fd6ca21ee94764e847aeaea78485050d7134db7d42173c7e1611846b8ec",
+    "file_count": 73,
+    "pipeline_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1"
+  },
+  "schema_version": 1,
+  "treatment": "Six runtime paths add installed host inventory admission and a macOS Codex read boundary; original provider inner options/parser/deadline and design prompts stay unchanged. Native launches use a private empty cwd."
+}

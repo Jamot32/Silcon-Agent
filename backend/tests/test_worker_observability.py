@@ -35,7 +35,10 @@ def prepare(monkeypatch, tmp_path, factory, **options):
     store.create_run("Synthetic worker control")
     run = store.claim_pending()
     llm = FakeLLM()
-    monkeypatch.setattr(worker, "create_llm", lambda: llm)
+    def configured_llm(*, run_work_dir):
+        assert run_work_dir == store.work_dir(run.id)
+        return llm
+    monkeypatch.setattr(worker, "create_llm", configured_llm)
     host = worker.Worker(store, poll_interval=0.001, orchestrator_factory=factory, **options)
     return host, store, run, llm
 
@@ -214,7 +217,7 @@ def test_replay_terminal_is_labeled_without_any_live_inference(monkeypatch, tmp_
     async def synthetic_replay(record):
         return Outcome(status="done", summary="Synthetic replay only")
     host._replay = synthetic_replay
-    monkeypatch.setattr(worker, "create_llm", lambda: pytest.fail("Replay must not create a live client"))
+    monkeypatch.setattr(worker, "create_llm", lambda *, run_work_dir: pytest.fail("Replay must not create a live client"))
     asyncio.run(host.execute(replay))
     records = trace(store, run)
     assert len(records) == 1

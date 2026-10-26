@@ -3,7 +3,7 @@ import os
 from app.llm.types import Budget, LLM, LLMError
 
 
-def create_llm(*, budget: Budget | None = None) -> LLM:
+def create_llm(*, budget: Budget | None = None, run_work_dir=None) -> LLM:
     provider = os.getenv("LLM_PROVIDER", "codex")
     max_tokens = os.getenv("LLM_MAX_TOKENS", "").strip()
     budget = budget if budget is not None else Budget(
@@ -12,9 +12,14 @@ def create_llm(*, budget: Budget | None = None) -> LLM:
         max_tokens=int(max_tokens) if max_tokens else None,
     )
     if provider == "codex":
-        from app.llm.codex import CodexCLIClient
+        from app.llm.codex import CodexCLIClient, ProviderError
+        from app.llm.host_policy import admit_installed, HostSetupError
 
-        return CodexCLIClient(budget=budget)
+        try:
+            policy, _ = admit_installed(os.getenv("SILICON_CODEX_BOUNDARY_CONFIG"), run_work_dir)
+        except HostSetupError:
+            raise ProviderError("local_configuration") from None
+        return CodexCLIClient(budget=budget, launch_policy=policy)
     if provider == "meta":
         from app.llm.client import MetaLLM
 
