@@ -4,12 +4,13 @@
     "browser_http_errors": 0,
     "browser_pageerrors": 0,
     "existing_user_QA_passed": 3,
+    "frontend_E2E_case_scope": "One strengthened UART replay and one unreachable-API test; three optional failure-fixture tests skipped.",
+    "frontend_E2E_passed": 2,
     "frontend_unit_passed": 38,
     "inspected_completed_replay_mismatches": 0,
     "optional_missing_failure_fixture_skips": 3,
     "root_viewed_screenshots": 6,
     "selected_image_tag_and_configured_clock_agree_after_DONE_and_reload": true,
-    "strengthened_replay_E2E_passed": 2,
     "typecheck_exit_code": 0
   },
   "before": {

@@ -112,6 +112,6 @@ Keep for reported-success hidden correctness69/72→69/69 and clear public failu
 Next: finish guarded host-inventory/OAuth qualification and measure that rollout; held-out evaluation remains unopened.
 
 
-UI selection PASS: completed replay layout mismatch1→0;38frontend units/typecheck,2replay checks (+3honest skips),3existing QA and browser/cleanup pass.
+UI selection PASS: completed replay layout mismatch1→0;38frontend units/typecheck,2frontend E2E cases (one replay; +3honest skips),3existing QA and browser/cleanup pass.
 Dashboard/result selected image, tag and configured clock agree after DONE/reload; source/log screenshots remain masked and chart reload capture has a documented timing limit.
 Next: qualify the73-file guarded Codex candidate; dev score remains87/90 and held-out evaluation remains unopened.
