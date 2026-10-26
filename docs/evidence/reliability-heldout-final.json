@@ -1,0 +1,217 @@
+{
+  "actual_operations": {
+    "accounting_outer": {
+      "elapsed_seconds": 1.799433417,
+      "ended_at": "2026-10-26T07:53:34.663801+00:00",
+      "exception_type": null,
+      "exit_code": 0,
+      "receipt_sha256": "bf712d437522a24c6c52d08c4f26c022cbcaf2a1420dcf03d5253f2c021ebe56",
+      "started_at": "2026-10-26T07:53:32.864146+00:00"
+    },
+    "custody_outer": {
+      "elapsed_seconds": 2.5900250839999996,
+      "ended_at": "2026-10-26T07:53:18.330372+00:00",
+      "exception_type": null,
+      "exit_code": 0,
+      "receipt_sha256": "1d8757b4118545a7272243f8e0fa40abb0791cf3bdecb9e2f80c7dd910675d8d",
+      "started_at": "2026-10-26T07:53:15.740130+00:00"
+    },
+    "evaluator": {
+      "elapsed_seconds": 7078.503962875,
+      "ended_at": "2026-10-26T07:51:06.028012+00:00",
+      "exception_type": null,
+      "exit_code": 0,
+      "receipt_sha256": "cd9e2cfbb8d88d7891cf77728286a19290fae7f2b84cd8ba8d2957ac5430b8b7",
+      "started_at": "2026-10-26T05:53:07.463459+00:00"
+    },
+    "launch_outer": {
+      "elapsed_seconds": 7078.558991083,
+      "ended_at": "2026-10-26T07:51:06.042242+00:00",
+      "exception_type": null,
+      "exit_code": 0,
+      "receipt_sha256": "d064845b6691d356e5b710b95986f32a883a4600c5dd72d0771614abd9641ebe",
+      "started_at": "2026-10-26T05:53:07.422765+00:00"
+    },
+    "report_outer": {
+      "elapsed_seconds": 0.135917,
+      "ended_at": "2026-10-26T07:55:53.134700+00:00",
+      "exception_type": null,
+      "exit_code": 0,
+      "receipt_sha256": "44b057463e1b255e300c4a4ace01cce87a3e6f4a422d51f12a7965343e9a31b3",
+      "started_at": "2026-10-26T07:55:52.998539+00:00"
+    },
+    "seal": {
+      "elapsed_seconds": 1.111309375,
+      "ended_at": "2026-10-26T07:52:12.240358+00:00",
+      "exception_type": null,
+      "exit_code": 0,
+      "receipt_sha256": "9b0d8542a2315d967dd590f08f7bc86f80681c029b3c43d4c6bc532df4e72a2b",
+      "started_at": "2026-10-26T07:52:11.129511+00:00"
+    },
+    "seal_outer": {
+      "elapsed_seconds": 1.372995792,
+      "ended_at": "2026-10-26T07:52:12.384743+00:00",
+      "exception_type": null,
+      "exit_code": 0,
+      "receipt_sha256": "c9d847cbe99939e09dcf7dd25e34a5b2c28b14924d8f12bfd171a8517b9aaa9f",
+      "started_at": "2026-10-26T07:52:11.012143+00:00"
+    },
+    "verify": {
+      "elapsed_seconds": 0.12076187500000013,
+      "ended_at": "2026-10-26T07:52:12.368496+00:00",
+      "exception_type": null,
+      "exit_code": 0,
+      "receipt_sha256": "a0578ef7c3dcf2261e6e0b296d242fd209dfd78a44f97b94d0b05960447ea23b",
+      "started_at": "2026-10-26T07:52:12.247818+00:00"
+    }
+  },
+  "all_targets_met": false,
+  "cohort_id": "20261026T055307Z_b72bfd9b",
+  "dev_after": {
+    "planned": 90,
+    "successful": 87
+  },
+  "dev_and_heldout_are_paired": false,
+  "dev_before": {
+    "planned": 90,
+    "successful": 87
+  },
+  "health_point": {
+    "api_http_status": 200,
+    "check_statuses": {
+      "database": "ok",
+      "eda": "ok",
+      "llm": "ok",
+      "worker": "ok"
+    },
+    "created_at": "2026-10-26T08:02:25.430193+00:00",
+    "elapsed_seconds": 1.1238341660000002,
+    "health_body_sha256": "30086a883b85d624ea5ed1d202ec8ced0d5b5ac009141218b338c11b2bc58fe5",
+    "health_status": "ok",
+    "kind": "main_read_only_health_point",
+    "model_or_EDA_calls": false,
+    "record_sha256": "098143935b8abb1a6c22aed4c7cfbdea2110cf911820d0a04f4243bcb54c7539",
+    "web_http_status": 200
+  },
+  "heldout_retired_from_tuning": true,
+  "independent_metadata_peer": {
+    "actual_check_receipt_sha256": "6b4121926a965113976047e312e148a38e53a43c98dfe0f578fe308653aa761a",
+    "checks": 191,
+    "passed": true,
+    "scope": [
+      "Metadata/hash/arithmetic peer only. No actual original summary/invocation/EVIDENCE/snapshot/corpus/oracle/result/spec/generated-source/private audit/child stdout or stderr body opened.",
+      "Original result/hash commitments and base-sealer/custody claims cross-bound through safe aggregates and actual receipts; original90 rows/artifacts and hidden semantics not independently reopened or regraded.",
+      "73-source map fingerprints checked only from existing permitted receipt metadata. No live/archive/main file re-fingerprint, continuous/loaded-code/isolation or serving-identity attestation.",
+      "Named root source ACK publication purpose is aggregate_reporting_only/product_completefalse.28 negative grades remain clarity-unreviewed; no product-complete/all-targets/all-clear assertion.",
+      "Seven receipt records named by root source ACK plus the separate report outer receipt were inspected; no claim that all root input refs were command executions.",
+      "No audit rerun, provider/CLI/EDA/service or original evidence/source/config mutation."
+    ],
+    "sha256": "7875b9b851d3d53b5a494fffd296f85dc299f3f44cae105c15fa4fbd42476e35"
+  },
+  "kept_dev_pointer": {
+    "path": "docs/evidence/reliability-kept-baseline.json",
+    "sha256": "3e1a0f11fd295974e567d7558437bdb97aff0a443a4e3a0dd4c64be39152b963"
+  },
+  "kind": "frozen_heldout_final_publication_evidence",
+  "limits": [
+    "Separate held-out aggregates; no DEV exporter/comparator, replacement trials, regrading or hidden semantic inference.",
+    "All28 negative clarity labels remain unreviewed; cause/action templates do not establish repair-attempt explanation quality.",
+    "78 request-attempt timeouts;81 missing usage attempts. These are different counters. Missing tokens and OAuth USD remain unknown; no quota attribution.",
+    "Main health is a read-only point and makes no paid model/EDA request. Replay QA is not new live-design correctness proof.",
+    "Static architecture gaps and Tiny Tapeout integration remain incomplete; standalone block signoff is not shuttle readiness.",
+    "Root source-release stdout labeled15 input references as commands_closed; the record contains7 command receipts, plus the separate report receipt here. No15-command claim is retained."
+  ],
+  "one_application_cohort": true,
+  "original_bindings": {
+    "grader_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669",
+    "heldout_corpus_sha256": "95d56d3819f182166558c02fb5ab28fcc06c509eabe99dc3fe9e726f463f9dd2",
+    "invocation_sha256": "a6e7f576e43203b8e28d92597115f6aa9dfba6064e56e456c5561bca6b976f22",
+    "oracle_engine_sha256": "dbb7d7e1d06b9f0699f45a474612e6e20723f6e57025156b4aba2d8c6dad6f4e",
+    "runtime_count": 73,
+    "runtime_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1",
+    "seal_sha256": "eaa1c1b971ff0f3cdbf2afd321e7cc6feef1a39c9ff525c3b1813f78d9123e53",
+    "snapshot_manifest_sha256": "d61588c70aa62a3b9a2cb7f5ee2cc907f6ca040798dd5b8469ce83a142c2826c",
+    "summary_sha256": "e4b3588de25eb45765b867fb41f90fe2b9c2e333a222f3b7c142e77c3ab74bbf"
+  },
+  "original_grades_unchanged": true,
+  "pipeline_changed_after_launch": false,
+  "planned": 90,
+  "post_audit_source_release_sha256": "cacff4d586709a540fdc5025dd86c7db2d396f08253aaaf0651144cd08e06aea",
+  "product_complete": false,
+  "public_report_peer": {
+    "prior_read_hash_race_explicitly_corrected": true,
+    "prior_review_preserved": true,
+    "report_sha256": "b20fac89d6cb2f0d1b2ae26f44eef675a883d323d2193a2506c542737d8286ae",
+    "scope": [
+      "Original evaluator/individual seal/audit/reporter actual process receipts and total7078.504s wall are not contained fully in the approved aggregate inputs; root retains those closure records.",
+      "Main/committed-main/evaluated/archive source maps are not rehashed here; this review checks declared digest consistency and stated point-scope limits only.",
+      "No original heldout result/spec/oracle/prose/individual artifact or raw command log was opened; no rerun/import/app/provider/EDA/Git/helper operation.",
+      "Pending docs/evidence/reliability-heldout-final.json was not read or assumed complete."
+    ],
+    "sha256": "5abca0dd6ee11b26bec39b96f81cb7948f3a55c4f8fa58de6d1834a99d98f3a9",
+    "timing_finding_closed": true
+  },
+  "publications": [
+    {
+      "path": "docs/RELIABILITY_REPORT.md",
+      "sha256": "b20fac89d6cb2f0d1b2ae26f44eef675a883d323d2193a2506c542737d8286ae"
+    },
+    {
+      "path": "eval/reports/heldout-20261026/aggregate.json",
+      "sha256": "221e2f6f89d8ee00782ed57da64d877a800448cde0aba47505aaf3adc16b4440"
+    },
+    {
+      "path": "eval/reports/heldout-20261026/custody.json",
+      "sha256": "fa90a97c10da2cda4d80f7e6d5df815b0d15677303fb56f26b667b78a97e52c0"
+    },
+    {
+      "path": "eval/reports/heldout-20261026/accounting.json",
+      "sha256": "26b3536de745f52f9bdad341a2f32dceb507d5b8a185d22dacfdae9aeda5e17e"
+    }
+  ],
+  "qa": {
+    "path": "docs/evidence/reliability-r15-qa.json",
+    "sha256": "b04e07112a77456715557b3e5c8db0d283e7a396ac9bece9437e97212402543b"
+  },
+  "qualified_reporting_sources": {
+    "accounting": "a002bc036ac9f7fdf65ebe8c53ee9e536d81a1b76a5eb30904f9a71c799c17d8",
+    "custody": "4e9e74a0dcfc0e12ac9d305942f6bfb4eb4364ca278f18031e97574ec11bf95b",
+    "launcher": "cba3dd8f066d7c7df310765a2287bc4b9a30cbc793281c5cfc46d45a1c94539e",
+    "reporter": "4bf278848882bdf336fdb31b235cbf210c8b58bfcce23affd621edd796e02508",
+    "root_recorder": "3614d3383be2c331b0cc8cd9eb09e128bcd1836364e353d95adefbc2e4303b37",
+    "root_recorder_actual_five_controls": "795c2dbe5b8196895082f3c33f6f0548815de52f9a7163019ba1f179b7291ccb",
+    "root_recorder_peer": "1891f84c234d149d39419957c5cb1c101ca3c80632870c148a642bfa02c96763"
+  },
+  "recorded": 90,
+  "retained_failures": [
+    "Original provision attempt001 exited1 before any private corpus copy/application run; corrected exact Git ignore-directory query passed in separate attempt002.",
+    "Original root-recorder source review rejected failure finalization; source/review preserved, revised version passed5 neutral controls before actual postrun use.",
+    "Public QA attempts001/002 and their subsequent test-only fixes remain retained in separate QA evidence."
+  ],
+  "schema_version": 1,
+  "source_points": {
+    "evaluated_archive": {
+      "file_count": 73,
+      "pipeline_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1",
+      "runtime_map_sha256": "c0ba85a8f240d6ee8a9aad21c32327dd8423c170310f6e810dd87e8b03e9a1a5"
+    },
+    "evaluated_live": {
+      "file_count": 73,
+      "pipeline_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1",
+      "runtime_map_sha256": "c0ba85a8f240d6ee8a9aad21c32327dd8423c170310f6e810dd87e8b03e9a1a5"
+    },
+    "main_committed": {
+      "commit": "326793ab3cfa73982ba34748b99c96e69c8c6454",
+      "file_count": 73,
+      "pipeline_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1"
+    },
+    "main_working": {
+      "file_count": 73,
+      "pipeline_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1",
+      "runtime_map_sha256": "c0ba85a8f240d6ee8a9aad21c32327dd8423c170310f6e810dd87e8b03e9a1a5"
+    }
+  },
+  "source_scope": "Named73 live/committed/archive checks at recorded points; no continuous or loaded-code attestation.",
+  "split": "heldout",
+  "successful": 62
+}

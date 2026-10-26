@@ -1060,3 +1060,31 @@ Next: clean-public-shadow Docker/replay/userQA verification, then the one frozen
 Dev before87/90 → after87/90; pipeline73/9df2 and original grader remain unchanged. First isolated attempt stops at Docker COPY because the explicit public roster omitted one smoke script; its exit1 is retained. Second boots, then reports20 backend failures/1056passes: two synthetic host fixtures removed inheritedHOME for a Docker UID without a passwd entry. A neutral probe confirms the cause; fixture-only retention of the unchanged normal value moves focused Docker20fail/10pass→30pass. An offline evaluator Worker test also opts into the existing real synthetic policy fixture; all assertions stay, moving354pass/1fail→355pass plus15subtests. Keep these test portability changes; no production/model/grader change or skips.
 
 New independent attempt003 passes exact make demo/test, Docker1076backend+92subtests (36integration deselected), frontend typecheck/38units,2frontend E2E (+3explicit optional skips),3existing userQA and browser/cleanup. make test takes76.315s; whole QA150.618s. Root views all6masked captures: selected image/tag/configured clock agree across DONE/reload/result/mobile; desktop and this reload capture show4flow points. Source/log regions remain intentionally masked; clock is configured, not Fmax. No model/EDA calls occur. All380 public copied inputs and main state/env metadata/export/source73 match at cleanup; main remains healthy. Both original failures remain separate. Curated evidence: docs/evidence/reliability-r15-qa.json. Next: one frozen held-out3× application cohort; none started here.
+
+
+## Frozen held-out3× — targets missed; no post-launch tuning
+
+Change → measurement/reporting only, no pipeline treatment. DEV before87/90 → after87/90, unchanged. The separate held-out cohort `20261026T055307Z_b72bfd9b` scores62/90 (68.9%); it is not a matched DEV comparison. Decision → publish every original outcome, retire this held-out set from tuning, and retain the explicit incomplete mission status.
+
+| Tier | Held-out successful/planned | Repeat mean (min–max) | Target |
+| --- | ---: | --- | --- |
+| 1 | 17/24 | 70.8% (12.5–100%) | ≥95% missed |
+| 2 | 17/30 | 56.7% (20–80%) | ≥80% missed |
+| 3 | 14/18 | 77.8% (66.7–83.3%) | ≥50% numeric met; clear-failure condition unassessed |
+| 4 | 14/18 | 77.8% (66.7–83.3%) | 100% missed |
+
+All90 planned/attempted/recorded;0missing/blocked. Hardware funnel72planned→54RTL/lint→52own tests→50synthesis/flow/DRC/LVS/package→48bound hidden passes. All50 app-DONE deliveries have custody checks, including2incorrect-DONE hidden failures; hidden correctness48/50=96% meets90%. Fourteen correct Tier4 outcomes complete the62successful grades. No grade is replaced by a clearer explanation or a successful physical run.
+
+| Ranked projected original negative class | Count |
+| --- | ---: |
+| pipeline_failed | 22 |
+| unclassified_or_other | 4 |
+| hidden_test_fail | 2 |
+
+The four other labels stay bucketed under the reporter's finite public allow-list. No case identities, original requests, hidden diagnostics or terminal prose enter engineering review. All28 negative clarity labels remain unreviewed. Static public templates do not establish actual-repair explanations; the full Tier3 explanation and zero-unclear-failures targets are unassessed. Recorded worker crashes, terminal deadlines, harness errors and missing terminal messages are0; this does not erase78 model-request attempt timeouts.
+
+Tier2 median application pipeline276.887s (4.61min) meets600s; overall median264.388s. These include unsuccessful attempts but exclude later hidden grading. Actual evaluator wall7078.504s; outer launcher7078.559s. Accounting reconciles452request CLI attempts/371returned usage/81missing usage;78timeout and2unknown-fatal attempt outcomes,372outside those finite buckets. Returned tokens4,316,849input/231,130output, including2,038,656cached input as a subset. Missing consumption and all90USD values remain unknown. There are957outer tool envelopes,374receipts,506command observations and189physical-flow calls; no observed EDA-command timeout/nonzero or reported cap excess. No quota or per-trial causal attribution is inferred from these aggregates.
+
+Actual documented evaluator argv, unchanged ordinary seal/verify, full-DONE custody, full90 accounting and the separate held-out reporter all exit integer0 with clean postchecks. Summary SHA`e4b3588de25eb45765b867fb41f90fe2b9c2e333a222f3b7c142e77c3ab74bbf`; seal SHA`eaa1c1b971ff0f3cdbf2afd321e7cc6feef1a39c9ff525c3b1813f78d9123e53`; aggregate SHA`221e2f6f89d8ee00782ed57da64d877a800448cde0aba47505aaf3adc16b4440`. Main working/committed, evaluated live and archived73source points match9df2. These are named point observations, not continuous or loaded-code attestations. The original provision setup failure and recorder-finalization source-review failure are retained; neither is an application rerun.
+
+Public report: [RELIABILITY_REPORT.md](RELIABILITY_REPORT.md). Separate original-derived aggregates: `eval/reports/heldout-20261026/`; the kept CI pointer stays on R15DEV. Mandatory ordinary reference-model/harness and interface gates, interactive clarification, surgical escalation and TinyTapeout wrapper integration remain incomplete; block signoff is not shuttle readiness. Next: diagnose request timeouts and generic failures onDEV, measure each change, then create a fresh held-out set before any further generalization claim. No post-held-out treatment is adopted here.

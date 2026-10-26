@@ -39,3 +39,5 @@ The API alone owns SQLite. The host worker uses private authenticated HTTP; `mak
 Bundles contain selected-flow GDS, LEF, Verilog, preserved tests, raw/canonical metrics, design log, checksums, and Tiny Tapeout-style metadata. **Clean block DRC/LVS does not establish Tiny Tapeout wrapper, tile fit, or shuttle readiness.** The metadata draft and bundle explain the remaining integration work. No shuttle submission is performed.
 
 All five presets have completed real model-to-layout builds; all five independent golden references passed real simulation and physical checks. See [milestone evidence](docs/PROGRESS.md), [decisions](docs/DECISIONS.md), [architecture](docs/ARCHITECTURE.md), and [visual verification](docs/design/VERIFICATION.md).
+
+General-use reliability targets remain unmet. The frozen held-out evaluation scored **62/90**, with Tier 1/2/4 targets missed and two hidden-test failures among 50 app-completed designs. See the [reliability report](docs/RELIABILITY_REPORT.md) for repeat ranges, usage/time measurements, incomplete requirements and next steps.

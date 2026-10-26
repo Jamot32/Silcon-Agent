@@ -123,3 +123,7 @@ Next — public-shadow Docker/replay/userQA check, then one held-out3× measurem
 R15 QA — PASS: exactmake demo/test76.315s;1076backend+92subtests/38frontend units/typecheck/E2E2pass3skip/userQA3;6masked screenshots reviewed.
 Fixes — two retained failed QA attempts lead only to public copy completeness and3portable test-fixture changes; focusedDocker20fail→0, evalunit1fail→0; pipeline73/9df2 and dev87/90 unchanged.
 Next — freeze this source and perform the one held-out3× cohort; OAuthUSD remainsunknown and no held-out app run has begun.
+
+Phase4 measurement CLOSED, targets NOT MET: original held-out90/90,62successful; tiers70.8%/56.7%/77.8%/77.8%; DEV87/90 unchanged, no pipeline tuning or replacement trials.
+Checks — evaluator/seal/verify/custody/accounting/report all exit0; hidden48/50, Tier2 median276.887s;78request-attempt timeouts,81missing usage, USDunknown and full clarity unassessed;73source points match9df2.
+Next — publish the explicit report/gaps, diagnose and measure further changes onDEV, then prepare fresh held-out inputs before another generalization claim; existing held-out outcomes stay fixed.

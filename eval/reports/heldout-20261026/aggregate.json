@@ -1,0 +1,252 @@
+{
+  "app_DONE_hardware": 50,
+  "bindings": {
+    "grader_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669",
+    "heldout_corpus_sha256": "95d56d3819f182166558c02fb5ab28fcc06c509eabe99dc3fe9e726f463f9dd2",
+    "invocation_sha256": "a6e7f576e43203b8e28d92597115f6aa9dfba6064e56e456c5561bca6b976f22",
+    "oracle_engine_sha256": "dbb7d7e1d06b9f0699f45a474612e6e20723f6e57025156b4aba2d8c6dad6f4e",
+    "runtime_count": 73,
+    "runtime_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1",
+    "seal_sha256": "eaa1c1b971ff0f3cdbf2afd321e7cc6feef1a39c9ff525c3b1813f78d9123e53",
+    "snapshot_manifest_sha256": "d61588c70aa62a3b9a2cb7f5ee2cc907f6ca040798dd5b8469ce83a142c2826c",
+    "summary_sha256": "e4b3588de25eb45765b867fb41f90fe2b9c2e333a222f3b7c142e77c3ab74bbf"
+  },
+  "bound_hidden_failures": 2,
+  "bound_hidden_passes": 48,
+  "closure_input_sha256": {
+    "dev_adoption": "8843c53900dac728477a4142c6ee674bbcd8b98275b8746a76c077d027161959",
+    "evaluator_completed": "cd9e2cfbb8d88d7891cf77728286a19290fae7f2b84cd8ba8d2957ac5430b8b7",
+    "invocation": "a6e7f576e43203b8e28d92597115f6aa9dfba6064e56e456c5561bca6b976f22",
+    "seal": "eaa1c1b971ff0f3cdbf2afd321e7cc6feef1a39c9ff525c3b1813f78d9123e53",
+    "seal_completed": "9b0d8542a2315d967dd590f08f7bc86f80681c029b3c43d4c6bc532df4e72a2b",
+    "snapshot": "d61588c70aa62a3b9a2cb7f5ee2cc907f6ca040798dd5b8469ce83a142c2826c",
+    "source_release": "cacff4d586709a540fdc5025dd86c7db2d396f08253aaaf0651144cd08e06aea",
+    "summary": "e4b3588de25eb45765b867fb41f90fe2b9c2e333a222f3b7c142e77c3ab74bbf",
+    "verify_completed": "a0578ef7c3dcf2261e6e0b296d242fd209dfd78a44f97b94d0b05960447ea23b"
+  },
+  "cohort_id": "20261026T055307Z_b72bfd9b",
+  "cost": {
+    "known_trials": 0,
+    "median_usd": null,
+    "total_usd": null,
+    "unknown_trials": 90
+  },
+  "failure_class_counts": {
+    "hidden_test_fail": 2,
+    "pipeline_failed": 22,
+    "unclassified_or_other": 4
+  },
+  "hardware_survival_funnel": [
+    {
+      "check": "planned_hardware",
+      "count": 72
+    },
+    {
+      "check": "rtl_generated",
+      "count": 54
+    },
+    {
+      "check": "lint",
+      "count": 54
+    },
+    {
+      "check": "self_tests",
+      "count": 52
+    },
+    {
+      "check": "synthesis",
+      "count": 50
+    },
+    {
+      "check": "flow",
+      "count": 50
+    },
+    {
+      "check": "drc",
+      "count": 50
+    },
+    {
+      "check": "lvs",
+      "count": 50
+    },
+    {
+      "check": "package",
+      "count": 50
+    },
+    {
+      "check": "bound_hidden_pass",
+      "count": 48
+    }
+  ],
+  "hidden_precision": 0.96,
+  "hidden_unverified": 0,
+  "kind": "sealed_heldout_aggregate_report",
+  "limits": [
+    "Original grades and all90 denominators preserved; no DEV pairing, relabeling, regrading or causal improvement claim.",
+    "No case IDs/names, source/spec/test/reason/log text, private paths or individual artifacts leave this aggregate. Unknown failure labels are bucketed rather than emitted.",
+    "Reported row usage only; no missing attempt consumption or USD imputed. Cached input is not separately summed here.",
+    "Original clarity fields are not a substantive cause/attempt/action review; target claims need the separately bound private review.",
+    "Focused shared-family/public-upstream benchmark; no arbitrary-user, unseen-pretraining, TT pin-fit or whole-isolation claim."
+  ],
+  "pipeline_seconds": {
+    "count": 90,
+    "max": 881.3020937499823,
+    "mean": 288.5509399050743,
+    "median": 264.3880204994348,
+    "min": 5.216191999963485
+  },
+  "planned": 90,
+  "recorded": 90,
+  "reliability": {
+    "crashes": 0,
+    "harness_error_trials": 0,
+    "original_clarity_counts": {
+      "unreviewed": 28
+    },
+    "substantive_clarity_review": "not_established_by_this_projection",
+    "terminal_message_missing": 0,
+    "timed_out": 0
+  },
+  "repeats": 3,
+  "reported_row_usage": {
+    "calls": 452,
+    "input_tokens": 4316849,
+    "output_tokens": 231130,
+    "unreported_attempt_consumption": null
+  },
+  "schema_version": 1,
+  "source_release_scope": "See hash-bound source release; this projector does not re-attest its scope.",
+  "split": "heldout",
+  "success_rate": 0.6888888888888889,
+  "successful": 62,
+  "target_assessment": {
+    "hidden_correctness_on_reported_success": {
+      "comparison": ">=",
+      "observed": 0.96,
+      "status": "met",
+      "threshold": 0.9
+    },
+    "median_usd_all_trials": {
+      "comparison": "<=",
+      "observed": null,
+      "status": "not_assessable",
+      "threshold": 1.0
+    },
+    "tier_1_success_rate": {
+      "comparison": ">=",
+      "observed": 0.7083333333333334,
+      "status": "missed",
+      "threshold": 0.95
+    },
+    "tier_2_median_pipeline_seconds": {
+      "comparison": "<=",
+      "observed": 276.88723474997096,
+      "status": "met",
+      "threshold": 600
+    },
+    "tier_2_success_rate": {
+      "comparison": ">=",
+      "observed": 0.5666666666666667,
+      "status": "missed",
+      "threshold": 0.8
+    },
+    "tier_3_clear_failures": {
+      "basis": "Separate substantive review required for any negative grade; message presence is insufficient.",
+      "status": "not_assessable"
+    },
+    "tier_3_success_rate": {
+      "comparison": ">=",
+      "observed": 0.7777777777777778,
+      "status": "met",
+      "threshold": 0.5
+    },
+    "tier_4_success_rate": {
+      "comparison": ">=",
+      "observed": 0.7777777777777778,
+      "status": "missed",
+      "threshold": 1.0
+    },
+    "zero_crashes_hangs_or_unclear_failures": {
+      "basis": "No clarity assertion for unreviewed negative grades.",
+      "status": "not_assessable"
+    }
+  },
+  "tiers": {
+    "1": {
+      "pipeline_seconds": {
+        "count": 24,
+        "max": 881.3020937499823,
+        "mean": 348.51055721191125,
+        "median": 266.2953935835394,
+        "min": 169.08053329098038
+      },
+      "planned": 24,
+      "repeat_success_rates": {
+        "count": 3,
+        "max": 1.0,
+        "mean": 0.7083333333333334,
+        "median": 1.0,
+        "min": 0.125
+      },
+      "success_rate": 0.7083333333333334,
+      "successful": 17
+    },
+    "2": {
+      "pipeline_seconds": {
+        "count": 30,
+        "max": 775.9883675409947,
+        "mean": 355.08231330129394,
+        "median": 276.88723474997096,
+        "min": 74.96719949995168
+      },
+      "planned": 30,
+      "repeat_success_rates": {
+        "count": 3,
+        "max": 0.8,
+        "mean": 0.5666666666666667,
+        "median": 0.7,
+        "min": 0.2
+      },
+      "success_rate": 0.5666666666666667,
+      "successful": 17
+    },
+    "3": {
+      "pipeline_seconds": {
+        "count": 18,
+        "max": 770.3486452500802,
+        "mean": 310.21866548373106,
+        "median": 294.7109012285364,
+        "min": 8.271644333959557
+      },
+      "planned": 18,
+      "repeat_success_rates": {
+        "count": 3,
+        "max": 0.8333333333333334,
+        "mean": 0.7777777777777778,
+        "median": 0.8333333333333334,
+        "min": 0.6666666666666666
+      },
+      "success_rate": 0.7777777777777778,
+      "successful": 14
+    },
+    "4": {
+      "pipeline_seconds": {
+        "count": 18,
+        "max": 362.1535716659855,
+        "mean": 76.05143559026894,
+        "median": 11.549480562505778,
+        "min": 5.216191999963485
+      },
+      "planned": 18,
+      "repeat_success_rates": {
+        "count": 3,
+        "max": 0.8333333333333334,
+        "mean": 0.7777777777777778,
+        "median": 0.8333333333333334,
+        "min": 0.6666666666666666
+      },
+      "success_rate": 0.7777777777777778,
+      "successful": 14
+    }
+  }
+}
