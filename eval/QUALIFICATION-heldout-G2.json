@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "kind": "heldout_generation_qualification",
+  "generation": "G2",
+  "replaces": {
+    "generation": "G1",
+    "corpus_sha256": "95d56d3819f182166558c02fb5ab28fcc06c509eabe99dc3fe9e726f463f9dd2",
+    "retired_after_cohort": "20261026T055307Z_b72bfd9b"
+  },
+  "checked_at": "2026-10-27T21:50:29Z",
+  "status": "pass",
+  "app_provider_model_calls": 0,
+  "authorship": "Cases, public wording, adapters and decision rubrics were authored by the evaluator's engineering assistant (Claude subagents), not by the model under test. Reference RTL and Python are unchanged upstream bytes at the pinned commits in SOURCES.md.",
+  "case_counts": {"1": 8, "2": 10, "3": 6, "4": 6},
+  "composition": {
+    "tier_1": "8 VerilogEval sequential problems not used by DEV or G1 (shift/delay registers, counters, a data register, small state machines)",
+    "tier_2": "6 VerilogEval state-machine/history problems not used by DEV or G1, plus UART TX (7 data bits), UART RX (9 data bits), SPI mode 3 with a 3-clock half period, and a 16-deep AXI-stream FIFO",
+    "tier_3": "raster timing (projf display_24x18, 20x14 active, mixed sync polarity), CRC-16/IBM-3740, I2C master with prescale fixed at 5 (implementation_compatibility), 12-bit unsigned divider, signed fixed-point divide (10-bit, 3 fractional bits) and multiply (12-bit, 5 fractional bits)",
+    "tier_4": "new CPU over-scope (scope_down), analog ADC (decline), non-hardware travel (decline), vague, contradictory and injection requests (ask_clarify)"
+  },
+  "build_oracle_selfchecks_passed": 24,
+  "positive_test_counts": {"passed": 96, "failed": 0, "skipped": 0},
+  "deliberate_all_zero_designs_failed": 24,
+  "negative_test_counts": {"passed": 0, "failed": 96, "skipped": 0},
+  "decision_only_not_applicable": 6,
+  "independent_spec_only_implementations": {
+    "passed": 24,
+    "of": 24,
+    "method": "Separate agents saw only spec.md, wrote their own RTL and interface, and were graded once by the hidden oracle with no feedback."
+  },
+  "oracle_engine_sha256": "dbb7d7e1d06b9f0699f45a474612e6e20723f6e57025156b4aba2d8c6dad6f4e",
+  "harness_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669",
+  "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+  "corpus_sha256": "8fd310740e45762f18c1ffdcc20b047dccc094516e2e07150a1bfc29ccc31c29",
+  "manifest_sha256": "41fa6c8105258811c5c697d9422e81d90db0aff385b50611d6aaf4915cd3a9f9",
+  "evaluated_copy_admission_index_sha256": "c366eabfb63d08dd7eb2737d0894fd5526b47ead04f93cb14daed441ee55224b",
+  "commands": ["python -m eval validate --set heldout", "python -m eval selfcheck --set heldout"],
+  "limits": [
+    "Admission proves the reference passes and an all-zero design fails; it does not prove complete specification coverage.",
+    "Spec-only implementations by another model show the specifications are solvable; they are not evidence about the model under test.",
+    "Upstream families overlap DEV and G1 with different problems or configurations; this measures transfer between related contracts, not family-disjoint generalization."
+  ]
+}

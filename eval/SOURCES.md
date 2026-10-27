@@ -123,3 +123,7 @@ app. References, expected behavior metadata, hidden tests and outcomes never
 enter the model's work directory, EDA input mount, prompts, memory, or retrieval
 index. Post-run verification uses a sibling sandbox containing an immutable
 copy of the selected delivered RTL. No hidden result is fed back to the agent.
+
+## Held-out generations
+
+The corpus statements above describe the development split and the first held-out generation (G1) as authored. G1 was retired from tuning after its single frozen cohort `20261026T055307Z_b72bfd9b`; its private files are archived outside `eval/heldout/`. The second generation (G2, provisioned 2026-10-27) keeps the 8/10/6/6 tiers and the same pinned upstream repositories. Its Tier 1 and VerilogEval Tier 2 problems are disjoint from both DEV and G1. Its other protocol and hard-family cases reuse the established families with new configurations. Its Tier 4 requests are new. G2 adds one upstream file, Project F `lib/display/display_24x18.sv`. Its cases were authored by the evaluator's engineering assistant, not by the model under test. All 24 G2 build oracles passed admission (reference 96/96 tests, all-zero designs 0/96). Independent spec-only implementations written by separate agents passed 24/24 when graded once by the hidden oracle. Aggregate evidence: [QUALIFICATION-heldout-G2.json](QUALIFICATION-heldout-G2.json).

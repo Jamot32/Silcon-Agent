@@ -1195,3 +1195,19 @@ Change → none; read-only attribution over the sealed R15 DEV and frozen held-o
 | 3 | 11/30 | 17 | 49–105 |
 
 Minutes 0–49 had 302 attempts, 0 timeouts and per-bucket completed medians of 10–16 s. Minutes 50–119 had 150 attempts with 78 timeouts and completed medians up to 114 s. R15 DEV had 472 attempts, 0 timeouts and a slowest attempt of 50.4 s. The 18 provider-ended trials span 17 cases, which succeeded in 29 of their 33 other repeats. That pattern points to a time window, not case content. Of the 18 hardware trials lost before RTL/lint, 15 were provider-ended. The 10 non-provider failures are 3 Tier-4 scope decisions, 3 Tier-3 stops, 2 Tier-2 synthesis failures and 2 hidden-test failures. The 2026-10-27 DEV outages differed: latency stayed normal, but connection failures produced fail-fast `unknown_fatal` attempts that ended nearly all failed trials in the four affected cohorts. The slowdown's cause is unknown. A longer attempt cap is not measurable on DEV without an incident, and an evaluator-level pause would change the harness fingerprint and need a new baseline. Details: [research/provider_timeouts/README.md](../research/provider_timeouts/README.md).
+
+## Fresh held-out G2 — pre-evaluation record
+
+Change → no pipeline change. A second held-out generation (G2) replaces the retired G1 corpus under `eval/heldout/`; G1 is archived privately and stays retired from tuning. Before → DEV **87/90** (R15); G1 held-out **62/90**, dominated by a provider latency window. After → **not measured yet**. Decision → measure the unchanged R15 runtime once on G2 as a generalization check, under the rules below, fixed before launch.
+
+G2 keeps 8/10/6/6 tiers and the pinned upstream repositories. Tier 1 and the VerilogEval part of Tier 2 use problems unused by DEV and G1; protocol and hard-family cases use new configurations; Tier 4 requests are new. Admission passed for all 24 build oracles (reference 96/96 tests, all-zero designs 0/96). As an added fairness check, separate agents saw only `spec.md`, wrote their own RTL and were graded once by the hidden oracle with no feedback: 24/24 passed. The cases were authored by the evaluator's engineering assistant, not by the model under test. Corpus `8fd31074…`; aggregate qualification in [QUALIFICATION-heldout-G2.json](../eval/QUALIFICATION-heldout-G2.json).
+
+Measured identity, unchanged from the G1 cohort apart from the corpus:
+
+- Runtime `9df2ce91…` (73 files) and harness `391b18e3…`.
+- `gpt-6.1-sol` through Codex CLI 0.163.0, EDA image `9b62eb4f…`, PDK `8afc8346…`.
+- 3 repeats, 4 jobs, 32 calls, 300,000 tokens, $1, 900 s.
+
+The run uses an isolated clone of `1efbfd7` under a new boundary generation that adds the clone and the local upstream reference mirrors as private roots. A neutral guarded provider smoke passed just before launch.
+
+Incident rule: a watchdog stops the cohort after 2 provider-ended trials. A stopped or infrastructure-interrupted cohort is retained and reported, never mixed with another. After a passing provider smoke, the identical cohort is relaunched. The first complete cohort is the measurement, and every attempt is reported. No pipeline, corpus or configuration change is allowed between attempts. G2 retires from tuning once measured. Reporting keeps original grades and target rules, and attributes provider-ended trials with `attempt_profile.py` without regrading.

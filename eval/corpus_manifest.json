@@ -14,15 +14,27 @@
       "manifest_sha256": "654599ffb424170cf27be4a61ee8ef8991018a2016a97a041ea88f26ac3a2061"
     },
     "heldout": {
+      "generation": "G2",
+      "provisioned": "2026-10-27",
       "counts": {
         "1": 8,
         "2": 10,
         "3": 6,
         "4": 6
       },
-      "manifest_sha256": "2740a7bd845838aa6a130a521ee81ffbc5bbefc7a09773ab43da158bf3967580"
+      "manifest_sha256": "41fa6c8105258811c5c697d9422e81d90db0aff385b50611d6aaf4915cd3a9f9",
+      "corpus_sha256": "8fd310740e45762f18c1ffdcc20b047dccc094516e2e07150a1bfc29ccc31c29"
     }
   },
+  "retired_splits": [
+    {
+      "split": "heldout",
+      "generation": "G1",
+      "manifest_sha256": "2740a7bd845838aa6a130a521ee81ffbc5bbefc7a09773ab43da158bf3967580",
+      "corpus_sha256": "95d56d3819f182166558c02fb5ab28fcc06c509eabe99dc3fe9e726f463f9dd2",
+      "retired_after_cohort": "20261026T055307Z_b72bfd9b"
+    }
+  ],
   "source_pins": [
     {
       "name": "verilog-eval",
@@ -57,6 +69,7 @@
       "commit": "8183fa5e3f78ca6ab862de7fb8b14f3d929421e0"
     }
   ],
+  "quality_scope": "dev plus retired held-out G1, from the original authoring audit",
   "quality": {
     "omitted_top_and_exact_interface_build_cases": 8,
     "omitted_clock_reset_names_build_cases": 8,
@@ -71,5 +84,14 @@
     "implementation_compatibility_cases": 2,
     "python_reference_cases": 4,
     "transaction_checked_cases": 14
+  },
+  "quality_heldout_g2_scope": "held-out G2 only, computed mechanically from spec text and case metadata; the other G1 counters were not recomputed",
+  "quality_heldout_g2": {
+    "omitted_top_and_exact_interface_build_cases": 4,
+    "omitted_frequency_target_build_cases": 2,
+    "tt_pin_budget_exceeded_standalone_build_cases": 6,
+    "implementation_compatibility_cases": 1,
+    "python_reference_cases": 2,
+    "transaction_checked_cases": 7
   }
 }
