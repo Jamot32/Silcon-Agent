@@ -151,3 +151,7 @@ Next — admit spec-open outputs as unchecked (validity-derived) and model-drive
 RF2 long model-driven stimulus — NOT BUILT: offline probe (0 model calls) on 23 delivered RF1b designs killed 150/164 mutants vs VERIFY 155, and 0 that VERIFY missed; 2 false alarms on hidden-correct RTL (spec-open startup).
 Checks — predeclared criteria (≤1 false alarm, ≥2 added kills) both fail; the 9 mutants surviving every gate look equivalent on inspection; production unchanged on R15.
 Next — reference-first closed on current evidence; target pre-RTL/lint losses (held-out 18/72) and provider request failures, measured on DEV then a fresh held-out set.
+
+Provider-failure diagnosis (read-only, 0 model calls): 18 of 28 frozen held-out failures ended in provider exceptions (17 × three 120 s timeouts); 17 fell in repeat 3 during a latency window, and repeats scored 26/30, 25/30, 11/30.
+Checks — inputs hash to the published summaries; the 17 affected cases passed 29/33 other repeats; R15 DEV had 0 timeouts in 472 attempts (max 50.4 s); grades and held-out retirement unchanged.
+Next — run future cohorts under a live provider watchdog and report provider-ended trials separately; the 10 non-provider held-out failure kinds need a fresh held-out set to measure.

@@ -1181,3 +1181,17 @@ Change → none to production or the archived candidate; one offline probe with 
 | Random stimulus, VERIFY missed | 0 |
 
 Both false alarms are repeats of one case whose specification leaves startup history open; the output is unknown after the first edge, as the model's own note allows. All 5 VERIFY-only kills come from one deep-counter design the random stimulus never drives to rollover. The 9 mutants that survive every gate look equivalent on inspection (unreachable comparison bounds, unused state-encoding relabels, an unreachable default, a lint-only sink), so the VERIFY tests already killed every apparently non-equivalent mutant here. Widening reference participation therefore has no measured sensitivity to add. DEV delivered designs already pass hidden tests (69/69 R15), and held-out lost 18 of 72 hardware trials before RTL/lint against 2 incorrect deliveries. The reference-first track is closed on current evidence. Next: target pre-RTL/lint losses and provider request failures, measured on DEV and then a fresh held-out set. Aggregate: [rf2-random-probe.json](../research/reference_first/rf2-random-probe.json); probe and details in the archived [INTEGRATION.md](../research/reference_first/INTEGRATION.md).
+
+## Provider-failure diagnosis — held-out third repeat ran through a provider latency window
+
+Change → none; read-only attribution over the sealed R15 DEV and frozen held-out records, with zero model calls. Before → DEV **87/90**, held-out **62/90**. After → unchanged; no grade, denominator or target status changes. The held-out set stays retired from tuning. Decision → the held-out shortfall is dominated by provider failures, not pipeline generalization, so the planned DEV work on pre-RTL/lint losses has nothing on DEV to measure.
+
+[`attempt_profile.py`](../research/provider_timeouts/attempt_profile.py) reads only trace attempt outcomes, durations, timestamps, stages, run failure classes and summary rows, and prints counts. Its inputs hash to the published summaries (`e4b3588d…`, `6a373bf6…`). **18 of 28 held-out failures ended in a provider exception**: 17 calls exhausted three consecutive 120 s attempt timeouts (SPEC 11, RTL 4, VERIFY 2), and one RTL call ended `unknown_fatal`. Seventeen of the 18 are in the third repeat:
+
+| Held-out repeat | Successful | Ended by provider exception | Cohort minutes |
+| --- | ---: | ---: | --- |
+| 1 | 26/30 | 0 | 0–23 |
+| 2 | 25/30 | 1 | 24–49 |
+| 3 | 11/30 | 17 | 49–105 |
+
+Minutes 0–49 had 302 attempts, 0 timeouts and per-bucket completed medians of 10–16 s. Minutes 50–119 had 150 attempts with 78 timeouts and completed medians up to 114 s. R15 DEV had 472 attempts, 0 timeouts and a slowest attempt of 50.4 s. The 18 provider-ended trials span 17 cases, which succeeded in 29 of their 33 other repeats. That pattern points to a time window, not case content. Of the 18 hardware trials lost before RTL/lint, 15 were provider-ended. The 10 non-provider failures are 3 Tier-4 scope decisions, 3 Tier-3 stops, 2 Tier-2 synthesis failures and 2 hidden-test failures. The 2026-10-27 DEV outages differed: latency stayed normal, but connection failures produced fail-fast `unknown_fatal` attempts that ended nearly all failed trials in the four affected cohorts. The slowdown's cause is unknown. A longer attempt cap is not measurable on DEV without an incident, and an evaluator-level pause would change the harness fingerprint and need a new baseline. Details: [research/provider_timeouts/README.md](../research/provider_timeouts/README.md).

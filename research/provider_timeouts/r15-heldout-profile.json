@@ -1,0 +1,515 @@
+{
+  "cohort": "20261026T055307Z_b72bfd9b",
+  "trials": 90,
+  "trials_without_trace": 0,
+  "attempt_kinds": {
+    "completed": 371,
+    "unknown_fatal": 2,
+    "timeout": 78,
+    "transient_provider": 1
+  },
+  "timeouts_by_stage": {
+    "VERIFY": 7,
+    "SPEC": 55,
+    "RTL": 13,
+    "OPTIMIZE": 3
+  },
+  "timeouts_by_attempt_index": {
+    "1": 38,
+    "2": 22,
+    "3": 18
+  },
+  "timeout_attempt_seconds": {
+    "n": 78,
+    "p50": 120.0,
+    "p90": 120.0,
+    "p95": 120.0,
+    "p99": 120.2,
+    "max": 120.2
+  },
+  "completed_attempt_seconds": {
+    "n": 371,
+    "p50": 14.2,
+    "p90": 43.3,
+    "p95": 81.0,
+    "p99": 117.4,
+    "max": 119.5
+  },
+  "completed_attempt_seconds_by_stage": {
+    "OPTIMIZE": {
+      "n": 97,
+      "p50": 8.4,
+      "p90": 18.4,
+      "p95": 41.0,
+      "p99": 107.0,
+      "max": 107.0
+    },
+    "RTL": {
+      "n": 71,
+      "p50": 12.9,
+      "p90": 34.0,
+      "p95": 68.8,
+      "p99": 117.4,
+      "max": 117.4
+    },
+    "SPEC": {
+      "n": 147,
+      "p50": 18.2,
+      "p90": 81.0,
+      "p95": 107.5,
+      "p99": 119.1,
+      "max": 119.5
+    },
+    "VERIFY": {
+      "n": 56,
+      "p50": 31.9,
+      "p90": 44.8,
+      "p95": 49.5,
+      "p99": 66.3,
+      "max": 66.3
+    }
+  },
+  "calls_ending_in_exception": {
+    "OPTIMIZE:ProviderError:timeout": 1,
+    "OPTIMIZE:ProviderError:unknown_fatal": 1,
+    "RTL:ProviderError:timeout": 4,
+    "RTL:ProviderError:unknown_fatal": 1,
+    "SPEC:ProviderError:timeout": 11,
+    "VERIFY:ProviderError:timeout": 2
+  },
+  "trial_outcomes": [
+    {
+      "outcome": "failed",
+      "tier": 1,
+      "pipeline_status": "failed",
+      "terminal_stage": "RTL",
+      "failure_class": "pipeline_failed",
+      "run_failure_class": "llm_api_error",
+      "first_provider_exception": "RTL:ProviderError:timeout",
+      "count": 1
+    },
+    {
+      "outcome": "failed",
+      "tier": 1,
+      "pipeline_status": "failed",
+      "terminal_stage": "SPEC",
+      "failure_class": "pipeline_failed",
+      "run_failure_class": "llm_api_error",
+      "first_provider_exception": "SPEC:ProviderError:timeout",
+      "count": 5
+    },
+    {
+      "outcome": "failed",
+      "tier": 1,
+      "pipeline_status": "failed",
+      "terminal_stage": "VERIFY",
+      "failure_class": "pipeline_failed",
+      "run_failure_class": "llm_api_error",
+      "first_provider_exception": "VERIFY:ProviderError:timeout",
+      "count": 1
+    },
+    {
+      "outcome": "failed",
+      "tier": 2,
+      "pipeline_status": "done",
+      "terminal_stage": "HIDDEN",
+      "failure_class": "hidden_test_fail",
+      "run_failure_class": "None",
+      "first_provider_exception": null,
+      "count": 2
+    },
+    {
+      "outcome": "failed",
+      "tier": 2,
+      "pipeline_status": "failed",
+      "terminal_stage": "RTL",
+      "failure_class": "pipeline_failed",
+      "run_failure_class": "llm_api_error",
+      "first_provider_exception": "RTL:ProviderError:timeout",
+      "count": 2
+    },
+    {
+      "outcome": "failed",
+      "tier": 2,
+      "pipeline_status": "failed",
+      "terminal_stage": "RTL",
+      "failure_class": "pipeline_failed",
+      "run_failure_class": "llm_api_error",
+      "first_provider_exception": "RTL:ProviderError:unknown_fatal",
+      "count": 1
+    },
+    {
+      "outcome": "failed",
+      "tier": 2,
+      "pipeline_status": "failed",
+      "terminal_stage": "SPEC",
+      "failure_class": "pipeline_failed",
+      "run_failure_class": "llm_api_error",
+      "first_provider_exception": "SPEC:ProviderError:timeout",
+      "count": 5
+    },
+    {
+      "outcome": "failed",
+      "tier": 2,
+      "pipeline_status": "failed",
+      "terminal_stage": "SYNTH",
+      "failure_class": "pipeline_failed",
+      "run_failure_class": "synth_fail",
+      "first_provider_exception": null,
+      "count": 2
+    },
+    {
+      "outcome": "failed",
+      "tier": 2,
+      "pipeline_status": "failed",
+      "terminal_stage": "VERIFY",
+      "failure_class": "pipeline_failed",
+      "run_failure_class": "llm_api_error",
+      "first_provider_exception": "VERIFY:ProviderError:timeout",
+      "count": 1
+    },
+    {
+      "outcome": "failed",
+      "tier": 3,
+      "pipeline_status": "failed",
+      "terminal_stage": "FAIL",
+      "failure_class": "pipeline_failed",
+      "run_failure_class": "None",
+      "first_provider_exception": null,
+      "count": 3
+    },
+    {
+      "outcome": "failed",
+      "tier": 3,
+      "pipeline_status": "failed",
+      "terminal_stage": "RTL",
+      "failure_class": "pipeline_failed",
+      "run_failure_class": "llm_api_error",
+      "first_provider_exception": "RTL:ProviderError:timeout",
+      "count": 1
+    },
+    {
+      "outcome": "failed",
+      "tier": 4,
+      "pipeline_status": "failed",
+      "terminal_stage": "FAIL",
+      "failure_class": "scope_decision_missing_or_incorrect",
+      "run_failure_class": "None",
+      "first_provider_exception": null,
+      "count": 3
+    },
+    {
+      "outcome": "failed",
+      "tier": 4,
+      "pipeline_status": "failed",
+      "terminal_stage": "SPEC",
+      "failure_class": "scope_decision_missing_or_incorrect",
+      "run_failure_class": "llm_api_error",
+      "first_provider_exception": "SPEC:ProviderError:timeout",
+      "count": 1
+    },
+    {
+      "outcome": "successful",
+      "tier": 1,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "run_failure_class": "None",
+      "first_provider_exception": null,
+      "count": 17
+    },
+    {
+      "outcome": "successful",
+      "tier": 2,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "run_failure_class": "None",
+      "first_provider_exception": null,
+      "count": 17
+    },
+    {
+      "outcome": "successful",
+      "tier": 3,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "run_failure_class": "None",
+      "first_provider_exception": null,
+      "count": 12
+    },
+    {
+      "outcome": "successful",
+      "tier": 3,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "run_failure_class": "None",
+      "first_provider_exception": "OPTIMIZE:ProviderError:timeout",
+      "count": 1
+    },
+    {
+      "outcome": "successful",
+      "tier": 3,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "run_failure_class": "None",
+      "first_provider_exception": "OPTIMIZE:ProviderError:unknown_fatal",
+      "count": 1
+    },
+    {
+      "outcome": "successful",
+      "tier": 4,
+      "pipeline_status": "failed",
+      "terminal_stage": "FAIL",
+      "failure_class": null,
+      "run_failure_class": "None",
+      "first_provider_exception": null,
+      "count": 14
+    }
+  ],
+  "failed_trials_ended_by_provider_exception": 18,
+  "failed_trials": 28,
+  "completed_output_tokens_per_second_by_stage": {
+    "OPTIMIZE": {
+      "n": 97,
+      "p50": 24.5,
+      "p90": 38.4,
+      "p95": 42.5,
+      "p99": 47.8,
+      "max": 47.8
+    },
+    "RTL": {
+      "n": 71,
+      "p50": 37.5,
+      "p90": 51.7,
+      "p95": 58.0,
+      "p99": 61.0,
+      "max": 61.0
+    },
+    "SPEC": {
+      "n": 147,
+      "p50": 19.9,
+      "p90": 32.9,
+      "p95": 35.1,
+      "p99": 44.9,
+      "max": 50.2
+    },
+    "VERIFY": {
+      "n": 56,
+      "p50": 54.2,
+      "p90": 63.9,
+      "p95": 67.5,
+      "p99": 73.5,
+      "max": 73.5
+    }
+  },
+  "attempts_by_10min_of_cohort": [
+    {
+      "minute": 0,
+      "attempts": 65,
+      "timeouts": 0,
+      "other_failed_attempts": 0,
+      "completed_seconds": {
+        "n": 65,
+        "p50": 11.6,
+        "p90": 36.7,
+        "p95": 40.1,
+        "p99": 43.3,
+        "max": 43.3
+      }
+    },
+    {
+      "minute": 10,
+      "attempts": 58,
+      "timeouts": 0,
+      "other_failed_attempts": 0,
+      "completed_seconds": {
+        "n": 58,
+        "p50": 11.3,
+        "p90": 34.3,
+        "p95": 39.2,
+        "p99": 47.2,
+        "max": 47.2
+      }
+    },
+    {
+      "minute": 20,
+      "attempts": 58,
+      "timeouts": 0,
+      "other_failed_attempts": 0,
+      "completed_seconds": {
+        "n": 58,
+        "p50": 14.3,
+        "p90": 43.3,
+        "p95": 46.7,
+        "p99": 62.0,
+        "max": 62.0
+      }
+    },
+    {
+      "minute": 30,
+      "attempts": 64,
+      "timeouts": 0,
+      "other_failed_attempts": 1,
+      "completed_seconds": {
+        "n": 63,
+        "p50": 16.0,
+        "p90": 35.4,
+        "p95": 40.6,
+        "p99": 66.3,
+        "max": 66.3
+      }
+    },
+    {
+      "minute": 40,
+      "attempts": 57,
+      "timeouts": 0,
+      "other_failed_attempts": 0,
+      "completed_seconds": {
+        "n": 57,
+        "p50": 10.2,
+        "p90": 30.2,
+        "p95": 34.4,
+        "p99": 58.8,
+        "max": 58.8
+      }
+    },
+    {
+      "minute": 50,
+      "attempts": 37,
+      "timeouts": 2,
+      "other_failed_attempts": 1,
+      "completed_seconds": {
+        "n": 34,
+        "p50": 37.2,
+        "p90": 105.4,
+        "p95": 107.5,
+        "p99": 117.4,
+        "max": 117.4
+      }
+    },
+    {
+      "minute": 60,
+      "attempts": 33,
+      "timeouts": 15,
+      "other_failed_attempts": 1,
+      "completed_seconds": {
+        "n": 17,
+        "p50": 23.7,
+        "p90": 90.3,
+        "p95": 98.8,
+        "p99": 98.8,
+        "max": 98.8
+      }
+    },
+    {
+      "minute": 70,
+      "attempts": 21,
+      "timeouts": 16,
+      "other_failed_attempts": 0,
+      "completed_seconds": {
+        "n": 5,
+        "p50": 86.9,
+        "p90": 90.0,
+        "p95": 90.0,
+        "p99": 90.0,
+        "max": 90.0
+      }
+    },
+    {
+      "minute": 80,
+      "attempts": 21,
+      "timeouts": 16,
+      "other_failed_attempts": 0,
+      "completed_seconds": {
+        "n": 5,
+        "p50": 114.2,
+        "p90": 119.1,
+        "p95": 119.1,
+        "p99": 119.1,
+        "max": 119.1
+      }
+    },
+    {
+      "minute": 90,
+      "attempts": 21,
+      "timeouts": 16,
+      "other_failed_attempts": 0,
+      "completed_seconds": {
+        "n": 5,
+        "p50": 112.1,
+        "p90": 119.5,
+        "p95": 119.5,
+        "p99": 119.5,
+        "max": 119.5
+      }
+    },
+    {
+      "minute": 100,
+      "attempts": 12,
+      "timeouts": 10,
+      "other_failed_attempts": 0,
+      "completed_seconds": {
+        "n": 2,
+        "p50": 36.8,
+        "p90": 36.8,
+        "p95": 36.8,
+        "p99": 36.8,
+        "max": 36.8
+      }
+    },
+    {
+      "minute": 110,
+      "attempts": 5,
+      "timeouts": 3,
+      "other_failed_attempts": 0,
+      "completed_seconds": {
+        "n": 2,
+        "p50": 39.0,
+        "p90": 39.0,
+        "p95": 39.0,
+        "p99": 39.0,
+        "max": 39.0
+      }
+    }
+  ],
+  "cases_by_provider_failed_repeats": {
+    "1": 16,
+    "2": 1
+  },
+  "by_repeat": {
+    "0": {
+      "trials": 30,
+      "successful": 26,
+      "provider_ended_failures": 0,
+      "first_attempt_minute_range": [
+        0,
+        23
+      ]
+    },
+    "1": {
+      "trials": 30,
+      "successful": 25,
+      "provider_ended_failures": 1,
+      "first_attempt_minute_range": [
+        24,
+        49
+      ]
+    },
+    "2": {
+      "trials": 30,
+      "successful": 11,
+      "provider_ended_failures": 17,
+      "first_attempt_minute_range": [
+        49,
+        105
+      ]
+    }
+  },
+  "other_repeats_of_provider_failed_cases": {
+    "trials": 33,
+    "successful": 29
+  }
+}
