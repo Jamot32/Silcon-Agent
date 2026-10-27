@@ -1,0 +1,74 @@
+{
+  "actual_outer_exit": 0,
+  "attempt_outcomes": {
+    "completed": 16
+  },
+  "closed": 16,
+  "dev_remeasured": false,
+  "effective_reasoning_effort": "unknown",
+  "elapsed_seconds": 50.0226165,
+  "independent_peer_sha256": "51c972b5d0687ef5790ef82b5d3be7091d2a67cf0ed2246d64322f63176a4edb",
+  "kind": "guarded_neutral_provider_concurrency_observation",
+  "limitations": [
+    "Small fixed neutral proposal; no RTL, model quality, DEV success or hidden correctness measurement.",
+    "Fixed wave order and account/time/cache/process effects confound latency; no causal concurrency or quota claim.",
+    "No USD or upstream HTTP request count is known. Source and guard checks are recorded points, not continuous or complete filesystem attestation.",
+    "No controller signals; exceptional natural-exit waits and repeated interruptions are not universally bounded or proven."
+  ],
+  "missing_usage_attempts": 0,
+  "model": "gpt-6.1-sol",
+  "model_request_cli_attempts": 16,
+  "modes": {
+    "parallel": {
+      "median_attempt_seconds": 4.698743458488025,
+      "median_request_seconds": 5.1464560410240665,
+      "passed": 8,
+      "planned": 8,
+      "range_request_seconds": [
+        4.472023417009041,
+        5.543194583035074
+      ]
+    },
+    "serial": {
+      "median_attempt_seconds": 4.32037843746366,
+      "median_request_seconds": 4.703432790993247,
+      "passed": 8,
+      "planned": 8,
+      "range_request_seconds": [
+        4.136120124952868,
+        5.948864749982022
+      ]
+    }
+  },
+  "outer_receipt_sha256": "a75b17524520bb8658693b82b620bf4684782687e17194b85db3567e9f7f2883",
+  "passed": 16,
+  "pipeline_changed": false,
+  "planned": 16,
+  "prepared_source_sha256": "02a49de7cadf4c712917b22e62b3b31b5f909dfbfae332eb472b59bce17b3b0d",
+  "reported_cached_input_tokens": 7168,
+  "reported_input_tokens": 138114,
+  "reported_output_tokens": 656,
+  "schema_version": 1,
+  "source_after": {
+    "helper_sha256": "ac31434bd703503b5133d2560127fcc168f2e27245ed4eb65fde49a2e3e9f273",
+    "policy_sha256": "2294dbb344910d03559191d898f9f64faf5bdcb003c4550c0295e7e4c5e9e2bb",
+    "runtime_count": 73,
+    "runtime_map_sha256": "c0ba85a8f240d6ee8a9aad21c32327dd8423c170310f6e810dd87e8b03e9a1a5",
+    "runtime_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1",
+    "smoke_sha256": "10a91a91a4bba89ad23c9deae2671b571b220ec8ded282f9e608760111722ff1"
+  },
+  "source_before": {
+    "helper_sha256": "ac31434bd703503b5133d2560127fcc168f2e27245ed4eb65fde49a2e3e9f273",
+    "policy_sha256": "2294dbb344910d03559191d898f9f64faf5bdcb003c4550c0295e7e4c5e9e2bb",
+    "runtime_count": 73,
+    "runtime_map_sha256": "c0ba85a8f240d6ee8a9aad21c32327dd8423c170310f6e810dd87e8b03e9a1a5",
+    "runtime_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1",
+    "smoke_sha256": "10a91a91a4bba89ad23c9deae2671b571b220ec8ded282f9e608760111722ff1"
+  },
+  "source_peer_sha256": "d3254a1b024b5af68203d1a42fe165fd842d62830e70c3caa5f809bc90736f3c",
+  "summary_sha256": "ed27d2579d1ca5d15e6f85da5409a8f36d043e883b833ec66a69b3de04860876",
+  "synthetic_control_receipt_sha256": "e73814a23e1b67003f443b77ce23fb400d1e6fdeeda5032dc3c83ad899fe908d",
+  "unknown_usd": true,
+  "usage_reports": 16,
+  "waves": "serial4, parallel4, parallel4, serial4"
+}

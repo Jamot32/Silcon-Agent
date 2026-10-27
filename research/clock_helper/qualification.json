@@ -1,0 +1,62 @@
+{
+  "actual_proof_check_scope": "The retained proof-check JSON was produced before the path-validation fixes; the post-fix ten-test suite independently revalidated the same actual positive and mutant artifacts.",
+  "actual_proof_check_sha256": "e880d28e38e21e906e2dd04477614320f46181ccb0aa1357ddc48e0873662966",
+  "actual_qualification_receipt_sha256": "523c1597cda9933036b1e3a7b1d63106ab6a92d7a2ece2c6ff29cb0914cece13",
+  "actual_qualification_report_sha256": "9900a67cc7499acbfb17b213599c68740bb027bf06b4103c1a6f28066778a929",
+  "dev_remeasured": false,
+  "eda_image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+  "kind": "isolated_clock_helper_simulator_research",
+  "last_dev_baseline": {
+    "note": "Existing R15 result, not an after-treatment measurement.",
+    "planned": 90,
+    "successful": 87
+  },
+  "limits": [
+    "Neutral fixtures and two deliberate mutants only; no design correctness, hidden coverage or improved DEV success claim.",
+    "Helper use is optional and production import, immutable provenance, selected flow/cache and bundle integration are absent.",
+    "Proof trusts host receipts and verifies point-in-time file bytes; no continuous or production security boundary claim."
+  ],
+  "offline_proof_tests": {
+    "command": "SA_CLOCK_EVIDENCE=<qualified-evidence> python3 -B research/clock_helper/test_clock_proof.py",
+    "failed": 0,
+    "passed": 10,
+    "scope": "Actual tool output observed; absolute-path and intermediate-symlink regressions failed before fixes, then all ten tests passed; stdout not separately persisted."
+  },
+  "production_pipeline_adopted": false,
+  "proof_source_sha256": "81534e4ccce6dc6c1d7d06bed68697968c4ab5d5359dcf5f52ebf717bb33f969",
+  "qualified_inputs_sha256": {
+    "fixtures/good/subject.v": "2049455e85b5e8f83bfcdb4278b2ab67c9a2d3c811ea1da9c576d94a33c1ed7f",
+    "fixtures/late_update/subject.v": "171f0f65f35e2fef982818955e1cf30619e59117d4fc78a8fe9908fd1afa97e1",
+    "fixtures/missing_reset/subject.v": "92bb20d00d8238e46a9bf9660a787f73daa453921f5862f39eac3402971c0e57",
+    "sa_clock.py": "cec4c21e4d6a98db20876a247f3c90cbb6d4d6662cc8b804f6b8f868ebf53c57",
+    "test_clock.py": "fe539df212e47242a182982436f9371589c3573cb863b9d82070fe9259ac6f9d"
+  },
+  "reference_model_implemented": false,
+  "scenarios": {
+    "good": {
+      "actual_process_exit": 0,
+      "failed": 0,
+      "ok": true,
+      "passed": 4,
+      "timed_out": false,
+      "xml_sha256": "f59478a649cec233a2dffb82d63a901ea5592da45cc362a1a4b7b949525e213a"
+    },
+    "late_update": {
+      "actual_process_exit": 0,
+      "failed": 2,
+      "ok": false,
+      "passed": 2,
+      "timed_out": false,
+      "xml_sha256": "cc51eb040c7e8ceb20716520eb401da7a589599afd985f978d3170e0f571bc47"
+    },
+    "missing_reset": {
+      "actual_process_exit": 0,
+      "failed": 3,
+      "ok": false,
+      "passed": 1,
+      "timed_out": false,
+      "xml_sha256": "d4f1d7ded3d4d6b20042d7c573f0ba86bfced097522b51b7225b54326833339a"
+    }
+  },
+  "schema_version": 1
+}

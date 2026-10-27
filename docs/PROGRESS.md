@@ -127,3 +127,11 @@ Next — freeze this source and perform the one held-out3× cohort; OAuthUSD rem
 Phase4 measurement CLOSED, targets NOT MET: original held-out90/90,62successful; tiers70.8%/56.7%/77.8%/77.8%; DEV87/90 unchanged, no pipeline tuning or replacement trials.
 Checks — evaluator/seal/verify/custody/accounting/report all exit0; hidden48/50, Tier2 median276.887s;78request-attempt timeouts,81missing usage, USDunknown and full clarity unassessed;73source points match9df2.
 Next — publish the explicit report/gaps, diagnose and measure further changes onDEV, then prepare fresh held-out inputs before another generalization claim; existing held-out outcomes stay fixed.
+
+Research clock helper — simulator PASS: good4/4; missing-reset3 failures and late-update2 failures, including expected functional assertions; all three actual runner exits0.
+Checks — recorded-result/tamper proof10/10 after fixing absolute-path and intermediate-symlink escapes; one guarded neutral OAuth proposal passed in6.561s; production unchanged, last measured DEV87/90, USDunknown.
+Next — close the bounded provider diagnostic, then integrate helper provenance and package handling only as a measured DEV candidate; reference-model-first remains incomplete.
+
+Provider diagnostic — PASS:16/16 neutral requests, serial8/8 and parallel8/8,16usage returns and no attempt timeouts; median request4.703s/5.146s, respectively.
+Limits — fixed small prompt and fixed wave order; no causal diagnosis or recovered DEV success is claimed, and OAuthUSD remains unknown.
+Next — preserve the research artifacts and develop any integration only against the committed DEV baseline; held-out input must be fresh for any later claim.
