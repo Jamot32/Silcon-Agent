@@ -139,3 +139,7 @@ Next — preserve the research artifacts and develop any integration only agains
 Verification evidence candidate — REJECTED: DEV3×87/90 before and after, with0 paired improvements and0 regressions; production remains on R15.
 Checks —90 records sealed,69 selected sources and hidden XML verified;69 current flow/package sets reconciled; candidate unit1110+92subtests and real good/mutant simulation passed. USDunknown; clarity unreviewed.
 Next — develop a separate implementation-blind reference-model-first candidate, verify its controls and compare it on unchanged DEV before any promotion.
+
+RF1 reference-first admission: Codex's isolated pieces wired after SPEC as an additive host-owned gate; withheld budget findings fixed; T1+T2 smoke 18/18 (gate prepared 13/18, 0 reference failures, 5 author abstentions).
+Checks — candidate backend 1,405+92 subtests, eval/scripts 355+15; first smoke interrupted on a found prompt/validator mismatch and retained; DEV3× not yet measured; production unchanged on R15.
+Next — run the frozen `96c5c675…` candidate on full DEV3× and decide against the predeclared promotion and requirement-coverage rules.
