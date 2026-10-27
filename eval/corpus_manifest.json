@@ -23,7 +23,8 @@
         "4": 6
       },
       "manifest_sha256": "41fa6c8105258811c5c697d9422e81d90db0aff385b50611d6aaf4915cd3a9f9",
-      "corpus_sha256": "8fd310740e45762f18c1ffdcc20b047dccc094516e2e07150a1bfc29ccc31c29"
+      "corpus_sha256": "8fd310740e45762f18c1ffdcc20b047dccc094516e2e07150a1bfc29ccc31c29",
+      "retired_after_cohort": "20261027T215343Z_e42ab570"
     }
   },
   "retired_splits": [

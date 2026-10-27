@@ -1211,3 +1211,44 @@ Measured identity, unchanged from the G1 cohort apart from the corpus:
 The run uses an isolated clone of `1efbfd7` under a new boundary generation that adds the clone and the local upstream reference mirrors as private roots. A neutral guarded provider smoke passed just before launch.
 
 Incident rule: a watchdog stops the cohort after 2 provider-ended trials. A stopped or infrastructure-interrupted cohort is retained and reported, never mixed with another. After a passing provider smoke, the identical cohort is relaunched. The first complete cohort is the measurement, and every attempt is reported. No pipeline, corpus or configuration change is allowed between attempts. G2 retires from tuning once measured. Reporting keeps original grades and target rules, and attributes provider-ended trials with `attempt_profile.py` without regrading.
+
+## Fresh held-out G2 — 81/90; Tier 1 and Tier 2 met, Tier 4 missed
+
+Change → none; the unchanged R15 runtime was measured once on G2 under the protocol above. Before → DEV **87/90**, G1 held-out **62/90**. After → G2 held-out **81/90 (90.0%)**, cohort `20261027T215343Z_e42ab570`. Decision → record the cohort as measured and retire G2 from tuning. The reliability mission stays incomplete: Tier 4 missed, and the cost, Tier 3 explanation and unclear-failure targets remain unassessed.
+
+The first launch completed and never tripped the watchdog, so it is the measurement and no relaunch occurred. The evaluator exited 0 after 5,010 s with runtime `9df2ce91…` unchanged before and after. It ran from base commit `1efbfd7` with no uncommitted runtime changes. Seal and verify passed: 90 terminal records and 66 selected success sources; summary `0247c4ce…`, evidence `aa69e621…`.
+
+| Measure | G2 result | Target | Assessment |
+| --- | --- | --- | --- |
+| Tier 1 | 24/24; 100% in every repeat | ≥95% | Met |
+| Tier 2 | 27/30; 90% in every repeat | ≥80% | Met |
+| Tier 3 numeric success | 15/18; 83.3% in every repeat | ≥50% | Numeric threshold met; explanation condition unassessed |
+| Tier 4 correct handling | 15/18; 83.3% in every repeat | 100% | Missed |
+| Hidden correctness among app-DONE hardware | 66/66 | ≥90% | Met |
+| Tier 2 median pipeline time | 283.9 s | ≤600 s | Met |
+| Median cost | Unknown for all 90 trials (OAuth) | ≤$1 | Unassessed |
+| Crashes, hangs and unclear failures | 0 crashes, 0 hangs, 0 missing terminal messages; 9 failure explanations unreviewed | 0% | Full target unassessed |
+
+Every repeat scored 27/30. The nine failures come from three cases, each failing in all three repeats:
+
+- one Tier 2 design failed synthesis;
+- one Tier 3 request stopped at SPEC with a clarification request;
+- one Tier 4 request was declined where its rubric, which follows the DEV rubric for that request category, expects a clarification request.
+
+Hardware funnel: 72 planned; 69 passed RTL, lint and own tests; 66 passed synthesis, flow, DRC, LVS and packaging; all 66 passed the hidden tests. All 458 model-request attempts completed, with 0 timeouts or exceptions (p50 7.8 s, max 41.3 s). No call, token or time cap was exceeded. Summary rows report 458 calls, 5,403,255 input tokens and 294,963 output tokens.
+
+G1 and G2 are different sets, so this is not a paired comparison and does not prove that G1's gap came from the provider. It is consistent with the diagnosis:
+
+- Failures without a provider exception: G1 10, G2 9.
+- G1's 18 provider-ended trials have no G2 counterpart.
+- G1's two repeats before the latency window scored 26/30 and 25/30, close to G2's 27/30.
+
+Tier 4 scope decisions, Tier 3 stops and Tier 2 synthesis failures recur in both sets.
+
+Limits:
+
+- G2 reuses the established families with new problems or configurations.
+- G2 was authored by the evaluator's engineering assistant.
+- This is a single frozen cohort.
+
+Public aggregate: [aggregate.json](../eval/reports/heldout-20261027/aggregate.json). Attempt profile: [g2-attempt-profile.json](../research/heldout_g2/g2-attempt-profile.json).

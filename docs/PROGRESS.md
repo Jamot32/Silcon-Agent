@@ -155,3 +155,7 @@ Next — reference-first closed on current evidence; target pre-RTL/lint losses 
 Provider-failure diagnosis (read-only, 0 model calls): 18 of 28 frozen held-out failures ended in provider exceptions (17 × three 120 s timeouts); 17 fell in repeat 3 during a latency window, and repeats scored 26/30, 25/30, 11/30.
 Checks — inputs hash to the published summaries; the 17 affected cases passed 29/33 other repeats; R15 DEV had 0 timeouts in 472 attempts (max 50.4 s); grades and held-out retirement unchanged.
 Next — run future cohorts under a live provider watchdog and report provider-ended trials separately; the 10 non-provider held-out failure kinds need a fresh held-out set to measure.
+
+Fresh held-out G2: 30 new cases (8/10/6/6) on the pinned upstreams, admitted 24/24 with independent spec-only solutions 24/24; the unchanged R15 runtime scored 81/90 (27/30 each repeat): T1 24/24, T2 27/30, T3 15/18, T4 15/18, hidden 66/66.
+Checks — cohort `20261027T215343Z_e42ab570` sealed and verified; the watchdog never fired (458 attempts, 0 timeouts, max 41.3 s); the 9 failures are 3 cases × 3 repeats (T2 synthesis, T3 clarification stop, T4 decline instead of clarify).
+Next — Tier 4 still misses 100%; work on recurring T4 scope, T3 stop and T2 synthesis failures on DEV; G2 retired, so another generalization claim needs a new held-out set.

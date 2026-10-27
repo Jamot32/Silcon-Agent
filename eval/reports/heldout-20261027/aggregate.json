@@ -1,0 +1,479 @@
+{
+  "schema_version": 1,
+  "kind": "heldout_generation_aggregate",
+  "cohort_id": "20261027T215343Z_e42ab570",
+  "split": "heldout",
+  "summary_sha256": "0247c4ce5346c5f09acf972dff50a5ceca443c71ea0bd2a3b911fea81864a636",
+  "corpus_sha256": "8fd310740e45762f18c1ffdcc20b047dccc094516e2e07150a1bfc29ccc31c29",
+  "runtime_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1",
+  "harness_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669",
+  "provider": "codex",
+  "model": "gpt-6.1-sol",
+  "cli_version": "codex-cli 0.163.0",
+  "config": {
+    "repeats": 3,
+    "concurrency": 4,
+    "max_calls": 32,
+    "max_tokens": 300000,
+    "max_usd": 1.0,
+    "time_limit_seconds": 900.0,
+    "snapshot_id": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1"
+  },
+  "aborted": null,
+  "totals": {
+    "planned": 90,
+    "recorded": 90,
+    "missing": 0,
+    "attempted": 90,
+    "blocked": 0,
+    "successful": 81,
+    "success_rate": 0.9,
+    "failure_counts": {
+      "pipeline_failed": 6,
+      "scope_decision_missing_or_incorrect": 3
+    },
+    "failure_stage_counts": {
+      "FAIL": 6,
+      "SYNTH": 3
+    },
+    "repeat_success_rates": null,
+    "hidden_correctness_on_reported_success": {
+      "denominator": 66,
+      "bound_passes": 66,
+      "rate": 1.0,
+      "false_positive_count": 0,
+      "hidden_failure_count": 0,
+      "unverified_count": 0
+    },
+    "measurements": {
+      "elapsed_seconds": {
+        "count": 90,
+        "mean": 218.4713369717369,
+        "median": 247.9274860629812,
+        "min": 4.220587290939875,
+        "max": 451.0546747080516
+      },
+      "calls": {
+        "count": 90,
+        "mean": 5.088888888888889,
+        "median": 6.0,
+        "min": 1,
+        "max": 9
+      },
+      "input_tokens": {
+        "count": 90,
+        "mean": 60036.166666666664,
+        "median": 69536.5,
+        "min": 10809,
+        "max": 119738
+      },
+      "output_tokens": {
+        "count": 90,
+        "mean": 3277.366666666667,
+        "median": 3291.5,
+        "min": 63,
+        "max": 9619
+      }
+    }
+  },
+  "tiers": {
+    "1": {
+      "planned": 24,
+      "recorded": 24,
+      "missing": 0,
+      "attempted": 24,
+      "blocked": 0,
+      "successful": 24,
+      "success_rate": 1.0,
+      "failure_counts": {},
+      "failure_stage_counts": {},
+      "repeat_success_rates": {
+        "count": 3,
+        "mean": 1.0,
+        "median": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "hidden_correctness_on_reported_success": {
+        "denominator": 24,
+        "bound_passes": 24,
+        "rate": 1.0,
+        "false_positive_count": 0,
+        "hidden_failure_count": 0,
+        "unverified_count": 0
+      },
+      "measurements": {
+        "elapsed_seconds": {
+          "count": 24,
+          "mean": 252.29426643733072,
+          "median": 254.3212815624429,
+          "min": 182.19711866707075,
+          "max": 320.1820363330189
+        },
+        "calls": {
+          "count": 24,
+          "mean": 6.333333333333333,
+          "median": 6.0,
+          "min": 6,
+          "max": 8
+        },
+        "input_tokens": {
+          "count": 24,
+          "mean": 72486.45833333333,
+          "median": 68968.5,
+          "min": 67907,
+          "max": 93199
+        },
+        "output_tokens": {
+          "count": 24,
+          "mean": 3066.2083333333335,
+          "median": 2968.5,
+          "min": 2568,
+          "max": 4684
+        }
+      }
+    },
+    "2": {
+      "planned": 30,
+      "recorded": 30,
+      "missing": 0,
+      "attempted": 30,
+      "blocked": 0,
+      "successful": 27,
+      "success_rate": 0.9,
+      "failure_counts": {
+        "pipeline_failed": 3
+      },
+      "failure_stage_counts": {
+        "SYNTH": 3
+      },
+      "repeat_success_rates": {
+        "count": 3,
+        "mean": 0.9,
+        "median": 0.9,
+        "min": 0.9,
+        "max": 0.9
+      },
+      "hidden_correctness_on_reported_success": {
+        "denominator": 27,
+        "bound_passes": 27,
+        "rate": 1.0,
+        "false_positive_count": 0,
+        "hidden_failure_count": 0,
+        "unverified_count": 0
+      },
+      "measurements": {
+        "elapsed_seconds": {
+          "count": 30,
+          "mean": 281.1153781666692,
+          "median": 283.92567002098076,
+          "min": 121.21628750010859,
+          "max": 401.0792594170198
+        },
+        "calls": {
+          "count": 30,
+          "mean": 6.433333333333334,
+          "median": 6.0,
+          "min": 6,
+          "max": 9
+        },
+        "input_tokens": {
+          "count": 30,
+          "mean": 77180.46666666666,
+          "median": 72520.0,
+          "min": 68568,
+          "max": 119738
+        },
+        "output_tokens": {
+          "count": 30,
+          "mean": 5000.466666666666,
+          "median": 4517.5,
+          "min": 2840,
+          "max": 9619
+        }
+      }
+    },
+    "3": {
+      "planned": 18,
+      "recorded": 18,
+      "missing": 0,
+      "attempted": 18,
+      "blocked": 0,
+      "successful": 15,
+      "success_rate": 0.8333333333333334,
+      "failure_counts": {
+        "pipeline_failed": 3
+      },
+      "failure_stage_counts": {
+        "FAIL": 3
+      },
+      "repeat_success_rates": {
+        "count": 3,
+        "mean": 0.8333333333333334,
+        "median": 0.8333333333333334,
+        "min": 0.8333333333333334,
+        "max": 0.8333333333333334
+      },
+      "hidden_correctness_on_reported_success": {
+        "denominator": 15,
+        "bound_passes": 15,
+        "rate": 1.0,
+        "false_positive_count": 0,
+        "hidden_failure_count": 0,
+        "unverified_count": 0
+      },
+      "measurements": {
+        "elapsed_seconds": {
+          "count": 18,
+          "mean": 280.3680129930726,
+          "median": 298.09131458302727,
+          "min": 7.722137333010323,
+          "max": 451.0546747080516
+        },
+        "calls": {
+          "count": 18,
+          "mean": 5.277777777777778,
+          "median": 6.0,
+          "min": 1,
+          "max": 7
+        },
+        "input_tokens": {
+          "count": 18,
+          "mean": 64063,
+          "median": 72691.0,
+          "min": 11329,
+          "max": 87272
+        },
+        "output_tokens": {
+          "count": 18,
+          "mean": 3826.5,
+          "median": 4289.5,
+          "min": 218,
+          "max": 6363
+        }
+      }
+    },
+    "4": {
+      "planned": 18,
+      "recorded": 18,
+      "missing": 0,
+      "attempted": 18,
+      "blocked": 0,
+      "successful": 15,
+      "success_rate": 0.8333333333333334,
+      "failure_counts": {
+        "scope_decision_missing_or_incorrect": 3
+      },
+      "failure_stage_counts": {
+        "FAIL": 3
+      },
+      "repeat_success_rates": {
+        "count": 3,
+        "mean": 0.8333333333333334,
+        "median": 0.8333333333333334,
+        "min": 0.8333333333333334,
+        "max": 0.8333333333333334
+      },
+      "hidden_correctness_on_reported_success": {
+        "denominator": 0,
+        "bound_passes": 0,
+        "rate": null,
+        "false_positive_count": 0,
+        "hidden_failure_count": 0,
+        "unverified_count": 0
+      },
+      "measurements": {
+        "elapsed_seconds": {
+          "count": 18,
+          "mean": 7.070686338055465,
+          "median": 6.36140810395591,
+          "min": 4.220587290939875,
+          "max": 11.195150792016648
+        },
+        "calls": {
+          "count": 18,
+          "mean": 1,
+          "median": 1.0,
+          "min": 1,
+          "max": 1
+        },
+        "input_tokens": {
+          "count": 18,
+          "mean": 10835.111111111111,
+          "median": 10841.0,
+          "min": 10809,
+          "max": 10856
+        },
+        "output_tokens": {
+          "count": 18,
+          "mean": 137.94444444444446,
+          "median": 144.0,
+          "min": 63,
+          "max": 224
+        }
+      }
+    }
+  },
+  "target_assessment": {
+    "complete_baseline": true,
+    "targets": {
+      "tier_1_success_rate": {
+        "status": "met",
+        "observed": 1.0,
+        "threshold": 0.95,
+        "comparison": ">=",
+        "reason": null
+      },
+      "tier_2_success_rate": {
+        "status": "met",
+        "observed": 0.9,
+        "threshold": 0.8,
+        "comparison": ">=",
+        "reason": null
+      },
+      "tier_4_success_rate": {
+        "status": "missed",
+        "observed": 0.8333333333333334,
+        "threshold": 1.0,
+        "comparison": ">=",
+        "reason": null
+      },
+      "tier_3_success_and_clear_failures": {
+        "status": "not_assessable",
+        "observed": 0.8333333333333334,
+        "threshold": 0.5,
+        "comparison": ">=",
+        "reason": "Failure explanations require explicit manual clarity review"
+      },
+      "hidden_correctness_on_reported_success": {
+        "status": "met",
+        "observed": 1.0,
+        "threshold": 0.9,
+        "comparison": ">=",
+        "reason": null
+      },
+      "tier_2_median_pipeline_seconds": {
+        "status": "met",
+        "observed": 283.92567002098076,
+        "threshold": 600.0,
+        "comparison": "<=",
+        "reason": null
+      },
+      "median_usd_all_trials": {
+        "status": "not_assessable",
+        "observed": null,
+        "threshold": 1.0,
+        "comparison": "<=",
+        "reason": "Measurement is unavailable"
+      },
+      "zero_crashes_hangs_or_unclear_failures": {
+        "status": "not_assessable",
+        "observed": 0.0,
+        "threshold": 0.0,
+        "comparison": "<=",
+        "reason": "Failure explanations require explicit manual clarity review"
+      }
+    }
+  },
+  "hardware_survival_funnel": [
+    {
+      "check": "planned_hardware",
+      "count": 72
+    },
+    {
+      "check": "rtl_generated",
+      "count": 69
+    },
+    {
+      "check": "lint",
+      "count": 69
+    },
+    {
+      "check": "self_tests",
+      "count": 69
+    },
+    {
+      "check": "synthesis",
+      "count": 66
+    },
+    {
+      "check": "flow",
+      "count": 66
+    },
+    {
+      "check": "drc",
+      "count": 66
+    },
+    {
+      "check": "lvs",
+      "count": 66
+    },
+    {
+      "check": "package",
+      "count": 66
+    },
+    {
+      "check": "bound_hidden_pass",
+      "count": 66
+    }
+  ],
+  "app_done_hardware": 66,
+  "successful_by_repeat": {
+    "1": "27/30",
+    "2": "27/30",
+    "3": "27/30"
+  },
+  "provider_attribution": {
+    "attempt_kinds": {
+      "completed": 458
+    },
+    "timeouts_by_stage": {},
+    "completed_attempt_seconds": {
+      "n": 458,
+      "p50": 7.8,
+      "p90": 25.5,
+      "p95": 29.1,
+      "p99": 35.1,
+      "max": 41.3
+    },
+    "calls_ending_in_exception": {},
+    "failed_trials": 9,
+    "failed_trials_ended_by_provider_exception": 0,
+    "cases_by_provider_failed_repeats": {},
+    "by_repeat": {
+      "0": {
+        "trials": 30,
+        "successful": 27,
+        "provider_ended_failures": 0,
+        "first_attempt_minute_range": [
+          0,
+          26
+        ]
+      },
+      "1": {
+        "trials": 30,
+        "successful": 27,
+        "provider_ended_failures": 0,
+        "first_attempt_minute_range": [
+          27,
+          53
+        ]
+      },
+      "2": {
+        "trials": 30,
+        "successful": 27,
+        "provider_ended_failures": 0,
+        "first_attempt_minute_range": [
+          54,
+          80
+        ]
+      }
+    }
+  },
+  "limits": [
+    "Original grades and all planned denominators are copied from the sealed summary; nothing is regraded or replaced.",
+    "No case identities, specifications, hidden diagnostics, terminal prose or individual artifacts are included.",
+    "Provider attribution reads recorded attempt outcomes and run failure classes only; it is not a regrade.",
+    "Focused shared-family benchmark built on public upstream references; no arbitrary-design or unseen-pretraining claim."
+  ]
+}
