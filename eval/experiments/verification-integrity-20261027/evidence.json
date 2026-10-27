@@ -1,0 +1,233 @@
+{
+  "cohort": {
+    "attempted": 90,
+    "baseline_id": "20261026T034744Z_d939d36e",
+    "blocked": 0,
+    "candidate_id": "20261027T035735Z_86a04836",
+    "missing": 0,
+    "planned": 90,
+    "recorded": 90,
+    "split": "dev"
+  },
+  "controls": {
+    "G1_harness_sha256": "391b18e3be9f4271749a731b10ad0b758f87f08454f47ebf5ad7f741d5cd2669",
+    "cli_version": "codex-cli 0.163.0",
+    "concurrency": 4,
+    "max_calls": 32,
+    "max_reported_tokens": 300000,
+    "max_usd_if_known": 1.0,
+    "model": "gpt-6.1-sol",
+    "pipeline_time_limit_seconds": 900.0,
+    "provider": "codex",
+    "recorded_corpus_sha256": "6e6625b9d6b9702064e83db48099843af9aa541c5a9b2d521dddb0de102ba55d",
+    "repeats": 3,
+    "strict_comparator_accepted_controls": true
+  },
+  "cost": {
+    "USD": null,
+    "USD_delta": null,
+    "unreported_attempt_consumption": null
+  },
+  "decision": {
+    "main_runtime_changed_by_experiment": false,
+    "promoted": false,
+    "reason": "87/90 ties kept baseline; zero paired improvements and regressions.",
+    "rule": "Require increased end-to-end DEV success before promotion.",
+    "status": "rejected"
+  },
+  "evaluation_command": {
+    "argv": [
+      "make",
+      "eval",
+      "SET=dev",
+      "TIER=1,2,3,4",
+      "N=3",
+      "EVAL_JOBS=4"
+    ],
+    "elapsed_seconds": 4416.133063708,
+    "exit_code": 0,
+    "root_supplied_outer_receipt_sha256": "6c0cd2d9c0d34f72846dbe1748611f394b4b7d56b59daf989812b1fd14331859",
+    "wrapper_receipt_sha256": "35d98f46620f16f80d44a9d61e6fc65d5a8433c0e41ae8b715d42e1945e2870e"
+  },
+  "finalization": {
+    "commands": [
+      {
+        "argv": [
+          "uv",
+          "run",
+          "--python",
+          "3.12.13",
+          "--with-requirements",
+          "backend/requirements.txt",
+          "python",
+          "-B",
+          "scripts/seal_eval.py",
+          "20261027T035735Z_86a04836"
+        ],
+        "elapsed_seconds": 0.665195458,
+        "ended_at": "2026-10-27T05:12:30.401240+00:00",
+        "exit_code": 0,
+        "phase": "seal",
+        "receipt_sha256": "8de11bd0d6e2e68dd15e8036212d6c8459da06541127a79bf17d0e08b03a6360",
+        "started_at": "2026-10-27T05:12:29.736077+00:00",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "1c226789e161c26d5869ef19cec66c00bef438a56d9960a43792c524389325ed"
+      },
+      {
+        "argv": [
+          "uv",
+          "run",
+          "--python",
+          "3.12.13",
+          "--with-requirements",
+          "backend/requirements.txt",
+          "python",
+          "-B",
+          "scripts/seal_eval.py",
+          "20261027T035735Z_86a04836",
+          "--verify"
+        ],
+        "elapsed_seconds": 0.165413209,
+        "ended_at": "2026-10-27T05:12:30.567100+00:00",
+        "exit_code": 0,
+        "phase": "verify",
+        "receipt_sha256": "73caee9737654b759a359013997ac274d32e6aa5ff3853c7fff112a8d5a48db1",
+        "started_at": "2026-10-27T05:12:30.401709+00:00",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "4fa631fb7f0756a677db89c0ab9ad6f54b37d5369890726d2a003b7c56c2bbce"
+      },
+      {
+        "argv": [
+          "make",
+          "eval-compare",
+          "A=20261026T034744Z_d939d36e",
+          "B=20261027T035735Z_86a04836"
+        ],
+        "elapsed_seconds": 0.10725529099999997,
+        "ended_at": "2026-10-27T05:12:30.674736+00:00",
+        "exit_code": 0,
+        "phase": "compare",
+        "receipt_sha256": "e071828b346903105324808bca1e59da042768120e9ab11538e029e708512119",
+        "started_at": "2026-10-27T05:12:30.567502+00:00",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "d8e0a3e0b015b2522c0ab0fed2e2cbdfa590b06f3f452a20d3a50d82a82cc801"
+      }
+    ],
+    "elapsed_seconds": 0.946399125,
+    "ended_at": "2026-10-27T05:12:30.682197+00:00",
+    "exit_code": 0,
+    "ordinary_verify_passed": true,
+    "original_summary_hashes_unchanged": true,
+    "selected_success_sources_verified": 69,
+    "separate_present_day_custody_included": false,
+    "started_at": "2026-10-27T05:12:29.735541+00:00",
+    "terminal_records_sealed": 90
+  },
+  "hashes": {
+    "baseline_seal_sha256": "8d97a6e1a7648a84b147d4e20ccf27df6c86853d0bccba1f7efcf78f349d0a53",
+    "baseline_summary_sha256": "6a373bf622c304018c3c5e506ad7d09f797687ef69f41af4b8370d585ac8f207",
+    "candidate_invocation_sha256": "18377eed82491e2f3605b8d0a3ba63a8558bec69dcd02fd6b084937a285f3ebf",
+    "candidate_seal_sha256": "31673ea88cc826f68cc04085d1c541e42c582703466dcff37aafbff5ffd1685b",
+    "candidate_snapshot_manifest_sha256": "fc968cb151f2040275cddf50276a46b7d860801d4591c5e2543ede7e37295f3d",
+    "candidate_summary_sha256": "88563e8f44326f7a37ad0d1eedc6c555de82ea13eaadbac2e28575559d6d7cf3",
+    "closed_baseline_public_metadata_sha256": "cdbc16f302346bc6db1a09decfbc1f2232edded4539b3133187adafed662f239",
+    "comparison_stdout_sha256": "d8e0a3e0b015b2522c0ab0fed2e2cbdfa590b06f3f452a20d3a50d82a82cc801",
+    "finalization_anchors_sha256": "ac8b9f56095e35835032d2936a45c925b13f9f75dbd9d23d5037d7b3462fcb55",
+    "finalization_receipt_sha256": "16fdeb179a89f4221fb89ceaf31713493f022e3108058902a9354b39b089359f",
+    "metadata_audit_sha256": "8acc7b3f5cf724b02f5575f0328b178c8cff71c34db6f70ede66d5be03c955f7",
+    "summary_md_sha256": "612154b52dd22da584c310d8fe9c1a2b39653e83d41329dde625f4a0537a55e7"
+  },
+  "kind": "rejected_verification_integrity_DEV_experiment",
+  "limits": [
+    "Only closed sanitized DEV audit/finalization and closed baseline aggregate metadata used for this report; no corpus, source-case, model response, raw log or heldout body access.",
+    "Original90 outcomes, all negative grades and denominators preserved; no regrading or filtered success rate.",
+    "No success improvement: candidate rejected, not promoted. Timing difference is observational, with no causal or provider reliability gain claim.",
+    "USD, upstream HTTP counts and unreported attempt consumption remain unknown; cached usage is not independently reconstructed here.",
+    "Clarity remains unreviewed for this candidate. No heldout, product, Tiny Tapeout, pin-fit or tapeout-readiness claim.",
+    "Metadata audit does not rehash corpus bytes or independently verify DB/hidden XML/selected artifact custody; separate ordinary seal/verify receipts are bound. Any separate present-day custody check is outside this report.",
+    "Named source checks are points, not continuous or loaded-process attestation. Root receipt hashes bind metadata bytes and do not authenticate execution origin.",
+    "Report preparation made no model/EDA call, production change or commit."
+  ],
+  "results": {
+    "application_status_counts": {
+      "done": 69,
+      "failed": 21
+    },
+    "baseline_repeat_successful": [
+      29,
+      29,
+      29
+    ],
+    "baseline_successful": 87,
+    "candidate_repeat_successful": [
+      29,
+      29,
+      29
+    ],
+    "candidate_successful": 87,
+    "candidate_unsuccessful": 3,
+    "harness_error_rows": 0,
+    "negative_outcome_clarity": "unreviewed",
+    "paired_improvements": 0,
+    "paired_regressions": 0,
+    "pipeline_deadline_rows": 0,
+    "reported_observations": {
+      "call_limit_exceeded_rows": 0,
+      "median_pipeline_seconds": 223.6370992284501,
+      "pipeline_time_limit_exceeded_rows": 0,
+      "reported_token_limit_exceeded_rows": 0
+    },
+    "semantic_clarity_review_performed": false,
+    "success_rate_delta": 0.0,
+    "tier_count_derivation": "Closed baseline tier counts plus identical plan and zero strict paired tier-rate deltas/changed grades.",
+    "tiers": {
+      "1": {
+        "baseline_successful": 24,
+        "candidate_successful": 24,
+        "planned": 24
+      },
+      "2": {
+        "baseline_successful": 30,
+        "candidate_successful": 30,
+        "planned": 30
+      },
+      "3": {
+        "baseline_successful": 15,
+        "candidate_successful": 15,
+        "planned": 18
+      },
+      "4": {
+        "baseline_successful": 18,
+        "candidate_successful": 18,
+        "planned": 18
+      }
+    },
+    "trial_status_counts": {
+      "completed": 90
+    }
+  },
+  "schema_version": 1,
+  "sources": {
+    "baseline": {
+      "file_count": 73,
+      "pipeline_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1"
+    },
+    "before_after_equal": true,
+    "candidate_archive": {
+      "file_count": 73,
+      "pipeline_sha256": "8aa06526770e9d5b105567d9cf4ec705b37f207929e1f57f0890bf8d778fc05f"
+    },
+    "candidate_live": {
+      "file_count": 73,
+      "pipeline_sha256": "8aa06526770e9d5b105567d9cf4ec705b37f207929e1f57f0890bf8d778fc05f"
+    },
+    "continuous_or_loaded_code_attestation": false
+  },
+  "timing": {
+    "baseline_median_pipeline_seconds": 225.8484906249796,
+    "candidate_median_pipeline_seconds": 223.6370992284501,
+    "causal_speed_improvement_claim": false,
+    "difference_in_median_pipeline_seconds": -2.211391396529507,
+    "evaluation_wrapper_wall_seconds": 4416.133063708
+  }
+}

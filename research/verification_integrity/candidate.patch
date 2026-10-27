@@ -1,0 +1,279 @@
+diff --git a/backend/app/agent/orchestrator.py b/backend/app/agent/orchestrator.py
+index 968cfff..42b2ea4 100644
+--- a/backend/app/agent/orchestrator.py
++++ b/backend/app/agent/orchestrator.py
+@@ -231 +231 @@ class Orchestrator:
+-        if call.name == "run_tests" and "passed" in result:
++        if call.name == "run_tests" and ("passed" in result or result.get("error_kind") == "test_evidence_invalid"):
+@@ -261 +261,2 @@ class Orchestrator:
+-                if stage == "VERIFY" and call.name == "run_tests" and "passed" in result:
++                if (stage == "VERIFY" and call.name == "run_tests"
++                        and ("passed" in result or result.get("error_kind") == "test_evidence_invalid")):
+@@ -312,0 +314,3 @@ class Orchestrator:
++            if self._last_test_result and self._last_test_result.get("error_kind") == "test_evidence_invalid":
++                reason = str(self._last_test_result.get("error", "Test report could not be validated"))
++                raise LLMError(f"Invalid verification evidence: {prefix(reason, 700)}. Inspect the saved simulator log and retry verification.")
+diff --git a/backend/app/eda/sim.py b/backend/app/eda/sim.py
+index 702bfe8..6f13c13 100644
+--- a/backend/app/eda/sim.py
++++ b/backend/app/eda/sim.py
+@@ -37,4 +37,12 @@ async def run_tests(sandbox: DockerSandbox, input_dir: Path, output_dir: Path, t
+-    path = safe_artifact(output_dir, output_dir / "test_results.xml")
+-    if path.is_file():
+-        result["results_path"] = str(path)
+-        try:
++    claimed_success = result.get("ok") is True
++    failures = result.get("failures")
++    claims_cases = bool(result.get("cases")) or (isinstance(failures, list) and any(
++        isinstance(item, dict) and isinstance(item.get("test"), str) for item in failures))
++    claims_cases = claims_cases or any(
++        isinstance(result.get(key), dict) and isinstance(result[key].get("test"), str)
++        for key in ("first_diagnostic", "diagnostic"))
++    claims_evidence = claims_cases or any(key in result for key in ("passed", "failed", "skipped"))
++    try:
++        path = safe_artifact(output_dir, output_dir / "test_results.xml")
++        if path.is_file():
++            result["results_path"] = str(path)
+@@ -44,0 +53,5 @@ async def run_tests(sandbox: DockerSandbox, input_dir: Path, output_dir: Path, t
++            if result.get("ok") is True:
++                if (any(type(result.get(key)) is not int for key in observed)
++                        or observed["passed"] < 1 or observed["failed"] or observed["skipped"]
++                        or result.get("failures") != []):
++                    raise ValueError("Successful simulator result is incomplete or contradicts test XML")
+@@ -46,2 +59,18 @@ async def run_tests(sandbox: DockerSandbox, input_dir: Path, output_dir: Path, t
+-        except (ValueError, ET.ParseError) as error:
+-            result.update(ok=False, error=f"Invalid cocotb XML: {error}")
++        elif claimed_success or claims_evidence:
++            raise ValueError("test_results.xml is missing")
++    except (OSError, ValueError, ET.ParseError) as error:
++        message = f"Invalid cocotb XML: {error}"
++        if claimed_success or claims_evidence:
++            # The raw runtime result remains on disk; unverified counts must
++            # not be presented as executed tests in events or stage memory.
++            for key in ("passed", "failed", "skipped", "cases", "failures", "first_diagnostic", "first_error", "diagnostic"):
++                result.pop(key, None)
++            primary = result.get("error") if not claimed_success else None
++            result.update(ok=False, error=primary if isinstance(primary, str) and primary else message,
++                          error_kind="test_evidence_invalid")
++            if isinstance(primary, str) and primary:
++                result["xml_error"] = message
++        elif result.get("error"):
++            result["xml_error"] = message
++        else:
++            result.update(ok=False, error=message)
+diff --git a/backend/tests/test_sim_integrity.py b/backend/tests/test_sim_integrity.py
+new file mode 100644
+index 0000000..abf8dc0
+--- /dev/null
++++ b/backend/tests/test_sim_integrity.py
+@@ -0,0 +1,153 @@
++"""Simulator results require a real, consistent test report."""
++
++import asyncio
++import json
++from pathlib import Path
++from xml.etree import ElementTree as ET
++
++import pytest
++
++from app.eda import sim
++from app.eda.sandbox import CommandResult
++
++
++GOLDEN_XML = (Path(__file__).parent / "fixtures/golden_counter/test_results.xml").read_bytes()
++BUG = Path(__file__).parent / "fixtures/counter_increment_bug"
++PASS = {"ok": True, "passed": 4, "failed": 0, "skipped": 0, "failures": []}
++
++
++class FakeSandbox:
++    def __init__(self, payload, xml, *, returncode=0, timed_out=False):
++        self.payload, self.xml = payload, xml
++        self.returncode, self.timed_out = returncode, timed_out
++
++    async def run(self, command, *, input_dir, output_dir, **kwargs):
++        output_dir.mkdir(parents=True, exist_ok=True)
++        (output_dir / "result.json").write_text(json.dumps(self.payload))
++        if self.xml is not None:
++            (output_dir / "test_results.xml").write_bytes(self.xml)
++        log = output_dir / "tool.log"
++        log.write_text("simulator diagnostic")
++        return CommandResult(self.returncode, self.timed_out, log, "simulator diagnostic")
++
++
++def run(tmp_path, payload, xml, **kwargs):
++    source, output = tmp_path / "input", tmp_path / "output"
++    source.mkdir(exist_ok=True)
++    return asyncio.run(sim.run_tests(FakeSandbox(payload, xml, **kwargs), source, output, "counter", "test_counter"))
++
++
++def test_passing_runtime_without_xml_is_not_a_pass(tmp_path):
++    result = run(tmp_path, PASS, None)
++    assert result["ok"] is False
++    assert "XML" in result["error"]
++    assert result["error_kind"] == "test_evidence_invalid"
++    assert all(key not in result for key in ("passed", "failed", "skipped", "cases", "failures"))
++    assert json.loads((tmp_path / "output/result.json").read_text()) == PASS
++
++
++@pytest.mark.parametrize("xml", [b"not XML", b"<testsuites/>"])
++def test_invalid_or_empty_xml_is_not_a_pass(tmp_path, xml):
++    result = run(tmp_path, PASS, xml)
++    assert result["ok"] is False
++    assert "XML" in result["error"]
++
++
++@pytest.mark.parametrize("change", [
++    {"passed": 3}, {"passed": True}, {"failed": False}, {"skipped": 1},
++    {"failed": 1, "passed": 3}, {"failures": [{"test": "counter", "message": "failed"}]},
++])
++def test_contradictory_success_result_is_not_a_pass(tmp_path, change):
++    result = run(tmp_path, {**PASS, **change}, GOLDEN_XML)
++    assert result["ok"] is False
++    assert result["error_kind"] == "test_evidence_invalid"
++    assert all(key not in result for key in ("passed", "failed", "skipped", "cases", "failures"))
++
++
++@pytest.mark.parametrize("field", ["passed", "failed", "skipped", "failures"])
++def test_success_requires_complete_typed_result(tmp_path, field):
++    payload = dict(PASS)
++    del payload[field]
++    result = run(tmp_path, payload, GOLDEN_XML)
++    assert result["ok"] is False
++
++
++def test_zero_cases_cannot_count_as_a_success(tmp_path):
++    result = run(tmp_path, {**PASS, "passed": 0}, b"<testsuites/>")
++    assert result["ok"] is False
++
++
++def test_success_flag_cannot_override_a_failed_case_even_if_counts_match(tmp_path):
++    xml = ET.fromstring(GOLDEN_XML)
++    ET.SubElement(xml.findall(".//testcase")[0], "failure")
++    result = run(tmp_path, {**PASS, "passed": 3, "failed": 1}, ET.tostring(xml))
++    assert result["ok"] is False
++
++
++@pytest.mark.parametrize("returncode,timed_out", [(1, False), (0, True)])
++def test_real_process_failure_is_not_overridden_by_success_payload(tmp_path, returncode, timed_out):
++    result = run(tmp_path, PASS, GOLDEN_XML, returncode=returncode, timed_out=timed_out)
++    assert result["ok"] is False
++    assert ("timed out" if timed_out else "exited") in result["error"]
++
++
++@pytest.mark.parametrize("returncode,timed_out", [(1, False), (0, True)])
++@pytest.mark.parametrize("xml", [None, b"not XML", b"<testsuites/>"])
++def test_failed_process_cannot_publish_unverified_counts(tmp_path, returncode, timed_out, xml):
++    result = run(tmp_path, PASS, xml, returncode=returncode, timed_out=timed_out)
++    assert result["ok"] is False and result["error_kind"] == "test_evidence_invalid"
++    assert ("timed out" if timed_out else "exited") in result["error"]
++    assert "XML" in result["xml_error"]
++    assert all(key not in result for key in ("passed", "failed", "skipped", "cases", "failures"))
++    assert json.loads((tmp_path / "output/result.json").read_text()) == PASS
++
++
++@pytest.mark.parametrize("claim", [
++    {"cases": [{"test": "unverified", "ok": True}]},
++    {"failures": [{"test": "unverified", "message": "failure"}]},
++    {"first_diagnostic": {"kind": "test_failure", "test": "unverified", "message": "failure"}},
++])
++def test_failed_process_cannot_publish_unverified_case_details_without_counts(tmp_path, claim):
++    payload = {"ok": False, "error": "simulator crashed", **claim}
++    result = run(tmp_path, payload, None, returncode=1)
++    assert result["ok"] is False and result["error_kind"] == "test_evidence_invalid"
++    assert "exited" in result["error"] and "XML" in result["xml_error"]
++    assert all(key not in result for key in ("passed", "failed", "skipped", "cases", "failures", "first_diagnostic"))
++    assert json.loads((tmp_path / "output/result.json").read_text()) == payload
++
++
++def test_passing_runtime_and_matching_real_xml_remain_valid(tmp_path):
++    result = run(tmp_path, PASS, GOLDEN_XML)
++    assert result["ok"] is True and len(result["cases"]) == 4
++
++
++def test_failure_without_xml_retains_original_error(tmp_path):
++    result = run(tmp_path, {"ok": False, "error": "simulator compilation failed"}, None)
++    assert result["ok"] is False
++    assert result["error"] == "simulator compilation failed"
++    assert "error_kind" not in result
++
++
++def test_compile_diagnostic_without_case_identity_is_not_a_test_claim(tmp_path):
++    payload = {"ok": False, "error": "simulator compilation failed", "failures": [{"message": "syntax error"}]}
++    result = run(tmp_path, payload, None)
++    assert result["ok"] is False and result["error"] == payload["error"]
++    assert result["failures"][0]["message"] == "syntax error"
++    assert "error_kind" not in result
++
++
++def test_malformed_xml_does_not_hide_existing_simulator_error(tmp_path):
++    result = run(tmp_path, {"ok": False, "error": "simulator compilation failed"}, b"not XML")
++    assert result["ok"] is False
++    assert result["error"] == "simulator compilation failed"
++    assert "XML" in result["xml_error"]
++    assert "error_kind" not in result
++
++
++def test_valid_failed_functional_result_retains_counts_and_diagnostics(tmp_path):
++    payload = json.loads((BUG / "result.json").read_text())
++    result = run(tmp_path, payload, (BUG / "test_results.xml").read_bytes())
++    assert result["ok"] is False and result["passed"] == 2 and result["failed"] == 2
++    assert result["failures"][0]["test"] == "count_and_hold"
++    assert result["failures"][0]["log_tail"] == "simulator diagnostic"
++    assert "error_kind" not in result
+diff --git a/backend/tests/test_sim_integrity_controller.py b/backend/tests/test_sim_integrity_controller.py
+new file mode 100644
+index 0000000..6751ed5
+--- /dev/null
++++ b/backend/tests/test_sim_integrity_controller.py
+@@ -0,0 +1,51 @@
++"""An invalid success report is a test failure without fabricated counts."""
++import asyncio
++
++import pytest
++
++from app.agent.orchestrator import Orchestrator
++from app.agent.tools import ToolRunner
++from app.eda.service import EDA
++from app.llm.fake import FakeLLM
++from app.llm.types import LLMError
++from app.schemas import DesignSpec
++from test_orchestrator import GOLDEN, call, response, spec_data
++from test_sim_integrity import FakeSandbox, PASS
++
++
++@pytest.mark.parametrize("returncode,timed_out", [(0, False), (1, False), (0, True)])
++def test_invalid_report_records_failure_and_stops_without_rtl_repair(tmp_path, returncode, timed_out):
++    events = []
++
++    async def record(kind, payload):
++        events.append((kind, payload))
++
++    work = tmp_path / "work"
++    sandbox = FakeSandbox(PASS, None, returncode=returncode, timed_out=timed_out)
++    runner = ToolRunner(work, "sim-integrity", eda=EDA(work, sandbox=sandbox), event_callback=record)
++    llm = FakeLLM([response(call("run_tests", top="counter", test_module="test_counter"))])
++    orchestrator = Orchestrator(llm, runner, spec_text="8-bit counter", event_callback=record)
++    orchestrator.design_spec = DesignSpec.model_validate(spec_data())
++
++    async def scenario():
++        for path in ("src/counter.v", "test/test_counter.py"):
++            result = await orchestrator._execute("RTL" if path.startswith("src/") else "VERIFY",
++                                                 call("write_file", path=path, content=(GOLDEN / path).read_text()))
++            assert result["ok"] is True
++        assert await orchestrator._verify() is False
++        assert orchestrator.test_module == "test_counter"
++        assert orchestrator._last_test_result["error_kind"] == "test_evidence_invalid"
++        assert runner.verified_revision is None
++        with pytest.raises(LLMError, match="verification evidence"):
++            await orchestrator._repair()
++
++    asyncio.run(scenario())
++    assert len(llm.requests) == 1
++    result = next(payload for kind, payload in events if kind == "test_result")
++    assert result["ok"] is False and result["error_kind"] == "test_evidence_invalid"
++    assert all(key not in result for key in ("passed", "failed", "skipped", "cases", "failures"))
++    expected_error = "timed out" if timed_out else "exited" if returncode else "Invalid cocotb XML"
++    assert expected_error in result["error"]
++    summary = orchestrator.memory.summaries["VERIFY"]
++    assert "run_tests failed" in summary and expected_error in summary
++    assert "tests passed=" not in summary and "tests failed=" not in summary

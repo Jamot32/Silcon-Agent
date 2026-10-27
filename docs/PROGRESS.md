@@ -135,3 +135,7 @@ Next — close the bounded provider diagnostic, then integrate helper provenance
 Provider diagnostic — PASS:16/16 neutral requests, serial8/8 and parallel8/8,16usage returns and no attempt timeouts; median request4.703s/5.146s, respectively.
 Limits — fixed small prompt and fixed wave order; no causal diagnosis or recovered DEV success is claimed, and OAuthUSD remains unknown.
 Next — preserve the research artifacts and develop any integration only against the committed DEV baseline; held-out input must be fresh for any later claim.
+
+Verification evidence candidate — REJECTED: DEV3×87/90 before and after, with0 paired improvements and0 regressions; production remains on R15.
+Checks —90 records sealed,69 selected sources and hidden XML verified;69 current flow/package sets reconciled; candidate unit1110+92subtests and real good/mutant simulation passed. USDunknown; clarity unreviewed.
+Next — develop a separate implementation-blind reference-model-first candidate, verify its controls and compare it on unchanged DEV before any promotion.
