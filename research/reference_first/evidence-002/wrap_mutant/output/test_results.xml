@@ -1,0 +1,11 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1793078620" />
+    <testcase name="test_reset_then_add" classname="test_reference" file="/input/test/test_reference.py" lineno="42" time="0.0003554821014404297" sim_time_ns="12.0" ratio_time="33756.97384305835" />
+    <testcase name="test_disabled_holds" classname="test_reference" file="/input/test/test_reference.py" lineno="50" time="0.00018286705017089844" sim_time_ns="12.000000000000002" ratio_time="65621.444589309" />
+    <testcase name="test_saturates_instead_of_wrapping" classname="test_reference" file="/input/test/test_reference.py" lineno="58" time="0.00037932395935058594" sim_time_ns="10.000000000000004" ratio_time="26362.690131992465">
+      <failure error_type="AssertionError" error_msg="DUT: expected 7, got 1" />
+    </testcase>
+    <testcase name="test_clear_has_priority" classname="test_reference" file="/input/test/test_reference.py" lineno="67" time="0.00019216537475585938" sim_time_ns="16.0" ratio_time="83261.61786600496" />
+  </testsuite>
+</testsuites>

@@ -1,0 +1,25 @@
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with 1793078621
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running test_reference.test_reset_then_add (1/4)
+    12.00ns INFO     cocotb.regression                  test_reference.test_reset_then_add passed
+    12.00ns INFO     cocotb.regression                  running test_reference.test_disabled_holds (2/4)
+    24.00ns INFO     cocotb.regression                  test_reference.test_disabled_holds passed
+    24.00ns INFO     cocotb.regression                  running test_reference.test_saturates_instead_of_wrapping (3/4)
+    40.00ns INFO     cocotb.regression                  test_reference.test_saturates_instead_of_wrapping passed
+    40.00ns INFO     cocotb.regression                  running test_reference.test_clear_has_priority (4/4)
+    56.00ns INFO     cocotb.regression                  test_reference.test_clear_has_priority passed
+    56.00ns INFO     cocotb.regression                  ***********************************************************************************************************
+                                                        ** TEST                                               STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        ***********************************************************************************************************
+                                                        ** test_reference.test_reset_then_add                  PASS          12.00           0.00      36028.38  **
+                                                        ** test_reference.test_disabled_holds                  PASS          12.00           0.00      73369.75  **
+                                                        ** test_reference.test_saturates_instead_of_wrapping   PASS          16.00           0.00      80273.76  **
+                                                        ** test_reference.test_clear_has_priority              PASS          16.00           0.00      89837.84  **
+                                                        ***********************************************************************************************************
+                                                        ** TESTS=4 PASS=4 FAIL=0 SKIP=0                                      56.00           0.00      34226.08  **
+                                                        ***********************************************************************************************************

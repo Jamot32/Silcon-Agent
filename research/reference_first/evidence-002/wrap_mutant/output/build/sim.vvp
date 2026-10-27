@@ -1,0 +1,65 @@
+#! /nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/bin/vvp
+:ivl_version "13.0 (devel)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision - 12;
+:vpi_module "/nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/lib/ivl/system.vpi";
+:vpi_module "/nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/lib/ivl/vhdl_sys.vpi";
+:vpi_module "/nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/lib/ivl/vhdl_textio.vpi";
+:vpi_module "/nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/lib/ivl/v2005_math.vpi";
+:vpi_module "/nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/lib/ivl/va_math.vpi";
+:vpi_module "/nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/lib/ivl/v2009.vpi";
+S_0xaaaae9587b30 .scope package, "$unit" "$unit" 2 1;
+ .timescale -9 -12;
+S_0xaaaae9587cc0 .scope module, "subject" "subject" 3 1;
+ .timescale -9 -12;
+    .port_info 0 /INPUT 1 "clk";
+    .port_info 1 /INPUT 1 "rst_n";
+    .port_info 2 /INPUT 1 "clear";
+    .port_info 3 /INPUT 1 "enable";
+    .port_info 4 /INPUT 3 "amount";
+    .port_info 5 /OUTPUT 3 "q";
+o0xffff87aff018 .functor BUFZ 3, c4<zzz>; HiZ drive
+v0xaaaae959ba90_0 .net "amount", 2 0, o0xffff87aff018;  0 drivers
+o0xffff87aff048 .functor BUFZ 1, c4<z>; HiZ drive
+v0xaaaae95bbc30_0 .net "clear", 0 0, o0xffff87aff048;  0 drivers
+o0xffff87aff078 .functor BUFZ 1, c4<z>; HiZ drive
+v0xaaaae95bbcf0_0 .net "clk", 0 0, o0xffff87aff078;  0 drivers
+o0xffff87aff0a8 .functor BUFZ 1, c4<z>; HiZ drive
+v0xaaaae95bbd90_0 .net "enable", 0 0, o0xffff87aff0a8;  0 drivers
+v0xaaaae95bbe50_0 .var "q", 2 0;
+o0xffff87aff108 .functor BUFZ 1, c4<z>; HiZ drive
+v0xaaaae95bbf80_0 .net "rst_n", 0 0, o0xffff87aff108;  0 drivers
+E_0xaaaae95822f0 .event posedge, v0xaaaae95bbcf0_0;
+    .scope S_0xaaaae9587cc0;
+T_0 ;
+    %wait E_0xaaaae95822f0;
+    %load/vec4 v0xaaaae95bbf80_0;
+    %nor/r;
+    %flag_set/vec4 8;
+    %jmp/1 T_0.2, 8;
+    %load/vec4 v0xaaaae95bbc30_0;
+    %flag_set/vec4 9;
+    %flag_or 8, 9;
+T_0.2;
+    %jmp/0xz  T_0.0, 8;
+    %pushi/vec4 0, 0, 3;
+    %assign/vec4 v0xaaaae95bbe50_0, 0;
+    %jmp T_0.1;
+T_0.0 ;
+    %load/vec4 v0xaaaae95bbd90_0;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_0.3, 8;
+    %load/vec4 v0xaaaae95bbe50_0;
+    %load/vec4 v0xaaaae959ba90_0;
+    %add;
+    %assign/vec4 v0xaaaae95bbe50_0, 0;
+T_0.3 ;
+T_0.1 ;
+    %jmp T_0;
+    .thread T_0;
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "-";
+    "/input/src/subject.v";

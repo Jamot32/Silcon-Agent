@@ -1,0 +1,9 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1793078621" />
+    <testcase name="test_reset_then_add" classname="test_reference" file="/input/test/test_reference.py" lineno="42" time="0.0003330707550048828" sim_time_ns="12.0" ratio_time="36028.38081603436" />
+    <testcase name="test_disabled_holds" classname="test_reference" file="/input/test/test_reference.py" lineno="50" time="0.00016355514526367188" sim_time_ns="12.000000000000002" ratio_time="73369.74927113704" />
+    <testcase name="test_saturates_instead_of_wrapping" classname="test_reference" file="/input/test/test_reference.py" lineno="58" time="0.00019931793212890625" sim_time_ns="16.000000000000004" ratio_time="80273.76076555025" />
+    <testcase name="test_clear_has_priority" classname="test_reference" file="/input/test/test_reference.py" lineno="67" time="0.0001780986785888672" sim_time_ns="16.0" ratio_time="89837.83668005354" />
+  </testsuite>
+</testsuites>

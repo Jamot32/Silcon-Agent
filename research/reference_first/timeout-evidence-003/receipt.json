@@ -1,0 +1,55 @@
+{
+  "argv": [
+    "docker",
+    "run",
+    "--rm",
+    "--init",
+    "--name",
+    "sa-ref-exec-703b6f75a380492494e2fadcbddc297c",
+    "--network",
+    "none",
+    "--read-only",
+    "--cap-drop",
+    "ALL",
+    "--security-opt",
+    "no-new-privileges",
+    "--cpus",
+    "1",
+    "--memory",
+    "256m",
+    "--pids-limit",
+    "128",
+    "--user",
+    "501:20",
+    "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+    "python3",
+    "-I",
+    "-B",
+    "-c",
+    "import time; print(\"started-owned-container\", flush=True); time.sleep(60)"
+  ],
+  "owned_name": "sa-ref-exec-703b6f75a380492494e2fadcbddc297c",
+  "process": {
+    "returncode": 137,
+    "timed_out": true,
+    "cleanup": {
+      "ok": true,
+      "exit_code": 0,
+      "error_type": null
+    },
+    "launch_error": null,
+    "process_error": null,
+    "reap_error": null,
+    "interruption_type": null
+  },
+  "stdout_sha256": "26f74a958d724e92599459461f26b457bfeb06a09b9a4a65042dfc9d137787f6",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "inspect_argv": [
+    "docker",
+    "inspect",
+    "sa-ref-exec-703b6f75a380492494e2fadcbddc297c"
+  ],
+  "inspect_returncode": 1,
+  "inspect_stdout_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+  "inspect_stderr_sha256": "16734f40236f292074819724478d0a17b6c1d730c226a304cff58fa28b4bc5c7"
+}

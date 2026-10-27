@@ -1,0 +1,76 @@
+{
+  "ended_at": "2026-10-27T05:51:55.122083+00:00",
+  "passed": true,
+  "scope": "named source points and neutral controls only; not continuous or loaded-code attestation",
+  "source_sha256_after": {
+    "backend/app/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "backend/app/agent/__init__.py": "486666084804852c8e9d2b070774fb052739917e80a01eab74314c47a1c53c77",
+    "backend/app/agent/reference_bundle.py": "bb84cb1f3f3785d4ddc0e10f6148565d41f7c2ec03dd0817547acf4ab4c65fd5",
+    "research/reference_first/capture_final.py": "cd80cb45e122399d5fcff68f33752464f5619919e2b30be57f1bdfeb443efbd3",
+    "research/reference_first/capture_outer.py": "cc22ce491e4ba84d6f29a6e27757c4428b48dcd59dd9c6cab2e20e7d94987942",
+    "research/reference_first/executor_controls.py": "5e0fcda6253117a70d6f1ce397f298022daa8ef293db554c0313226c6af1d73a",
+    "research/reference_first/reference_executor.py": "27c89154903ecbff811c1e4931230b40566001e456477b4b0842deae9f53dac8",
+    "research/reference_first/reference_executor_container.py": "cbd0c4b09bb9dca74c39c92036db64d397c559e8cf94032b119d9590f3a1ed5b",
+    "research/reference_first/run_reference.py": "2e65ed243b4a8dd936e05d4902c6673b7b6c3528431f745242abc5bfe5182593",
+    "research/reference_first/test_cancellation.py": "20e9ab7559f7b56f8738347b3676f88d55657cb8bfa2d8bbdbe0fe1e24223f69",
+    "research/reference_first/test_executor.py": "3c07eca5025e283da90acfd936debb5e38d4512bd49da915408837847dac5ed4",
+    "research/reference_first/test_interrupt_receipt.py": "6825ee5bf342c0e23865d7c7bf89b82d4c4b3f7c524396e5cf0e6dcd6afa2895",
+    "research/reference_first/test_interruption_finalization.py": "7a60422e61de47506478f26ea9ee5b0be0afb081027ba87c17d1870f523b6a02",
+    "research/reference_first/test_owned_process.py": "4b8e885d8dab56eb6d465a4c00e409b4aaf964d325a60763a3338e567f4890b0",
+    "research/reference_first/timeout_control.py": "50bce07297785d6226e8668fdf479200d0bcd0365205bca31110d29723cc4a49"
+  },
+  "source_sha256_before": {
+    "backend/app/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "backend/app/agent/__init__.py": "486666084804852c8e9d2b070774fb052739917e80a01eab74314c47a1c53c77",
+    "backend/app/agent/reference_bundle.py": "bb84cb1f3f3785d4ddc0e10f6148565d41f7c2ec03dd0817547acf4ab4c65fd5",
+    "research/reference_first/capture_final.py": "cd80cb45e122399d5fcff68f33752464f5619919e2b30be57f1bdfeb443efbd3",
+    "research/reference_first/capture_outer.py": "cc22ce491e4ba84d6f29a6e27757c4428b48dcd59dd9c6cab2e20e7d94987942",
+    "research/reference_first/executor_controls.py": "5e0fcda6253117a70d6f1ce397f298022daa8ef293db554c0313226c6af1d73a",
+    "research/reference_first/reference_executor.py": "27c89154903ecbff811c1e4931230b40566001e456477b4b0842deae9f53dac8",
+    "research/reference_first/reference_executor_container.py": "cbd0c4b09bb9dca74c39c92036db64d397c559e8cf94032b119d9590f3a1ed5b",
+    "research/reference_first/run_reference.py": "2e65ed243b4a8dd936e05d4902c6673b7b6c3528431f745242abc5bfe5182593",
+    "research/reference_first/test_cancellation.py": "20e9ab7559f7b56f8738347b3676f88d55657cb8bfa2d8bbdbe0fe1e24223f69",
+    "research/reference_first/test_executor.py": "3c07eca5025e283da90acfd936debb5e38d4512bd49da915408837847dac5ed4",
+    "research/reference_first/test_interrupt_receipt.py": "6825ee5bf342c0e23865d7c7bf89b82d4c4b3f7c524396e5cf0e6dcd6afa2895",
+    "research/reference_first/test_interruption_finalization.py": "7a60422e61de47506478f26ea9ee5b0be0afb081027ba87c17d1870f523b6a02",
+    "research/reference_first/test_owned_process.py": "4b8e885d8dab56eb6d465a4c00e409b4aaf964d325a60763a3338e567f4890b0",
+    "research/reference_first/timeout_control.py": "50bce07297785d6226e8668fdf479200d0bcd0365205bca31110d29723cc4a49"
+  },
+  "started_at": "2026-10-27T05:51:50.362292+00:00",
+  "steps": [
+    {
+      "argv": [
+        "/Users/siyoungpark/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+        "-B",
+        "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/reference-first-candidate-20261027-001/research/reference_first/capture_outer.py",
+        "examples",
+        "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/reference-first-candidate-20261027-001/research/reference_first/outer-executor-003",
+        "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/reference-first-candidate-20261027-001/research/reference_first/executor-evidence-003"
+      ],
+      "error_type": null,
+      "exit_code": 0,
+      "kind": "examples",
+      "outer_receipt_sha256": "aaa4bbaee6e14b13ef557f757fd6896942d76d36c5287c547e9a8f316c4edd51",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "f77edd3c2cc789b08867c5bb941568a95a61275b7c6a43bafc54a5b19faa2512",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/Users/siyoungpark/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+        "-B",
+        "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/reference-first-candidate-20261027-001/research/reference_first/capture_outer.py",
+        "timeout",
+        "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/reference-first-candidate-20261027-001/research/reference_first/outer-timeout-003",
+        "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/reference-first-candidate-20261027-001/research/reference_first/timeout-evidence-003"
+      ],
+      "error_type": null,
+      "exit_code": 0,
+      "kind": "timeout",
+      "outer_receipt_sha256": "2c4e90c622b06358619ff1a3a3d1154ff2b183b7276de2cbbb8d5a0588473d79",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "2583efdc1d50255d9f340feeef2ef946726169bbd45f9a668a763262ea58a0ce",
+      "timed_out": false
+    }
+  ]
+}

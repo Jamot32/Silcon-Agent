@@ -1,0 +1,1 @@
+{"passed": true, "receipt_sha256": "619a578dcfd98d4807b22363323c96eb411eae62a8f7bb597606279d015eb061", "exit_code": 137, "cleanup": {"ok": true, "exit_code": 0, "error_type": null}, "post_inspect_exit": 1}

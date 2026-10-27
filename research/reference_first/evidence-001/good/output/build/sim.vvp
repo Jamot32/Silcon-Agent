@@ -1,0 +1,85 @@
+#! /nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/bin/vvp
+:ivl_version "13.0 (devel)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision - 12;
+:vpi_module "/nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/lib/ivl/system.vpi";
+:vpi_module "/nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/lib/ivl/vhdl_sys.vpi";
+:vpi_module "/nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/lib/ivl/vhdl_textio.vpi";
+:vpi_module "/nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/lib/ivl/v2005_math.vpi";
+:vpi_module "/nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/lib/ivl/va_math.vpi";
+:vpi_module "/nix/store/895jncgs6km2sirwsdv8gm4xr46q1qrp-iverilog-s20250103-60-gdb82380ce/lib/ivl/v2009.vpi";
+S_0xaaab18c84be0 .scope package, "$unit" "$unit" 2 1;
+ .timescale -9 -12;
+S_0xaaab18c84d70 .scope module, "subject" "subject" 3 1;
+ .timescale -9 -12;
+    .port_info 0 /INPUT 1 "clk";
+    .port_info 1 /INPUT 1 "rst_n";
+    .port_info 2 /INPUT 1 "clear";
+    .port_info 3 /INPUT 1 "enable";
+    .port_info 4 /INPUT 3 "amount";
+    .port_info 5 /OUTPUT 3 "q";
+L_0xffffb8af6018 .functor BUFT 1, C4<0>, C4<0>, C4<0>, C4<0>;
+v0xaaab18c9a510_0 .net/2u *"_ivl_0", 0 0, L_0xffffb8af6018;  1 drivers
+v0xaaab18cbaf40_0 .net *"_ivl_2", 3 0, L_0xaaab18cbb870;  1 drivers
+L_0xffffb8af6060 .functor BUFT 1, C4<0>, C4<0>, C4<0>, C4<0>;
+v0xaaab18cbb020_0 .net/2u *"_ivl_4", 0 0, L_0xffffb8af6060;  1 drivers
+v0xaaab18cbb0e0_0 .net *"_ivl_6", 3 0, L_0xaaab18cbb990;  1 drivers
+o0xffffb8b3f0d8 .functor BUFZ 3, c4<zzz>; HiZ drive
+v0xaaab18cbb1c0_0 .net "amount", 2 0, o0xffffb8b3f0d8;  0 drivers
+o0xffffb8b3f108 .functor BUFZ 1, c4<z>; HiZ drive
+v0xaaab18cbb2f0_0 .net "clear", 0 0, o0xffffb8b3f108;  0 drivers
+o0xffffb8b3f138 .functor BUFZ 1, c4<z>; HiZ drive
+v0xaaab18cbb3b0_0 .net "clk", 0 0, o0xffffb8b3f138;  0 drivers
+o0xffffb8b3f168 .functor BUFZ 1, c4<z>; HiZ drive
+v0xaaab18cbb470_0 .net "enable", 0 0, o0xffffb8b3f168;  0 drivers
+v0xaaab18cbb530_0 .var "q", 2 0;
+o0xffffb8b3f1c8 .functor BUFZ 1, c4<z>; HiZ drive
+v0xaaab18cbb610_0 .net "rst_n", 0 0, o0xffffb8b3f1c8;  0 drivers
+v0xaaab18cbb6d0_0 .net "sum", 3 0, L_0xaaab18cbbae0;  1 drivers
+E_0xaaab18c86030 .event posedge, v0xaaab18cbb3b0_0;
+L_0xaaab18cbb870 .concat [ 3 1 0 0], v0xaaab18cbb530_0, L_0xffffb8af6018;
+L_0xaaab18cbb990 .concat [ 3 1 0 0], o0xffffb8b3f0d8, L_0xffffb8af6060;
+L_0xaaab18cbbae0 .arith/sum 4, L_0xaaab18cbb870, L_0xaaab18cbb990;
+    .scope S_0xaaab18c84d70;
+T_0 ;
+    %wait E_0xaaab18c86030;
+    %load/vec4 v0xaaab18cbb610_0;
+    %nor/r;
+    %flag_set/vec4 8;
+    %jmp/1 T_0.2, 8;
+    %load/vec4 v0xaaab18cbb2f0_0;
+    %flag_set/vec4 9;
+    %flag_or 8, 9;
+T_0.2;
+    %jmp/0xz  T_0.0, 8;
+    %pushi/vec4 0, 0, 3;
+    %assign/vec4 v0xaaab18cbb530_0, 0;
+    %jmp T_0.1;
+T_0.0 ;
+    %load/vec4 v0xaaab18cbb470_0;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_0.3, 8;
+    %load/vec4 v0xaaab18cbb6d0_0;
+    %parti/s 1, 3, 3;
+    %flag_set/vec4 8;
+    %jmp/0 T_0.5, 8;
+    %pushi/vec4 7, 0, 3;
+    %jmp/1 T_0.6, 8;
+T_0.5 ; End of true expr.
+    %load/vec4 v0xaaab18cbb6d0_0;
+    %parti/s 3, 0, 2;
+    %jmp/0 T_0.6, 8;
+ ; End of false expr.
+    %blend;
+T_0.6;
+    %assign/vec4 v0xaaab18cbb530_0, 0;
+T_0.3 ;
+T_0.1 ;
+    %jmp T_0;
+    .thread T_0;
+# The file index is used to find the file name in the following table.
+:file_names 4;
+    "N/A";
+    "<interactive>";
+    "-";
+    "/input/src/subject.v";

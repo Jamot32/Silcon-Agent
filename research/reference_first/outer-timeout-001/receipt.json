@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/Users/siyoungpark/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+    "-B",
+    "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/reference-first-candidate-20261027-001/research/reference_first/timeout_control.py"
+  ],
+  "evidence": "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/reference-first-candidate-20261027-001/research/reference_first/timeout-evidence-001",
+  "started_at": "2026-10-27T05:48:45.361501+00:00",
+  "ended_at": "2026-10-27T05:48:48.607888+00:00",
+  "exit_code": 1,
+  "timed_out": false,
+  "error_type": null,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "533fea754488ddbd4f5b88f68b6dd8165e6f29d74363d293d5072129bd5f4ff1",
+  "script_sha256": "f3a1b87550e09bd46b1d20922a50e0c0ea5af24744f2f4c58a02ea7c934605c5"
+}

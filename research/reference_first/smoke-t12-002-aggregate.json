@@ -1,0 +1,39 @@
+{
+  "aggregate": {
+    "hardware_trials": 18,
+    "median_calls_hardware": 8.0,
+    "median_elapsed_tier2": 283.85,
+    "median_reference_calls": 2.0,
+    "paired": {
+      "improved": 0,
+      "pairs": 18,
+      "regressed": 0
+    },
+    "prepared_and_successful": 13,
+    "reference_attempted": 18,
+    "reference_failure_then_success": 0,
+    "reference_outcomes": {
+      "prepared:None:None": 13,
+      "unavailable:examples:invalid_json": 4,
+      "unavailable:examples:response_fields": 1
+    },
+    "reference_prepared": 13,
+    "successful": 18,
+    "tiers": {
+      "1": "8/8",
+      "2": "10/10"
+    },
+    "trials": 18,
+    "trials_with_reference_failure": 0
+  },
+  "baseline_for_pairs": "20261026T034744Z_d939d36e repeat 1",
+  "cohort": "20261027T084342Z_5b596127",
+  "command": "make eval SET=dev TIER=1,2 N=1 EVAL_JOBS=4",
+  "elapsed_seconds": 1355.08,
+  "exit_code": 0,
+  "fallback_note": "All five fallbacks were example-author abstentions in prose or an ad hoc error object, recorded before the structured unresolved code existed.",
+  "kind": "rf1_live_qualification_smoke",
+  "not_measurement": true,
+  "schema_version": 1,
+  "source_fingerprint": "0e7c0dbd4adf8f09a2c3ff3b5c00a7e3f1d0bf2d51756ef7b8df495c39dc6e2c"
+}

@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-B",
+    "/Users/siyoungpark/Documents/GitHub/Meta-global-ai-developer-hackathon-2026/runs/reference-first-candidate-20261027-001/research/reference_first/test_model.py"
+  ],
+  "started_at": "2026-10-27T05:23:39.971130+00:00",
+  "ended_at": "2026-10-27T05:23:39.993037+00:00",
+  "exit_code": 0,
+  "timed_out": false,
+  "cleanup": null,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "fb184ea57734512b1f088f9181209901b9cd46df3eb7eaa2500ea9e48dde20b5",
+  "source_sha256_before": {
+    "model.py": "4b7d09663bf27722540508b21acf630d9983fb31db5b2923ae2dd679d0e63349",
+    "test_model.py": "9f04220aac15c25587e7bd4424738b8e703c1da8dad9f373dcbf37ac446490bc"
+  },
+  "source_sha256_after": {
+    "model.py": "4b7d09663bf27722540508b21acf630d9983fb31db5b2923ae2dd679d0e63349",
+    "test_model.py": "9f04220aac15c25587e7bd4424738b8e703c1da8dad9f373dcbf37ac446490bc"
+  }
+}

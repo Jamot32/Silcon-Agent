@@ -1,0 +1,63 @@
+{
+  "scope": "neutral research only; not a pipeline evaluation",
+  "image_id": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+  "image_inspect": {
+    "argv": [
+      "docker",
+      "image",
+      "inspect",
+      "--format",
+      "{{.Id}}",
+      "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8"
+    ],
+    "started_at": "2026-10-27T05:20:28.755742+00:00",
+    "ended_at": "2026-10-27T05:20:28.784777+00:00",
+    "exit_code": 0,
+    "timed_out": false,
+    "cleanup": null,
+    "stdout_sha256": "bdb6f438b1906f6fda3867f307c5a72a2fc9d2900667d2d790d9f3499df95248",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "fixture_sha256": {
+    "model.py": "4b7d09663bf27722540508b21acf630d9983fb31db5b2923ae2dd679d0e63349",
+    "stimulus.py": "4e043e3ebdfa13b67b3de68b086be014889d4bf62941130a9a55efab26ac2a58",
+    "test_model.py": "9f04220aac15c25587e7bd4424738b8e703c1da8dad9f373dcbf37ac446490bc",
+    "fixtures/good/subject.v": "c3a2142fe3c48a3e187211b756eba582f77ce9b0543983799fa1b15df9960b11",
+    "fixtures/wrap_mutant/subject.v": "14070393a1e5ed627755ed4181756e05406381d30933ccdf1f8ab142687213cb"
+  },
+  "assembled_test_sha256": "a3cc192ec9e8d22de3a87244fa7042f645e9d45aa3f3af26f746f9325b23c88f",
+  "scenarios": {
+    "wrap_mutant": {
+      "host_receipt_sha256": "fad8f66accb492ac4b2c465ed9d85dbab1967fc980bd7671f16ae3f46aed1d73",
+      "exit_code": 0,
+      "timed_out": false,
+      "inputs_sha256": {
+        "source": "14070393a1e5ed627755ed4181756e05406381d30933ccdf1f8ab142687213cb",
+        "test": "a3cc192ec9e8d22de3a87244fa7042f645e9d45aa3f3af26f746f9325b23c88f"
+      },
+      "runtime_result_sha256": "8f472d9b0c8511922618695a7df7fcf835d61383b739f2acd54ffa2538dfeaf0",
+      "xml_sha256": "bbc9d35a81f99253e93bdb76fbee3d026fd12f61842f157701181f79798d6b97",
+      "passed": 3,
+      "failed": 1,
+      "skipped": 0,
+      "functional_failure_cases": [
+        "test_saturates_instead_of_wrapping"
+      ]
+    },
+    "good": {
+      "host_receipt_sha256": "e0f99a204e9b5adc4551f7faba9db0f0b8b6634df37b80a7accd623c6f889e92",
+      "exit_code": 0,
+      "timed_out": false,
+      "inputs_sha256": {
+        "source": "c3a2142fe3c48a3e187211b756eba582f77ce9b0543983799fa1b15df9960b11",
+        "test": "a3cc192ec9e8d22de3a87244fa7042f645e9d45aa3f3af26f746f9325b23c88f"
+      },
+      "runtime_result_sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1",
+      "xml_sha256": "4b8dce686b21a9a570a47084efb1d166589845b24b905665f778422aab3f9c65",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "functional_failure_cases": []
+    }
+  }
+}

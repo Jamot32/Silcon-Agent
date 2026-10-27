@@ -1,0 +1,40 @@
+{
+  "scope": "hand-worked neutral reference/examples only; no RTL executed",
+  "scenarios": {
+    "wrong": {
+      "receipt_sha256": "79b832c753b017d9cca3e01a851cea4dc20b8a0508976d862c960607cd172ab6",
+      "status": "model_disagreement",
+      "returncode": 0,
+      "timed_out": false,
+      "observation_sha256": "ad4402848d837bbebabfa5ac6b75dbf6dc04d81c2f447fc1a8f4096eb1d8ea2e"
+    },
+    "good": {
+      "receipt_sha256": "c658ee70596a634f5e83164ee727b26496ef12f52aea1ce196b544001289a6bc",
+      "status": "passed",
+      "returncode": 0,
+      "timed_out": false,
+      "observation_sha256": "261ee31af25bd119bbe9095e2716e942262af8a22a6a0405c1238497605947f5"
+    },
+    "invalid": {
+      "receipt_sha256": "04a35075f6d27fba23073224c54e06999008b55a3603a8ea0ba207e90866f7bb",
+      "status": "invalid_output",
+      "returncode": 0,
+      "timed_out": false,
+      "observation_sha256": "db889c59dd6ed34ee6347d600b9c33d10a63da631f33b4bfae3b807ff363eb44"
+    },
+    "exception": {
+      "receipt_sha256": "8700ca7b4763600661c5cf9827e954a939cff0579a4b466daa432ea1ffccdf8a",
+      "status": "model_error",
+      "returncode": 0,
+      "timed_out": false,
+      "observation_sha256": "c9b283acec48434f0ca82284bf48b3acd2133c9f8b849db13f82d5f1d98ccd8b"
+    }
+  },
+  "sources_sha256": {
+    "reference_executor.py": "27c89154903ecbff811c1e4931230b40566001e456477b4b0842deae9f53dac8",
+    "reference_executor_container.py": "cbd0c4b09bb9dca74c39c92036db64d397c559e8cf94032b119d9590f3a1ed5b",
+    "run_reference.py": "65ce7b029dc46c4734d2b6170036377a032998a4223afdae8271aa8d9878579d",
+    "executor_controls.py": "5e0fcda6253117a70d6f1ce397f298022daa8ef293db554c0313226c6af1d73a",
+    "test_executor.py": "3c07eca5025e283da90acfd936debb5e38d4512bd49da915408837847dac5ed4"
+  }
+}
