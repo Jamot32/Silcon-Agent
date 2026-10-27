@@ -1147,3 +1147,24 @@ No clean DEV3× exists for the frozen `96c5c675…` source. Four attempts were c
 - `20261027T174111Z_d5f7c95a`: stopped after 73 s for this amendment.
 
 Gate activation in those partial records, not their grades, motivates one change. After the smoke I had added the structured `unresolved` option to the authors' shared instructions. The model author then abstained in 8/15 and 8/20 attempted hardware trials of the first and third cohorts, including cases the smoke had prepared and passed. Activation fell to about half, below the predeclared ≥2/3 eligibility bar. RF1b keeps the structured abstention for the example author only; the model author's instructions return to the smoke's wording. Offline: 1,405 passed + 92 subtests. New frozen fingerprint `43f72267c52e9d0d13e4bce38dc527453b478b34bbc4b7b8ff03202e5f51b7d9`. The plan, caps, boundary and decision rules are unchanged, now applied to RF1b. A provider watchdog interrupts a cohort after two trials end with a Codex transport failure signature, so an outage cannot silently consume it; it never edits or retries trials.
+
+### Result — RF1b not promoted; strict DEV3× blocked by host transport outages
+
+Change → RF1b as amended above. Before → R15 DEV **87/90**. After → **no complete cohort**. Both RF1b DEV3× attempts were interrupted by the provider watchdog during host-side Codex transport outages: `20261027T174344Z_c046e685` (68/90 recorded, 50 successful, 16 transport failures) and `20261027T194111Z_f6d155f7` (28/90, 22 successful, 5 transport failures). Transport windows began near 16:23, 17:25, 18:11, 18:43 and 20:05 UTC. The host log shows connections routed through tunnel interface `utun12` and a TCP problem ratio of 0.50 against a 0.20 baseline at one onset. A neutral guarded smoke passed between windows. Ordinary seal and strict comparison require complete cohorts, so neither ran. Decision → **not promoted**; RF1b stays archived and unapplied.
+
+The decision rests on recorded partial evidence, not a strict comparison ([aggregate](../research/reference_first/rf1b-partial-evidence.json), no per-case rows):
+
+| Measure | RF1b clean trials | R15 |
+| --- | --- | --- |
+| Clean trials (transport failures excluded) | 75: 72 successful; 3 are the I2C stop | same pairs: 72 successful |
+| Paired regressions / improvements | 0 / 0 | — |
+| App-DONE hidden pass | 58/58 | 69/69 (full cohort) |
+| Gate prepared / reached REFERENCE | 33/58 (57%); 25 example-author abstentions | — |
+| Hardware cases always prepared / always abstained / mixed | 14 / 9 / 0 (I2C never reaches it) | — |
+| Reference-module failures on DUT | 0 | — |
+| Median calls / tokens, hardware | 8 / 101,636 | 6 / 75,867 |
+| Tier-2 successful median | 295 s | 243 s (all Tier 2) |
+
+Because activation is deterministic per case, a clean full cohort would prepare about 42/72 hardware trials (58%), below the predeclared ≥2/3 eligibility bar. Rule 2 therefore fails independently of another run, and rule 1 cannot be met on DEV because the remaining failures are SPEC stops. A model-free mutation check replayed the first RF1b cohort's 23 successful prepared designs in the pinned simulator: 168 valid single-point mutants, of which the model-authored VERIFY tests killed 159, the reference module 143, and either 159. **The reference module killed no mutant that the VERIFY tests missed.** All 16 VERIFY-only kills came from two timing-heavy designs whose directed literals cover only early cycles. The gate never rejected RTL that the VERIFY tests accepted.
+
+Earlier RF1 cohorts — one stopped through the Docker Desktop UI, two hit by transport outages, one stopped for the amendment — are retained in the clone and listed in the archived [INTEGRATION.md](../research/reference_first/INTEGRATION.md). None is used for a decision. Patch: `research/reference_first/candidate.patch` (RF1b, applies cleanly to `8296472`). USD unknown under OAuth; failure-message clarity unreviewed. Next: before re-measuring, let the reference contract mark outputs the specification leaves open as unchecked, derived from the model's own validity outputs, so the nine abstaining cases can participate. Then add long host-generated stimulus compared against the model each cycle, so the model adds coverage beyond its literals. Measure each change separately on DEV; any later generalization claim still needs a fresh held-out set.

@@ -143,3 +143,7 @@ Next — develop a separate implementation-blind reference-model-first candidate
 RF1 reference-first admission: Codex's isolated pieces wired after SPEC as an additive host-owned gate; withheld budget findings fixed; T1+T2 smoke 18/18 (gate prepared 13/18, 0 reference failures, 5 author abstentions).
 Checks — candidate backend 1,405+92 subtests, eval/scripts 355+15; first smoke interrupted on a found prompt/validator mismatch and retained; DEV3× not yet measured; production unchanged on R15.
 Next — run the frozen `96c5c675…` candidate on full DEV3× and decide against the predeclared promotion and requirement-coverage rules.
+
+RF1b reference-first — NOT PROMOTED: no complete DEV3× (5 host Codex transport outages; retained cohorts watchdog-interrupted); 75 clean trials match R15 pairs exactly (72 successful, 0 regressions), app-DONE hidden 58/58.
+Checks — gate prepared 33/58 (14 cases always, 9 always abstain → ~58% < predeclared 2/3); 0 reference failures; mutants 168: VERIFY 159, reference 143, reference-only 0; +2 calls, +34% tokens, Tier-2 295 s.
+Next — admit spec-open outputs as unchecked (validity-derived) and model-driven long stimulus, measure each on DEV; production stays on R15.

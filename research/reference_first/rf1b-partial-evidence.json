@@ -1,0 +1,77 @@
+{
+  "app_done_hidden": {
+    "not_pass": 0,
+    "pass": 58
+  },
+  "attempts": [
+    {
+      "cohort": "20261027T174344Z_c046e685",
+      "missing": 22,
+      "planned": 90,
+      "recorded": 68,
+      "successful": 50,
+      "summary_sha256": "7a52697b223eee0ba31d46ec4d1c34bf5c9fb45ae6e2301e5e43f28ec00facbb",
+      "transport_failures": 16
+    },
+    {
+      "cohort": "20261027T194111Z_f6d155f7",
+      "missing": 62,
+      "planned": 90,
+      "recorded": 28,
+      "successful": 22,
+      "summary_sha256": "800e731698290c0f2a8d5b69f1d6e4dfc351ea93bed4c331ba0a17e9e43c566f",
+      "transport_failures": 5
+    }
+  ],
+  "baseline_summary_sha256": "6a373bf622c304018c3c5e506ad7d09f797687ef69f41af4b8370d585ac8f207",
+  "clean_non_successes_also_failed_in_baseline": true,
+  "clean_paired_improvements": 0,
+  "clean_paired_regressions": 0,
+  "clean_successful": 72,
+  "clean_trials": 75,
+  "cost": {
+    "max_calls": 14,
+    "max_tokens": 204747,
+    "median_calls_hardware": {
+      "baseline_all": 6.0,
+      "candidate": 8
+    },
+    "median_tokens_hardware": {
+      "baseline_all": 75866.5,
+      "candidate": 101636
+    },
+    "usd": null
+  },
+  "gate": {
+    "cases_always_fallback": 9,
+    "cases_always_prepared": 14,
+    "cases_mixed": 0,
+    "clean_hardware_trials": 61,
+    "fallbacks": {
+      "examples:author_abstained": 25
+    },
+    "hardware_cases_never_reaching_reference": 1,
+    "prepared": 33,
+    "reached_reference": 58,
+    "reference_failures": 0
+  },
+  "kind": "rf1b_partial_dev_evidence",
+  "mutation_sensitivity": {
+    "designs_analyzed": 23,
+    "killed_by_either": 159,
+    "killed_by_model_tests": 159,
+    "killed_by_reference": 143,
+    "model_only_kills": 16,
+    "reference_only_kills": 0,
+    "skipped": {
+      "no_reference_module": 17
+    },
+    "valid_mutants": 168
+  },
+  "schema_version": 1,
+  "strict_comparison": false,
+  "timing": {
+    "baseline_tier2_median_seconds": 242.6689921875368,
+    "tier2_successful_median_seconds": 294.9502919589868
+  }
+}

@@ -140,6 +140,67 @@ instructions return to the smoke's wording. Fingerprint
 SIGINT once two trials end with a Codex transport failure signature, so an outage
 cannot silently consume the cohort. It never edits or retries trials.
 
+### RF1b attempts
+
+- `rf1b-dev3x-001` (cohort `20261027T174344Z_c046e685`): **third transport window,
+  watchdog-interrupted and retained.** One isolated Codex `unknown_fatal` killed a
+  Tier-3 trial in RTL at 18:14 UTC (host TUI log: timeouts 18:11–18:15). At 18:43 a
+  burst followed: 15 more first-call or RTL-call transport failures within 20 s, then
+  the watchdog sent SIGINT at 18:43:40. 68/90 recorded, 50 successful, 22 missing.
+  The host log shows TCP via tunnel interface `utun12`, `symptomsd` reporting a TCP
+  problem ratio of 0.50 against a 0.20 baseline at onset, and Codex
+  `Connection failed: error sending request` until about 19:21 UTC. The wrapper's
+  networked `uv run` source post-check also failed (`CalledProcessError`). Excluding
+  the 16 transport failures, all 52 trials matched R15 grades (50 successes, the two
+  known I2C stops); 0 paired regressions in those pairs. Gate: 42 hardware trials
+  reached REFERENCE, 25 prepared (60%), 17 example-author abstentions, 0 model
+  abstentions; 0 reference-module failures. A neutral smoke passed at 19:40 UTC.
+- `rf1b-dev3x-002` (cohort `20261027T194111Z_f6d155f7`): **fourth transport window,
+  watchdog-interrupted and retained.** Trials started 19:41 UTC; from 20:07 to 20:10
+  five trials failed at their first call (`unknown_fatal`) while the host TUI log
+  again showed timeouts (20:05–20:16). SIGINT after 1,540 s: 28/90 recorded, 22
+  successful, 62 missing; the only other failure is the known I2C stop. Transport
+  windows today began near 16:23, 17:25, 18:11, 18:43 and 20:05 UTC, so no clean
+  ~75-minute window has occurred.
+
+## Decision — RF1b not promoted (partial DEV evidence; no strict cohort)
+
+No complete cohort exists, so ordinary seal and strict comparison could not run.
+[`rf1b-partial-evidence.json`](rf1b-partial-evidence.json) aggregates both RF1b
+cohorts without per-case rows; the 21 transport-failure trials are excluded and
+counted separately:
+
+- 75 clean trials, 72 successful. The other three are the I2C clarification stop,
+  which R15 also failed. Paired against R15: 0 regressions, 0 improvements. All 58
+  app-DONE designs passed hidden tests.
+- Gate activation is deterministic per case: of the 23 hardware cases that reached
+  REFERENCE, 14 prepared on every repeat and 9 example-author abstentions recurred
+  on every repeat (0 mixed); the I2C case stops in SPEC. A full cohort would prepare
+  about 42/72 hardware trials (58%). That is below the predeclared ≥2/3 eligibility
+  bar, so rule 2 fails regardless of a clean rerun.
+- 0 reference-module failures in 33 prepared clean trials: the gate never rejected
+  RTL that the VERIFY tests accepted.
+- Model-free mutation sensitivity (`mutation_sensitivity.py`, first RF1b cohort; 23
+  successful prepared designs, 168 valid single-point mutants; 2 invalid excluded):
+  model-authored VERIFY tests killed 159, the reference module 143, and either 159.
+  **Reference-only kills: 0**; model-only kills: 16, all in two timing-heavy designs
+  (three trials) whose directed literals cover only early cycles.
+- Cost: hardware median calls 8 vs 6 and tokens 101,636 vs 75,867, both over the
+  whole R15 cohort; Tier-2 successful median 295 s vs R15's 243 s. USD is unknown.
+
+Rule 1 (DEV end-to-end gain) cannot be met: the three DEV failures are SPEC stops.
+Rule 2 fails on activation, and the gate added no measured sensitivity. Under
+rule 3, RF1b is archived unapplied with this patch and evidence; production stays
+on R15. A clean confirmation DEV3× can be run later with the documented wrapper.
+Under these rules it can only confirm the decision.
+
+Next engineering direction from this evidence: (a) let the reference contract mark
+outputs the specification leaves open (e.g. payload while invalid, ready during
+reset) as unchecked, derived from the model's own validity outputs, so the nine
+abstaining cases can participate; (b) drive long host-generated stimulus through
+the model and the DUT each cycle (the brief's random + directed comparison) so the
+model adds coverage beyond its literals. Measure each separately on DEV.
+
 ## Limits
 
 Same-model authors can share errors; agreement with literals is not
