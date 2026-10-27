@@ -1136,3 +1136,14 @@ Predeclared decisions:
 3. Otherwise RF1 is archived as rejected, with its patch and measured failure classes.
 
 The report will cover all 90 grades and paired outcomes, tiers, gate activation (prepared/fallback by phase:code), reference failures later recovered by RTL repair, extra calls/tokens and successful-run latency. USD stays unknown under OAuth.
+
+### Amendment before any clean measurement — RF1b
+
+No clean DEV3× exists for the frozen `96c5c675…` source. Four attempts were compromised or stopped; all are retained in the clone and are not used for a decision.
+
+- `20261027T155318Z_72f13986`: the Docker Desktop UI sent `POST /containers/<id>/stop` (VM apiproxy log, user agent `DockerDesktopUI`) to the three physical flows running at 15:55:12–13 UTC. Each flow exited 143 mid-signoff. The cohort was interrupted at the user's direction: 19 recorded, 16 successful, 71 missing.
+- `20261027T161543Z_40d78c5a`: a Codex transport outage from 16:23 to 16:40 UTC. The host Codex TUI log shows request timeouts and connection failures over the same window. 74 trials failed at their first call; 15/90 successful.
+- `20261027T170325Z_bd2155ad`: a second transport window, 17:25–17:38 UTC, caused 14 first-call failures. Interrupted after 41 recorded, 26 successful.
+- `20261027T174111Z_d5f7c95a`: stopped after 73 s for this amendment.
+
+Gate activation in those partial records, not their grades, motivates one change. After the smoke I had added the structured `unresolved` option to the authors' shared instructions. The model author then abstained in 8/15 and 8/20 attempted hardware trials of the first and third cohorts, including cases the smoke had prepared and passed. Activation fell to about half, below the predeclared ≥2/3 eligibility bar. RF1b keeps the structured abstention for the example author only; the model author's instructions return to the smoke's wording. Offline: 1,405 passed + 92 subtests. New frozen fingerprint `43f72267c52e9d0d13e4bce38dc527453b478b34bbc4b7b8ff03202e5f51b7d9`. The plan, caps, boundary and decision rules are unchanged, now applied to RF1b. A provider watchdog interrupts a cohort after two trials end with a Codex transport failure signature, so an outage cannot silently consume it; it never edits or retries trials.
