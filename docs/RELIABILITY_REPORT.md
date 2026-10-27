@@ -54,6 +54,20 @@ Returned usage totals 4,316,849 input and 231,130 output tokens; 2,038,656 cache
 
 Message presence does not establish explanation quality. No private terminal prose or hidden reasons were admitted into engineering review. Static public templates can state a cause and action, but generally omit actual repair attempts. Therefore neither the full Tier 3 explanation condition nor the zero-unclear-failures target is claimed.
 
+## Post-publication provider diagnosis (added 2026-10-27)
+
+This section was added after the closure evidence bound the earlier report revision (`b20fac89…`). It changes no grade, denominator or target assessment, and the held-out set stays retired from tuning. A read-only profile of the sealed records counted recorded provider-attempt outcomes, durations and timestamps and each run's own failure class; it opened no request, prompt, RTL, hidden diagnostic or terminal prose.
+
+**18 of the 28 failures ended in a provider exception** (`llm_api_error`). In 17, the request timed out at the 120-second attempt limit three times in a row; one ended `unknown_fatal`. Seventeen of the 18 fell in the third repeat:
+
+| Repeat | Successful | Ended by provider exception | Cohort minutes |
+| --- | ---: | ---: | --- |
+| 1 | 26/30 | 0 | 0–23 |
+| 2 | 25/30 | 1 | 24–49 |
+| 3 | 11/30 | 17 | 49–105 |
+
+All 78 timeouts occurred after minute 49. Before then, 302 attempts had none, with per-10-minute completed medians of 10–16 seconds; afterwards medians rose to as much as 114 seconds. The 18 provider-ended trials span 17 cases, which succeeded in 29 of their 33 other repeats. Fifteen of the 18 hardware trials that never passed RTL/lint were provider-ended. The ten failures without a provider exception were three Tier 4 scope decisions, three Tier 3 stops, two Tier 2 synthesis failures and the two hidden-test failures. The slowdown's cause is unknown, and the per-repeat split above is a post-hoc view, not a grade. Method and aggregates: [provider diagnosis](../research/provider_timeouts/README.md).
+
 ## Source, artifacts and QA
 
 The 73 named runtime files match fingerprint `9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1` in main working files, committed main, the evaluated copy and its archived snapshot at the recorded checks. The unchanged original summary SHA is `e4b3588de25eb45765b867fb41f90fe2b9c2e333a222f3b7c142e77c3ab74bbf`; seal SHA is `eaa1c1b971ff0f3cdbf2afd321e7cc6feef1a39c9ff525c3b1813f78d9123e53`. Custody checks cover all 50 DONE deliveries, including both hidden failures. These are named source/artifact points, not continuous, loaded-model or whole-filesystem isolation proof.
