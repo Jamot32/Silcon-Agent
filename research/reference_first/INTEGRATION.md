@@ -201,6 +201,45 @@ abstaining cases can participate; (b) drive long host-generated stimulus through
 the model and the DUT each cycle (the brief's random + directed comparison) so the
 model adds coverage beyond its literals. Measure each separately on DEV.
 
+## Follow-up probe — long model-driven stimulus (RF2), not built
+
+Before spending DEV quota on direction (b), [`random_stimulus_probe.py`](random_stimulus_probe.py)
+tested it offline with zero model calls. It reuses each delivered design's own
+prechecked reference model from the first RF1b cohort and drives 3 seeds × 400
+cycles of biased random input (reset on cycle 0, then 1% per cycle), comparing
+every output with the model after every rising edge. The designs and mutants are
+the same as in the mutation check above. Criteria, written before any result was
+read: at most 1 false alarm on the 23 delivered designs (all passed hidden tests),
+and at least 2 kills that every VERIFY test missed. The first execution was
+aborted by the tool host mid-run without a report; it was rerun from scratch.
+
+| Gate | Kills of 164 valid mutants |
+| --- | ---: |
+| Model-authored VERIFY tests | 155 |
+| Directed reference literals | 139 |
+| Random model-driven stimulus | 150 |
+| Random stimulus, VERIFY missed | 0 |
+
+- 2 false alarms: both repeats of one case whose specification leaves startup
+  history open and the reset unused. The output is unknown after the first edge;
+  the model itself documents its first output as not guaranteed. As a required
+  gate this would push repairs against hidden-correct RTL.
+- 5 VERIFY-only kills, all in one deep-counter design that the random stimulus
+  (frequent resets) never drives to its rollovers.
+- The 9 mutants that survive every gate all look equivalent on inspection:
+  comparison bounds the counters never reach, unused state-encoding relabels, an
+  unreachable case default and a lint-only sink. Not formally proven.
+
+Both criteria fail, so RF2 is not built. Direction (a) would only widen the
+participation of a gate that added no measured sensitivity where it already runs.
+The ceiling is also low: on DEV every delivered design already passes hidden tests
+(R15 69/69, RF1b 58/58); on held-out, delivered hidden correctness was 48/50 while
+18 of 72 hardware trials never passed RTL/lint and 78 request attempts timed out.
+The reference-first track is closed on current evidence; the next measured work
+should target pre-RTL/lint losses and provider request failures. Wall 153.76 s
+on image `sha256:9b62eb4f…3cc8`. The per-design report stays private in the clone
+(SHA-256 `84a95f5b…52e7`); the aggregate is [`rf2-random-probe.json`](rf2-random-probe.json).
+
 ## Limits
 
 Same-model authors can share errors; agreement with literals is not
@@ -224,6 +263,11 @@ python3 runs/run_reference_eval.py <label> <tiers> <repeats> <fingerprint>
 python3 runs/provider_watchdog.py <label> 2
 python3 runs/finalize_reference_eval.py <label> <cohort> <baseline-cohort>
 python3 research/reference_first/cohort_report.py eval/results/<cohort> [baseline-summary.json]
+PYTHONPATH=backend uv run --offline --python 3.12.13 --with-requirements backend/requirements.txt \
+  python -B research/reference_first/mutation_sensitivity.py eval/results/<cohort> <scratch-dir>
+PYTHONPATH=backend:research/reference_first uv run --offline --python 3.12.13 \
+  --with-requirements backend/requirements.txt python -B research/reference_first/random_stimulus_probe.py \
+  eval/results/<cohort> <scratch-dir>/report.json <new-scratch-dir>
 ```
 
 `smoke-t12-002-aggregate.json` keeps the qualification smoke aggregate only (no

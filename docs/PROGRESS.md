@@ -147,3 +147,7 @@ Next — run the frozen `96c5c675…` candidate on full DEV3× and decide agains
 RF1b reference-first — NOT PROMOTED: no complete DEV3× (5 host Codex transport outages; retained cohorts watchdog-interrupted); 75 clean trials match R15 pairs exactly (72 successful, 0 regressions), app-DONE hidden 58/58.
 Checks — gate prepared 33/58 (14 cases always, 9 always abstain → ~58% < predeclared 2/3); 0 reference failures; mutants 168: VERIFY 159, reference 143, reference-only 0; +2 calls, +34% tokens, Tier-2 295 s.
 Next — admit spec-open outputs as unchecked (validity-derived) and model-driven long stimulus, measure each on DEV; production stays on R15.
+
+RF2 long model-driven stimulus — NOT BUILT: offline probe (0 model calls) on 23 delivered RF1b designs killed 150/164 mutants vs VERIFY 155, and 0 that VERIFY missed; 2 false alarms on hidden-correct RTL (spec-open startup).
+Checks — predeclared criteria (≤1 false alarm, ≥2 added kills) both fail; the 9 mutants surviving every gate look equivalent on inspection; production unchanged on R15.
+Next — reference-first closed on current evidence; target pre-RTL/lint losses (held-out 18/72) and provider request failures, measured on DEV then a fresh held-out set.

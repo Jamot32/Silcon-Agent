@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "kind": "offline_probe_aggregate_no_case_rows",
+  "question": "Does long model-driven stimulus (each run's own prechecked reference model compared with the DUT every cycle) add verification sensitivity beyond the model-authored VERIFY tests?",
+  "probe": "research/reference_first/random_stimulus_probe.py",
+  "probe_sha256": "caf55a44cbcedb415241303286014ab9e9833bdf30fe8d1f51964661b8356167",
+  "private_report_sha256": "84a95f5b8353bb4e77e9cfc763fae60b74c980c92c83daf32be2d290189d52e7",
+  "source_cohort": "20261027T174344Z_c046e685",
+  "population": "the 23 analyzed delivered RF1b designs and the same deterministic single-point mutants as the RF1b mutation check (170 mutants before exclusions)",
+  "simulator_image": "sha256:9b62eb4f8e873591f6925c3aaf1f7cf459e848e867809a9068d48d49025f3cc8",
+  "stimulus": {
+    "seeds": [11, 23, 37],
+    "cycles_per_seed": 400,
+    "reset": "asserted on cycle 0, then with probability 0.01 per cycle",
+    "inputs": "each non-clock input keeps its value or takes a new uniform value: change probability 0.3 for 1-bit, 0.5 for wider"
+  },
+  "model_calls": 0,
+  "wall_seconds": 153.76,
+  "criteria_declared_before_results": {
+    "false_alarms_on_delivered_rtl_max": 1,
+    "random_only_kills_vs_verify_min": 2
+  },
+  "aggregate": {
+    "designs": 23,
+    "false_alarms_on_delivered_rtl": 2,
+    "valid_mutants_scored": 164,
+    "verify_kills": 155,
+    "directed_reference_kills": 139,
+    "random_stimulus_kills": 150,
+    "random_only_vs_verify": 0,
+    "verify_only_vs_random": 5,
+    "survived_every_gate": 9
+  },
+  "false_alarm_classification": "both repeats of one case; output unresolved on cycle 0 because the specification leaves startup history open and the reset input unused; the model itself documents its first output as not guaranteed. Spec-open behavior, not an RTL defect: as a required gate it would push repairs against hidden-correct RTL.",
+  "notes": [
+    "Mutants of the two false-alarm designs are excluded from the kill counts, as are invalid mutant runs.",
+    "All 5 VERIFY-only kills come from one timing-heavy design that the biased random stimulus did not drive deep enough.",
+    "The 9 mutants that survive every gate all look equivalent on inspection: comparison bounds the counters never reach, unused state-encoding relabels, an unreachable case default and a lint-only sink. This is inspection, not a formal proof; it means the VERIFY tests killed every apparently non-equivalent mutant in this population."
+  ],
+  "decision": "RF2 not built: both predeclared criteria fail (2 false alarms > 1; 0 random-only kills < 2)."
+}
