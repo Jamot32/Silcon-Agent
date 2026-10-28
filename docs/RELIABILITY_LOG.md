@@ -1282,3 +1282,33 @@ Run identity:
 The G2 incident rule applies. The watchdog also matches local Codex setup failures, and the first complete cohort is the measurement.
 
 Reporting covers the outcome per design family, the terminal stage and binding limit of each failed trial, delivered size from flow metrics, and hidden correctness of every delivery. Because S1 exists to diagnose, its private records may be inspected after the run. Any later claim that complex designs improved needs new complex cases.
+
+## Complexity stress probe S1 — 9/12; five of six families delivered, every delivery hidden-correct
+
+Change → none. Before → the largest hidden-correct delivery had 1,444 cells. After → 9/12 trials succeeded and all 9 deliveries passed the hidden tests. The largest delivered layout had 6,736 cells (54,119 µm²), about 4.7× the previous maximum. Decision → no promotion question; record the two failure kinds below for diagnosis.
+
+Cohort `20261028T214938Z_8eeef491` exited 0 after 2,518 s with runtime `9df2ce91…` unchanged. Seal and verify passed: 12 records and 9 selected success sources, summary `378f2d4d…`. The watchdog never fired. All 85 completed provider attempts finished without a timeout (max 58.3 s), and one attempt was refused by the token budget.
+
+| Design family | Successful | Delivered cells (µm²) | Trial time |
+| --- | ---: | --- | --- |
+| 8-bit CPU, 33 instruction forms | 2/2 | 1,123–1,178 (9.6k–10.0k) | 522–572 s |
+| 16×16 MAC, 40-bit accumulator | 2/2 | 6,258–6,736 (51k–54k) | 813–872 s |
+| SECDED (72,64), 468 I/O bits | 2/2 | 3,156–3,255 (29.7k–30.4k) | 775–777 s |
+| 4-floor elevator controller | 2/2 | 566–656 (5.0k–5.6k) | 571–836 s |
+| UART with FIFOs and register bus | 1/2 | 1,404 (13.7k) | 430 s; failure at 248 s |
+| 8-tap programmable FIR | 0/2 | none delivered | 900 s deadline |
+
+Failures:
+
+- **FIR, both repeats.** The RTL passed the agent's own tests and, graded after the run, the hidden tests (4/4). The initial physical flow took 8–10 minutes and produced a DRC/LVS-clean layout of about 12,000 cells and 99,000 µm² that met 25 MHz. The optimization stage, which always runs, then started further flows, and the evaluator's 900 s trial deadline stopped the run before packaging. Nothing was delivered. The live app has no wall-clock deadline. This layout is also close to the flow's 500 µm die limit.
+- **UART, repeat 2.** One of the agent's own tests, for an RX error and overrun sequence, contradicted the specification. The agent's own hypothesis noted that the spec permits immediate start re-detection after a bad stop bit. The RTL passed the hidden tests 4/4. The repair loop reran tests and changed RTL five times without amending the test, then stopped at the 300,000-token budget.
+
+Successful trials took a median of 775 s (max 872 s), so the 900 s deadline is nearly binding for designs above about 3,000 cells when 4 jobs run concurrently. Usage: 86 calls, 1,245,028 input and 96,792 output tokens.
+
+Limits:
+
+- The references were authored by the evaluator's engineering assistant.
+- Each design ran only 2 repeats.
+- Trial times include contention from 4 concurrent jobs.
+
+Public aggregate: [aggregate.json](../eval/reports/complex-stress-20261028/aggregate.json). Attempt profile: [s1-attempt-profile.json](../research/complex_stress/s1-attempt-profile.json).

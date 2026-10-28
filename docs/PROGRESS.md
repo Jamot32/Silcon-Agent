@@ -159,3 +159,7 @@ Next — run future cohorts under a live provider watchdog and report provider-e
 Fresh held-out G2: 30 new cases (8/10/6/6) on the pinned upstreams, admitted 24/24 with independent spec-only solutions 24/24; the unchanged R15 runtime scored 81/90 (27/30 each repeat): T1 24/24, T2 27/30, T3 15/18, T4 15/18, hidden 66/66.
 Checks — cohort `20261027T215343Z_e42ab570` sealed and verified; the watchdog never fired (458 attempts, 0 timeouts, max 41.3 s); the 9 failures are 3 cases × 3 repeats (T2 synthesis, T3 clarification stop, T4 decline instead of clarify).
 Next — Tier 4 still misses 100%; work on recurring T4 scope, T3 stop and T2 synthesis failures on DEV; G2 retired, so another generalization claim needs a new held-out set.
+
+Complexity stress probe S1: six large or intricate requests (8-bit CPU, 16×16 MAC, 8-tap FIR, SECDED 72/64, UART with FIFOs, elevator), 2 repeats each, on the unchanged R15 runtime: 9/12, every delivery hidden-correct (9/9), largest delivered layout 6,736 cells (4.7× the previous maximum).
+Checks — cohort `20261028T214938Z_8eeef491` sealed and verified; references admitted 6/6 and independent spec-only solutions 12/12; 0 provider failures; FIR 0/2 hit the 900 s evaluator deadline in OPTIMIZE after a clean 12k-cell layout; UART 1/2 hit the token budget repairing correct RTL against its own wrong test.
+Next — rerun S1 with a 3,600 s deadline to confirm the FIR diagnosis, then measure a time-aware optimization stage and a self-test correction path on DEV.
