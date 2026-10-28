@@ -2,14 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createReplay, createRun, getJson, type Check, type Health, type Preset, type Recording } from "@/lib/api";
-
-import { RecordedRuns } from "@/components/recorded-runs";
+import { ArrowUp, CircleAlert } from "lucide-react";
+import { createRun, getJson, type Check, type Health } from "@/lib/api";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupTextarea } from "@/components/ui/input-group";
+import { Label } from "@/components/ui/label";
+import { Logo } from "@/components/logo";
+import { ModelSettings } from "@/components/model-settings";
+import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 
 const initialSpec = "An 8-bit up/down counter with enable, synchronous load, and active-low reset.";
-const shortNames: Record<string, string> = {
-  counter: "Counter", pwm: "PWM", uart_tx: "UART TX", uart: "UART TX", alu: "4-bit ALU", traffic_light: "Traffic light",
-};
 
 function checkLabel(check: Check | undefined, fallback: string) {
   if (!check) return fallback;
@@ -24,45 +29,26 @@ export function NewDesign() {
   const router = useRouter();
   const [selectedPreset, setSelectedPreset] = useState<string | undefined>("counter");
   const [building, setBuilding] = useState(false);
-  const [pendingReplay, setPendingReplay] = useState<string | null>(null);
-  const [replayError, setReplayError] = useState("");
   const [buildError, setBuildError] = useState("");
   const [spec, setSpec] = useState(initialSpec);
   const [clock, setClock] = useState("50");
   const [fit, setFit] = useState(false);
   const [health, setHealth] = useState<Health>();
   const [apiState, setApiState] = useState("Checking");
-  const [presets, setPresets] = useState<Preset[]>([]);
-  const [presetsError, setPresetsError] = useState(false);
-  const [recordings, setRecordings] = useState<Recording[] | null>(null);
-  const [recordingsError, setRecordingsError] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
-    async function load() {
-      const results = await Promise.allSettled([
-        getJson<Health>("/api/health", controller.signal),
-        getJson<Preset[]>("/api/presets", controller.signal),
-        getJson<Recording[]>("/api/recordings", controller.signal),
-      ]);
-      if (controller.signal.aborted) return;
-      const [healthResult, presetsResult, recordingsResult] = results;
-      if (healthResult.status === "fulfilled") {
-        setHealth(healthResult.value);
-        setApiState("Ready");
-      } else setApiState("Unavailable");
-      if (presetsResult.status === "fulfilled") setPresets(presetsResult.value);
-      else setPresetsError(true);
-      if (recordingsResult.status === "fulfilled") setRecordings(recordingsResult.value);
-      else setRecordingsError(true);
-    }
-    void load();
+    getJson<Health>("/api/health", controller.signal).then((value) => { setHealth(value); setApiState("Ready"); }, () => { if (!controller.signal.aborted) setApiState("Unavailable"); });
     return () => controller.abort();
   }, []);
 
   async function build(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (building || pendingReplay) return;
+    if (building) return;
+    if (!valid) {
+      setBuildError(spec.trim().length < 10 ? "Describe the chip in at least 10 characters." : "Target clock must be between 1 and 1000 MHz.");
+      return;
+    }
     setBuilding(true);
     setBuildError("");
     try {
@@ -71,18 +57,6 @@ export function NewDesign() {
     } catch (reason) {
       setBuildError(reason instanceof Error ? reason.message : "The build could not be queued.");
       setBuilding(false);
-    }
-  }
-  async function replay(recordingId: string, speed: 1 | 4) {
-    if (building || pendingReplay) return;
-    setPendingReplay(`${recordingId}:${speed}`);
-    setReplayError("");
-    try {
-      const result = await createReplay({ recording_id: recordingId, speed });
-      router.push(`/runs/${result.run_id}`);
-    } catch (reason) {
-      setReplayError(reason instanceof Error ? reason.message : "The replay could not be queued.");
-      setPendingReplay(null);
     }
   }
   const valid = spec.trim().length >= 10 && Number(clock) >= 1 && Number(clock) <= 1000;
@@ -94,51 +68,44 @@ export function NewDesign() {
   ];
 
   return (
-    <>
-      <div className="design-grid">
-        <section className="panel design-panel" aria-labelledby="design-title">
-          <h2 id="design-title">Design specification</h2>
-          <form onSubmit={build}>
-            <label className="sr-only" htmlFor="design-spec">Describe your chip</label>
-            <textarea id="design-spec" value={spec} onChange={(event) => { setSpec(event.target.value); setSelectedPreset(undefined); }} spellCheck={false} />
-            <div className="preset-row" aria-label="Example chip specifications">
-              {presets.map((preset) => (
-                <button key={preset.id} type="button" className="preset-button" aria-pressed={selectedPreset === preset.id} onClick={() => { setSpec(preset.spec_text); setSelectedPreset(preset.id); }}>
-                  {shortNames[preset.id] ?? preset.name}
-                </button>
-              ))}
-              {presetsError ? <span className="muted small">Presets could not be loaded.</span> : null}
-            </div>
-            <div className="target-row">
-              <div className="clock-field">
-                <label htmlFor="target-clock">Target clock (MHz)</label>
-                <input id="target-clock" type="number" min="1" max="1000" value={clock} onChange={(event) => setClock(event.target.value)} />
-              </div>
-              <label className="checkbox-label">
-                <input type="checkbox" checked={fit} onChange={(event) => setFit(event.target.checked)} />
-                <span>Fit in one Tiny Tapeout tile</span>
-              </label>
-            </div>
-            <div className="build-row">
-              <button className="build-button" type="submit" disabled={building || pendingReplay !== null || !valid} aria-describedby="build-explanation">{building ? "Queuing your chip…" : "Build my chip"}</button>
-              <p id="build-explanation">The agent writes Verilog, verifies it, then builds a real sky130 layout.</p>
-            </div>
-            {buildError ? <p className="form-error" role="alert">{buildError}</p> : null}
-          </form>
-        </section>
-        <section className="panel toolchain-panel" aria-labelledby="toolchain-title">
-          <h2 id="toolchain-title">Toolchain</h2>
-          <dl className="checks" aria-live="polite">
-            {checks.map((check) => (
-              <div className="check-row" key={check.name}>
-                <dt>{check.name}</dt>
-                <dd title={check.detail} className={check.ready ? "check-value ready" : "check-value"}>{check.label}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
+    <div className="mx-auto flex min-h-[calc(100svh-6.5rem)] w-full max-w-3xl flex-col gap-6 pb-[10vh]">
+      <div className="flex flex-1 flex-col items-center justify-center gap-5">
+        <Logo className="size-28 text-neutral-400 opacity-40" strokeWidth={1.25} />
+        <h1 className="text-2xl font-medium tracking-tight text-muted-foreground">Describe a chip. Get a real layout.</h1>
       </div>
-      <RecordedRuns recordings={recordings} unavailable={recordingsError} pending={pendingReplay} disabled={building} error={replayError} onReplay={(id, speed) => { void replay(id, speed); }} />
-    </>
+      <form onSubmit={build} className="@container space-y-3" aria-labelledby="design-title">
+        <h2 id="design-title" className="sr-only">Design specification</h2>
+        {/* The stock group dims whenever a child is disabled; drive fade/glow from the prompt instead. */}
+        <InputGroup className={cn("rounded-2xl bg-card transition-[opacity,box-shadow,border-color] duration-300 has-disabled:bg-card dark:bg-card dark:has-disabled:bg-card", spec.trim() ? "border-ring/60 shadow-[0_0_32px_-6px_oklch(1_0_0/0.18)] has-disabled:opacity-100" : "opacity-60 shadow-none has-disabled:opacity-60 focus-within:opacity-100 focus-within:has-disabled:opacity-100")}>
+          <Label className="sr-only" htmlFor="design-spec">Describe your chip</Label>
+          <InputGroupTextarea id="design-spec" className="min-h-28 px-4 pt-4 text-base leading-relaxed" value={spec} onChange={(event) => { setSpec(event.target.value); setSelectedPreset(undefined); setBuildError(""); }} onKeyDown={(event) => { if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) event.currentTarget.form?.requestSubmit(); }} spellCheck={false} placeholder="An 8-bit counter with enable and synchronous reset…" />
+          <InputGroupAddon align="block-end" className="flex-wrap items-center gap-3 border-t px-3 pt-2.5">
+            <Label htmlFor="target-clock" className="gap-1.5 text-xs font-normal text-muted-foreground">Clock
+              <Input id="target-clock" type="number" min="1" max="1000" value={clock} onChange={(event) => setClock(event.target.value)} className="h-7 w-20 text-xs" aria-label="Target clock (MHz)" />MHz
+            </Label>
+            <div className="flex h-4 items-center gap-2 @md:border-l @md:pl-3" onClick={(event) => event.stopPropagation()}>
+              <Checkbox id="fit-tile" checked={fit} onCheckedChange={(checked) => setFit(checked === true)} />
+              <Label htmlFor="fit-tile" className="text-xs font-normal text-muted-foreground">Fit in one Tiny Tapeout tile</Label>
+            </div>
+            <ModelSettings />
+            {/* Collapses to an icon until there is a spec to build. */}
+            <InputGroupButton type="submit" variant="default" size={spec.trim() || building ? "sm" : "icon-sm"} className="rounded-full" aria-label="Build my chip" disabled={building || !spec.trim()}>{building ? <><Spinner data-icon="inline-start" />Queuing your chip…</> : spec.trim() ? <>Build my chip<ArrowUp data-icon="inline-end" /></> : <ArrowUp />}</InputGroupButton>
+          </InputGroupAddon>
+        </InputGroup>
+        {buildError ? <Alert variant="destructive"><CircleAlert /><AlertDescription>{buildError}</AlertDescription></Alert> : null}
+      </form>
+      <section aria-labelledby="toolchain-title" className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+        <h2 id="toolchain-title" className="text-xs font-medium text-muted-foreground">Toolchain</h2>
+        <dl className="flex flex-wrap items-center justify-center gap-2" aria-live="polite">
+          {checks.map((check) => (
+            <div className="check-row flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs" key={check.name} title={check.detail}>
+              <span className={check.ready ? "size-1.5 rounded-full bg-success" : "size-1.5 rounded-full bg-muted-foreground"} aria-hidden="true" />
+              <dt className="font-medium">{check.name}</dt>
+              <dd className="text-muted-foreground">{check.label}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    </div>
   );
 }

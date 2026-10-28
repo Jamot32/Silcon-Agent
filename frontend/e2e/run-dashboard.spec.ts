@@ -84,7 +84,7 @@ async function assertRepairEvidence(request: APIRequestContext, runId: string) {
   for (const [path, source] of independentTests) expect(files[path], `Final test ${path} must match its pre-failure source`).toBe(source);
 }
 
-test("new-design screen loads and presets change the specification without creating a job", async ({ page }) => {
+test("new-design screen loads without creating a job", async ({ page }) => {
   const pageErrors: string[] = [];
   page.on("pageerror", (error) => pageErrors.push(error.message));
   await page.goto("/");
@@ -92,10 +92,6 @@ test("new-design screen loads and presets change the specification without creat
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   const specification = page.getByRole("textbox", { name: /describe|specification/i });
   await expect(specification).toBeVisible();
-  await page.getByRole("button", { name: /^PWM$/i }).click();
-  await expect(specification).toHaveValue(/PWM/i);
-  await page.getByRole("button", { name: /^Counter$/i }).click();
-  await expect(specification).toHaveValue(/counter/i);
   expect(pageErrors).toEqual([]);
 });
 

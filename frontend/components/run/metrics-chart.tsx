@@ -9,20 +9,20 @@ export default function MetricsChart({ metrics, finished = false }: { metrics: M
   const slack = metrics.flatMap((metric) => metric.wns_ns == null ? [] : [metric.wns_ns]);
   const slackMin = Math.min(-1, ...slack);
   const slackMax = Math.max(1, ...slack);
-  return <div className="metrics-chart" data-testid="metrics-chart" data-point-count={metrics.length} role="img" aria-label={`Area and worst negative slack from ${metrics.length} real physical design runs`}>
+  return <div className="h-[150px] w-full min-w-0 shrink-0" data-testid="metrics-chart" data-point-count={metrics.length} role="img" aria-label={`Area and worst negative slack from ${metrics.length} real physical design runs`}>
     {metrics.length ? <ResponsiveContainer width="100%" height="100%" minWidth={0}>
       <ComposedChart data={metrics} margin={{ top: 24, right: 7, left: -12, bottom: 4 }} accessibilityLayer>
-        <CartesianGrid stroke="#2A3943" strokeDasharray="3 3" vertical={false} />
-        <XAxis dataKey="flow_index" tick={{ fill: "#A7B6C6", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "#53636F" }} tickFormatter={(value) => `Flow ${value}`} interval={0} />
-        <YAxis yAxisId="area" domain={[0, Math.ceil(areaMax * 1.2 / 100) * 100]} width={56} tick={{ fill: "#A7B6C6", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "#53636F" }} tickFormatter={(value: number) => number(value, 0)} />
-        <YAxis yAxisId="slack" orientation="right" domain={[slackMin, slackMax]} width={30} tick={{ fill: "#A7B6C6", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "#53636F" }} />
-        <Tooltip contentStyle={{ background: "#131E26", border: "1px solid #40515E", borderRadius: 4, fontSize: 12 }} labelFormatter={(value) => `Flow ${value}`} formatter={(value, name) => [typeof value === "number" ? number(value, 3) : String(value), name]} />
-        <ReferenceLine yAxisId="slack" y={0} stroke="#7E909F" strokeDasharray="4 3" />
-        <Area yAxisId="area" type="linear" dataKey="area_um2" name="Area (µm²)" stroke="var(--accent)" fill="var(--accent)" fillOpacity={0.1} strokeWidth={2} dot={{ r: 3.5, fill: "var(--accent)", strokeWidth: 0 }} isAnimationActive={false} connectNulls={false}>
-          <LabelList dataKey="area_um2" position="top" offset={8} fill="#A8EDE8" fontSize={11} formatter={(value) => typeof value === "number" ? number(value) : ""} />
+        <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
+        <XAxis dataKey="flow_index" tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "var(--border)" }} tickFormatter={(value) => `Flow ${value}`} interval={0} />
+        <YAxis yAxisId="area" domain={[0, Math.ceil(areaMax * 1.2 / 100) * 100]} width={56} tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "var(--border)" }} tickFormatter={(value: number) => number(value, 0)} />
+        <YAxis yAxisId="slack" orientation="right" domain={[slackMin, slackMax]} width={30} tick={{ fill: "var(--muted-foreground)", fontSize: 11 }} tickLine={false} axisLine={{ stroke: "var(--border)" }} />
+        <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }} labelFormatter={(value) => `Flow ${value}`} formatter={(value, name) => [typeof value === "number" ? number(value, 3) : String(value), name]} />
+        <ReferenceLine yAxisId="slack" y={0} stroke="var(--muted-foreground)" strokeDasharray="4 3" />
+        <Area yAxisId="area" type="linear" dataKey="area_um2" name="Area (µm²)" stroke="var(--chart-1)" fill="var(--chart-1)" fillOpacity={0.1} strokeWidth={2} dot={{ r: 3.5, fill: "var(--chart-1)", strokeWidth: 0 }} isAnimationActive={false} connectNulls={false}>
+          <LabelList dataKey="area_um2" position="top" offset={8} fill="var(--foreground)" fontSize={11} formatter={(value) => typeof value === "number" ? number(value) : ""} />
         </Area>
-        <Line yAxisId="slack" type="linear" dataKey="wns_ns" name="WNS (ns)" stroke="#C3CCD4" strokeWidth={2} dot={{ r: 3, fill: "#C3CCD4", strokeWidth: 0 }} isAnimationActive={false} connectNulls={false} />
+        <Line yAxisId="slack" type="linear" dataKey="wns_ns" name="WNS (ns)" stroke="var(--chart-2)" strokeWidth={2} dot={{ r: 3, fill: "var(--chart-2)", strokeWidth: 0 }} isAnimationActive={false} connectNulls={false} />
       </ComposedChart>
-    </ResponsiveContainer> : <p className="panel-empty">{finished ? "No physical metrics were recorded before this run ended." : "Physical metrics appear after the first flow completes."}</p>}
+    </ResponsiveContainer> : <p className="py-6 text-sm text-muted-foreground">{finished ? "No physical metrics were recorded before this run ended." : "Physical metrics appear after the first flow completes."}</p>}
   </div>;
 }

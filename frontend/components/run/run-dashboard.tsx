@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Download } from "lucide-react";
+import { ArrowRight, CircleAlert, Download, Square } from "lucide-react";
 import { bundleUrl } from "@/lib/api";
 import { useRun } from "@/lib/use-run";
 import { dashboardLayout } from "@/lib/run-state";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { ReplayBadge, StatusBadge } from "./badges";
+import { RunUnavailable } from "./loading-state";
 import { StageTimeline } from "./stage-timeline";
 import { AgentLog } from "./agent-log";
 import { SourcePanel } from "./source-panel";
@@ -28,7 +31,7 @@ export function RunDashboard({ id }: { id: string }) {
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
   }, [active]);
-  if (!run) return <div className="dashboard-loading" role="status"><h1>{loading ? "Opening the lab…" : "Run unavailable."}</h1><p>{error ?? "Loading the recorded state and event stream."}</p><Link href="/runs" className="text-link">Return to run history →</Link></div>;
+  if (!run) return <RunUnavailable title={loading ? "Opening the lab…" : "Run unavailable."} description={error ?? "Loading the recorded state and event stream."} />;
   const ended = events.findLast((event) => event.type === "run_finished")?.ts ?? now;
   const layout = dashboardLayout(run, latestLayout);
   const name = run.preset_id ? title(run.preset_id) : "Chip design";
@@ -39,18 +42,24 @@ export function RunDashboard({ id }: { id: string }) {
     try { await cancel(); } catch (reason) { setCancelError(reason instanceof Error ? reason.message : "Could not cancel this run."); }
     finally { setCancelling(false); }
   }
-  return <div className="run-dashboard" data-testid="run-dashboard" data-is-replay={run.is_replay}>
-    <div className="run-heading-row"><div className="run-identity"><h1>{name}{top ? <span> / {top}</span> : null}</h1>{run.is_replay ? <Badge variant="outline" className="replay-badge">{replayLabel(run)}</Badge> : null}</div>
-      <dl className="run-meta"><div><dt>Run</dt><dd title={run.id}>{run.id.slice(0, 8)}</dd></div><div><dt>{run.is_replay ? "Recorded provider" : run.llm_provider === "codex" ? "Plan" : "Model"}</dt><dd>{run.llm_provider === "codex" ? "Codex / ChatGPT" : "Meta / Muse Spark"}</dd></div><div><dt>{run.is_replay ? "Recorded cost (USD)" : "Cost (USD)"}</dt><dd title={run.cost_usd == null ? "ChatGPT plan usage does not provide dollar pricing." : undefined}>{run.cost_usd == null ? "unavailable" : `$${number(run.cost_usd, 4)}`}</dd></div><div><dt>{run.is_replay ? "Playback elapsed" : "Elapsed"}</dt><dd>{elapsed(run.created_at, active ? now : ended)}</dd></div></dl>
-      <div className="run-actions">{active ? <Button variant="outline" onClick={stop} disabled={cancelling}>{cancelling ? "Stopping…" : run.is_replay ? "Stop replay" : "Cancel run"}</Button> : null}{layout ? <Button variant="outline" asChild><Link href={`/runs/${id}/result`}>View result</Link></Button> : null}{run.status === "done" ? <Button asChild><a href={bundleUrl(id)}><Download data-icon="inline-start" />Download bundle</a></Button> : null}</div>
+  const meta = [
+    { label: "Run", value: run.id.slice(0, 8), title: run.id, mono: true },
+    { label: run.is_replay ? "Recorded provider" : run.llm_provider === "codex" ? "Plan" : "Model", value: run.llm_provider === "codex" ? "Codex / ChatGPT" : "Meta / Muse Spark" },
+    { label: run.is_replay ? "Recorded cost (USD)" : "Cost (USD)", value: run.cost_usd == null ? "unavailable" : `$${number(run.cost_usd, 4)}`, title: run.cost_usd == null ? "ChatGPT plan usage does not provide dollar pricing." : undefined },
+    { label: run.is_replay ? "Playback elapsed" : "Elapsed", value: elapsed(run.created_at, active ? now : ended), mono: true },
+  ];
+  return <div className="space-y-3" data-testid="run-dashboard" data-is-replay={run.is_replay}>
+    <div className="flex flex-wrap items-center gap-x-6 gap-y-3"><div className="flex min-w-0 items-center gap-3"><h1 className="text-2xl font-semibold tracking-tight break-words">{name}{top ? <span className="font-normal text-muted-foreground"> / {top}</span> : null}</h1>{run.is_replay ? <ReplayBadge>{replayLabel(run)}</ReplayBadge> : null}</div>
+      <dl className="grid w-full grid-cols-2 gap-x-4 gap-y-2 text-sm sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:gap-x-0 sm:divide-x">{meta.map((item) => <div key={item.label} className="sm:px-4 sm:first:pl-0"><dt className="font-mono text-[11px] text-muted-foreground">{item.label}</dt><dd title={item.title} className={cn("font-medium whitespace-nowrap", item.mono && "font-mono")}>{item.value}</dd></div>)}</dl>
+      <div className="ml-auto flex flex-wrap gap-2">{active ? <Button variant="outline" onClick={stop} disabled={cancelling}><Square data-icon="inline-start" />{cancelling ? "Stopping…" : run.is_replay ? "Stop replay" : "Cancel run"}</Button> : null}{layout ? <Button variant="outline" asChild><Link href={`/runs/${id}/result`}>View result<ArrowRight data-icon="inline-end" /></Link></Button> : null}{run.status === "done" ? <Button asChild><a href={bundleUrl(id)}><Download data-icon="inline-start" />Download bundle</a></Button> : null}</div>
     </div>
-    <div className="run-state-row"><span data-testid="run-status" data-status={run.status} className={run.status === "failed" ? "fail-text" : run.status === "done" ? "pass-text" : "muted"}>{title(run.status)}</span><span>{usageLabel(run)}</span>{run.is_replay ? <ReplaySource recordingId={run.recording_id} /> : null}<span className={connection === "open" ? "connection open" : "connection"}>{connection === "open" ? run.is_replay ? "Replay event stream connected" : "Event stream connected" : connection === "reconnecting" ? "Reconnecting to event stream…" : active ? "Connecting to event stream…" : "Recorded event history"}</span></div>
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted-foreground"><StatusBadge status={run.status} data-testid="run-status" data-status={run.status} /><span>{usageLabel(run)}</span>{run.is_replay ? <ReplaySource recordingId={run.recording_id} /> : null}<span className="inline-flex items-center gap-2 sm:ml-auto"><span className={cn("size-1.5 rounded-full border border-muted-foreground", connection === "open" && "border-primary bg-primary")} aria-hidden="true" />{connection === "open" ? run.is_replay ? "Replay event stream connected" : "Event stream connected" : connection === "reconnecting" ? "Reconnecting to event stream…" : active ? "Connecting to event stream…" : "Recorded event history"}</span></div>
     <StarterNotice starterId={run.starter_id} />
     <StageTimeline stage={run.stage} status={run.status} />
-    {error || run.error || cancelError ? <div className="run-error" role="alert">{cancelError || run.error || error}</div> : null}
-    <div className="dashboard-grid"><AgentLog events={events} title={run.is_replay ? "Recorded agent log" : "Agent log"} /><SourcePanel files={files} diffs={latestDiffs} isReplay={run.is_replay} finished={!active} /><RunInspection tests={testResults} metrics={metrics} bestTag={run.best_run_tag} targetClock={run.design_spec?.targets.clock_mhz ?? run.targets.clock_mhz} isReplay={run.is_replay} finished={!active} /></div>
+    {error || run.error || cancelError ? <Alert variant="destructive"><CircleAlert /><AlertDescription>{cancelError || run.error || error}</AlertDescription></Alert> : null}
+    <div className="grid gap-3 lg:grid-cols-2 xl:h-[510px] xl:grid-cols-[minmax(240px,.8fr)_minmax(360px,1.3fr)_minmax(360px,1.1fr)] [&>*]:max-xl:h-[440px] [&>*:last-child]:max-xl:h-auto"><AgentLog events={events} spec={run.spec_text} title={run.is_replay ? "Recorded agent log" : "Agent log"} /><SourcePanel files={files} diffs={latestDiffs} isReplay={run.is_replay} finished={!active} /><RunInspection tests={testResults} metrics={metrics} bestTag={run.best_run_tag} targetClock={run.design_spec?.targets.clock_mhz ?? run.targets.clock_mhz} isReplay={run.is_replay} finished={!active} /></div>
     <LayoutViewer key={layout?.run_tag ?? "waiting"} layout={layout} metrics={metrics} runId={run.id} emptyMessage={!active ? "No layout was produced before this run ended." : run.is_replay ? "The recorded GDS render appears during playback." : undefined} />
     <FlowComparison metrics={metrics} bestTag={run.best_run_tag} />
-    <p className="integration-note">{run.tapeout_ready ? "Block signoff complete." : "Tiny Tapeout wrapper and shuttle integration require separate verification."}</p>
+    <p className="text-xs text-muted-foreground">{run.tapeout_ready ? "Block signoff complete." : "Tiny Tapeout wrapper and shuttle integration require separate verification."}</p>
   </div>;
 }

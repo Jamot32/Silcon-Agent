@@ -123,7 +123,7 @@ test("unreachable API shows unavailable states and a return path without manufac
   for (const label of ["API", "Database", "EDA", "Model"]) {
     await expect(page.locator(".check-row").filter({ has: page.getByText(label, { exact: true }) })).toContainText("Unavailable");
   }
-  await expect(page.getByText("Presets could not be loaded.")).toBeVisible();
+  await page.goto("/runs");
   await expect(page.getByText("Recordings could not be loaded.")).toBeVisible();
   await expect(page.getByRole("button", { name: /^Replay/ })).toHaveCount(0);
   await page.goto("/runs/00000000000000000000000000000000");

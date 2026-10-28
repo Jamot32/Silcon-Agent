@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Bug } from "lucide-react";
 import { getJson, type Recording } from "@/lib/api";
-import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function ReplaySource({ recordingId }: { recordingId: string | null }) {
   const [source, setSource] = useState<string | null>(null);
@@ -19,10 +20,10 @@ export function ReplaySource({ recordingId }: { recordingId: string | null }) {
     }).catch(() => { if (!controller.signal.aborted) setUnavailable(true); });
     return () => controller.abort();
   }, [recordingId]);
-  return <span className="replay-source" data-source-run-id={source ?? undefined} title={source ?? recordingId ?? undefined}>{source ? `Source run: ${source.slice(0, 8)}` : recordingId ? `Recording: ${recordingId}${unavailable ? " · source unavailable" : ""}` : "Source recording unavailable"}</span>;
+  return <span className="text-primary/80" data-source-run-id={source ?? undefined} title={source ?? recordingId ?? undefined}>{source ? `Source run: ${source.slice(0, 8)}` : recordingId ? `Recording: ${recordingId}${unavailable ? " · source unavailable" : ""}` : "Source recording unavailable"}</span>;
 }
 
 export function StarterNotice({ starterId }: { starterId: string | null }) {
   if (!starterId) return null;
-  return <p className="starter-notice"><Badge variant="outline">Supplied faulty starter</Badge><span>The first RTL was supplied with a known UART timing bug.</span></p>;
+  return <Alert><Bug /><AlertDescription><span className="font-medium text-foreground">Supplied faulty starter.</span> The first RTL was supplied with a known UART timing bug.</AlertDescription></Alert>;
 }

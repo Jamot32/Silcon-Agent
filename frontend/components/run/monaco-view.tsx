@@ -36,7 +36,7 @@ function theme(monaco: Monaco) {
   monaco.editor.defineTheme("silicon-lab", {
     base: "vs-dark", inherit: true,
     rules: [{ token: "keyword", foreground: "57B9F3" }, { token: "number", foreground: "D8AD73" }, { token: "comment", foreground: "718390" }],
-    colors: { "editor.background": "#0C1318", "editor.foreground": "#E0E7EE", "editorLineNumber.foreground": "#758899", "editor.lineHighlightBackground": "#111C24", "editor.selectionBackground": "#21484D", "diffEditor.insertedTextBackground": "#2F685936", "diffEditor.removedTextBackground": "#8D444736", "editorGutter.background": "#0C1318" },
+    colors: { "editor.background": "#171717", "editor.foreground": "#FAFAFA", "editorLineNumber.foreground": "#737373", "editor.lineHighlightBackground": "#262626", "editor.selectionBackground": "#404040", "diffEditor.insertedTextBackground": "#2F685936", "diffEditor.removedTextBackground": "#8D444736", "editorGutter.background": "#171717" },
   });
 }
 const options: editor.IStandaloneEditorConstructionOptions = {
@@ -85,8 +85,8 @@ export default function MonacoView({ path, value, before, diff }: { path: string
     return () => { active = false; };
   }, []);
   const language = path.endsWith(".py") ? "python" : "verilog";
-  if (error) return <div className="editor-fallback"><p role="status">{error}</p><pre>{value}</pre></div>;
-  if (!ready) return <div className="editor-fallback"><p className="micro-label">Loading local editor…</p><pre>{value}</pre></div>;
+  if (error) return <div className="h-full overflow-auto"><p role="status" className="mx-4 my-2 text-xs text-destructive">{error}</p><pre className="px-4 pb-4 font-mono text-xs leading-5 [tab-size:4]">{value}</pre></div>;
+  if (!ready) return <div className="h-full overflow-auto"><p className="mx-4 my-2 text-[11px] text-muted-foreground">Loading local editor…</p><pre className="px-4 pb-4 font-mono text-xs leading-5 [tab-size:4]">{value}</pre></div>;
   if (diff && before !== undefined) return <DiffView path={path} before={before} value={value} language={language} />;
   return <Editor height="100%" path={path} value={value} language={language} theme="silicon-lab" beforeMount={theme} options={{ ...options, ariaLabel: `Read-only ${path}` }} />;
 }

@@ -26,7 +26,8 @@ function load(relative) {
   });
   const module = { exports: {} };
   const localRequire = (id) => id.endsWith(".css") ? { __esModule: true, default: new Proxy({}, { get: (_, key) => String(key) }) }
-    : id === "../lib/reliability" ? load("lib/reliability.ts") : frontend(id);
+    : id === "../lib/reliability" ? load("lib/reliability.ts")
+    : id.startsWith("@/") ? load(["tsx", "ts"].map((ext) => `${id.slice(2)}.${ext}`).find((file) => fs.existsSync(path.join(root, file)))) : frontend(id);
   new Function("require", "module", "exports", result.outputText)(localRequire, module, module.exports);
   loaded.set(relative, module.exports);
   return module.exports;
@@ -72,8 +73,8 @@ test("hardware funnel excludes scope and preserves independently different hidde
   const bound = selected.report.hardware_survival_funnel.at(-1).count;
   const hidden = selected.report.independent_stage_checks.hidden.pass;
   assert.equal(bound, 68); assert.equal(hidden, 69);
-  assert.match(html, /Bound hidden pass<\/span>.*?<strong>68<small>\/72<\/small>/);
-  assert.match(html, /<th scope="row">Hidden checks<\/th><td>69<\/td>/);
+  assert.match(html, /Bound hidden pass<\/span>.*?<strong[^>]*>68<small[^>]*>\/72<\/small>/);
+  assert.match(html, /<th[^>]*scope="row"[^>]*>Hidden checks<\/th><td[^>]*>69<\/td>/);
 });
 test("tier ranges are labeled observed min–max without invented tier meanings", () => {
   const html = render();
@@ -88,7 +89,7 @@ test("all-unknown USD stays unknown and is not plotted as zero", () => {
   assert.ok(html.includes("90/90 trials unpriced"));
   assert.ok(html.includes("0 known · 90 unknown"));
   assert.ok(html.includes("No known USD measurements"));
-  assert.ok(html.includes("Total USD</span><strong class=\"unknown\">Unknown"));
+  assert.match(html, /Total USD<\/span><strong data-unknown="true"[^>]*>Unknown/);
   assert.equal(lib.money(null), "Unknown");
   assert.equal(lib.money(0), "$0.00");
   assert.equal(lib.money(0.00001), "<$0.0001");
@@ -100,7 +101,7 @@ test("partial known USD is labeled as a subset while the full total stays unknow
   r.known_cost_distribution_usd = [0, 1]; r.unknown_cost_trials = 88;
   lib.parseReliabilityResponse(data);
   const html = render(data, cohort.cohort_id);
-  assert.ok(html.includes("Total USD</span><strong class=\"unknown\">Unknown"));
+  assert.match(html, /Total USD<\/span><strong data-unknown="true"[^>]*>Unknown/);
   assert.ok(html.includes("Known subset $1.00 · 2 trials"));
   assert.ok(html.includes("2 known · 88 unknown"));
   assert.ok(html.includes("88/90 trials unpriced"));

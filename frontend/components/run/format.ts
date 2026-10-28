@@ -39,3 +39,7 @@ export function duration(seconds: number): string {
   const whole = Math.round(seconds);
   return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
 }
+
+export function runName(run: Pick<PublicRun, "design_spec" | "preset_id">): string {
+  return typeof run.design_spec?.top_module === "string" ? run.design_spec.top_module : run.preset_id ? title(run.preset_id) : "Chip design";
+}
