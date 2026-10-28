@@ -163,3 +163,7 @@ Next — Tier 4 still misses 100%; work on recurring T4 scope, T3 stop and T2 sy
 Complexity stress probe S1: six large or intricate requests (8-bit CPU, 16×16 MAC, 8-tap FIR, SECDED 72/64, UART with FIFOs, elevator), 2 repeats each, on the unchanged R15 runtime: 9/12, every delivery hidden-correct (9/9), largest delivered layout 6,736 cells (4.7× the previous maximum).
 Checks — cohort `20261028T214938Z_8eeef491` sealed and verified; references admitted 6/6 and independent spec-only solutions 12/12; 0 provider failures; FIR 0/2 hit the 900 s evaluator deadline in OPTIMIZE after a clean 12k-cell layout; UART 1/2 hit the token budget repairing correct RTL against its own wrong test.
 Next — rerun S1 with a 3,600 s deadline to confirm the FIR diagnosis, then measure a time-aware optimization stage and a self-test correction path on DEV.
+
+Complexity stress probe S1b (same six requests, deadline 3,600 s instead of 900 s): 12/12, every delivery hidden-correct; FIR delivered 11.8k–11.9k cells (≈96k µm²) in 18–21 minutes. Across S1 and S1b: 21/24, deliveries 21/21 hidden-correct.
+Checks — cohort `20261028T223434Z_1e42954b` sealed and verified; 77 attempts, 0 provider failures; 5 of 12 successes exceeded 900 s; FIR dies ≈440×450 µm against the 500 µm per-side flow limit.
+Next — large designs work but are slow (flows of 8–10 minutes each) and near the die limit; candidates are a time-aware optimization stage and surfacing the failing assertion line from self-authored tests, each measured on DEV first.

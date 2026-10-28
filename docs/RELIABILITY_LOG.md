@@ -1312,3 +1312,18 @@ Limits:
 - Trial times include contention from 4 concurrent jobs.
 
 Public aggregate: [aggregate.json](../eval/reports/complex-stress-20261028/aggregate.json). Attempt profile: [s1-attempt-profile.json](../research/complex_stress/s1-attempt-profile.json).
+
+## Complexity stress probe S1b — 12/12 with a 3,600 s trial deadline
+
+Change → none to the pipeline or the cases; only the evaluator's trial deadline was raised from 900 s to 3,600 s. This follow-up was decided after S1, to test whether the deadline alone ended both FIR trials. Before → S1 9/12 (FIR 0/2 at the deadline, UART 1/2 at the token budget). After → 12/12, every family 2/2 and every delivery hidden-correct (12/12). Decision → the FIR diagnosis holds: the evaluator's 900 s deadline, not the pipeline, ended both FIR trials.
+
+Cohort `20261028T223434Z_1e42954b` exited 0 after 2,889 s with runtime `9df2ce91…` unchanged. Seal and verify passed: 12 records and 12 selected success sources, summary `b19e173a…`. All 77 provider attempts completed (max 57.1 s) and the watchdog never fired. Usage: 77 calls, 1,096,844 input and 101,037 output tokens.
+
+- **FIR:** delivered 11,774–11,932 cells (95k–97k µm²) at 25 MHz with WNS 0 and clean DRC/LVS, in 1,089–1,254 s. That is about 8× the largest delivery before S1.
+- **Deadline sensitivity:** five of the twelve successes took longer than 900 s (FIR 2, MAC 2, SECDED 1), so the standard deadline would have failed them. Each physical flow of a 7k–12k-cell design takes roughly 8–10 minutes, and the optimization stage always runs further flows.
+- **UART:** the own-test failure from S1 did not recur; it affected 1 of 4 UART trials across S1 and S1b.
+- **Size ceiling:** the FIR dies were about 440×450 µm, close to the flow's 500 µm per-side limit. At the same utilization, a design above roughly 15,000 cells would no longer fit.
+
+Across S1 and S1b, 21 of 24 trials succeeded and all 21 deliveries passed the hidden tests.
+
+Public aggregate: [aggregate.json](../eval/reports/complex-stress-20261028-s1b/aggregate.json). Attempt profile: [s1b-attempt-profile.json](../research/complex_stress/s1b-attempt-profile.json).

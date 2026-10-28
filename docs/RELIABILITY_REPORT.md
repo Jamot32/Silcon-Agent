@@ -101,6 +101,36 @@ Of 72 planned hardware trials, 69 passed RTL, lint and own tests. Of those, 66 p
 
 The two held-out sets differ, so the G1→G2 difference is not a measured improvement. It also does not prove that the provider caused G1's gap, though it is consistent with that diagnosis: failures without a provider exception numbered 10 on G1 and 9 on G2. G2 shares families with DEV and G1. It was authored by the project's engineering assistant rather than the model under test, and it was measured in one cohort. G2 is now retired from tuning. Public aggregate: [G2 scorecard](../eval/reports/heldout-20261027/aggregate.json).
 
+## Complexity stress probe (added 2026-10-28)
+
+Every earlier evaluation used small designs: the 183 hidden-correct deliveries across DEV, G1 and G2 had a median of 258 cells and a maximum of 1,444. To find where the unchanged runtime breaks, six much larger or more intricate requests were run twice each:
+
+- an 8-bit CPU with an external memory bus;
+- a pipelined 16×16 multiply-accumulate unit;
+- an 8-tap programmable FIR filter;
+- a SECDED (72,64) codec with 468 I/O bits;
+- a UART with FIFOs behind a register bus;
+- a 4-floor elevator controller.
+
+Each request had a hidden reference and passed the same admission checks as the other sets. Separate agents given only the specification passed the hidden tests 12/12.
+
+| Design | Standard 900 s deadline | 3,600 s deadline | Delivered cells |
+| --- | ---: | ---: | --- |
+| 8-bit CPU | 2/2 | 2/2 | 1,099–1,178 |
+| 16×16 MAC | 2/2 | 2/2 | 6,258–6,908 |
+| 8-tap FIR | 0/2 | 2/2 | 11,774–11,932 |
+| SECDED (72,64) | 2/2 | 2/2 | 2,996–3,255 |
+| UART with FIFOs | 1/2 | 2/2 | 1,404–1,438 |
+| Elevator controller | 2/2 | 2/2 | 551–698 |
+
+All 21 delivered designs passed the hidden tests. Provider requests never timed out.
+
+Both FIR failures under the standard deadline came from the evaluator's 900-second trial limit. Each had already produced a correct, DRC/LVS-clean layout, but the limit stopped the run during optimization. The live application has no such limit. The UART failure was a self-written test that contradicted the specification: the agent repaired correct RTL against it until the token budget ran out.
+
+Large designs are slow. Each physical flow of a 7,000–12,000-cell design takes about 8–10 minutes, and five of the twelve successes in the second cohort took longer than 15 minutes. The FIR layouts used dies of about 440×450 µm, close to the flow's 500 µm per-side limit, so designs above roughly 15,000 cells will not fit.
+
+These are diagnostic probes rather than held-out measurements. The six references were written by the project's engineering assistant, and their private records may be used to diagnose failures. Public aggregates: [standard deadline](../eval/reports/complex-stress-20261028/aggregate.json) and [3,600 s deadline](../eval/reports/complex-stress-20261028-s1b/aggregate.json).
+
 ## Source, artifacts and QA
 
 The 73 named runtime files match fingerprint `9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1` in main working files, committed main, the evaluated copy and its archived snapshot at the recorded checks. The unchanged original summary SHA is `e4b3588de25eb45765b867fb41f90fe2b9c2e333a222f3b7c142e77c3ab74bbf`; seal SHA is `eaa1c1b971ff0f3cdbf2afd321e7cc6feef1a39c9ff525c3b1813f78d9123e53`. Custody checks cover all 50 DONE deliveries, including both hidden failures. These are named source/artifact points, not continuous, loaded-model or whole-filesystem isolation proof.

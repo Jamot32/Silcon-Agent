@@ -1,0 +1,376 @@
+{
+  "schema_version": 1,
+  "kind": "complexity_stress_aggregate",
+  "cohort_id": "20261028T223434Z_1e42954b",
+  "summary_sha256": "b19e173a63ac1ad74a84eb997b2841e9502e7241b4a3430eee821d65d96d639b",
+  "corpus_sha256": "5b3658a6abea3e5a55b23fd47dbfe164069eea4e99bdce4448c87fc79c3ed000",
+  "runtime_sha256": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1",
+  "harness_sha256": "366d7766a0e2af07341ac02dab753be178043ac7d049db6d8f6221b5542f535d",
+  "model": "gpt-6.1-sol",
+  "cli_version": "codex-cli 0.163.0",
+  "config": {
+    "repeats": 2,
+    "concurrency": 4,
+    "max_calls": 32,
+    "max_tokens": 300000,
+    "max_usd": 1.0,
+    "time_limit_seconds": 3600.0,
+    "snapshot_id": "9df2ce91cbf3888e3ae0099bbffacd6b238023977c6b0393e736e7d25e3a92d1"
+  },
+  "planned": 12,
+  "recorded": 12,
+  "successful": 12,
+  "hidden_correctness_on_reported_success": {
+    "denominator": 12,
+    "bound_passes": 12,
+    "rate": 1.0,
+    "false_positive_count": 0,
+    "hidden_failure_count": 0,
+    "unverified_count": 0
+  },
+  "failure_counts": {},
+  "failure_stage_counts": {},
+  "trials": [
+    {
+      "family": "cpu8",
+      "repeat": 1,
+      "success": true,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "binding_limit": null,
+      "hidden": {
+        "status": "pass",
+        "passed": 4,
+        "failed": 0
+      },
+      "calls": 6,
+      "input_tokens": 85888,
+      "output_tokens": 8839,
+      "elapsed_seconds": 614.8,
+      "fix_loops": 0,
+      "flow_attempts": 4,
+      "delivered": {
+        "cell_count": 1099,
+        "area_um2": 9494.11,
+        "clock_mhz": 50.0,
+        "wns_ns": 0.0,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "family": "cpu8",
+      "repeat": 2,
+      "success": true,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "binding_limit": null,
+      "hidden": {
+        "status": "pass",
+        "passed": 4,
+        "failed": 0
+      },
+      "calls": 6,
+      "input_tokens": 86769,
+      "output_tokens": 8593,
+      "elapsed_seconds": 591.3,
+      "fix_loops": 0,
+      "flow_attempts": 4,
+      "delivered": {
+        "cell_count": 1101,
+        "area_um2": 9509.12,
+        "clock_mhz": 50.0,
+        "wns_ns": 0.0,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "family": "elevator4",
+      "repeat": 1,
+      "success": true,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "binding_limit": null,
+      "hidden": {
+        "status": "pass",
+        "passed": 4,
+        "failed": 0
+      },
+      "calls": 8,
+      "input_tokens": 119949,
+      "output_tokens": 11185,
+      "elapsed_seconds": 666.9,
+      "fix_loops": 0,
+      "flow_attempts": 4,
+      "delivered": {
+        "cell_count": 551,
+        "area_um2": 4813.37,
+        "clock_mhz": 50.0,
+        "wns_ns": 0.0,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "family": "elevator4",
+      "repeat": 2,
+      "success": true,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "binding_limit": null,
+      "hidden": {
+        "status": "pass",
+        "passed": 4,
+        "failed": 0
+      },
+      "calls": 8,
+      "input_tokens": 118054,
+      "output_tokens": 10577,
+      "elapsed_seconds": 874.8,
+      "fix_loops": 0,
+      "flow_attempts": 4,
+      "delivered": {
+        "cell_count": 698,
+        "area_um2": 5923.18,
+        "clock_mhz": 50.0,
+        "wns_ns": 0.0,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "family": "fir8",
+      "repeat": 1,
+      "success": true,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "binding_limit": null,
+      "hidden": {
+        "status": "pass",
+        "passed": 4,
+        "failed": 0
+      },
+      "calls": 6,
+      "input_tokens": 80884,
+      "output_tokens": 6578,
+      "elapsed_seconds": 1089.0,
+      "fix_loops": 0,
+      "flow_attempts": 3,
+      "delivered": {
+        "cell_count": 11774,
+        "area_um2": 95355.2,
+        "clock_mhz": 25.0,
+        "wns_ns": 0.0,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "family": "fir8",
+      "repeat": 2,
+      "success": true,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "binding_limit": null,
+      "hidden": {
+        "status": "pass",
+        "passed": 4,
+        "failed": 0
+      },
+      "calls": 6,
+      "input_tokens": 80062,
+      "output_tokens": 6138,
+      "elapsed_seconds": 1253.5,
+      "fix_loops": 0,
+      "flow_attempts": 3,
+      "delivered": {
+        "cell_count": 11932,
+        "area_um2": 96630.2,
+        "clock_mhz": 25.0,
+        "wns_ns": 0.0,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "family": "mac16",
+      "repeat": 1,
+      "success": true,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "binding_limit": null,
+      "hidden": {
+        "status": "pass",
+        "passed": 4,
+        "failed": 0
+      },
+      "calls": 6,
+      "input_tokens": 84053,
+      "output_tokens": 7409,
+      "elapsed_seconds": 993.6,
+      "fix_loops": 0,
+      "flow_attempts": 4,
+      "delivered": {
+        "cell_count": 6717,
+        "area_um2": 53535.1,
+        "clock_mhz": 25.0,
+        "wns_ns": 0.0,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "family": "mac16",
+      "repeat": 2,
+      "success": true,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "binding_limit": null,
+      "hidden": {
+        "status": "pass",
+        "passed": 4,
+        "failed": 0
+      },
+      "calls": 6,
+      "input_tokens": 83315,
+      "output_tokens": 6953,
+      "elapsed_seconds": 981.9,
+      "fix_loops": 0,
+      "flow_attempts": 4,
+      "delivered": {
+        "cell_count": 6908,
+        "area_um2": 57307.5,
+        "clock_mhz": 25.0,
+        "wns_ns": 0.0,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "family": "secded72",
+      "repeat": 1,
+      "success": true,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "binding_limit": null,
+      "hidden": {
+        "status": "pass",
+        "passed": 4,
+        "failed": 0
+      },
+      "calls": 6,
+      "input_tokens": 84379,
+      "output_tokens": 7264,
+      "elapsed_seconds": 529.5,
+      "fix_loops": 0,
+      "flow_attempts": 4,
+      "delivered": {
+        "cell_count": 2996,
+        "area_um2": 28772.6,
+        "clock_mhz": 25.0,
+        "wns_ns": 0.0,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "family": "secded72",
+      "repeat": 2,
+      "success": true,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "binding_limit": null,
+      "hidden": {
+        "status": "pass",
+        "passed": 4,
+        "failed": 0
+      },
+      "calls": 7,
+      "input_tokens": 100545,
+      "output_tokens": 10705,
+      "elapsed_seconds": 1037.9,
+      "fix_loops": 0,
+      "flow_attempts": 4,
+      "delivered": {
+        "cell_count": 3158,
+        "area_um2": 29798.6,
+        "clock_mhz": 25.0,
+        "wns_ns": 0.0,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "family": "uart_fifo",
+      "repeat": 1,
+      "success": true,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "binding_limit": null,
+      "hidden": {
+        "status": "pass",
+        "passed": 4,
+        "failed": 0
+      },
+      "calls": 6,
+      "input_tokens": 86444,
+      "output_tokens": 8666,
+      "elapsed_seconds": 318.9,
+      "fix_loops": 0,
+      "flow_attempts": 2,
+      "delivered": {
+        "cell_count": 1407,
+        "area_um2": 13909.6,
+        "clock_mhz": 50.0,
+        "wns_ns": 0.0,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    },
+    {
+      "family": "uart_fifo",
+      "repeat": 2,
+      "success": true,
+      "pipeline_status": "done",
+      "terminal_stage": "DONE",
+      "failure_class": null,
+      "binding_limit": null,
+      "hidden": {
+        "status": "pass",
+        "passed": 4,
+        "failed": 0
+      },
+      "calls": 6,
+      "input_tokens": 86502,
+      "output_tokens": 8130,
+      "elapsed_seconds": 588.6,
+      "fix_loops": 0,
+      "flow_attempts": 4,
+      "delivered": {
+        "cell_count": 1438,
+        "area_um2": 13749.4,
+        "clock_mhz": 50.0,
+        "wns_ns": 0.0,
+        "drc_ok": true,
+        "lvs_ok": true
+      }
+    }
+  ],
+  "limits": [
+    "Six evaluator-authored references; a diagnostic probe, not a held-out generalization measurement.",
+    "Two repeats per design; per-family rates are not estimates of a population success rate.",
+    "No specifications, case identities, hidden diagnostics or terminal prose are included."
+  ]
+}
