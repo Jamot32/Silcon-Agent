@@ -1252,3 +1252,33 @@ Limits:
 - This is a single frozen cohort.
 
 Public aggregate: [aggregate.json](../eval/reports/heldout-20261027/aggregate.json). Attempt profile: [g2-attempt-profile.json](../research/heldout_g2/g2-attempt-profile.json).
+
+## Complexity stress probe S1 — pre-evaluation record
+
+Change → none to the pipeline. Question → does the unchanged R15 runtime still deliver correct hardware for requests much larger and more intricate than anything in DEV, G1 or G2? Before → the 183 hidden-correct deliveries across those three sets had a median of 258 sky130 cells, a maximum of 1,444 cells and at most 106 RTL lines. Decision rule → none; this is a diagnostic measurement, not a promotion gate.
+
+Six private build requests, each with a reference written by the evaluator's engineering assistant:
+
+- an 8-bit multicycle CPU with a byte-wide external memory bus, a stack, flags and 33 instruction forms;
+- a pipelined 16×16 multiply-accumulate unit with a 40-bit accumulator, four rounding modes and saturation;
+- an 8-tap FIR filter with programmable coefficients, rounding and saturation;
+- a SECDED (72,64) encoder/decoder with error injection, saturating counters and failure capture;
+- a UART with 8-entry TX and RX FIFOs behind a register bus, with loopback and interrupts;
+- a 4-floor elevator controller with a collective scheduling policy, door timing, nudging and homing.
+
+References are 90–241 non-blank lines (generic-gate estimates 508–8,234). Specifications are 5.9k–8.2k characters with exact interfaces of 23–468 I/O bits. The references are not upstream code, so their provenance carries an evaluator-authored URN instead of an upstream URL.
+
+Admission passed for all six: each reference passed its 4 hidden tests and an all-zero design failed all 4. As a fairness check, two separate agents per case saw only the specification, wrote their own RTL and were graded once by the hidden oracle: 12/12 passed.
+
+The evaluation copy carries one disclosed harness change: `eval/contracts.py` accepts the evaluator-authored URN as provenance. Harness `366d7766…` and oracle engine `f3b913c4…` therefore differ from G2, while the runtime fingerprint is unchanged (`9df2ce91…`). The Tier 1, 2 and 4 slots hold retired G2 cases only to satisfy the loader's 8/10/6/6 shape; only Tier 3 runs.
+
+Run identity:
+
+- `TIER=3`, `N=2` (12 trials), 4 jobs; limits unchanged at 32 calls, 300,000 tokens, $1 and 900 s.
+- `gpt-6.1-sol` through Codex CLI 0.163.0, pinned on `PATH` because the host CLI auto-updated to 0.165.0 at 00:59.
+- EDA image `9b62eb4f…`, PDK `8afc8346…`.
+- A new boundary generation adds the evaluation copy; a guarded provider smoke passed before launch.
+
+The G2 incident rule applies. The watchdog also matches local Codex setup failures, and the first complete cohort is the measurement.
+
+Reporting covers the outcome per design family, the terminal stage and binding limit of each failed trial, delivered size from flow metrics, and hidden correctness of every delivery. Because S1 exists to diagnose, its private records may be inspected after the run. Any later claim that complex designs improved needs new complex cases.
