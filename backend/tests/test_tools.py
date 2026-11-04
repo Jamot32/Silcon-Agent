@@ -465,6 +465,30 @@ def test_failed_flow_without_metrics_records_no_metric(tmp_path):
     assert "metric_recorded" not in events
 
 
+@pytest.mark.parametrize("verified", [False, True])
+def test_flow_keeps_requested_overrides_separate_from_planner_defaults_and_rejections(tmp_path, verified):
+    from types import SimpleNamespace
+    runner = ToolRunner(tmp_path, "unit", eda=FakeEDA())
+    requested = {"PL_TARGET_DENSITY_PCT": 30}
+    planned = {**requested, "CLOCK_PERIOD": 20, "SYNTH_STRATEGY": "AREA 0"}
+    async def prepare(top, overrides):
+        assert overrides == requested
+        return {"ok": True, "planned_config_overrides": planned, "mapping_cache_key": "unit",
+                "mapping_reused": False, "sizing_plan": {}, "footprint_policy": "unit-only"}
+    async def scenario():
+        if verified:
+            await verify_golden(runner)
+        runner.physical_planner = SimpleNamespace(prepare=prepare)
+        return await runner.execute(call("run_flow", top="counter", config_overrides=requested))
+    result = asyncio.run(scenario())
+    assert result["requested_config_overrides"] == requested
+    assert result["ok"] is verified
+    if verified:
+        assert result["planned_config_overrides"] == planned
+    else:
+        assert "planned_config_overrides" not in result
+
+
 def test_design_notes_append_and_finish_only_accepts_known_flow(tmp_path):
     eda = FakeEDA()
     eda.flows.add("unit_flow")

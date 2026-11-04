@@ -20,9 +20,12 @@ def key_path(root: Path, provider: str) -> Path:
 
 def saved_key(root: Path, provider: str) -> str:
     try:
-        return key_path(root, provider).read_text().strip()
+        return key_path(root, provider).read_text(encoding="utf-8").strip()
     except FileNotFoundError:
         return ""
+    except UnicodeError:
+        # Corrupt storage must fail closed through the same sanitized path as an unreadable file.
+        raise OSError("Provider key file is not valid text") from None
 
 
 def effective_key(root: Path, provider: str) -> str:

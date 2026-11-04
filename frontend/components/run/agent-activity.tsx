@@ -25,6 +25,7 @@ const unfinished = "bg-muted-foreground/30";
 
 function heading(run: PublicRun, activity: RunActivity, stage: string, ongoing: boolean): string {
   if (run.status === "cancel_requested") return "Cancelling…";
+  if (ongoing && run.execution_mode === "manual" && activity.stages.length) return ({ SPEC: "Using the saved design contract", RTL: "Loading your edited source", VERIFY: "Running your tests" } as Record<string, string>)[stage] ?? stageTitles[stage] ?? stage;
   if (ongoing) return activity.stages.length ? stageTitles[stage] ?? stage : "Queued: waiting for the worker to claim this run";
   if (run.status === "done") return "Build complete";
   if (run.status === "cancelled") return "Build cancelled";
@@ -40,12 +41,12 @@ function Now({ run, activity, variants, ongoing }: { run: PublicRun; activity: R
   const last = activity.tools.reduce<ToolSpan | null>((latest, span) => span.end !== null && (latest === null || span.end >= latest.end!) ? span : latest, null);
   const calls = activity.modelCalls.reduce((sum, call) => sum + call.calls, 0);
   const tokens = activity.modelCalls.reduce((sum, call) => sum + call.inputTokens + call.outputTokens, 0);
-  const stats = [
+  const stats = run.execution_mode === "manual" ? [["Tool calls", number(activity.tools.length, 0)], ["Flows", number(variants.length, 0)]] : [
     ["Model calls", number(calls, 0)], ["Tokens", compact(tokens)], ["Tool calls", number(activity.tools.length, 0)],
     ["Flows", number(variants.length, 0)], ["Repair loops", number(activity.repairs, 0)],
   ];
   const Icon = ongoing ? Spinner : run.status === "done" ? Check : run.status === "cancelled" ? Square : CircleAlert;
-  return <section className="flex min-w-0 flex-col gap-3 p-4" aria-label="Current orchestrator activity" data-testid="agent-now" data-stage={current ? stage : "QUEUED"}>
+  return <section className="flex min-w-0 flex-col gap-3 p-4" aria-label={run.execution_mode === "manual" ? "Current build activity" : "Current orchestrator activity"} data-testid="agent-now" data-stage={current ? stage : "QUEUED"}>
     <div className="flex items-start gap-2.5">
       <span className={cn("mt-0.5 grid size-5 shrink-0 place-items-center [&_svg]:size-4", ongoing ? "text-primary" : run.status === "done" ? "text-success" : "text-muted-foreground")} aria-hidden="true"><Icon /></span>
       <div className="min-w-0">
@@ -56,10 +57,10 @@ function Now({ run, activity, variants, ongoing }: { run: PublicRun; activity: R
     </div>
     {ongoing && current ? <ul className="space-y-1.5 rounded-md border bg-muted/30 px-3 py-2 text-xs" aria-label="Running tools">
       {running.size ? [...running].map(([tool, spans]) => <li key={tool} className="flex items-center gap-2"><Spinner className="size-3.5 text-primary" /><span className="font-medium">{spans.length > 1 ? `${spans.length} × ` : ""}{toolLabel(tool)}{run.is_replay ? " (recorded)" : ""}</span>{run.is_replay ? null : <span className="ml-auto font-mono tabular-nums text-muted-foreground" aria-hidden="true">{clock(end - Math.min(...spans.map((span) => span.start)))}</span>}</li>)
-        : <li className="text-muted-foreground">{run.is_replay ? "No tool was running at this point in the recording." : stage === "REVIEW" ? "No model or tool is running. The orchestrator is waiting for you to approve the spec below." : "No tool running. The orchestrator is awaiting the model or preparing the next step."}</li>}
+        : <li className="text-muted-foreground">{run.is_replay ? "No tool was running at this point in the recording." : stage === "REVIEW" ? "No model or tool is running. The orchestrator is waiting for you to approve the spec below." : run.execution_mode === "manual" ? "Preparing the next tool step. Your source stays unchanged." : "No tool running. The orchestrator is awaiting the model or preparing the next step."}</li>}
       {last ? <li className="truncate text-muted-foreground" title={toolSummary(last) ?? undefined}>Last: {toolLabel(last.tool)}{last.ok === false ? " failed" : ""}{toolSummary(last) ? ` · ${toolSummary(last)}` : ""}</li> : null}
     </ul> : null}
-    {activity.latestNote ? <figure className="border-l-2 border-primary/50 pl-3"><figcaption className="text-[11px] text-muted-foreground">Latest agent note</figcaption><blockquote className="line-clamp-4 text-xs leading-relaxed" title={activity.latestNote.text}>{activity.latestNote.text}</blockquote></figure> : null}
+    {activity.latestNote ? <figure className="border-l-2 border-primary/50 pl-3"><figcaption className="text-[11px] text-muted-foreground">{run.execution_mode === "manual" ? "Latest build note" : "Latest agent note"}</figcaption><blockquote className="line-clamp-4 text-xs leading-relaxed" title={activity.latestNote.text}>{activity.latestNote.text}</blockquote></figure> : null}
     <dl className="mt-auto grid grid-cols-3 gap-x-3 gap-y-2 sm:grid-cols-5">{stats.map(([label, value]) => <div key={label}><dt className="text-[10px] text-muted-foreground">{label}</dt><dd className="font-mono text-sm tabular-nums">{value}</dd></div>)}</dl>
   </section>;
 }
@@ -72,7 +73,7 @@ function Row({ label, children, detail }: { label: string; children: ReactNode; 
   return <li className="flex items-center gap-2"><span className="w-24 shrink-0 truncate text-[11px] text-muted-foreground" title={detail ?? label}>{label}</span><span className="relative h-6 min-w-0 flex-1 rounded-sm bg-muted/40">{children}</span></li>;
 }
 
-function BuildTrace({ activity, variants, replay, ongoing }: { activity: RunActivity; variants: FlowVariant[]; replay: boolean; ongoing: boolean }) {
+function BuildTrace({ activity, variants, replay, ongoing, manual = false }: { activity: RunActivity; variants: FlowVariant[]; replay: boolean; ongoing: boolean; manual?: boolean }) {
   const { start, end } = activity;
   if (start === null || end === null || end <= start) return <p className="p-4 text-sm text-muted-foreground">The build trace starts with the first orchestrator stage.</p>;
   const total = end - start, at = (span: { end: number | null }) => span.end ?? end;
@@ -87,7 +88,7 @@ function BuildTrace({ activity, variants, replay, ongoing }: { activity: RunActi
     <figcaption className="flex items-center justify-between text-xs"><span className="font-medium">Build trace</span><span className="text-muted-foreground">{replay ? "Recorded timing" : "Wall-clock timing"} · {clock(total)}</span></figcaption>
     <ol className="space-y-1">
       <Row label="Orchestrator" detail="Stage the host orchestrator is running">{activity.stages.filter((span) => span.end !== span.start).map((span, index) => <Bar key={index} start={span.start} end={at(span)} from={start} total={total} className={cn(open(span) === "unfinished" ? unfinished : stageTones[Math.max(0, stageOrder.indexOf(span.stage)) % stageTones.length], open(span) === "running" && "animate-pulse")} label={`${span.stage} · ${clock(at(span) - span.start)}${span.calls ? ` · ${span.calls} model calls` : ""}${span.previousOk === false ? " · entered after a failed check" : ""}${open(span) === "unfinished" ? " · no later stage was recorded" : ""}`}><span className={barText}>{span.stage}</span></Bar>)}</Row>
-      <Row label="Model" detail="Model calls; each bar runs from the previous event to the recorded usage update">{activity.modelCalls.map((call, index) => <Bar key={index} start={call.start} end={call.end} from={start} total={total} className={call.responded ? "bg-chart-2/80" : "bg-destructive/50"} label={`Model call ${call.total}${call.calls > 1 ? ` (${call.calls} attempts)` : ""} · ${call.stage} · ${call.responded ? `${compact(call.inputTokens)} in / ${compact(call.outputTokens)} out tokens` : "no response recorded"} · ${clock(call.end - call.start)} since previous event`} />)}</Row>
+      {manual ? null : <Row label="Model" detail="Model calls; each bar runs from the previous event to the recorded usage update">{activity.modelCalls.map((call, index) => <Bar key={index} start={call.start} end={call.end} from={start} total={total} className={call.responded ? "bg-chart-2/80" : "bg-destructive/50"} label={`Model call ${call.total}${call.calls > 1 ? ` (${call.calls} attempts)` : ""} · ${call.stage} · ${call.responded ? `${compact(call.inputTokens)} in / ${compact(call.outputTokens)} out tokens` : "no response recorded"} · ${clock(call.end - call.start)} since previous event`} />)}</Row>}
       <Row label="Tools" detail="Lint, simulation, synthesis, reports, file edits and rejected calls">{tools.map((span, index) => <Bar key={index} start={span.start} end={at(span)} from={start} total={total} className={toolTone(span)} label={`${toolLabel(span.tool)}${span.ok === false ? " failed" : ""}${toolSummary(span) ? ` · ${toolSummary(span)}` : ""} · ${clock(at(span) - span.start)}${open(span) === "unfinished" ? " · no finish event recorded" : ""}`} />)}</Row>
       {flows.map((variant) => { const span = variant.span!; return <Row key={variant.key} label={variant.metric ? `Flow ${variant.metric.flow_index}` : variant.status === "running" ? "Flow running" : variant.status === "failed" ? "Flow failed" : "Flow unfinished"} detail={variant.metric?.run_tag ?? (typeof span.result?.run_tag === "string" ? span.result.run_tag : undefined)}><Bar start={span.start} end={at(span)} from={start} total={total} className={flowTone(variant)} label={`LibreLane ${variant.status} · ${clock(at(span) - span.start)}${variant.metric ? ` · ${number(variant.metric.area_um2)} µm² · WNS ${number(variant.metric.wns_ns, 3)} ns` : ""}`}><span className={barText}>{variant.status === "running" ? replay ? "recorded" : "running" : clock(at(span) - span.start)}</span></Bar></Row>; })}
     </ol>
@@ -96,6 +97,7 @@ function BuildTrace({ activity, variants, replay, ongoing }: { activity: RunActi
 }
 
 export function AgentActivity({ run, activity, variants, ongoing }: { run: PublicRun; activity: RunActivity; variants: FlowVariant[]; ongoing: boolean }) {
+  if (run.execution_mode === "manual") return <Panel id="agent-activity-title" title="Manual build activity"><div className="grid min-w-0 xl:grid-cols-[minmax(320px,.8fr)_minmax(0,2fr)] xl:divide-x max-xl:divide-y"><Now run={run} activity={activity} variants={variants} ongoing={ongoing} /><BuildTrace activity={activity} variants={variants} replay={run.is_replay} ongoing={ongoing} manual /></div></Panel>;
   return <Tabs defaultValue="compact" className="gap-0">
     <Panel id="agent-activity-title" title={run.is_replay ? "Recorded agent activity" : "Agent activity"} aside={<TabsList aria-label="Agent activity view"><TabsTrigger value="compact" className="text-xs">Compact</TabsTrigger><TabsTrigger value="detailed" className="text-xs">Each agent</TabsTrigger></TabsList>}>
       <TabsContent value="compact" className="grid min-w-0 xl:grid-cols-[minmax(320px,.8fr)_minmax(0,2fr)] xl:divide-x max-xl:divide-y">

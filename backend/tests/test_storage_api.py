@@ -71,6 +71,58 @@ def test_request_validation_and_unknown_artifacts(client):
     assert client.get(f"/api/runs/{run_id}/layout/unknown.png").status_code == 404
 
 
+@pytest.mark.parametrize("follow_up", [False, True])
+def test_create_run_persists_requested_build_settings_for_worker_and_public_review(client, follow_up):
+    body = {"spec_text": "Build an eight bit counter", "build": {"optimize": False, "max_flow_runs": 2, "max_repair_loops": 0,
+            "initial_flow": {"SYNTH_STRATEGY": "DELAY 2", "FP_CORE_UTIL": 30, "PL_TARGET_DENSITY_PCT": 40}}}
+    if follow_up:
+        _, parent_id = finished_parent(client)
+        body.update(parent_run_id=parent_id, follow_up="Improve area without changing behavior.", revision_intent="optimize")
+    response = client.post("/api/runs", json=body)
+    assert response.status_code == 202, response.text
+    run_id = response.json()["run_id"]
+    public = client.get(f"/api/runs/{run_id}").json()
+    assert public["requested_build"] == body["build"] and public["build_config"] == body["build"]
+    assert "build_json" not in public
+    assert json.loads(main.app.state.store.claim_pending().build_json) == body["build"]
+
+
+@pytest.mark.parametrize("build", [
+    {"max_flow_runs": 7}, {"max_repair_loops": 6}, {"optimize": "false"},
+    {"initial_flow": {"CLOCK_PERIOD": 10}}, {"initial_flow": {"DIE_AREA": [0, 0, 200, 200]}},
+    {"initial_flow": {"RUN_POST_GRT_DESIGN_REPAIR": False}}, {"initial_flow": {"FP_CORE_UTIL": 91}},
+])
+def test_create_run_build_keeps_caps_and_locked_signoff_policy(client, build):
+    assert client.post("/api/runs", json={"spec_text": "Build an eight bit counter", "build": build}).status_code == 422
+
+
+def test_new_runs_publish_explicit_default_build_settings(client):
+    run_id = client.post("/api/runs", json={"spec_text": "Build an eight bit counter"}).json()["run_id"]
+    public = client.get(f"/api/runs/{run_id}").json()
+    assert public["requested_build"] == {"optimize": True, "max_flow_runs": 6, "max_repair_loops": 5, "initial_flow": {}}
+    assert public["build_config"] == public["requested_build"]
+
+
+def test_flow_inspector_selects_exact_events_and_rejects_ambiguous_or_unsafe_selectors(client):
+    store = main.app.state.store
+    run_id = client.post("/api/runs", json={"spec_text": "Build an eight bit counter"}).json()["run_id"]
+    store.emit(run_id, "tool_started", {"tool": "run_flow", "tool_call_id": "repeated/provider-id"})
+    store.emit(run_id, "tool_finished", {"tool": "run_flow", "tool_call_id": "repeated/provider-id",
+        "result": {"ok": False, "error": "Verification is required before physical flow", "requested_config_overrides": {"FP_CORE_UTIL": 30}}})
+    event_id = store.events(run_id)[-1].id
+    detail = client.get(f"/api/runs/{run_id}/flow", params={"event_id": event_id})
+    assert detail.status_code == 200, detail.text
+    data = detail.json()
+    assert data["event_id"] == event_id and data["tool_call_id"] == "repeated/provider-id"
+    assert data["status"] == "failed" and data["run_tag"] is None
+    assert data["requested_config"] == {"FP_CORE_UTIL": 30}
+    assert data["metrics"] is None and data["provenance"]["evidence_status"] == "unavailable"
+    for params in ({}, {"event_id": event_id, "run_tag": "flow_one"}, {"event_id": 0}, {"run_tag": "../outside"}):
+        assert client.get(f"/api/runs/{run_id}/flow", params=params).status_code == 422
+    assert client.get(f"/api/runs/{run_id}/flow", params={"event_id": 99999}).status_code == 404
+    assert client.get(f"/api/runs/{run_id}/flow", params={"run_tag": "unknown"}).status_code == 404
+
+
 def test_untrusted_host_and_missing_app_header_are_rejected(client):
     spec = {"spec_text": "Build an eight bit counter"}
     # DNS rebinding: a page on an attacker's name resolving to loopback sends that name as Host.
@@ -116,7 +168,8 @@ def test_revision_links_its_parent_and_carries_only_the_parent_rtl(client):
     assert child["parent_run_id"] == parent_id and child["carried_files"] == ["src/counter.v"]
     assert "carry_over_json" not in child and "module counter" not in json.dumps(child)
     # The worker claims the full row, including what the orchestrator needs to start from.
-    assert json.loads(store.claim_pending().carry_over_json) == {
+    carried = json.loads(store.claim_pending().carry_over_json)
+    assert {key: carried[key] for key in ("parent_run_id", "origin", "spec_text", "design_spec", "files")} == {
         "parent_run_id": parent_id, "origin": "last source state", "spec_text": "Build an eight bit counter",
         "design_spec": {"top_module": "counter"}, "files": {"src/counter.v": "module counter; endmodule\n"},
     }
@@ -124,7 +177,8 @@ def test_revision_links_its_parent_and_carries_only_the_parent_rtl(client):
     store.fail(child["id"], "Unit run stopped", status="cancelled")
     lineage = revise(parent_run_id=parent_id).json()["run_id"]
     assert client.get(f"/api/runs/{lineage}").json()["carried_files"] == []
-    assert store.get_run(lineage).carry_over_json is None
+    context = json.loads(store.get_run(lineage).carry_over_json)
+    assert context["files"] == {} and context["design_spec"] == {"top_module": "counter"}
 
 
 def test_revision_of_a_finished_run_starts_from_its_selected_snapshot(client):
@@ -163,6 +217,110 @@ def test_revision_without_parent_rtl_is_rejected(client):
     assert created.status_code == 422 and "no RTL" in created.json()["detail"]
 
 
+def test_follow_up_chain_retains_requests_context_and_explicit_target_clears(client):
+    store, parent_id = finished_parent(client)
+    with Session(store.engine) as session:
+        parent = session.get(Run, parent_id)
+        parent.design_spec_json = json.dumps({"top_module": "counter", "targets": {"clock_mhz": 75, "max_area_um2": 1800, "fit": "tt_1x1_tile"}})
+        parent.error = "The previous verification found a wrap mismatch."
+        session.commit()
+    created = client.post("/api/runs", json={
+        "spec_text": "This stale client text must not replace the parent request.",
+        "parent_run_id": parent_id, "follow_up": "  Add a synchronous clear input.  ", "revision_intent": "feature",
+        "targets": {"fit": None},
+    })
+    assert created.status_code == 202, created.text
+    child_id = created.json()["run_id"]
+    child = client.get(f"/api/runs/{child_id}").json()
+    assert child["spec_text"].startswith("Build an eight bit counter")
+    assert "Add a synchronous clear input." in child["spec_text"] and "stale client" not in child["spec_text"]
+    assert child["follow_up"] == "Add a synchronous clear input." and child["revision_intent"] == "feature"
+    assert child["targets"] == {"clock_mhz": 50, "max_area_um2": 1800, "fit": None}
+    assert child["carried_files"] == []
+    assert child["parent_context"]["error"] == "The previous verification found a wrap mismatch."
+    carried = json.loads(store.get_run(child_id).carry_over_json)
+    assert carried["design_spec"]["top_module"] == "counter" and carried["files"] == {}
+    store.fail(child_id, "Unit run stopped", status="cancelled")
+    second = client.post("/api/runs", json={"spec_text": child["spec_text"], "parent_run_id": child_id,
+        "follow_up": "Reduce area while preserving the interface.", "revision_intent": "optimize"})
+    assert second.status_code == 202, second.text
+    grandchild = client.get(f"/api/runs/{second.json()['run_id']}").json()
+    assert grandchild["spec_text"].count("Add a synchronous clear input.") == 1
+    assert "Reduce area while preserving the interface." in grandchild["spec_text"]
+    assert grandchild["targets"] == child["targets"] and grandchild["parent_run_id"] == child_id
+    assert client.get(f"/api/runs/{parent_id}").json()["spec_text"] == "Build an eight bit counter"
+
+
+def test_follow_up_parent_metrics_match_selected_snapshot_and_never_invent_a_selection(client):
+    from app.eda.parsers import parse_librelane_metrics
+
+    store, parent_id = finished_parent(client)
+    fixture = Path(__file__).parent / "fixtures/golden_counter"
+    metric = parse_librelane_metrics(fixture / "metrics.json", fixture / "resolved.json",
+                                    run_id=parent_id, iteration_id="ignored", run_tag="selected_fixture")
+    # Fixture-derived measurements are test evidence only; the later row must not be treated as selected.
+    store.emit(parent_id, "metric_recorded", {"run_tag": metric.run_tag, "metrics": metric.model_dump(mode="json")})
+    store.emit(parent_id, "metric_recorded", {"run_tag": "later_fixture", "flow_index": 1, "metrics": metric.model_dump(mode="json")})
+    with Session(store.engine) as session:
+        parent = session.get(Run, parent_id)
+        parent.best_run_tag = metric.run_tag
+        parent.summary = "x" * 3000
+        session.commit()
+    def follow_up():
+        return client.post("/api/runs", json={"spec_text": "Build an eight bit counter", "parent_run_id": parent_id,
+            "follow_up": "Reduce area while keeping behavior.", "revision_intent": "optimize"})
+    response = follow_up()
+    assert response.status_code == 202, response.text
+    child_id = response.json()["run_id"]
+    context = client.get(f"/api/runs/{child_id}").json()["parent_context"]
+    assert context["selected_metrics"]["run_tag"] == "selected_fixture"
+    assert context["selected_metrics"]["area_um2"] == metric.area_um2
+    assert not {"id", "run_id", "iteration_id"} & context["selected_metrics"].keys()
+    assert len(context["summary"]) <= 2000
+    store.fail(child_id, "Unit run stopped", status="cancelled")
+    with Session(store.engine) as session:
+        session.get(Run, parent_id).best_run_tag = None
+        session.commit()
+    response = follow_up()
+    assert response.status_code == 202
+    context = client.get(f"/api/runs/{response.json()['run_id']}").json()["parent_context"]
+    assert context["selected_metrics"] is None
+
+
+@pytest.mark.parametrize("extra", [
+    {"follow_up": "Add a reset input."},
+    {"revision_intent": "fix"},
+    {"follow_up": " " * 20, "revision_intent": "fix"},
+    {"follow_up": "Add a reset input.", "revision_intent": "unknown"},
+    {"follow_up": "x" * 4001, "revision_intent": "feature"},
+    {"follow_up": "Add a reset input.", "revision_intent": "feature", "starter_id": "uart_off_by_one"},
+])
+def test_follow_up_requires_valid_paired_intent_and_prompt(client, extra):
+    _, parent_id = finished_parent(client)
+    assert client.post("/api/runs", json={"spec_text": "Build an eight bit counter", "parent_run_id": parent_id, **extra}).status_code == 422
+
+
+def test_follow_up_requires_parent_and_rejects_context_overflow_without_truncation(client):
+    body = {"spec_text": "Build an eight bit counter", "follow_up": "Add a reset input.", "revision_intent": "feature"}
+    assert client.post("/api/runs", json=body).status_code == 422
+    store, parent_id = finished_parent(client)
+    with Session(store.engine) as session:
+        session.get(Run, parent_id).spec_text = "x" * 11990
+        session.commit()
+    response = client.post("/api/runs", json={**body, "parent_run_id": parent_id})
+    assert response.status_code == 422 and "12000" in response.json()["detail"]
+
+
+def test_revision_rejects_active_parent_before_reading_its_mutable_source(client, monkeypatch):
+    parent_id = client.post("/api/runs", json={"spec_text": "Build an eight bit counter"}).json()["run_id"]
+    def unexpected_read(_):
+        pytest.fail("Active parent source must not be snapshotted")
+    monkeypatch.setattr(main, "design_sources", unexpected_read)
+    response = client.post("/api/runs", json={"spec_text": "Build an eight bit counter", "parent_run_id": parent_id,
+        "follow_up": "Add a synchronous clear input.", "revision_intent": "feature", "reuse_design": True})
+    assert response.status_code == 409 and "previous run" in response.json()["detail"]
+
+
 REVIEW_SPEC = {
     "top_module": "counter", "summary": "8-bit counter", "purely_combinational": False,
     "ports": [{"name": "clk", "direction": "input", "width": 1, "description": "Clock"},
@@ -171,6 +329,39 @@ REVIEW_SPEC = {
     "behavior": ["Counts up each enabled clock"], "test_plan": ["Reset", "Count", "Wrap", "Hold"],
     "targets": {"clock_mhz": 50, "max_area_um2": None, "fit": None},
 }
+
+
+def test_follow_up_preserves_review_accepted_just_before_cancellation_but_done_uses_final_contract(client):
+    store = main.app.state.store
+    parent_id = client.post("/api/runs", json={"spec_text": "Build an eight bit counter", "review": True}).json()["run_id"]
+    store.claim_pending()
+    drafted = {**REVIEW_SPEC, "targets": {"clock_mhz": 50, "fit": "tt_1x1_tile", "max_area_um2": None}}
+    store.emit(parent_id, "stage_changed", {"stage": "REVIEW", "design_spec": drafted})
+    accepted = {**REVIEW_SPEC, "summary": "Reviewed 16-bit counter", "targets": {"clock_mhz": 75, "fit": None, "max_area_um2": None},
+                "ports": [{**port, "width": 16 if port["name"] == "count" else port["width"]} for port in REVIEW_SPEC["ports"]]}
+    assert client.post(f"/api/runs/{parent_id}/review", json={"design_spec": accepted, "build": {}}).status_code == 200
+    # The worker has not emitted the next stage carrying the accepted contract yet.
+    assert json.loads(store.get_run(parent_id).design_spec_json) == drafted
+    client.post(f"/api/runs/{parent_id}/cancel")
+    store.fail(parent_id, "Unit run cancelled after review", status="cancelled")
+    assert client.get(f"/api/runs/{parent_id}").json()["design_spec"] == accepted
+    body = {"spec_text": "Build an eight bit counter", "parent_run_id": parent_id,
+            "follow_up": "Reduce area without changing the interface.", "revision_intent": "optimize"}
+    response = client.post("/api/runs", json=body)
+    assert response.status_code == 202, response.text
+    child_id = response.json()["run_id"]
+    assert json.loads(store.get_run(child_id).carry_over_json)["design_spec"] == accepted
+    assert client.get(f"/api/runs/{child_id}").json()["targets"] == accepted["targets"]
+    store.fail(child_id, "Unit run stopped", status="cancelled")
+    final = {**accepted, "summary": "Final contract published at DONE"}
+    with Session(store.engine) as session:
+        parent = session.get(Run, parent_id)
+        parent.status = "done"
+        parent.design_spec_json = json.dumps(final)
+        session.commit()
+    assert client.get(f"/api/runs/{parent_id}").json()["design_spec"] == final
+    child_id = client.post("/api/runs", json=body).json()["run_id"]
+    assert json.loads(store.get_run(child_id).carry_over_json)["design_spec"] == final
 
 
 def test_expert_review_is_accepted_once_and_only_while_the_run_waits(client):
@@ -193,6 +384,8 @@ def test_expert_review_is_accepted_once_and_only_while_the_run_waits(client):
         assert review(invalid).status_code == 422
     accepted = review(answer)
     assert accepted.status_code == 200 and accepted.json()["review_submitted"] is True
+    assert accepted.json()["requested_build"] == created["requested_build"]
+    assert accepted.json()["build_config"] == answer["build"]
     assert "review_json" not in accepted.json()
     assert json.loads(store.get_run(run_id).review_json) == answer
     # Reviewed targets replace the request (nulls dropped) so result pages and Revise follow what was built.
@@ -312,6 +505,9 @@ def test_bootstrap_migration_preserves_existing_run(tmp_path):
     store = RunStore(tmp_path)
     assert store.get_run("existing").spec_text == "old spec"
     assert store.get_run("existing").cost_known is False
+    assert store.get_run("existing").build_json is None
+    assert PublicRun.from_run(store.get_run("existing")).requested_build is None
+    assert PublicRun.from_run(store.get_run("existing")).build_config is None
 
 
 def test_failed_verification_iteration_stays_failed(tmp_path):

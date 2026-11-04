@@ -184,7 +184,7 @@ class RunObserver:
     async def ask(self, llm, messages, tools, options=None):
         """Hash actual inputs, attribute only provider-reported response usage."""
         self._validate_dispatch(llm)
-        plain = lambda values: [v if type(v) is dict else v.model_dump(mode="json") for v in values]
+        plain = lambda values: [v if type(v) is dict else v.trace_dump() if hasattr(v, "trace_dump") else v.model_dump(mode="json") for v in values]
         effort = (getattr(options, "reasoning_effort", None) if options is not None else
                   getattr(self._client, "reasoning_effort", None) if self._configuration["provider"] == "meta" else None)
         selected = self._transport_model

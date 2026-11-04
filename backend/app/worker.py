@@ -24,11 +24,12 @@ from app.observability import RunObserver
 from app.observability.trace import TraceWriter
 from app.packaging import package_design
 from app.remote_store import RemoteStoreError, RunClaimConflict
-from app.schemas import REVIEW_TIMEOUT_SECONDS, Outcome
+from app.schemas import BuildConfig, REVIEW_TIMEOUT_SECONDS, Outcome
 from app.terminal import TerminalAcknowledgement, TerminalAcknowledgementUnavailable
 
 if TYPE_CHECKING:
     from app.agent.orchestrator import Orchestrator
+    from app.manual_build import ManualBuild
     from app.models import Run
 
 logger = logging.getLogger(__name__)
@@ -160,6 +161,13 @@ class Worker:
                         await self._call(self.store.fail, pending.id, "Worker stopped before execution")
                         break
                     await self.execute(pending)
+                else:
+                    claim_question = getattr(self.store, "claim_layout_question", None)
+                    if claim_question is not None:
+                        question = await self._call(claim_question)
+                        if question is not None:
+                            from app.layout_question_worker import execute_layout_question
+                            await execute_layout_question(self, question)
                 failures = 0
                 await self._wait(self.poll_interval)
             except RemoteStoreError as error:
@@ -188,12 +196,14 @@ class Worker:
                 if terminal_status == "done":
                     terminal_status = "replay_done"
                 return
-            if run.llm_provider != os.getenv("LLM_PROVIDER", "codex"):
-                raise LLMError("Queued provider does not match the worker configuration; restart with the selected LLM_PROVIDER")
-            llm = create_llm(run_work_dir=work_dir)
-            if observer is not None:
-                observer.configure_llm(llm, run.llm_provider)
-            orchestrator: Orchestrator
+            manual = getattr(run, "execution_mode", "agent") == "manual"
+            if not manual:
+                if run.llm_provider != os.getenv("LLM_PROVIDER", "codex"):
+                    raise LLMError("Queued provider does not match the worker configuration; restart with the selected LLM_PROVIDER")
+                llm = create_llm(run_work_dir=work_dir)
+                if observer is not None:
+                    observer.configure_llm(llm, run.llm_provider)
+            orchestrator: Orchestrator | ManualBuild
 
             async def publish(event_type: str, payload: dict[str, JsonValue]) -> None:
                 spec = getattr(orchestrator, "design_spec", None)
@@ -223,6 +233,18 @@ class Worker:
                 await self._call(self.store.register_artifact, run.id, "bundle", path)
                 return path
 
+            if manual:
+                from app.manual_build import ManualBuild
+
+                orchestrator = ManualBuild(tools,
+                    carry_over=json.loads(run.carry_over_json) if run.carry_over_json else None,
+                    build=json.loads(run.build_json) if run.build_json else None,
+                    package_callback=package, observer=observer)
+                self.current_task = asyncio.create_task(orchestrator.run())
+                terminal_status, terminal_class, store_confirmed = await self._complete_task(
+                    run, observer=observer, tools=tools, terminal_write=terminal_write)
+                return
+
             factory = self.orchestrator_factory
             if factory is None:
                 from app.agent.orchestrator import Orchestrator
@@ -231,6 +253,7 @@ class Worker:
             targets = json.loads(run.targets_json) if run.targets_json else None
             starter = {"starter_id": run.starter_id} if run.starter_id is not None else {}
             carry_over = {"carry_over": json.loads(run.carry_over_json)} if run.carry_over_json is not None else {}
+            build = {"build": json.loads(run.build_json)} if run.build_json is not None else {}
 
             async def await_review(_: dict[str, JsonValue]) -> dict[str, JsonValue]:
                 # The API stores the answer (POST /api/runs/{id}/review); a cancel ends this wait like any other step.
@@ -247,9 +270,14 @@ class Worker:
 
             review = {"review": await_review} if run.review_requested else {}
             parameters = inspect.signature(factory).parameters
+            accepts_options = any(p.kind == inspect.Parameter.VAR_KEYWORD for p in parameters.values())
+            if build and "build" not in parameters and not accepts_options:
+                if build["build"] != BuildConfig().model_dump(mode="json"):
+                    raise ValueError("Custom orchestrator cannot apply requested build settings")
+                build = {}  # Preserve older injected factories when the requested behavior is unchanged.
             observer_option = ({"observer": observer} if observer is not None and
-                ("observer" in parameters or any(p.kind == inspect.Parameter.VAR_KEYWORD for p in parameters.values())) else {})
-            orchestrator = factory(llm, tools, spec_text=run.spec_text, targets=targets, package_callback=package, event_callback=publish, **starter, **carry_over, **review, **observer_option)
+                ("observer" in parameters or accepts_options) else {})
+            orchestrator = factory(llm, tools, spec_text=run.spec_text, targets=targets, package_callback=package, event_callback=publish, **starter, **carry_over, **review, **build, **observer_option)
             self.current_task = asyncio.create_task(orchestrator.run())
             terminal_status, terminal_class, store_confirmed = await self._complete_task(run, observer=observer, tools=tools, llm=llm, terminal_write=terminal_write)
         except RemoteStoreError as error:

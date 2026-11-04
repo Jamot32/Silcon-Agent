@@ -134,7 +134,7 @@ def bounded_result(result: dict[str, JsonValue], limit: int = 8192) -> dict[str,
         "log_path", "results_path", "stats_path", "evidence_path", "proof_path",
         "harness_evidence_valid", "quality_gate_passed", "mode", "helper_sha256",
         "context_sha256", "error_kind", "gls_ok", "gate_level", "signoff_checks", "drv_ok",
-        "tool_evidence", "planned_config_overrides", "physical_flow_started", "physical_plan",
+        "tool_evidence", "requested_config_overrides", "planned_config_overrides", "physical_flow_started", "physical_plan",
         "sizing_plan", "suggested_action", "footprint_policy", "mapping_cache_key", "mapping_reused",
     )
     compact = {key: enriched[key] for key in keys if key in enriched}

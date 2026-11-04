@@ -45,7 +45,7 @@ test("all listed providers have key settings and subscriptions have honest host 
   await expect(claude.locator("code").filter({ hasText: "claude auth login" })).toBeVisible();
   await page.getByLabel("Search providers or models").fill("muse-spark");
   await expect(page.getByTestId("provider-meta")).toBeVisible();
-  await expect(page.getByTestId("provider-openai")).toHaveCount(0);
+  await expect(page.getByTestId("provider-openai")).toBeHidden();
   expect(mutations).toHaveLength(0);
 });
 
@@ -68,6 +68,7 @@ test("Meta keys can be saved, replaced and removed without persisting secrets in
   await meta.getByRole("button", { name: "Replace key", exact: true }).click();
   await expect(input).toHaveValue("");
   await meta.getByRole("button", { name: "Remove key", exact: true }).click();
+  await meta.getByRole("button", { name: "Remove saved key", exact: true }).click();
   await expect(meta.getByRole("status")).toContainText("Key removed");
   await expect(meta).toContainText("No key");
   expect(mutations).toEqual([{ method: "PUT", provider: "meta", key: "test-meta-key-1" }, { method: "PUT", provider: "meta", key: "test-meta-key-2" }, { method: "DELETE", provider: "meta" }]);

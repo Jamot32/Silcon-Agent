@@ -2,7 +2,7 @@ import type { JsonObject, JsonValue, Metric, RunEvent } from "./api";
 
 // `agent` is "orchestrator" or the model stage role (SPEC, RTL, VERIFY, OPTIMIZE); `order` is the event id.
 export interface StageSpan { stage: string; goal: string | null; start: number; end: number | null; previousOk: boolean | null; calls: number; tokens: number; order: number }
-export interface ToolSpan { id: string; tool: string; stage: string; agent: string; start: number; end: number | null; ok: boolean | null; result: JsonObject | null; path: string | null; order: number }
+export interface ToolSpan { id: string; tool: string; stage: string; agent: string; start: number; end: number | null; ok: boolean | null; result: JsonObject | null; path: string | null; order: number; finishedOrder: number | null }
 export interface ModelCall { calls: number; total: number; responded: boolean; stage: string; agent: string; start: number; end: number; inputTokens: number; outputTokens: number; order: number }
 export interface RunNote { kind: "note" | "error"; text: string; detail: string | null; ts: string; at: number; agent: string; order: number }
 export interface RunActivity {
@@ -10,7 +10,7 @@ export interface RunActivity {
   latestNote: RunNote | null; designSpec: { spec: JsonObject; at: number; order: number } | null;
   active: string | null; start: number | null; end: number | null;
 }
-export interface FlowVariant { key: string; span: ToolSpan | null; metric: Metric | null; rendered: boolean; status: "running" | "measured" | "failed" | "unfinished" }
+export interface FlowVariant { key: string; span: ToolSpan | null; metric: Metric | null; rendered: boolean; status: "running" | "measured" | "failed" | "unfinished" | "unavailable" }
 
 const object = (value: JsonValue | undefined): value is JsonObject => value !== null && typeof value === "object" && !Array.isArray(value);
 const text = (value: JsonValue | undefined): string | null => typeof value === "string" ? value : null;
@@ -57,15 +57,16 @@ export function runActivity(events: RunEvent[], now?: number): RunActivity {
       acting = false;
     } else if (event.type === "tool_started" && typeof payload.tool === "string") {
       const proposed = turn !== null && modelTools[turn].has(payload.tool);
-      const span: ToolSpan = { id: String(payload.tool_call_id ?? event.id), tool: payload.tool, stage, agent: proposed ? turn! : "orchestrator", start: at, end: null, ok: null, result: null, path: null, order: event.id };
+      const span: ToolSpan = { id: String(payload.tool_call_id ?? event.id), tool: payload.tool, stage, agent: proposed ? turn! : "orchestrator", start: at, end: null, ok: null, result: null, path: null, order: event.id, finishedOrder: null };
       tools.push(span);
       turns.set(span, turn);
       if (!proposed) { turn = null; acting = true; }
     } else if (event.type === "tool_finished" && typeof payload.tool === "string") {
       const id = String(payload.tool_call_id ?? event.id);
       let span = tools.find((value) => value.id === id && value.tool === payload.tool && value.end === null);
-      if (!span) tools.push(span = { id, tool: payload.tool, stage, agent: "orchestrator", start: at, end: null, ok: null, result: null, path: null, order: event.id });
+      if (!span) tools.push(span = { id, tool: payload.tool, stage, agent: "orchestrator", start: at, end: null, ok: null, result: null, path: null, order: event.id, finishedOrder: null });
       span.end = at;
+      span.finishedOrder = event.id;
       span.result = object(payload.result) ? payload.result : null;
       span.ok = typeof span.result?.ok === "boolean" ? span.result.ok : null;
       if (blocked(span) && turns.get(span)) {
@@ -108,13 +109,13 @@ export function runActivity(events: RunEvent[], now?: number): RunActivity {
 export function flowVariants(activity: RunActivity, metrics: Metric[], events: RunEvent[], terminal: boolean): FlowVariant[] {
   const rendered = new Set(events.flatMap((event) => event.type === "layout_rendered" && typeof event.payload.run_tag === "string" ? [event.payload.run_tag] : []));
   const byTag = new Map(metrics.map((metric) => [metric.run_tag, metric]));
-  // Only an open call or a returned run_tag evidences a LibreLane run; rejected and preflight-failed calls stay tool calls.
-  const variants: FlowVariant[] = activity.tools.flatMap((span, index) => span.tool === "run_flow" && (span.end === null || text(span.result?.run_tag)) ? [{ span, index }] : []).map(({ span, index }) => {
+  // Keep preflight failures inspectable. Only a returned run_tag establishes a physical flow identity.
+  const variants: FlowVariant[] = activity.tools.filter((span) => span.tool === "run_flow").map((span) => {
     const tag = text(span.result?.run_tag);
     const metric = tag ? byTag.get(tag) ?? null : null;
     if (tag) byTag.delete(tag);
-    const status = span.end === null ? terminal ? "unfinished" : "running" : metric ? "measured" : "failed";
-    return { key: `flow-${index}`, span, metric, rendered: tag !== null && rendered.has(tag), status };
+    const status = span.end === null ? terminal ? "unfinished" : "running" : span.ok === false ? "failed" : metric ? "measured" : "unavailable";
+    return { key: `flow-${span.order}`, span, metric, rendered: tag !== null && rendered.has(tag), status };
   });
   // A metric whose flow events are missing is still a real measurement; never drop it.
   for (const metric of byTag.values()) variants.push({ key: metric.run_tag, span: null, metric, rendered: rendered.has(metric.run_tag), status: "measured" });
@@ -130,6 +131,7 @@ export function toolSummary(span: ToolSpan): string | null {
   // A run can fail with no failing case (stale source, harness proof, bad XML); then the reason matters more than the counts.
   if (span.tool === "run_tests" && passed !== null && failed !== null) return `${passed}/${passed + failed + skipped} passed${skipped ? ` · ${skipped} skipped` : ""}${span.ok === false && failed === 0 && error ? ` · ${error}` : ""}`;
   if (span.ok === false && error) return error;
+  if (span.ok === false && span.tool === "run_flow") return "Flow failed. Inspect the recorded diagnostics.";
   if (span.tool === "write_file" || span.tool === "read_file") return span.path;
   if (!result) return null;
   if (span.tool === "lint" && Array.isArray(result.errors)) return result.errors.length ? `${result.errors.length} errors` : Array.isArray(result.warnings) && result.warnings.length ? `clean · ${result.warnings.length} warnings` : "clean";

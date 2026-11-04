@@ -16,4 +16,11 @@ export function parseRunDefaults(raw: string | null): RunDefaults {
 
 // Storage can be blocked (private mode, site settings); fall back to the factory defaults instead of crashing.
 export const loadRunDefaults = () => { try { return parseRunDefaults(window.localStorage.getItem(key)); } catch { return factoryDefaults; } };
-export const saveRunDefaults = (defaults: RunDefaults) => window.localStorage.setItem(key, JSON.stringify(defaults));
+export function saveRunDefaults(defaults: RunDefaults): boolean {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(defaults));
+    return true;
+  } catch {
+    return false;
+  }
+}

@@ -39,10 +39,10 @@ class UnitLLM:
         self.closed = True
 
 
-def prepare(monkeypatch, tmp_path, factory):
+def prepare(monkeypatch, tmp_path, factory, *, build=None):
     monkeypatch.setenv("LLM_PROVIDER", "codex")
     store = RunStore(tmp_path / "runs")
-    store.create_run("Golden counter", targets={"clock_mhz": 50.0})
+    store.create_run("Golden counter", targets={"clock_mhz": 50.0}, build=build)
     run = store.claim_pending()
     llm = UnitLLM()
     def configured_llm(*, run_work_dir):
@@ -51,6 +51,31 @@ def prepare(monkeypatch, tmp_path, factory):
     monkeypatch.setattr(worker, "create_llm", configured_llm)
     host = worker.Worker(store, poll_interval=0.001, orchestrator_factory=factory)
     return host, store, run, llm
+
+
+def test_worker_passes_the_persisted_build_configuration(monkeypatch, tmp_path):
+    requested = {"optimize": False, "max_flow_runs": 2, "max_repair_loops": 1,
+                 "initial_flow": {"SYNTH_STRATEGY": "DELAY 1", "FP_CORE_UTIL": 30}}
+    received = []
+    class ConfiguredOrchestrator:
+        design_spec = None
+        def __init__(self, llm, tools, **options):
+            received.append(options["build"])
+        async def run(self):
+            return Outcome(status="failed", summary="Unit stop before model or EDA", error="Unit stop")
+    host, _, run, _ = prepare(monkeypatch, tmp_path, ConfiguredOrchestrator, build=requested)
+    asyncio.run(host.execute(run))
+    assert received == [requested]
+
+
+def test_custom_worker_factory_cannot_silently_ignore_nondefault_build_settings(monkeypatch, tmp_path):
+    class Minimal:
+        def __init__(self, llm, tools, spec_text, targets, package_callback, event_callback):
+            pytest.fail("A factory without build support must not run with nondefault settings")
+    host, store, run, _ = prepare(monkeypatch, tmp_path, Minimal, build={"optimize": False})
+    asyncio.run(host.execute(run))
+    assert store.get_run(run.id).status == "failed"
+    assert store.get_run(run.id).error == "Worker failed (ValueError)"
 
 
 def test_worker_records_real_fixture_package_and_events(monkeypatch, tmp_path):

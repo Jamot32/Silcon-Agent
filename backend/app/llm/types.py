@@ -1,3 +1,6 @@
+import base64
+import binascii
+import hashlib
 import math
 from dataclasses import dataclass, field
 from typing import Literal, Protocol
@@ -21,11 +24,49 @@ class ToolCall(BaseModel):
     arguments: dict[str, JsonValue]
 
 
+class ImageInput(BaseModel):
+    """Host-prepared PNG pixels, never a path or remote image URL."""
+
+    media_type: Literal["image/png"] = "image/png"
+    data: str = Field(min_length=1, max_length=2_796_204, repr=False)
+    label: Literal["full_layout", "selected_region"]
+
+    @model_validator(mode="after")
+    def valid_png(self) -> "ImageInput":
+        try:
+            raw = base64.b64decode(self.data, validate=True)
+        except (ValueError, binascii.Error):
+            raise ValueError("Invalid PNG image encoding") from None
+        if not 24 <= len(raw) <= 2 * 1024 * 1024 or raw[:8] != b"\x89PNG\r\n\x1a\n":
+            raise ValueError("Invalid or oversized PNG image")
+        width, height = int.from_bytes(raw[16:20], "big"), int.from_bytes(raw[20:24], "big")
+        if not 0 < width <= 4096 or not 0 < height <= 4096:
+            raise ValueError("Invalid PNG image dimensions")
+        return self
+
+    def metadata(self) -> dict[str, str]:
+        return {"media_type": self.media_type, "label": self.label,
+                "sha256": hashlib.sha256(base64.b64decode(self.data)).hexdigest()}
+
+
 class Message(BaseModel):
     role: Literal["system", "user", "assistant", "tool"]
     content: str | None
     tool_calls: list[ToolCall] = Field(default_factory=list)
     tool_call_id: str | None = None
+    images: list[ImageInput] = Field(default_factory=list, max_length=2, repr=False, exclude_if=lambda value: not value)
+
+    @model_validator(mode="after")
+    def user_images_only(self) -> "Message":
+        if self.images and self.role != "user":
+            raise ValueError("Images may only accompany user messages")
+        return self
+
+    def trace_dump(self) -> dict:
+        values = self.model_dump(mode="json", exclude={"images"})
+        if self.images:
+            values["images"] = [image.metadata() for image in self.images]
+        return values
 
 
 class ToolDefinition(BaseModel):

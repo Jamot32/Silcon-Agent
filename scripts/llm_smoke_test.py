@@ -3,7 +3,7 @@
 
 Docs checked: https://dev.meta.ai/docs/tool-calling (2026-10-23).
 Install: python -m pip install -r scripts/requirements-smoke.txt
-Run: META_API_KEY=<set-in-your-shell> python scripts/llm_smoke_test.py
+Run: python scripts/llm_smoke_test.py (uses Settings or META_API_KEY)
 """
 
 from __future__ import annotations
@@ -11,8 +11,14 @@ from __future__ import annotations
 import argparse
 import json
 import os
+from pathlib import Path
 import sys
 from typing import Literal, cast
+
+# The same helper is available at backend/app on the host and /app/app in the API image.
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "backend" if (ROOT / "backend/app").is_dir() else ROOT / "app"))
+from app.provider_credentials import effective_key
 
 ReasoningEffort = Literal["minimal", "low", "medium", "high", "xhigh"]
 
@@ -55,9 +61,13 @@ def main() -> int:
         self_test()
         return 0
 
-    api_key = os.getenv("META_API_KEY", "").strip()
+    try:
+        api_key = effective_key(Path(os.getenv("RUNS_DIR", str(ROOT / "runs"))), "meta")
+    except OSError:
+        print("BLOCKED: Meta key storage is unavailable; no API request made.", file=sys.stderr)
+        return 2
     if not api_key:
-        print("BLOCKED: META_API_KEY is not set; no API request made.", file=sys.stderr)
+        print("BLOCKED: Add a Meta key in Settings or set META_API_KEY; no API request made.", file=sys.stderr)
         return 2
     effort = os.getenv("META_REASONING_EFFORT", "medium")
     if effort not in ("minimal", "low", "medium", "high", "xhigh"):

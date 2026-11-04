@@ -9,7 +9,7 @@ from typing import Literal
 import httpx
 from pydantic import JsonValue, ValidationError
 
-from app.models import Run
+from app.models import LayoutQuestion, Run
 from app.schemas import Outcome
 from app.terminal import TerminalAcknowledgement
 
@@ -107,6 +107,43 @@ class HTTPRunStore:
     def claim_pending(self) -> Run | None:
         value = self._request("POST", "claim", {})
         return None if value is None else self._run(value)
+
+    def _question(self, value, expected_id=None):
+        try:
+            if not isinstance(value, dict) or not {"id", "run_id", "status", "question", "region_json", "evidence_json"} <= value.keys():
+                raise ValueError("Expected question object")
+            question = LayoutQuestion.model_validate(value)
+            self._id(question.id)
+            self._id(question.run_id)
+            if expected_id is not None and question.id != expected_id:
+                raise ValueError("Question id mismatch")
+            return question
+        except (ValueError, ValidationError):
+            raise RemoteStoreError("Worker API returned an invalid layout question") from None
+
+    def claim_layout_question(self):
+        value = self._request("POST", "layout-questions/claim", {})
+        return None if value is None else self._question(value)
+
+    def get_layout_question(self, question_id):
+        question_id = self._id(question_id)
+        return self._question(self._request("GET", f"layout-questions/{question_id}"), question_id)
+
+    def get_layout_question_state(self, question_id):
+        from app.layout_questions import QuestionState
+
+        question_id = self._id(question_id)
+        try:
+            value = QuestionState.model_validate(self._request("GET", f"layout-questions/{question_id}/state"))
+            if value.id != question_id:
+                raise ValueError("Question id mismatch")
+            return value
+        except (ValueError, ValidationError):
+            raise RemoteStoreError("Worker API returned an invalid layout question state") from None
+
+    def finish_layout_question(self, question_id, result):
+        question_id = self._id(question_id)
+        return self._question(self._request("POST", f"layout-questions/{question_id}/finish", result), question_id)
 
     def get_run(self, run_id: str) -> Run:
         run_id = self._id(run_id)

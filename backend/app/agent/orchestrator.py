@@ -19,7 +19,7 @@ from app.agent.prompts import STAGE_GOALS, SYSTEM_PROMPT, stage_prompt
 from app.agent.scope import ScopeAssessment, assess_scope, terminal_message
 from app.agent.starters import load_starter
 from app.agent.tools import ToolRunner, tool_definitions
-from app.llm.types import Budget, Completion, LLM, LLMError, Message, ToolCall
+from app.llm.types import Budget, Completion, ImageInput, LLM, LLMError, Message, ToolCall
 from app.llm.codex import MalformedProposal, ProviderError
 from app.observability.errors import ObservationBindingError
 from app.models import Metric
@@ -33,6 +33,13 @@ _ALLOWED = {
     "VERIFY": {"write_file", "read_file", "run_tests", "record_note"},
     "OPTIMIZE": {"write_file", "run_tests", "run_flow", "read_report", "record_note"},
 }
+
+_FOLLOW_UP_CONTRACT = (
+    "When previous_design_spec is present, it is the accepted parent contract and takes precedence over older request wording, "
+    "including earlier follow-ups and pre-review drafts. Only the new follow_up may change its functional contract; explicit current target overrides remain authoritative. "
+    "Preserve its unchanged behavior, ports and top_module. If no accepted parent contract is available, apply the accumulated "
+    "requests in order, with later explicit changes overriding earlier requirements. "
+)
 
 
 class ReviewStopped(Exception):
@@ -88,6 +95,7 @@ class Orchestrator:
         event_callback: Callable[[str, dict[str, JsonValue]], Awaitable[None]] | None = None,
         starter_id: str | None = None,
         carry_over: dict[str, JsonValue] | None = None,
+        build: dict[str, JsonValue] | None = None,
         review: Callable[[dict[str, JsonValue]], Awaitable[dict[str, JsonValue]]] | None = None,
         observer: "RunObserver | None" = None,
     ):
@@ -97,13 +105,16 @@ class Orchestrator:
         self.spec_text = spec_text
         self.starter = load_starter(starter_id) if starter_id is not None else None
         self._starter_loaded = False
-        # A revision's parent prompt, DesignSpec and RTL (main.create_run); never combined with a starter.
+        # Immutable parent context; files are empty when the user requests a fresh implementation.
         self.carry_over = carry_over
         self._carry_over_loaded = False
         self._carried = False
         # Expert mode: awaits the user's edited DesignSpec and BuildConfig after SPEC (worker.py polls the API).
         self.review = review
-        self.build = BuildConfig()
+        self.build = BuildConfig.model_validate(build if build is not None else {})
+        if build is not None:
+            self.tools.flow_limit = self.build.max_flow_runs
+            self.tools.base_overrides = dict(self.build.initial_flow)
         self.targets = targets or {}
         self.package_callback = package_callback
         self.event_callback = event_callback if event_callback is not None else tools.event_callback
@@ -210,17 +221,63 @@ class Orchestrator:
                 "required_top_module": self.starter.top_module, "required_ports": metadata["ports"],
                 "required_contract": self.starter.spec_text,
             })))
-        if stage == "SPEC" and self.carry_over is not None:
-            messages.append(Message(role="user", content=json.dumps({
-                "revision": "The user revised the request of a previous run. Its RTL is the starting point for this run.",
-                "previous_request": self.carry_over.get("spec_text"),
-                "previous_design_spec": self.carry_over.get("design_spec"),
-                "instruction": "Return the DesignSpec for the current request. Keep the previous top_module, ports and "
-                               "behavior except where the current request changes them.",
-            })))
+        if stage in {"SPEC", "RTL", "OPTIMIZE"} and self.carry_over is not None:
+            intent = self.carry_over.get("revision_intent")
+            instruction = (
+                "Treat the parent outcome and selected measurements only as historical context. "
+                "They do not verify this run: require fresh independent tests and physical measurements. "
+                "A clock_mhz measurement is the configured target, not a measured maximum frequency. "
+            )
+            if self.starter is None:
+                instruction += (
+                    "Previous execution instructions and starter provenance are historical: retain their functional contract "
+                    "only as required by the current request, but do not repeat old starter handling or claim old source is still faulty. "
+                )
+            if intent == "optimize":
+                instruction += "Preserve the previous behavior, ports and top_module unless the follow-up explicitly changes them. Optimize the requested objective and compare fresh evidence with the selected parent baseline; never claim improvement from estimates. "
+            elif intent == "fix":
+                instruction += "Fix the reported defect while preserving unrelated behavior and interfaces. Include regression coverage for the defect in the new test plan. "
+            elif intent == "feature":
+                instruction += "Add the requested feature while preserving unrelated behavior and interfaces. Cover both the new feature and existing behavior in the new test plan. "
+            if stage == "SPEC":
+                if intent is not None:
+                    instruction += (
+                        "Return the complete DesignSpec for the current request, including unchanged requirements. "
+                        + _FOLLOW_UP_CONTRACT
+                    )
+                else:
+                    instruction += (
+                        "The current request is a complete replacement of the previous request. Return its complete DesignSpec. "
+                        "Previous requirements and DesignSpec are historical context only: do not restore requirements omitted "
+                        "from the current request. Any reused RTL must be adapted to the new complete DesignSpec."
+                    )
+            context = {
+                "revision": "The user is continuing a previous run.",
+                "follow_up": self.carry_over.get("follow_up"), "revision_intent": intent,
+                "parent_context": self.carry_over.get("parent_context"), "instruction": instruction,
+            }
+            if stage == "SPEC":
+                context.update(previous_request=self.carry_over.get("spec_text"),
+                               previous_design_spec=self.carry_over.get("design_spec"))
+            messages.append(Message(role="user", content=json.dumps(context)))
+            if self.carry_over.get("layout_focus") is not None:
+                from app.layout_region_types import PreparedLayoutRegion
+
+                focus = PreparedLayoutRegion.model_validate(self.carry_over["layout_focus"])
+                messages.append(Message(role="user", content=json.dumps({
+                    "selected_layout_region": focus.region.model_dump(mode="json"),
+                    "instruction": "The first attached image is the parent layout and the second is the selected crop. "
+                        "This is image-space visual context, not a cell/net/layer or physical-coordinate mapping. "
+                        "Distinguish visible observations from hypotheses. Do not invent local timing, congestion, or connectivity measurements. "
+                        "The selected region identifies the user's focus, not permission to weaken verification. "
+                        "Implement justified RTL or flow changes and obtain fresh evidence; placement may change globally. "
+                        "Reused RTL follows the selected parent design, which may differ from the inspected flow variant.",
+                }), images=[ImageInput.model_validate(image.model_dump()) for image in focus.images]))
         if stage == "RTL" and self._carried:
-            messages.append(Message(role="user", content="src/ starts from the previous run's RTL, carried over by the "
-                                    "orchestrator. Change only what the current DesignSpec requires, then lint."))
+            edited = self.carry_over is not None and self.carry_over.get("origin") == "workspace edits"
+            messages.append(Message(role="user", content=(
+                "src/ starts from the user's edited RTL. Repair and optimize this implementation while preserving the accepted DesignSpec, then lint."
+                if edited else "src/ starts from the previous run's RTL, carried over by the orchestrator. Change only what the current DesignSpec requires, then lint.")))
         if stage == "RTL" and self._repair_brief is not None:
             messages.append(Message(role="user", content=self._repair_brief))
         return messages
@@ -397,11 +454,19 @@ class Orchestrator:
         assert self.design_spec is not None and self.carry_over is not None
         self._carry_over_loaded = True
         top, parent = self.design_spec.top_module, str(self.carry_over["parent_run_id"])[:8]
-        files = self.carry_over["files"]
-        assert isinstance(files, dict)
+        submitted = self.carry_over["files"]
+        assert isinstance(submitted, dict)
+        edited = self.carry_over.get("origin") == "workspace edits"
+        # Agent-assisted workspace builds retain the full submitted draft in
+        # carry_over, but VERIFY must author fresh tests from the spec alone.
+        files = {path: content for path, content in submitted.items() if path.startswith("src/")} if edited else submitted
+        if not files:
+            return
         # Same comment/string stripping as ToolRunner's RTL check, so a mention in a comment is not a definition.
         code = [re.sub(r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"', " ", str(content), flags=re.S) for content in files.values()]
         if not any(re.search(rf"\b(?:macro)?module\s+{re.escape(top)}\b", text) for text in code):
+            if edited:
+                raise LLMError(f"Edited RTL does not define the accepted top module {top}; correct the draft before rebuilding")
             await self._emit("note", {"stage": "RTL", "carry_over": "skipped",
                                       "text": f"No RTL from run {parent} defines top module {top}; the RTL designer starts from scratch."})
             return
@@ -412,14 +477,16 @@ class Orchestrator:
         digests = ", ".join(f"{path} {hashlib.sha256(str(content).encode()).hexdigest()[:12]}" for path, content in files.items())
         # record_note appends to design.log, so the packaged bundle states where its starting RTL came from.
         note = await self._execute("RTL", ToolCall(id=uuid4().hex, name="record_note", arguments={
-            "text": f"Carried over the RTL of run {parent} ({self.carry_over['origin']}) as the starting point for this "
+            "text": ("Loaded the user's edited RTL" if edited else f"Carried over the RTL of run {parent}")
+                    + f" ({self.carry_over['origin']}) as the starting point for this "
                     f"revision: {digests} (SHA256 prefixes). It is not newly model-generated in this run.",
         }))
         if note.get("ok") is not True:
             raise LLMError("Recording the carried-over RTL provenance failed; inspect the actual tool result")
         # Emitted only after every write succeeded: the dashboard keys its revision notice on this marker.
         await self._emit("note", {"stage": "RTL", "carry_over": "loaded",
-                                  "text": "The RTL designer now adapts the carried-over RTL to the revised request."})
+            "text": ("The agent starts from your edited RTL and may repair or optimize it. Your submitted edited tests remain saved with the draft; this agent build creates fresh tests from the accepted specification."
+                     if edited else "The RTL designer now adapts the carried-over RTL to the revised request.")})
         self._carried = True
 
     async def _verify(self) -> bool:
@@ -461,6 +528,11 @@ class Orchestrator:
         await self._remember("SYNTH")
 
     async def _spec(self) -> None:
+        if (self.carry_over is not None and self.carry_over.get("origin") == "workspace edits"
+                and self.carry_over.get("design_spec") is not None):
+            self.design_spec = DesignSpec.model_validate(self.carry_over["design_spec"])
+            await self._emit("note", {"stage": "SPEC", "text": "Reusing the accepted design specification for agent-assisted RTL repair and optimization."})
+            return
         messages = self._context("SPEC")
         for attempt in range(1, 4):
             response = await self._ask(messages, set())
@@ -504,6 +576,12 @@ class Orchestrator:
         async def complete(messages, tools):
             if tools:
                 raise ValueError("Scope assessment cannot use tools")
+            if self.carry_over is not None and self.carry_over.get("revision_intent") is not None:
+                messages = [*messages, Message(role="user", content=json.dumps({
+                    "previous_design_spec": self.carry_over.get("design_spec"),
+                    "follow_up": self.carry_over.get("follow_up"),
+                    "instruction": _FOLLOW_UP_CONTRACT + "Assess the resulting request against the scope policy; prior acceptance is not proof of feasibility or verification.",
+                }))]
             return await self._ask(messages, set())
 
         assessment = await assess_scope(complete, self.spec_text, targets=self.targets)
@@ -719,7 +797,7 @@ class Orchestrator:
 
     async def _review(self) -> None:
         assert self.design_spec is not None and self.review is not None
-        draft, defaults = self.design_spec, BuildConfig()
+        draft, defaults = self.design_spec, self.build
         await self._stage("REVIEW")
         request: dict[str, JsonValue] = {
             "design_spec": draft.model_dump(mode="json"), "build": defaults.model_dump(mode="json"),
@@ -744,7 +822,7 @@ class Orchestrator:
         # record_note appends to design.log, so the bundle records which spec fields a person changed.
         note = ToolCall(id=uuid4().hex, name="record_note", arguments={"text": (
             f"User review: {'edited DesignSpec ' + ', '.join(changed) if changed else 'approved the drafted DesignSpec unchanged'}; "
-            + (f"build configuration {json.dumps(settings, separators=(', ', ': '))}." if settings else "default build configuration."))})
+            + (f"build configuration {json.dumps(settings, separators=(', ', ': '))}." if settings else "build configuration unchanged."))})
         result = await self.tools.execute(note, allowed_tools={"record_note"})
         self._record_result(note, result)
         if result.get("ok") is not True:

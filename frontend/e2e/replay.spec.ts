@@ -30,7 +30,7 @@ test("recorded UART replays at 4× with actual metrics and artifacts @replay", a
   const runs = await runsResponse.json() as PublicRun[];
   expect(runs.find((run) => ["pending", "running"].includes(run.status)), "Finish the active job before running offline replay checks").toBeUndefined();
 
-  await page.goto("/runs");
+  await page.goto("/recordings");
   const row = page.locator(`[data-recording-id="${recordingId}"]`);
   await expect(row).toBeVisible();
   await row.getByRole("button", { name: `Replay ${recording!.name} at 4×`, exact: true }).click();

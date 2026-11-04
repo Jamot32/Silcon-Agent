@@ -1,21 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowUp, CircleAlert } from "lucide-react";
+import { ArrowUp, CircleAlert, RefreshCw } from "lucide-react";
 import { createRun, getJson, type Check, type Health } from "@/lib/api";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverDescription, PopoverTitle, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupTextarea } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/logo";
 import { ModelSettings } from "@/components/model-settings";
+import { BuildSettings } from "@/components/build-settings";
+import { buildSettingsConfig, buildSettingsDraft, buildSettingsError } from "@/lib/build-settings";
+import { clearDesignDraft, loadDesignDraft, saveDesignDraft, maxSpecLength, type DesignDraft } from "@/lib/design-draft";
 import { loadRunDefaults } from "@/lib/run-defaults";
 import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 
-const initialSpec = "An 8-bit up/down counter with enable, synchronous load, and active-low reset.";
+const initialDraft: DesignDraft = {
+  spec: "An 8-bit up/down counter with enable, synchronous load, and active-low reset.",
+  selectedPreset: "counter", clock: "50", fit: false, review: true,
+};
 
 function checkLabel(check: Check | undefined, fallback: string) {
   if (!check) return fallback;
@@ -28,49 +36,94 @@ function checkLabel(check: Check | undefined, fallback: string) {
 
 export function NewDesign() {
   const router = useRouter();
-  const [selectedPreset, setSelectedPreset] = useState<string | undefined>("counter");
+  const [draft, setDraft] = useState<DesignDraft>(initialDraft);
+  const savedDraft = useRef<DesignDraft | null>(null);
+  const { spec, clock, fit, review, selectedPreset } = draft;
+  const [hasDraft, setHasDraft] = useState(false);
+  const [draftReady, setDraftReady] = useState(false);
+  const [draftMessage, setDraftMessage] = useState("");
+  const [draftError, setDraftError] = useState("");
   const [building, setBuilding] = useState(false);
   const [buildError, setBuildError] = useState("");
-  const [spec, setSpec] = useState(initialSpec);
-  const [clock, setClock] = useState("50");
-  const [fit, setFit] = useState(false);
   const [expert, setExpert] = useState(false);
-  const [review, setReview] = useState(true);
   const [health, setHealth] = useState<Health>();
   const [apiState, setApiState] = useState("Checking");
+  const healthRequest = useRef<AbortController | null>(null);
+  const flowDraft = draft.build ?? buildSettingsDraft();
+  const flowError = buildSettingsError(flowDraft);
+
+  async function refreshHealth() {
+    healthRequest.current?.abort();
+    const controller = new AbortController();
+    healthRequest.current = controller;
+    setApiState("Checking");
+    try {
+      const value = await getJson<Health>("/api/health", controller.signal);
+      if (!controller.signal.aborted) { setHealth(value); setApiState("Ready"); }
+    } catch {
+      if (!controller.signal.aborted) { setHealth(undefined); setApiState("Unavailable"); }
+    }
+  }
 
   useEffect(() => {
-    const controller = new AbortController();
-    // localStorage only exists in the browser, so saved defaults apply after mount.
     const defaults = loadRunDefaults();
-    setClock(String(defaults.clock));
-    setFit(defaults.fit);
+    const saved = loadDesignDraft();
+    savedDraft.current = saved.draft;
+    setDraft(saved.draft ?? { ...initialDraft, clock: String(defaults.clock), fit: defaults.fit });
     setExpert(defaults.expert);
-    getJson<Health>("/api/health", controller.signal).then((value) => { setHealth(value); setApiState("Ready"); }, () => { if (!controller.signal.aborted) setApiState("Unavailable"); });
-    return () => controller.abort();
+    setDraftReady(true);
+    setHasDraft(Boolean(saved.draft));
+    if (saved.draft) setDraftMessage("Restored your draft from this browser.");
+    if (!saved.available) setDraftError("Browser storage is unavailable. Keep this page open to preserve your edits.");
+    void refreshHealth();
+    return () => healthRequest.current?.abort();
   }, []);
+
+  function editDraft(changes: Partial<DesignDraft>) {
+    if (!draftReady || building) return;
+    const next = { ...draft, ...changes };
+    setDraft(next);
+    setHasDraft(true);
+    setBuildError("");
+    if (saveDesignDraft(next)) { savedDraft.current = next; setDraftMessage("Draft saved in this browser."); setDraftError(""); }
+    else { setDraftMessage(""); setDraftError("Draft could not be saved in this browser. Keep this page open to preserve your edits."); }
+  }
+
+  function discardDraft() {
+    const result = clearDesignDraft(savedDraft.current);
+    if (result === "unavailable") { setDraftError("Saved draft could not be removed. Your current edits are still here."); return; }
+    savedDraft.current = null;
+    const defaults = loadRunDefaults();
+    setDraft({ ...initialDraft, clock: String(defaults.clock), fit: defaults.fit });
+    setHasDraft(false);
+    setDraftMessage(result === "changed" ? "This tab's draft was discarded. A newer draft from another tab was kept." : "Draft discarded. New-design defaults restored.");
+    setDraftError("");
+    setBuildError("");
+  }
 
   async function build(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (building) return;
+    if (building || !draftReady) return;
     if (!valid) {
-      setBuildError(spec.trim().length < 10 ? "Describe the chip in at least 10 characters." : "Target clock must be between 1 and 1000 MHz.");
+      setBuildError(flowError ?? (spec.trim().length < 10 ? "Describe the chip in at least 10 characters." : spec.length > maxSpecLength ? "Keep the chip description within 12,000 characters." : "Target clock must be between 1 and 1000 MHz."));
       return;
     }
     setBuilding(true);
     setBuildError("");
     try {
-      const result = await createRun({ spec_text: spec, preset_id: selectedPreset, targets: { clock_mhz: Number(clock), ...(fit ? { fit: "tt_1x1_tile" as const } : {}) }, ...(expert && review ? { review: true } : {}) });
+      const result = await createRun({ spec_text: spec, preset_id: selectedPreset, targets: { clock_mhz: Number(clock), ...(fit ? { fit: "tt_1x1_tile" as const } : {}) }, ...(draft.build ? { build: buildSettingsConfig(flowDraft)! } : {}), ...(expert && review ? { review: true } : {}) });
+      clearDesignDraft(savedDraft.current);
       router.push(`/runs/${result.run_id}`);
     } catch (reason) {
       setBuildError(reason instanceof Error ? reason.message : "The build could not be queued.");
       setBuilding(false);
     }
   }
-  const valid = spec.trim().length >= 10 && Number(clock) >= 1 && Number(clock) <= 1000;
+  const valid = spec.trim().length >= 10 && spec.length <= maxSpecLength && Number(clock) >= 1 && Number(clock) <= 1000 && !flowError;
   const checks = [
-    { name: "API", label: apiState, detail: apiState === "Ready" ? "Backend API is reachable." : undefined, ready: apiState === "Ready" },
+    { name: "API", label: apiState, detail: apiState === "Ready" ? "Backend API is reachable." : apiState === "Unavailable" ? "The API could not be reached. Check that the app is running, then refresh." : "Checking API availability…", ready: apiState === "Ready" },
     { name: "Database", label: checkLabel(health?.checks.database, apiState === "Unavailable" ? "Unavailable" : "Checking"), detail: health?.checks.database.detail, ready: health?.checks.database.status === "ok" },
+    { name: "Worker", label: checkLabel(health?.checks.worker, apiState === "Unavailable" ? "Unavailable" : "Not verified"), detail: health?.checks.worker?.detail ?? "The API has not reported worker status yet.", ready: health?.checks.worker?.status === "ok" },
     { name: "EDA", label: checkLabel(health?.checks.eda, apiState === "Unavailable" ? "Unavailable" : "Not verified"), detail: health?.checks.eda.detail, ready: health?.checks.eda.status === "ok" },
     { name: health ? health.llm_provider === "codex" ? "Codex" : "Meta" : "Model", label: checkLabel(health?.checks.llm, apiState === "Unavailable" ? "Unavailable" : "Checking"), detail: health?.checks.llm.detail, ready: health?.checks.llm.status === "ok" },
   ];
@@ -84,40 +137,57 @@ export function NewDesign() {
       <form onSubmit={build} className="@container space-y-3" aria-labelledby="design-title">
         <h2 id="design-title" className="sr-only">Design specification</h2>
         {/* The stock group dims whenever a child is disabled; drive fade/glow from the prompt instead. */}
-        <InputGroup className={cn("rounded-2xl bg-card transition-[opacity,box-shadow,border-color] duration-300 has-disabled:bg-card dark:bg-card dark:has-disabled:bg-card", spec.trim() ? "border-ring/60 shadow-[0_0_32px_-6px_oklch(1_0_0/0.18)] has-disabled:opacity-100" : "opacity-60 shadow-none has-disabled:opacity-60 focus-within:opacity-100 focus-within:has-disabled:opacity-100")}>
+        <InputGroup aria-busy={building} className={cn("rounded-2xl bg-card transition-[opacity,box-shadow,border-color] duration-300 has-disabled:bg-card dark:bg-card dark:has-disabled:bg-card", spec.trim() ? "border-ring/60 shadow-[0_0_32px_-6px_oklch(0_0_0/0.14)] dark:shadow-[0_0_32px_-6px_oklch(1_0_0/0.18)] has-disabled:opacity-100" : "opacity-60 shadow-none has-disabled:opacity-60 focus-within:opacity-100 focus-within:has-disabled:opacity-100")}>
           <Label className="sr-only" htmlFor="design-spec">Describe your chip</Label>
-          <InputGroupTextarea id="design-spec" className="min-h-28 px-4 pt-4 text-base leading-relaxed" value={spec} onChange={(event) => { setSpec(event.target.value); setSelectedPreset(undefined); setBuildError(""); }} onKeyDown={(event) => { if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) event.currentTarget.form?.requestSubmit(); }} spellCheck={false} placeholder="An 8-bit counter with enable and synchronous reset…" />
+          <InputGroupTextarea id="design-spec" className="min-h-28 px-4 pt-4 text-base leading-relaxed" value={spec} maxLength={maxSpecLength} disabled={building || !draftReady} aria-describedby="design-hint" onChange={(event) => editDraft({ spec: event.target.value, selectedPreset: undefined })} onKeyDown={(event) => { if (!event.nativeEvent.isComposing && event.key === "Enter" && (event.metaKey || event.ctrlKey)) { event.preventDefault(); if (flowError) setBuildError(flowError); else event.currentTarget.form?.requestSubmit(); } }} spellCheck={false} placeholder="An 8-bit counter with enable and synchronous reset…" />
           <InputGroupAddon align="block-end" className="flex-wrap items-center gap-3 border-t px-3 pt-2.5">
             <Label htmlFor="target-clock" className="gap-1.5 text-xs font-normal text-muted-foreground">Clock
-              <Input id="target-clock" type="number" min="1" max="1000" value={clock} onChange={(event) => setClock(event.target.value)} className="h-7 w-20 text-xs" aria-label="Target clock (MHz)" />MHz
+              <Input id="target-clock" type="number" min="1" max="1000" step="any" disabled={building || !draftReady} value={clock} onChange={(event) => editDraft({ clock: event.target.value })} className="h-7 w-20 text-xs" aria-label="Target clock (MHz)" />MHz
             </Label>
             <div className="flex h-4 items-center gap-2 @md:border-l @md:pl-3" onClick={(event) => event.stopPropagation()}>
-              <Checkbox id="fit-tile" checked={fit} onCheckedChange={(checked) => setFit(checked === true)} />
+              <Checkbox id="fit-tile" checked={fit} disabled={building || !draftReady} onCheckedChange={(checked) => editDraft({ fit: checked === true })} />
               <Label htmlFor="fit-tile" className="text-xs font-normal text-muted-foreground">Fit in one Tiny Tapeout tile</Label>
             </div>
             {/* Expert mode (Settings) only: the orchestrator stops after drafting the spec so every field can be edited. */}
             {expert ? <div className="flex h-4 items-center gap-2 @md:border-l @md:pl-3" onClick={(event) => event.stopPropagation()}>
-              <Checkbox id="review-spec" checked={review} onCheckedChange={(checked) => setReview(checked === true)} />
+              <Checkbox id="review-spec" checked={review} disabled={building || !draftReady} onCheckedChange={(checked) => editDraft({ review: checked === true })} />
               <Label htmlFor="review-spec" className="text-xs font-normal text-muted-foreground">Review spec before RTL</Label>
             </div> : null}
             <ModelSettings />
             {/* Collapses to an icon until there is a spec to build. */}
-            <InputGroupButton type="submit" variant="default" size={spec.trim() || building ? "sm" : "icon-sm"} className="rounded-full" aria-label="Build my chip" disabled={building || !spec.trim()}>{building ? <><Spinner data-icon="inline-start" />Queuing your chip…</> : spec.trim() ? <>Build my chip<ArrowUp data-icon="inline-end" /></> : <ArrowUp />}</InputGroupButton>
+            <InputGroupButton type="submit" variant="default" size={spec.trim() || building ? "sm" : "icon-sm"} className="rounded-full" aria-label="Build my chip" disabled={building || !draftReady || !spec.trim() || Boolean(flowError)}>{building ? <><Spinner data-icon="inline-start" />Queuing your chip…</> : spec.trim() ? <>Build my chip<ArrowUp data-icon="inline-end" /></> : <ArrowUp />}</InputGroupButton>
           </InputGroupAddon>
         </InputGroup>
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs text-muted-foreground">
+          <p id="design-hint">{spec.length.toLocaleString()} / 12,000 characters · Ctrl or ⌘ + Enter to build</p>
+          {hasDraft ? <Button type="button" variant="ghost" size="sm" disabled={building || !draftReady} onClick={discardDraft}>Discard draft</Button> : null}
+          <p className="w-full" role="status">{draftError || draftMessage}</p>
+        </div>
         {buildError ? <Alert variant="destructive"><CircleAlert /><AlertDescription>{buildError}</AlertDescription></Alert> : null}
+        <details className="rounded-lg border px-3 py-2">
+          <summary className="cursor-pointer rounded-sm text-xs font-medium focus-visible:outline-2 focus-visible:outline-ring">Configure physical flow{draft.build ? " · customized" : ""}{flowError ? " · needs attention" : ""}</summary>
+          <div className="pt-3"><BuildSettings value={flowDraft} disabled={building || !draftReady} onChange={(build) => editDraft({ build })} /></div>
+        </details>
       </form>
-      <section aria-labelledby="toolchain-title" className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-        <h2 id="toolchain-title" className="text-xs font-medium text-muted-foreground">Toolchain</h2>
-        <dl className="flex flex-wrap items-center justify-center gap-2" aria-live="polite">
-          {checks.map((check) => (
-            <div className="check-row flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs" key={check.name} title={check.detail}>
-              <span className={check.ready ? "size-1.5 rounded-full bg-success" : "size-1.5 rounded-full bg-muted-foreground"} aria-hidden="true" />
-              <dt className="font-medium">{check.name}</dt>
-              <dd className="text-muted-foreground">{check.label}</dd>
-            </div>
-          ))}
-        </dl>
+      <section aria-labelledby="toolchain-title" className="space-y-2">
+        <div className="flex items-center justify-center gap-2">
+          <h2 id="toolchain-title" className="text-xs font-medium text-muted-foreground">Toolchain</h2>
+          <Button type="button" size="sm" variant="ghost" disabled={apiState === "Checking"} onClick={() => void refreshHealth()} aria-label="Refresh toolchain status"><RefreshCw className={apiState === "Checking" ? "animate-spin motion-reduce:animate-none" : ""} />Refresh</Button>
+        </div>
+        <ul className="flex flex-wrap items-center justify-center gap-2" aria-live="polite">
+          {checks.map((check) => <li key={check.name}>
+            <Popover>
+              <PopoverTrigger asChild><Button type="button" variant="outline" size="sm" className="check-row rounded-full text-xs" aria-label={`${check.name}: ${check.label}. Show details`}>
+                <span className={check.ready ? "size-1.5 rounded-full bg-success" : "size-1.5 rounded-full bg-muted-foreground"} aria-hidden="true" />
+                <span className="font-medium">{check.name}</span><span className="text-muted-foreground">{check.label}</span>
+              </Button></PopoverTrigger>
+              <PopoverContent className="max-w-[calc(100vw-2rem)]">
+                <PopoverTitle>{check.name}: {check.label}</PopoverTitle>
+                <PopoverDescription>{check.detail ?? "Status has not been reported yet."}</PopoverDescription>
+              </PopoverContent>
+            </Popover>
+          </li>)}
+        </ul>
       </section>
     </div>
   );

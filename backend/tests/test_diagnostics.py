@@ -6,6 +6,14 @@ from pathlib import Path
 from app.agent.diagnostics import bounded_result, diagnostic_text, first_diagnostic, prefix
 
 
+def test_large_flow_logs_preserve_requested_config_separately_from_resolved_defaults():
+    result = bounded_result({"ok": True, "run_tag": "unit_only", "log_tail": "line\n" * 10000,
+                             "requested_config_overrides": {"PL_TARGET_DENSITY_PCT": 30},
+                             "planned_config_overrides": {"CLOCK_PERIOD": 20, "PL_TARGET_DENSITY_PCT": 30}})
+    assert result["requested_config_overrides"] == {"PL_TARGET_DENSITY_PCT": 30}
+    assert result["planned_config_overrides"] == {"CLOCK_PERIOD": 20, "PL_TARGET_DENSITY_PCT": 30}
+
+
 def test_failed_case_survives_large_log_and_generic_exit_error():
     result = {
         "ok": False, "passed": 3, "failed": 1,

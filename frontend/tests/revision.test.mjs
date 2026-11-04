@@ -37,3 +37,22 @@ test("reusing the RTL never sends the supplied starter, and changed targets are 
   // A failed run opens without reusing its RTL; a run without RTL cannot reuse any.
   assert.equal(revisionDefaults({ ...run, status: "failed" }, true).reuse, false);
 });
+
+test("a follow-up is a separate instruction and carries only explicit target changes", async () => {
+  const { followUpRequest } = await import("../lib/revision.ts");
+  const defaults = revisionDefaults(run, true);
+  const base = { ...defaults, followUp: "Add a configurable baud divisor.", intent: "feature", area: null };
+  const body = followUpRequest(run, base, { ...defaults, area: null });
+  assert.deepEqual(body, { spec_text: run.spec_text, follow_up: base.followUp, revision_intent: "feature", parent_run_id: run.id, reuse_design: true });
+  const changed = followUpRequest(run, { ...base, clock: 75.5, fit: false, area: 120.25, intent: "optimize" }, { ...defaults, area: null });
+  assert.deepEqual(changed.targets, { clock_mhz: 75.5, fit: null, max_area_um2: 120.25 });
+  assert.equal(changed.revision_intent, "optimize");
+  assert.ok(!("starter_id" in changed) && !("preset_id" in changed));
+});
+
+test("follow-up target changes preserve an explicitly cleared parent area limit", async () => {
+  const { followUpRequest } = await import("../lib/revision.ts");
+  const defaults = { ...revisionDefaults(run, true), area: 100 };
+  const body = followUpRequest(run, { ...defaults, followUp: "Fix the reset behavior.", intent: "fix", area: null }, defaults);
+  assert.deepEqual(body.targets, { max_area_um2: null });
+});

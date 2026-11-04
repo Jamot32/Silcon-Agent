@@ -515,6 +515,12 @@ class ToolRunner:
                 rejection_detail = config_key_diagnostic(sorted(set(overrides) - ALLOWED_CONFIG_KEYS))
                 result.update(first_diagnostic=rejection_detail, error=rejection_detail["message"])
                 rejection_kind = "schema_rejection"
+        if call.name == "run_flow":
+            try:
+                # Keep the submitted knobs separate from planner defaults, including preflight rejections.
+                result["requested_config_overrides"] = deepcopy(validate_flow_overrides(call.arguments.get("config_overrides", {})))
+            except ValueError:
+                pass  # Invalid settings are diagnostics, never presented as an accepted configuration.
         if context is not None:
             result.update(self.evidence.finish(context, result, rejection_kind=rejection_kind,
                                               rejection_detail=rejection_detail,

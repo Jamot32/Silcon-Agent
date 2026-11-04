@@ -9,7 +9,7 @@ export function ReplayBadge({ className, ...props }: ComponentProps<typeof Badge
 
 export function StatusBadge({ status, className, ...props }: { status: string } & ComponentProps<typeof Badge>) {
   const tone = status === "done" ? "bg-success/15 text-success" : status === "failed" ? "bg-destructive/15 text-destructive" : status === "running" ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground";
-  return <Badge variant="secondary" className={cn(tone, className)} {...props}>{title(status)}</Badge>;
+  return <Badge variant="secondary" className={cn(tone, className)} {...props}>{status === "cancel_requested" ? "Stopping" : title(status)}</Badge>;
 }
 
 export const signalText = { pass: "text-success", fail: "text-destructive", neutral: "text-muted-foreground" } as const;
