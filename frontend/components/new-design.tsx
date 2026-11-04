@@ -11,6 +11,7 @@ import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupTextarea } fro
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/logo";
 import { ModelSettings } from "@/components/model-settings";
+import { loadRunDefaults } from "@/lib/run-defaults";
 import { cn } from "@/lib/utils";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -33,11 +34,18 @@ export function NewDesign() {
   const [spec, setSpec] = useState(initialSpec);
   const [clock, setClock] = useState("50");
   const [fit, setFit] = useState(false);
+  const [expert, setExpert] = useState(false);
+  const [review, setReview] = useState(true);
   const [health, setHealth] = useState<Health>();
   const [apiState, setApiState] = useState("Checking");
 
   useEffect(() => {
     const controller = new AbortController();
+    // localStorage only exists in the browser, so saved defaults apply after mount.
+    const defaults = loadRunDefaults();
+    setClock(String(defaults.clock));
+    setFit(defaults.fit);
+    setExpert(defaults.expert);
     getJson<Health>("/api/health", controller.signal).then((value) => { setHealth(value); setApiState("Ready"); }, () => { if (!controller.signal.aborted) setApiState("Unavailable"); });
     return () => controller.abort();
   }, []);
@@ -52,7 +60,7 @@ export function NewDesign() {
     setBuilding(true);
     setBuildError("");
     try {
-      const result = await createRun({ spec_text: spec, preset_id: selectedPreset, targets: { clock_mhz: Number(clock), ...(fit ? { fit: "tt_1x1_tile" as const } : {}) } });
+      const result = await createRun({ spec_text: spec, preset_id: selectedPreset, targets: { clock_mhz: Number(clock), ...(fit ? { fit: "tt_1x1_tile" as const } : {}) }, ...(expert && review ? { review: true } : {}) });
       router.push(`/runs/${result.run_id}`);
     } catch (reason) {
       setBuildError(reason instanceof Error ? reason.message : "The build could not be queued.");
@@ -87,6 +95,11 @@ export function NewDesign() {
               <Checkbox id="fit-tile" checked={fit} onCheckedChange={(checked) => setFit(checked === true)} />
               <Label htmlFor="fit-tile" className="text-xs font-normal text-muted-foreground">Fit in one Tiny Tapeout tile</Label>
             </div>
+            {/* Expert mode (Settings) only: the orchestrator stops after drafting the spec so every field can be edited. */}
+            {expert ? <div className="flex h-4 items-center gap-2 @md:border-l @md:pl-3" onClick={(event) => event.stopPropagation()}>
+              <Checkbox id="review-spec" checked={review} onCheckedChange={(checked) => setReview(checked === true)} />
+              <Label htmlFor="review-spec" className="text-xs font-normal text-muted-foreground">Review spec before RTL</Label>
+            </div> : null}
             <ModelSettings />
             {/* Collapses to an icon until there is a spec to build. */}
             <InputGroupButton type="submit" variant="default" size={spec.trim() || building ? "sm" : "icon-sm"} className="rounded-full" aria-label="Build my chip" disabled={building || !spec.trim()}>{building ? <><Spinner data-icon="inline-start" />Queuing your chip…</> : spec.trim() ? <>Build my chip<ArrowUp data-icon="inline-end" /></> : <ArrowUp />}</InputGroupButton>

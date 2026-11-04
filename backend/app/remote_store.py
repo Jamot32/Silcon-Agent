@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 import re
+import secrets
 from typing import Literal
 
 import httpx
@@ -12,12 +13,37 @@ from app.models import Run
 from app.schemas import Outcome
 from app.terminal import TerminalAcknowledgement
 
+# Run IDs and worker identities share one shape: 32 lowercase hexadecimal characters.
 RUN_ID = re.compile(r"[0-9a-f]{32}\Z")
 RPC_TIMEOUT = 5
 
 
 class RemoteStoreError(RuntimeError):
     """A worker API failure without response bodies or authentication details."""
+
+
+class RunClaimConflict(RemoteStoreError):
+    """The API refused a run mutation: the run is terminal or claimed by another worker."""
+
+
+def load_worker_id(root: Path) -> str:
+    """Return this runs directory's stable worker identity, creating it once with owner-only access."""
+    path = root / "worker.id"
+    try:
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    except FileExistsError:
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+        with os.fdopen(descriptor, "r", encoding="ascii", errors="replace") as handle:
+            value = handle.read(64)
+        if not RUN_ID.match(value):
+            raise ValueError(f"{path} must contain exactly 32 lowercase hexadecimal characters") from None
+        return value
+    value = secrets.token_hex(16)
+    with os.fdopen(descriptor, "w", encoding="ascii") as handle:
+        handle.write(value)
+        handle.flush()
+        os.fsync(handle.fileno())
+    return value
 
 
 class HTTPRunStore:
@@ -34,6 +60,7 @@ class HTTPRunStore:
         if url.scheme not in {"http", "https"} or not url.host or url.username or url.password or url.query or url.fragment:
             raise ValueError("WORKER_API_URL must be an HTTP or HTTPS base URL without credentials, query, or fragment")
         self.base_url = str(url).rstrip("/")
+        self.worker_id = load_worker_id(self.root)
         # Redirects and proxy environment variables must not forward the worker token.
         # The default transport makes one attempt; mutation retries are never added.
         self.client = client if client is not None else httpx.Client(timeout=RPC_TIMEOUT, follow_redirects=False, trust_env=False)
@@ -48,13 +75,15 @@ class HTTPRunStore:
         try:
             response = self.client.request(
                 method, f"{self.base_url}/api/internal/worker/{path}",
-                json=body, headers={"Authorization": f"Bearer {self.token}"},
+                json=body, headers={"Authorization": f"Bearer {self.token}", "X-Worker-Id": self.worker_id},
                 # These local control-plane operations only update SQLite or
                 # register paths. Bound ambiguous requests and shutdown latency.
                 timeout=RPC_TIMEOUT, follow_redirects=False,
             )
             response.raise_for_status()
         except httpx.HTTPStatusError as error:
+            if error.response.status_code == 409:
+                raise RunClaimConflict("Worker API returned HTTP 409: this worker does not hold an active claim on the run") from None
             raise RemoteStoreError(f"Worker API returned HTTP {error.response.status_code}") from None
         except httpx.HTTPError:
             raise RemoteStoreError("Worker API is unavailable") from None

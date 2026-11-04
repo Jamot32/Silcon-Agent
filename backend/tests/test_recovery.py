@@ -37,19 +37,40 @@ class RecoveryTests(unittest.TestCase):
         self.assertEqual(self.plan('routing_congestion', attempts=1).action, 'grow_die')
         self.assertEqual(self.plan('routing_congestion', attempts=2).action, 'stop')
 
-    def test_clock_needs_explicit_floor(self):
-        self.assertEqual(self.plan('timing_fail').action, 'rtl_repair')
+    def test_timing_relaxes_within_floor_then_resynthesizes_then_needs_rtl(self):
         plan = self.plan('timing_fail', min_clock_mhz=40)
         self.assertEqual(plan.overrides, {'CLOCK_PERIOD': 22.0})
         self.assertTrue(plan.target_relaxed)
         self.current['CLOCK_PERIOD'] = 24
         self.assertEqual(self.plan('timing_fail', min_clock_mhz=40).overrides,
                          {'CLOCK_PERIOD': 25.0})
+        # At the floor (a requested clock is its own floor) only delay synthesis remains.
         self.current['CLOCK_PERIOD'] = 25
-        self.assertFalse(self.plan('timing_fail', min_clock_mhz=40).retry)
+        plan = self.plan('timing_fail', min_clock_mhz=40)
+        self.assertEqual((plan.action, plan.overrides, plan.target_relaxed), ('delay_strategy', {'SYNTH_STRATEGY': 'DELAY 0'}, False))
+        self.current['SYNTH_STRATEGY'] = 'DELAY 0'
+        plan = self.plan('timing_fail', min_clock_mhz=40)
+        self.assertEqual((plan.action, plan.retry, plan.overrides), ('rtl_repair', False, {}))
+
+    def test_measured_violation_sizes_the_clock_step(self):
+        plan = self.plan('timing_fail', min_clock_mhz=10, measured_wns_ns=-6)
+        self.assertEqual(plan.overrides, {'CLOCK_PERIOD': 27.5})
+        # The step never passes the floor: a 50 MHz floor is the current 20 ns period.
+        self.assertEqual(self.plan('timing_fail', min_clock_mhz=40, measured_wns_ns=-6).overrides, {'CLOCK_PERIOD': 25.0})
+        self.assertEqual(self.plan('timing_fail', min_clock_mhz=50, measured_wns_ns=-6).overrides, {'SYNTH_STRATEGY': 'DELAY 0'})
 
     def test_bounded_clock_attempts(self):
-        self.assertFalse(self.plan('timing_fail', attempts=3, min_clock_mhz=1).retry)
+        self.assertEqual(self.plan('timing_fail', attempts=3, min_clock_mhz=1).action, 'delay_strategy')
+
+    def test_electrical_violation_gets_whitespace_then_area_and_hold_stops(self):
+        self.assertEqual(self.plan('electrical_violation').action, 'lower_density')
+        self.assertEqual(self.plan('electrical_violation', attempts=1).action, 'grow_die')
+        self.assertEqual(self.plan('electrical_violation', attempts=1, fixed_footprint=True).action, 'scope_down')
+        self.assertEqual(self.plan('hold_fail').action, 'stop')
+
+    def test_gate_level_mismatch_needs_rtl_repair(self):
+        plan = self.plan('gate_level_mismatch')
+        self.assertEqual((plan.action, plan.retry), ('rtl_repair', False))
 
     def test_no_budget_no_retry(self):
         for failure in ['die_too_small', 'routing_congestion', 'timing_fail', 'drc_fail']:

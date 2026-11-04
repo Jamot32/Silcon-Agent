@@ -64,6 +64,8 @@ def full_script():
         rtl_response(buggy=True),
         response(call("write_file", path="test/test_counter.py", content=(GOLDEN / "test/test_counter.py").read_text()),
                  call("run_tests", top="counter", test_module="test_counter")),
+        # Spec review of the failing tests: the spec-only author stands by them.
+        response(content="Every failing expectation follows the DesignSpec."),
         rtl_response(hypothesis=True),
         response(call("run_tests", top="counter", test_module="test_counter")),
         response(call("record_note", text="Compare two utilization settings against the recorded baseline.")),
@@ -122,6 +124,12 @@ class RecordedEDA(EDA):
         return {"ok": True, "run_tag": tag, "metrics": metric.model_dump(mode="json", exclude={"id", "run_id", "iteration_id", "run_tag"}),
                 "drc_ok": metric.drc_ok, "lvs_ok": metric.lvs_ok}
 
+    async def gate_level_simulation(self, run_tag, test_module):
+        # Authentic golden-counter routed-netlist result (fixtures/golden_counter_gate_level).
+        self.flow_artifacts(run_tag)
+        assert test_module == "test_counter"
+        return json.loads((FIXTURES / "golden_counter_gate_level/result.json").read_text())
+
     async def render_layout(self, run_tag):
         assert self.flow_artifacts(run_tag)["layout"].is_file()
         return {"ok": True, "image_url": f"/unit-recorded/{run_tag}.png"}
@@ -151,6 +159,7 @@ class RecordedPlanner:
         return dict(requested)
 
     async def prepare(self, top, requested):
+        self.requests = [*getattr(self, "requests", []), dict(requested)]
         synth = await self.eda.synth_stats(top)
         return {**synth, "mapping_cache_key": "unit-only", "mapping_reused": False,
                 "sizing_plan": {"unit_double": True}, "footprint_policy": "unit-only",
@@ -158,14 +167,15 @@ class RecordedPlanner:
 
 
 
-def build_run(tmp_path, script=None, *, budget=None, package=True, prefix_scope=True):
+def build_run(tmp_path, script=None, *, budget=None, package=True, prefix_scope=True, carry_over=None, review=None,
+              eda_factory=None):
     events = []
 
     async def record(kind, payload):
         events.append((kind, payload))
 
     work = tmp_path / "work"
-    eda = RecordedEDA(work)
+    eda = (eda_factory or RecordedEDA)(work)
     tools = ToolRunner(work, "unit-recorded-evidence", eda=eda, event_callback=record,
                        physical_planner_factory=RecordedPlanner)
     scripted = list(full_script() if script is None else script)
@@ -182,7 +192,7 @@ def build_run(tmp_path, script=None, *, budget=None, package=True, prefix_scope=
         return await package_design(tools, tag, orchestrator.design_spec)
 
     orchestrator = Orchestrator(llm, tools, spec_text="An 8-bit up/down counter with load and enable.",
-                                package_callback=bundle if package else None, event_callback=record)
+                                package_callback=bundle if package else None, event_callback=record, carry_over=carry_over, review=review)
     return orchestrator, llm, eda, events
 
 
@@ -225,20 +235,21 @@ def test_scripted_spec_to_done_uses_real_fail_fix_evidence_and_real_bundle(tmp_p
                 assert set(context["stage_summaries"]) <= {"SPEC", "VERIFY"}
                 assert "src/counter.v" not in messages[1].content
                 assert all("module counter" not in (message.content or "") for message in messages)
-    assert len(verify_requests) == 2
+    # Initial authoring, the spec review of its failing tests, and the post-repair rerun.
+    assert len(verify_requests) == 3
     assert all({tool.name for tool in definitions} == {"write_file", "read_file", "run_tests", "record_note"}
                for _, definitions in verify_requests)
 
 
 def test_first_optimization_round_runs_three_parallel_configuration_variants(tmp_path):
     script = full_script()
-    script[5] = response(call("record_note", text="Compare area synthesis, lower placement density, and delay synthesis at the requested clock."))
+    script[6] = response(call("record_note", text="Compare area synthesis, lower placement density, and delay synthesis at the requested clock."))
     overrides = [
         {"CLOCK_PERIOD": 20.0, "SYNTH_STRATEGY": "AREA 1"},
         {"CLOCK_PERIOD": 20.0, "PL_TARGET_DENSITY_PCT": 35},
         {"CLOCK_PERIOD": 20.0, "SYNTH_STRATEGY": "DELAY 1", "FP_CORE_UTIL": 35},
     ]
-    script[6] = response(*(call("run_flow", top="counter", config_overrides=variant) for variant in overrides))
+    script[7] = response(*(call("run_flow", top="counter", config_overrides=variant) for variant in overrides))
     orchestrator, llm, eda, events = build_run(tmp_path, script)
     outcome = asyncio.run(orchestrator.run())
     assert outcome.status == "done", outcome.error
@@ -325,12 +336,12 @@ def test_failed_comparisons_keep_and_package_actual_initial_best(tmp_path):
 
 
 def test_optional_model_budget_cannot_discard_clean_initial_layout(tmp_path):
-    # Scope + SPEC + the real recorded fail/repair sequence use six proposals.
-    orchestrator, llm, eda, events = build_run(tmp_path, full_script()[:5], budget=Budget(max_calls=6))
+    # Scope + SPEC + the real recorded fail/review/repair sequence use seven proposals.
+    orchestrator, llm, eda, events = build_run(tmp_path, full_script()[:6], budget=Budget(max_calls=7))
     outcome = asyncio.run(orchestrator.run())
     assert outcome.status == "done", outcome.error
     assert outcome.block_signoff_clean is True and outcome.best_run_tag == "recorded_1"
-    assert llm.budget.calls == 6 and eda.flow_calls == 1
+    assert llm.budget.calls == 7 and eda.flow_calls == 1
     assert any("Optional optimization stopped" in str(payload.get("text")) for kind, payload in events if kind == "note")
     assert orchestrator.bundle_path.is_file()
 
@@ -355,7 +366,7 @@ def test_unclean_or_unknown_flow_never_becomes_best_or_enters_optimize(tmp_path,
 
 
 def test_flow_recovery_runs_before_any_optional_model_proposal(tmp_path):
-    orchestrator, llm, eda, events = build_run(tmp_path, full_script()[:5], budget=Budget(max_calls=6))
+    orchestrator, llm, eda, events = build_run(tmp_path, full_script()[:6], budget=Budget(max_calls=7))
     original = eda.run_flow
 
     async def fail_first(top, overrides):
@@ -377,7 +388,7 @@ def test_flow_recovery_runs_before_any_optional_model_proposal(tmp_path):
     outcome = asyncio.run(orchestrator.run())
     assert outcome.status == "done", outcome.error
     assert outcome.best_run_tag == "recorded_2" and orchestrator.tools.flow_runs == 2
-    assert llm.budget.calls == 6
+    assert llm.budget.calls == 7
     recovery = [payload for kind, payload in events if kind == "note" and "recovery_action" in payload]
     assert len(recovery) == 1 and recovery[0]["recovery_action"] == "lower_density"
     assert eda.flow_overrides[0]["PL_TARGET_DENSITY_PCT"] == 40
@@ -385,7 +396,7 @@ def test_flow_recovery_runs_before_any_optional_model_proposal(tmp_path):
 
 def test_verified_rtl_proposal_is_physically_measured_before_another_proposal(tmp_path):
     script = [
-        *full_script()[:5],
+        *full_script()[:6],
         response(
             call("record_note", text="Compare this RTL candidate against the measured baseline."),
             call("write_file", path="src/counter.v", content=(GOLDEN / "src/counter.v").read_text()),
@@ -455,7 +466,7 @@ def test_passing_verify_exit_does_not_need_another_call_for_its_summary(tmp_path
 
 
 def test_optimization_text_claim_remains_a_proposal_and_requires_a_real_comparison(tmp_path):
-    script = [*full_script()[:5], response(content="The layout is already optimal."), full_script()[6]]
+    script = [*full_script()[:6], response(content="The layout is already optimal."), full_script()[7]]
     orchestrator, llm, eda, _ = build_run(tmp_path, script)
     outcome = asyncio.run(orchestrator.run())
     assert outcome.status == "done", outcome.error
@@ -581,8 +592,100 @@ def test_stage_permissions_and_failure_hypothesis_gate(tmp_path):
     asyncio.run(scenario())
 
 
+def test_expert_review_applies_the_edited_spec_and_build_limits_before_rtl(tmp_path):
+    requests = []
+
+    async def review(request):
+        requests.append(request)
+        edited = {**request["design_spec"], "behavior": [*request["design_spec"]["behavior"], "Count holds at reset release"]}
+        return {"design_spec": edited, "build": {"optimize": False, "max_flow_runs": 1, "max_repair_loops": 5,
+                                                  "initial_flow": {"SYNTH_STRATEGY": "AREA 2", "FP_CORE_UTIL": 30}}}
+
+    orchestrator, llm, eda, events = build_run(tmp_path, review=review)
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "done", outcome.error
+    stages = [payload["stage"] for kind, payload in events if kind == "stage_changed"]
+    assert stages[:3] == ["SPEC", "REVIEW", "RTL"] and "OPTIMIZE" not in stages
+    assert requests[0]["design_spec"]["behavior"] == spec_data()["behavior"] and requests[0]["build"]["max_flow_runs"] == 6
+    assert outcome.design_spec.behavior[-1] == "Count holds at reset release"
+    assert eda.flow_calls == 1 and eda.flow_overrides[0]["SYNTH_STRATEGY"] == "AREA 2" and eda.flow_overrides[0]["FP_CORE_UTIL"] == 30
+    assert orchestrator.tools.flow_limit == 1
+    # The SYNTH sizing preflight sizes with the reviewed knobs too, not the planner defaults.
+    assert orchestrator.tools.physical_planner.requests[0] == {"SYNTH_STRATEGY": "AREA 2", "FP_CORE_UTIL": 30}
+    # The two optimization responses were never requested.
+    assert len(llm.responses) == 2
+    log = (tmp_path / "work/design.log").read_text()
+    assert "User review: edited DesignSpec behavior" in log and '"max_flow_runs": 1' in log
+
+
+@pytest.mark.parametrize("answer, message", [
+    (TimeoutError("No review was submitted within 30 minutes."), "No review was submitted within 30 minutes. The build stopped before any RTL was written."),
+    ({"design_spec": {**spec_data(), "top_module": "Bad Top"}, "build": {}}, "The submitted review is invalid"),
+])
+def test_review_that_never_arrives_or_is_invalid_stops_before_rtl(tmp_path, answer, message):
+    async def review(_):
+        if isinstance(answer, Exception):
+            raise answer
+        return answer
+
+    orchestrator, _, eda, events = build_run(tmp_path, review=review)
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "failed" and message in outcome.error and "Use Revise" in outcome.error
+    assert [payload["stage"] for kind, payload in events if kind == "stage_changed"] == ["SPEC", "REVIEW", "FAIL"]
+    assert not (tmp_path / "work/src").exists() and eda.flow_calls == 0
+
+
+def revision_scenario(tmp_path, carried_source):
+    carry_over = {"parent_run_id": "a" * 32, "origin": "selected flow snapshot", "spec_text": "An 8-bit counter.",
+                  "design_spec": spec_data(), "files": {"src/counter.v": carried_source}}
+    script = [response(content=json.dumps(spec_data())), rtl_response(),
+              response(call("write_file", path="test/test_counter.py", content=(GOLDEN / "test/test_counter.py").read_text()),
+                       call("run_tests", top="counter", test_module="test_counter"))]
+    orchestrator, llm, _, events = build_run(tmp_path, script, prefix_scope=False, carry_over=carry_over)
+
+    async def scenario():
+        await orchestrator._stage("SPEC", previous_ok=None)
+        await orchestrator._spec()
+        await orchestrator._rtl()
+        assert await orchestrator._verify() is True
+
+    asyncio.run(scenario())
+    assert not llm.responses
+    spec_context = json.loads(llm.requests[0][0][-1].content)
+    assert spec_context["previous_request"] == "An 8-bit counter." and spec_context["previous_design_spec"] == spec_data()
+    rtl_messages = [message.content or "" for message in llm.requests[1][0]]
+    verify_messages = [message.content or "" for message in llm.requests[2][0]]
+    assert all("module counter" not in message for message in verify_messages)
+    writes = [payload["content"] for kind, payload in events if kind == "file_written" and payload["path"] == "src/counter.v"]
+    lints = [payload["tool_call_id"] for kind, payload in events if kind == "tool_started" and payload["tool"] == "lint"]
+    notes = [(payload["text"], payload.get("carry_over")) for kind, payload in events if kind == "note"]
+    return rtl_messages, writes, lints, notes
+
+
+def test_revision_starts_rtl_from_the_carried_parent_design(tmp_path):
+    bug = (BUG / "src/counter.v").read_text()
+    rtl_messages, writes, lints, notes = revision_scenario(tmp_path, bug)
+    # The orchestrator writes the parent's RTL; the RTL designer then edits and lints it itself.
+    assert writes == [bug, (GOLDEN / "src/counter.v").read_text()]
+    assert any(message.startswith("Current file src/counter.v") and bug in message for message in rtl_messages)
+    assert any("carried over by the orchestrator" in message for message in rtl_messages)
+    assert lints and all(identifier.startswith("script-") for identifier in lints)
+    assert any("Carried over the RTL of run aaaaaaaa (selected flow snapshot)" in note for note, _ in notes)
+    assert ("The RTL designer now adapts the carried-over RTL to the revised request.", "loaded") in notes
+    # The provenance reaches design.log, which packaging puts in the bundle.
+    assert "Carried over the RTL of run aaaaaaaa" in (tmp_path / "work/design.log").read_text()
+
+
+def test_revision_with_a_renamed_top_module_starts_rtl_from_scratch(tmp_path):
+    # A comment that names the top module is not a definition of it.
+    rtl_messages, writes, _, notes = revision_scenario(tmp_path, "// replaces module counter\nmodule other_top(input clk); endmodule\n")
+    assert writes == [(GOLDEN / "src/counter.v").read_text()]
+    assert not any("carried over by the orchestrator" in message for message in rtl_messages)
+    assert ("No RTL from run aaaaaaaa defines top module counter; the RTL designer starts from scratch.", "skipped") in notes
+
+
 def test_five_repair_loops_are_a_hard_limit(tmp_path):
-    script = full_script()[:3]
+    script = full_script()[:4]
     for _ in range(5):
         script.extend([rtl_response(buggy=True, hypothesis=True),
                        response(call("run_tests", top="counter", test_module="test_counter"))])
@@ -614,3 +717,114 @@ def test_failed_tool_reply_retains_bounded_failure_context():
     assert "placement did not converge" in payload["first_error"]
     assert len(payload["first_error"]) <= 700
     assert "log_tail" not in payload
+
+
+WRONG_TEST = (GOLDEN / "test/test_counter.py").read_text() + "\n# Draft expectation, later corrected against the DesignSpec.\n"
+
+
+class WrongTestEDA(RecordedEDA):
+    """Unit double: the draft test contradicts the spec; the golden test passes the golden RTL."""
+
+    async def run_tests(self, top, test_module):
+        if (self.work_dir / "test/test_counter.py").read_text() == WRONG_TEST:
+            result = {"ok": False, "passed": 3, "failed": 1, "skipped": 0,
+                      "failures": [{"test": "wrap_both_ways", "message": "AssertionError: expected 255 to saturate"}]}
+            self.test_results.append(result)
+            return result
+        return await super().run_tests(top, test_module)
+
+
+def test_spec_review_corrects_a_contradicting_test_without_spending_an_rtl_loop(tmp_path):
+    full = full_script()
+    script = [
+        full[0], rtl_response(),
+        response(call("write_file", path="test/test_counter.py", content=WRONG_TEST),
+                 call("run_tests", top="counter", test_module="test_counter")),
+        response(call("record_note", text="TEST_SPEC_CONTRADICTION: Enabled up/down counting wraps modulo 256 - the draft expected saturation."),
+                 call("write_file", path="test/test_counter.py", content=(GOLDEN / "test/test_counter.py").read_text()),
+                 call("run_tests", top="counter", test_module="test_counter")),
+        full[6], full[7],
+    ]
+    orchestrator, llm, eda, _ = build_run(tmp_path, script, eda_factory=WrongTestEDA)
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "done", outcome.error
+    assert orchestrator.fix_loops == 0
+    assert [result["ok"] for result in eda.test_results] == [False, True]
+    review = next(message.content for messages, _ in llm.requests for message in messages
+                  if "test_review" in (message.content or ""))
+    assert json.loads(review)["failing_cases"] == [{"test": "wrap_both_ways", "message": "AssertionError: expected 255 to saturate"}]
+
+
+def test_rtl_designer_cannot_unlock_test_edits(tmp_path):
+    orchestrator, _, _, _ = build_run(tmp_path, [], prefix_scope=False)
+    orchestrator.design_spec = DesignSpec.model_validate(spec_data())
+    test = (GOLDEN / "test/test_counter.py").read_text()
+
+    async def scenario():
+        assert (await orchestrator._execute("VERIFY", call("write_file", path="test/test_counter.py", content=test)))["ok"] is True
+        note = call("record_note", text="TEST_SPEC_CONTRADICTION: the RTL designer disagrees with a test.")
+        assert (await orchestrator._execute("RTL", note))["ok"] is True
+        edit = call("write_file", path="test/test_counter.py", content=test + "\n# weakened\n")
+        return await orchestrator._execute("VERIFY", edit)
+
+    assert asyncio.run(scenario())["ok"] is False
+    assert (tmp_path / "work/test/test_counter.py").read_text() == test
+
+
+def test_verify_context_keeps_the_failing_verdict_after_a_long_rtl_turn(tmp_path):
+    orchestrator, _, _, _ = build_run(tmp_path, [], prefix_scope=False)
+    orchestrator.design_spec = DesignSpec.model_validate(spec_data())
+    orchestrator._record_result(call("run_tests", top="counter", test_module="test_counter"),
+                                {"ok": False, "passed": 2, "failed": 2, "first_error": "count_and_hold: AssertionError"})
+    for name in ("read_file", "record_note", "write_file", "lint", "read_file"):
+        orchestrator._record_result(call(name, path="src/counter.v"), {"ok": True})
+    context = json.loads(orchestrator._context("VERIFY")[1].content)
+    assert [result["tool"] for result in context["last_tool_results"]] == ["run_tests"]
+    assert context["last_tool_results"][0]["failed"] == 2
+
+
+class TimingFailEDA(RecordedEDA):
+    """Unit double: the first two flows miss setup timing; any non-bug counter RTL passes the recorded tests."""
+
+    async def run_tests(self, top, test_module):
+        if "count + 8'd2" in (self.work_dir / "src/counter.v").read_text():
+            return await super().run_tests(top, test_module)
+        result = {"ok": True, "passed": 4, "failed": 0, "skipped": 0, "failures": []}
+        self.test_results.append(result)
+        return result
+
+    async def run_flow(self, top, config_overrides):
+        if self.flow_calls < 2:
+            self.flow_calls += 1
+            self.flow_overrides.append(dict(config_overrides))
+            return {"ok": False, "run_tag": f"failed_{self.flow_calls}", "metrics": {"wns_ns": -3.2},
+                    "drc_ok": None, "lvs_ok": None, "error": "Setup violations found at nom_ss_100C_1v60."}
+        return await super().run_flow(top, config_overrides)
+
+
+def test_timing_failure_at_requested_clock_resynthesizes_then_repairs_rtl(tmp_path):
+    full = full_script()
+    repaired = (GOLDEN / "src/counter.v").read_text() + "\n// Critical path rebalanced.\n"
+    script = [
+        full[0], rtl_response(),
+        response(call("write_file", path="test/test_counter.py", content=(GOLDEN / "test/test_counter.py").read_text()),
+                 call("run_tests", top="counter", test_module="test_counter")),
+        response(call("record_note", text="Hypothesis: the wrap comparison is on the critical path."),
+                 call("write_file", path="src/counter.v", content=repaired), call("lint", top="counter")),
+        full[6], full[7],
+    ]
+    orchestrator, llm, eda, events = build_run(tmp_path, script, eda_factory=TimingFailEDA)
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "done", outcome.error
+    actions = [payload["recovery_action"] for kind, payload in events if kind == "note" and "recovery_action" in payload]
+    assert actions == ["delay_strategy", "rtl_repair"]
+    # The requested 50 MHz is never relaxed; only the synthesis strategy changes.
+    assert eda.flow_overrides[0] == {"CLOCK_PERIOD": 20.0} and eda.flow_overrides[1] == {"CLOCK_PERIOD": 20.0, "SYNTH_STRATEGY": "DELAY 0"}
+    assert orchestrator.fix_loops == 1
+    # The repaired RTL re-passed the frozen tests before the third, measured flow.
+    assert [result["ok"] for result in eda.test_results] == [True, True]
+    stages = [payload["stage"] for kind, payload in events if kind == "stage_changed"]
+    assert stages[:9] == ["SPEC", "RTL", "VERIFY", "SYNTH", "FLOW", "RTL", "VERIFY", "SYNTH", "FLOW"]
+    rtl_context = [message.content for messages, definitions in llm.requests if "lint" in {d.name for d in definitions}
+                   for message in messages]
+    assert any("Physical repair request" in (content or "") and "Shorten the critical path" in content for content in rtl_context)

@@ -60,6 +60,9 @@ class FailureClass(StrEnum):
     PLACEMENT_FAILED = "placement_failed"
     ROUTING_CONGESTION = "routing_congestion"
     TIMING_FAIL = "timing_fail"
+    HOLD_FAIL = "hold_fail"
+    ELECTRICAL_VIOLATION = "electrical_violation"
+    GATE_LEVEL_MISMATCH = "gate_level_mismatch"
     DRC_FAIL = "drc_fail"
     LVS_FAIL = "lvs_fail"
     FLOW_TIMEOUT = "flow_timeout"
@@ -116,6 +119,9 @@ _DETAILS: dict[FailureClass, tuple[str, str]] = {
     FailureClass.PLACEMENT_FAILED: ("The physical cells could not be placed legally.", "Inspect the saved placement report; try more space within the selected size limit, or reduce the design for a fixed tile."),
     FailureClass.ROUTING_CONGESTION: ("The router could not fit the required connections.", "Lower placement density, then grow the die within the selected size budget."),
     FailureClass.TIMING_FAIL: ("The measured implementation misses its timing constraint.", "Try conservative flow settings or a permitted slower clock; then consider an RTL change."),
+    FailureClass.HOLD_FAIL: ("The routed design has hold-time violations at a signoff corner; it would fail at any clock speed.", "Do not relax the clock; retry with more placement space for hold buffers or remove very short register-to-register paths in RTL."),
+    FailureClass.ELECTRICAL_VIOLATION: ("The routed design violates a max slew, max capacitance, max fanout or antenna limit at a signoff corner.", "Retry with lower placement density or a larger die so design repair can buffer the reported nets; reduce high-fanout nets in RTL if they persist."),
+    FailureClass.GATE_LEVEL_MISMATCH: ("The routed gate-level netlist failed the tests that the RTL passed.", "Remove simulation-only RTL semantics (reset/X handling, sensitivity, read-before-reset) so simulation and synthesis agree; rerun the same tests."),
     FailureClass.DRC_FAIL: ("The layout has design-rule violations.", "Retry conservative density settings; retain a not tapeout-ready status until clean."),
     FailureClass.LVS_FAIL: ("The extracted layout does not match the intended circuit.", "Inspect the mismatch report and do not mark the design tapeout-ready."),
     FailureClass.FLOW_TIMEOUT: ("The physical-design command exceeded its time limit.", "Keep partial outputs and retry a smaller design or fewer optimization rounds."),
@@ -144,13 +150,18 @@ _RTL_RULES = (
     (FailureClass.SYNTAX_ERROR, r"\bsyntax error\b|\bParser error\b"),
 )
 _FLOW_RULES = (
-    (FailureClass.CONFIG_ERROR, r"\binvalid configuration\b|\bconfiguration (?:error|is invalid)\b|\bunknown configuration (?:key|variable)\b|Only clock period, utilization, density, die area"),
+    (FailureClass.CONFIG_ERROR, r"\binvalid configuration\b|\bconfiguration (?:error|is invalid)\b|\bunknown configuration (?:key|variable)\b|Only clock period, utilization, density, die area|\bdid not match any corners\b"),
     (FailureClass.DIE_TOO_SMALL, r"\bGPL-0301\b|\bdie (?:area |dimensions? )?(?:is |are )?too small\b|\binsufficient (?:width|height|area)\b|\bcore area (?:is )?too small\b"),
     (FailureClass.PLACEMENT_FAILED, r"\bDPL-0036\b"),
     (FailureClass.ROUTING_CONGESTION, r"\brouting congestion (?:is )?too high\b|\bcongestion overflow\b"),
     (FailureClass.DRC_FAIL, r"\bDRC (?:check )?failed\b|\b(?:DRC violations|total DRC errors)\s*[:=]\s*[1-9]\d*\b"),
     (FailureClass.LVS_FAIL, r"\bCircuits do not match\b|\bLVS (?:check )?failed\b|\bLVS mismatches\s*[:=]\s*[1-9]\d*\b"),
-    (FailureClass.TIMING_FAIL, r"\bslack\s*\(VIOLATED\)|\btiming (?:check )?failed\b"),
+    # Checker.*Violations deferred errors in LibreLane 3.0.16 and run_flow's signoff message.
+    # tool.log wraps rich console lines after "found", so match only the unwrapped prefix;
+    # case-sensitive so LibreLane's verbose "No hold violations found" never matches.
+    (FailureClass.HOLD_FAIL, r"(?-i:\bHold violations found\b)"),
+    (FailureClass.TIMING_FAIL, r"\bslack\s*\(VIOLATED\)|\btiming (?:check )?failed\b|(?-i:\bSetup violations found\b)"),
+    (FailureClass.ELECTRICAL_VIOLATION, r"(?-i:\bMax (?:Slew|Cap|Fanout) violations found\b|\bAntenna violations found\b)"),
 )
 _COMMON_RULES = (
     (FailureClass.FIX_LOOP_EXHAUSTED, r"Verification failed after (?:five|\d+) RTL repair loops"),
@@ -256,6 +267,8 @@ def classify_failure(
         return diagnosis(FailureClass.TEST_HARNESS_ERROR, text or "Trusted test harness rejected execution")
     if result.get("ok") is False and result.get("error_kind") == "sizing_preflight":
         return diagnosis(FailureClass.TOO_BIG, text or "Mapped placement estimate exceeds the selected footprint")
+    if result.get("ok") is False and result.get("error_kind") == "gate_level_mismatch":
+        return diagnosis(FailureClass.GATE_LEVEL_MISMATCH, text or "Gate-level simulation of the routed netlist failed")
     cells = _number(result.get("estimated_cells" if failure_stage == FailureStage.SPEC else "cell_count"))
     limit = _number(result.get("cell_budget"))
     if cells is not None and limit is not None and cells > limit:
@@ -267,6 +280,22 @@ def classify_failure(
         for key, kind in (("drc_ok", FailureClass.DRC_FAIL), ("lvs_ok", FailureClass.LVS_FAIL)):
             if result.get(key) is False or metrics.get(key) is False:
                 return diagnosis(kind, f"{key}=false")
+        checks = result.get("signoff_checks")
+        checks = checks if isinstance(checks, Mapping) else {}
+
+        def measured(*keys: str) -> str | None:
+            values = {key: _number(checks.get(key)) for key in keys}
+            bad = [f"{key}={value:g}" for key, value in values.items()
+                   if value is not None and (value < 0 if key.endswith("_ns") else value > 0)]
+            return "; ".join(bad) or None
+
+        # Hold first: a slower clock cannot repair it. Then setup, then electrical limits.
+        for kind, keys in ((FailureClass.HOLD_FAIL, ("hold_wns_ns", "hold_violations")),
+                           (FailureClass.TIMING_FAIL, ("setup_wns_ns", "setup_violations")),
+                           (FailureClass.ELECTRICAL_VIOLATION, ("max_slew_violations", "max_cap_violations", "max_fanout_violations",
+                                                                 "antenna_violating_nets", "antenna_violating_pins"))):
+            if evidence := measured(*keys):
+                return diagnosis(kind, evidence)
         for key in ("wns_ns", "tns_ns"):
             value = _number(metrics.get(key, result.get(key)))
             if value is not None and value < 0:

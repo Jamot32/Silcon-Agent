@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 from copy import deepcopy
 from pathlib import Path
 import re
@@ -33,6 +34,7 @@ class EDA:
         self._harness_image_lock = asyncio.Lock()
         self._last_harness: tuple[Path, Path, dict] | None = None
         self._flow_verification: dict[str, dict[str, Path]] = {}
+        self._gate_level: dict[str, tuple[Path, Path, dict[str, JsonValue]]] = {}
 
     def configure_test_harness(self, spec: DesignSpec) -> None:
         self._harness_context = harness.build_context(spec, require_edge_case=True, allow_wired_and=True)
@@ -204,6 +206,66 @@ class EDA:
     async def render_layout(self, run_tag: str) -> dict[str, JsonValue]:
         _, output, top = self._flow(run_tag)
         return render.render_layout(output, run_tag, top, self.run_id)
+
+    async def gate_level_simulation(self, run_tag: str, test_module: str) -> dict[str, JsonValue]:
+        """Re-run a flow's frozen tests against its routed netlist and sky130 cell models."""
+        validate_identifier(test_module)
+        source, output, top = self._flow(run_tag)
+        netlist = safe_artifact(output, output / "runs" / run_tag / "final/nl" / f"{top}.nl.v")
+        if not netlist.is_file() or not netlist.stat().st_size:
+            raise ValueError("Flow produced no routed netlist for gate-level simulation")
+        call_dir = safe_artifact(self.work_dir, self.work_dir / ".eda" / f"gate_level_{uuid4().hex}")
+        input_dir, output_dir = call_dir / "input", call_dir / "output"
+        (input_dir / "test").mkdir(parents=True)
+        (input_dir / "netlist").mkdir()
+        output_dir.mkdir()
+        for path in sorted((source / "test").glob("*.py")):
+            if path.is_symlink() or not path.is_file() or not IDENTIFIER.fullmatch(path.stem):
+                raise ValueError("Unsafe frozen test filename")
+            shutil.copyfile(path, input_dir / "test" / path.name)
+        shutil.copyfile(netlist, input_dir / "netlist" / f"{top}.nl.v")
+        sandbox, helper = self.sandbox, None
+        if run_tag in self._flow_verification:
+            # Harness flows reuse their retained helper/context and pinned image.
+            (input_dir / "trusted").mkdir(mode=0o700)
+            for name in ("sa_tb.py", "harness.json"):
+                retained = safe_artifact(source, source / "trusted" / name)
+                if retained.is_symlink() or not retained.is_file():
+                    raise ValueError("Flow is missing its retained trusted harness material")
+                shutil.copyfile(retained, input_dir / "trusted" / name)
+            helper = input_dir / "trusted" / "sa_tb.py"
+            pinned, _ = await self._prepare_harness_sandbox()
+            # Same pinned image; keep the host evidence callback for this command.
+            sandbox = DockerSandbox(image=pinned.image, pdk_dir=pinned.pdk_dir, user=pinned.user,
+                                    completion_callback=self.sandbox.completion_callback)
+        netlist_bytes = (input_dir / "netlist" / f"{top}.nl.v").read_bytes()
+        result = await sim.run_gate_level(sandbox, input_dir, output_dir, top, test_module,
+                                          timeout=sim.gate_level_timeout(len(netlist_bytes)), trusted_test_helper=helper)
+        models = self.sandbox.pdk_dir / "sky130A/libs.ref/sky130_fd_sc_hd/verilog"
+        result.update(run_tag=run_tag, top_module=top, test_module=test_module,
+                      netlist_sha256=hashlib.sha256(netlist_bytes).hexdigest(),
+                      defines=list(sim.GATE_LEVEL_DEFINES), image=sandbox.image,
+                      cell_models={name: hashlib.sha256((models / name).read_bytes()).hexdigest()
+                                   for name in sim.GATE_LEVEL_CELL_MODELS if (models / name).is_file()})
+        for field in ("log_path", "results_path"):
+            if isinstance(result.get(field), str):
+                result[field] = str(safe_artifact(output_dir, Path(result[field])).relative_to(self.work_dir))
+        self._gate_level[run_tag] = (input_dir, output_dir, deepcopy(result))
+        return result
+
+    def gate_level_result(self, run_tag: str) -> dict[str, JsonValue] | None:
+        self._flow(run_tag)
+        record = self._gate_level.get(run_tag)
+        return deepcopy(record[2]) if record is not None else None
+
+    def gate_level_artifacts(self, run_tag: str) -> dict[str, Path]:
+        self._flow(run_tag)
+        if run_tag not in self._gate_level:
+            return {}
+        _, output, _ = self._gate_level[run_tag]
+        paths = {"xml": output / "test_results.xml", "log": output / "tool.log"}
+        return {name: safe_artifact(self.work_dir, path) for name, path in paths.items()
+                if path.is_file() and not path.is_symlink()}
 
     def flow_artifacts(self, run_tag: str) -> dict[str, Path]:
         source, output, top = self._flow(run_tag)

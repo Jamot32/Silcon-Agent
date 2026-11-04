@@ -34,6 +34,8 @@ def strict_runner(tmp_path, monkeypatch):
     eda.run_flow = AsyncMock(side_effect=AssertionError("generic flow route must not run"))
     eda.run_harness_tests = AsyncMock(wraps=eda.run_harness_tests)
     eda.run_harness_flow = AsyncMock(return_value={"ok": True, "run_tag": "unit_harness_flow", "metrics": {}})
+    # Unit double: the routed-netlist simulation verdict is supplied, never claimed as measured.
+    eda.gate_level_simulation = AsyncMock(return_value={"ok": True, "passed": 4, "failed": 0, "skipped": 0})
     events = []
 
     async def record(kind, payload):
@@ -144,6 +146,8 @@ def test_strict_flow_requires_proof_and_passes_it_only_to_the_new_route(strict_r
         flowed = await runner.execute(_call("run_flow", top="subject", config_overrides={"CLOCK_PERIOD": 25}))
         assert flowed["ok"] and runner.flow_runs == 1, flowed
         runner.eda.run_harness_flow.assert_awaited_once_with("subject", {"CLOCK_PERIOD": 25}, proof)
+        runner.eda.gate_level_simulation.assert_awaited_once_with("unit_harness_flow", "test_subject")
+        assert flowed["gls_ok"] is True
         assert runner.flow_verification_proof("unit_harness_flow") == proof
         returned = runner.flow_verification_proof("unit_harness_flow")
         returned["top_module"] = "caller-mutated"

@@ -13,15 +13,27 @@ import re
 import stat
 from time import monotonic
 from collections.abc import Callable
+from typing import BinaryIO
 from uuid import uuid4
 
 from pydantic import JsonValue
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-IMAGE = "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1"
+IMAGE = "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools2"
 PDK_REVISION = "8afc8346a57fe1ab7934ba5a6056ea8b43078e71"
 TAIL_BYTES = 8192
 MAX_JSON_BYTES = 2 * 1024 * 1024
+# tool.log bound: ~40x the largest observed real LibreLane log (~390 KB) and half of
+# the evidence capture bound (app.agent.evidence.MAX_LOG_BYTES), so a capped log
+# plus its marker is always still capturable as evidence.
+MAX_TOOL_LOG_BYTES = 16 * 1024 * 1024
+OUTPUT_LIMIT_ERROR = f"Tool output exceeded the {MAX_TOOL_LOG_BYTES // (1024 * 1024)} MiB log limit; container stopped"
+# Per-file RLIMIT_FSIZE (bytes; Docker passes --ulimit values to setrlimit unconverted).
+# ~10x the largest observed real flow artifact (24 MB ODB/MAG for an ~12k-cell design).
+# It bounds each file, not the total written to the /output bind mount (HOME, TMPDIR and
+# caches live there too); total volume is still bounded only by the timeout and disk.
+MAX_CONTAINER_FILE_BYTES = 256 * 1024 * 1024
+_READ_CHUNK = 64 * 1024
 
 
 def safe_artifact(root: Path, path: Path) -> Path:
@@ -67,10 +79,11 @@ class CommandResult:
     timed_out: bool
     log_path: Path
     log_tail: str
+    output_limit_exceeded: bool = False
 
     @property
     def ok(self) -> bool:
-        return self.returncode == 0 and not self.timed_out
+        return self.returncode == 0 and not self.timed_out and not self.output_limit_exceeded
 
 
 @dataclass(frozen=True)
@@ -81,6 +94,50 @@ class CommandObservation:
     result: CommandResult
     duration_seconds: float
     process_launched: bool
+
+
+async def _copy_output(stream: asyncio.StreamReader, log: BinaryIO) -> bool:
+    """Copy container output to the log; return True once it exceeds the log bound."""
+    written = 0
+    while chunk := await stream.read(_READ_CHUNK):
+        if len(chunk) > MAX_TOOL_LOG_BYTES - written:
+            log.write(chunk[:MAX_TOOL_LOG_BYTES - written])
+            return True
+        log.write(chunk)
+        written += len(chunk)
+    return False
+
+
+async def _until_exit(process: asyncio.subprocess.Process, log: BinaryIO) -> bool:
+    if await _copy_output(process.stdout, log):
+        return True
+    await process.wait()
+    return False
+
+
+async def _stop(name: str, process: asyncio.subprocess.Process, log: BinaryIO) -> None:
+    """Remove the named container, then kill and reap the Docker client."""
+    # Discard output throughout cleanup: an unread client pipe blocks the daemon's attach
+    # stream, which stalls `docker rm -f`; asyncio also reaps the client only after EOF.
+    async def discard() -> None:
+        while await process.stdout.read(_READ_CHUNK):
+            pass
+    drain = asyncio.create_task(discard())
+    try:
+        cleanup = await asyncio.create_subprocess_exec("docker", "rm", "-f", name, stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
+        try:
+            await asyncio.wait_for(cleanup.wait(), 10)
+        except TimeoutError:
+            cleanup.kill()
+            await cleanup.wait()
+            log.write(b"\nDocker cleanup timed out; daemon must be checked.\n")
+    except OSError as cleanup_error:
+        log.write(f"\nDocker cleanup could not launch: {cleanup_error}\n".encode())
+    finally:
+        if process.returncode is None:
+            process.kill()
+        await drain
+        await process.wait()
 
 
 class DockerSandbox:
@@ -110,7 +167,7 @@ class DockerSandbox:
         if require_pdk and not (self.pdk_dir / "sky130A").is_dir():
             raise ValueError("sky130 PDK not prepared; run make eda-setup")
         name = f"silicon-eda-{uuid4().hex}"
-        args = ["docker", "run", "--rm", "--init", "--name", name, "--network", "none", "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--cpus", "4", "--memory", "6g", "--pids-limit", "512", "--user", self.user,
+        args = ["docker", "run", "--rm", "--init", "--name", name, "--network", "none", "--read-only", "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--cpus", "4", "--memory", "6g", "--pids-limit", "512", "--ulimit", f"fsize={MAX_CONTAINER_FILE_BYTES}", "--user", self.user,
                 "-e", "HOME=/output/home", "-e", "TMPDIR=/output/tmp", "-e", "XDG_CACHE_HOME=/output/cache", "-e", "PYTHONDONTWRITEBYTECODE=1",
                 "-v", f"{input_dir}:/input:ro", "-v", f"{output_dir}:/output", "-w", "/output"]
         if require_pdk:
@@ -131,41 +188,31 @@ class DockerSandbox:
             args += ["--mount", mount.getvalue()]
         args += [self.image, *command]
         path = output_dir / "tool.log"
-        timed_out = False
+        timed_out = output_limit_exceeded = False
         with path.open("wb") as log:
             try:
-                process = await asyncio.create_subprocess_exec(*args, stdout=log, stderr=asyncio.subprocess.STDOUT)
+                process = await asyncio.create_subprocess_exec(*args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
             except OSError as error:
                 log.write(f"Cannot launch Docker: {error}".encode())
                 log.flush()
                 return self._observe(CommandResult(127, False, path, log_tail(output_dir, path)),
                                      command, input_dir, output_dir, started, False)
             try:
-                await asyncio.wait_for(process.wait(), timeout)
+                output_limit_exceeded = await asyncio.wait_for(_until_exit(process, log), timeout)
             except (TimeoutError, asyncio.CancelledError) as error:
                 timed_out = True
-                try:
-                    cleanup = await asyncio.create_subprocess_exec("docker", "rm", "-f", name, stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
-                    try:
-                        await asyncio.wait_for(cleanup.wait(), 10)
-                    except TimeoutError:
-                        cleanup.kill()
-                        await cleanup.wait()
-                        log.write(b"\nDocker cleanup timed out; daemon must be checked.\n")
-                except OSError as cleanup_error:
-                    log.write(f"\nDocker cleanup could not launch: {cleanup_error}\n".encode())
-                finally:
-                    if process.returncode is None:
-                        process.kill()
-                    await process.wait()
+                await _stop(name, process, log)
                 if isinstance(error, asyncio.CancelledError):
                     log.flush()
                     self._observe(CommandResult(process.returncode if process.returncode is not None else -1,
                                                 True, path, log_tail(output_dir, path)),
                                   command, input_dir, output_dir, started, True)
                     raise
+            if output_limit_exceeded:
+                await _stop(name, process, log)
+                log.write(f"\n[{OUTPUT_LIMIT_ERROR}]\n".encode())
             returncode = process.returncode if process.returncode is not None else -1
-        return self._observe(CommandResult(returncode, timed_out, path, log_tail(output_dir, path)),
+        return self._observe(CommandResult(returncode, timed_out, path, log_tail(output_dir, path), output_limit_exceeded),
                              command, input_dir, output_dir, started, True)
 
 
@@ -196,8 +243,9 @@ async def pin_sandbox_image(sandbox: DockerSandbox) -> tuple[DockerSandbox, dict
     return DockerSandbox(image=image_id, pdk_dir=sandbox.pdk_dir, user=sandbox.user), identity
 
 
-async def run_runtime(sandbox: DockerSandbox, kind: str, *, input_dir: Path, output_dir: Path, top: str, extra: list[str] | None = None, timeout: float = 60, require_pdk: bool = False) -> dict[str, JsonValue]:
-    result = await sandbox.run(["python3", "/opt/silicon-agent/runtime.py", kind, "--top", top, *(extra or [])], input_dir=input_dir, output_dir=output_dir, timeout=timeout, require_pdk=require_pdk)
+async def run_runtime(sandbox: DockerSandbox, kind: str, *, input_dir: Path, output_dir: Path, top: str, extra: list[str] | None = None, timeout: float = 60, require_pdk: bool = False, trusted_test_helper: Path | None = None) -> dict[str, JsonValue]:
+    helper = {} if trusted_test_helper is None else {"trusted_test_helper": trusted_test_helper}
+    result = await sandbox.run(["python3", "/opt/silicon-agent/runtime.py", kind, "--top", top, *(extra or [])], input_dir=input_dir, output_dir=output_dir, timeout=timeout, require_pdk=require_pdk, **helper)
     payload: dict[str, JsonValue] = {"ok": False, "error": "Tool produced no structured result"}
     path = safe_artifact(output_dir, output_dir / "result.json")
     if path.is_file():
@@ -206,6 +254,6 @@ async def run_runtime(sandbox: DockerSandbox, kind: str, *, input_dir: Path, out
             raise ValueError("Runtime returned a non-object result")
         payload = value
     if not result.ok:
-        payload.update(ok=False, error="Tool timed out" if result.timed_out else f"Tool exited with code {result.returncode}")
+        payload.update(ok=False, error="Tool timed out" if result.timed_out else OUTPUT_LIMIT_ERROR if result.output_limit_exceeded else f"Tool exited with code {result.returncode}")
     payload.update(log_tail=result.log_tail, log_path=str(result.log_path), timed_out=result.timed_out)
     return payload

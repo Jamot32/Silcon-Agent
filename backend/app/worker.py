@@ -12,6 +12,7 @@ import math
 import os
 from pathlib import Path
 import signal
+from time import monotonic
 from typing import TYPE_CHECKING, Callable, Protocol
 
 from pydantic import JsonValue
@@ -22,8 +23,8 @@ from app.llm.types import BudgetExceeded, LLMError
 from app.observability import RunObserver
 from app.observability.trace import TraceWriter
 from app.packaging import package_design
-from app.remote_store import RemoteStoreError
-from app.schemas import Outcome
+from app.remote_store import RemoteStoreError, RunClaimConflict
+from app.schemas import REVIEW_TIMEOUT_SECONDS, Outcome
 from app.terminal import TerminalAcknowledgement, TerminalAcknowledgementUnavailable
 
 if TYPE_CHECKING:
@@ -44,6 +45,7 @@ def _run_observer(work_dir: Path, run_id: str) -> RunObserver:
 
 
 class WorkerStore(Protocol):
+    root: Path
     def recover_interrupted(self) -> None: ...
     def claim_pending(self) -> Run | None: ...
     def work_dir(self, run_id: str) -> Path: ...
@@ -160,13 +162,15 @@ class Worker:
                     await self.execute(pending)
                 failures = 0
                 await self._wait(self.poll_interval)
-            except RemoteStoreError:
+            except RemoteStoreError as error:
                 # execute() has already awaited owned task/subprocess and RPC
-                # cleanup. No failed mutation is retried or job re-executed.
+                # cleanup. No failed mutation is retried or job re-executed;
+                # a 409 means the API kept another decision for that run.
                 recovery_needed = True
                 failures = min(failures + 1, 10)
                 delay = min(self.reconnect_max_delay, self.poll_interval * 2 ** (failures - 1))
-                logger.warning("worker_api_disconnected reconnect_delay_seconds=%.3f", delay)
+                logger.warning("%s reconnect_delay_seconds=%.3f",
+                               "worker_run_claim_conflict" if isinstance(error, RunClaimConflict) else "worker_api_disconnected", delay)
                 await self._wait(delay)
 
     async def execute(self, run: Run) -> None:
@@ -226,10 +230,26 @@ class Worker:
                 factory = Orchestrator
             targets = json.loads(run.targets_json) if run.targets_json else None
             starter = {"starter_id": run.starter_id} if run.starter_id is not None else {}
+            carry_over = {"carry_over": json.loads(run.carry_over_json)} if run.carry_over_json is not None else {}
+
+            async def await_review(_: dict[str, JsonValue]) -> dict[str, JsonValue]:
+                # The API stores the answer (POST /api/runs/{id}/review); a cancel ends this wait like any other step.
+                deadline = monotonic() + REVIEW_TIMEOUT_SECONDS
+                while True:
+                    # Read after the deadline check: the API's window closed first, so this last read sees every accepted answer.
+                    expired = monotonic() >= deadline
+                    current = await self._call(self.store.get_run, run.id)
+                    if current.review_json is not None:
+                        return json.loads(current.review_json)
+                    if expired:
+                        raise TimeoutError(f"No review was submitted within {REVIEW_TIMEOUT_SECONDS // 60} minutes.")
+                    await asyncio.sleep(self.poll_interval)
+
+            review = {"review": await_review} if run.review_requested else {}
             parameters = inspect.signature(factory).parameters
             observer_option = ({"observer": observer} if observer is not None and
                 ("observer" in parameters or any(p.kind == inspect.Parameter.VAR_KEYWORD for p in parameters.values())) else {})
-            orchestrator = factory(llm, tools, spec_text=run.spec_text, targets=targets, package_callback=package, event_callback=publish, **starter, **observer_option)
+            orchestrator = factory(llm, tools, spec_text=run.spec_text, targets=targets, package_callback=package, event_callback=publish, **starter, **carry_over, **review, **observer_option)
             self.current_task = asyncio.create_task(orchestrator.run())
             terminal_status, terminal_class, store_confirmed = await self._complete_task(run, observer=observer, tools=tools, llm=llm, terminal_write=terminal_write)
         except RemoteStoreError as error:
@@ -366,7 +386,23 @@ async def _serve(store: WorkerStore) -> None:
     loop = asyncio.get_running_loop()
     for signum in (signal.SIGTERM, signal.SIGINT):
         loop.add_signal_handler(signum, worker.request_stop)
-    await worker.run()
+    async def report_subscriptions() -> None:
+        from app.subscription_status import refresh_subscriptions
+
+        while not worker.stop_event.is_set():
+            try:
+                await asyncio.to_thread(refresh_subscriptions, store.root)
+            except OSError:
+                logger.warning("subscription_status_unavailable")
+            await worker._wait(30)
+
+    # Probe only on the host; API/EDA containers never receive OAuth or CLI output.
+    reporter = asyncio.create_task(report_subscriptions())
+    try:
+        await worker.run()
+    finally:
+        worker.stop_event.set()
+        await reporter
 
 
 def main() -> int:

@@ -43,3 +43,10 @@ export function duration(seconds: number): string {
 export function runName(run: Pick<PublicRun, "design_spec" | "preset_id">): string {
   return typeof run.design_spec?.top_module === "string" ? run.design_spec.top_module : run.preset_id ? title(run.preset_id) : "Chip design";
 }
+
+const toolLabels: Record<string, string> = {
+  write_file: "Write", read_file: "Read", list_files: "List files", lint: "Lint (Verilator)", run_tests: "Simulate (cocotb)",
+  synth_stats: "Synthesize (Yosys)", run_flow: "Place and route (LibreLane)", read_report: "Read report", render_layout: "Render GDS", record_note: "Note", finish: "Finish",
+};
+export const toolLabel = (tool: string): string => toolLabels[tool] ?? title(tool);
+export const compact = (value: number): string => value.toLocaleString("en-US", { notation: "compact", maximumFractionDigits: 1 });

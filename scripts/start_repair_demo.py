@@ -21,7 +21,7 @@ def main():
     payload = {"spec_text": starter.spec_text, "preset_id": "uart", "starter_id": starter.id,
                "targets": {"clock_mhz": 50}}
     request = urllib.request.Request(args.api.rstrip("/") + "/api/runs", method="POST",
-                                     data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"})
+                                     data=json.dumps(payload).encode(), headers={"Content-Type": "application/json", "X-Silicon-Request": "1"})
     with urllib.request.urlopen(request, timeout=30) as response:
         result = json.load(response)
     marker = REPO / "runs/m10-repair-run.json"

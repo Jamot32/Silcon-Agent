@@ -1,0 +1,25 @@
+     -.--ns INFO     gpi                                ..mbed/gpi_embed.cpp:93   in _embed_init_python              Using Python 3.13.9 interpreter at /nix/store/zjwa39ms0614lmwqvk591s76cr7gz65x-python3-3.13.9-env/bin/python3
+     -.--ns INFO     gpi                                ../gpi/GpiCommon.cpp:79   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb                             Running on Icarus Verilog version 13.0 (devel)
+     0.00ns INFO     cocotb                             Seeding Python random module with 1793535886
+     0.00ns INFO     cocotb                             Initialized cocotb v2.0.1 from /opt/silicon-python/cocotb
+     0.00ns INFO     cocotb.regression                  pytest not found, install it to enable better AssertionError messages
+     0.00ns INFO     cocotb                             Running tests
+     0.00ns INFO     cocotb.regression                  running test_counter.synchronous_reset (1/4)
+    32.00ns INFO     cocotb.regression                  test_counter.synchronous_reset passed
+    32.00ns INFO     cocotb.regression                  running test_counter.count_and_hold (2/4)
+   232.00ns INFO     cocotb.regression                  test_counter.count_and_hold passed
+   232.00ns INFO     cocotb.regression                  running test_counter.load_has_priority (3/4)
+   262.00ns INFO     cocotb.regression                  test_counter.load_has_priority passed
+   262.00ns INFO     cocotb.regression                  running test_counter.wrap_in_both_directions (4/4)
+   322.00ns INFO     cocotb.regression                  test_counter.wrap_in_both_directions passed
+   322.00ns INFO     cocotb.regression                  **********************************************************************************************
+                                                        ** TEST                                  STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+                                                        **********************************************************************************************
+                                                        ** test_counter.synchronous_reset         PASS          32.00           0.00      85652.67  **
+                                                        ** test_counter.count_and_hold            PASS         200.00           0.00     447870.15  **
+                                                        ** test_counter.load_has_priority         PASS          30.00           0.00     317750.30  **
+                                                        ** test_counter.wrap_in_both_directions   PASS          60.00           0.00     352956.86  **
+                                                        **********************************************************************************************
+                                                        ** TESTS=4 PASS=4 FAIL=0 SKIP=0                        322.00           0.00     168843.41  **
+                                                        **********************************************************************************************

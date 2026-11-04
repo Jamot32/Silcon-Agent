@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { ArkinousMark, ProviderLogo, type ProviderLogoId } from "@/components/provider-logo";
+import { ArkinousMark, ProviderLogo } from "@/components/provider-logo";
+import { providers } from "@/lib/model-catalog";
 import { Button } from "@/components/ui/button";
 import { InputGroupButton } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
@@ -10,24 +11,7 @@ import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitl
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 
-// shortcut: hard-coded catalog and UI-only choice (not sent to createRun); serve the list from the API and wire it into the run request when the backend accepts per-agent models.
-const providers: { name: string; logo: ProviderLogoId; models: string[]; unavailable?: { name: string; reason: string }[] }[] = [
-  { name: "Codex (BYOK)", logo: "openai", models: ["gpt-6.1-sol"] },
-  { name: "OpenAI", logo: "openai", models: ["gpt-6.1-sol", "gpt-6.1-terra", "gpt-6.1-luna"] },
-  { name: "Anthropic", logo: "anthropic", models: ["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"] },
-  // Gemini IDs from ai.google.dev/gemini-api/docs/models (stable releases).
-  { name: "Gemini", logo: "gemini", models: ["gemini-4-argon", "gemini-3.8-flash", "gemini-3.5-flash-lite"] },
-  // Meta IDs from dev.meta.ai/docs/models; Wonder Full has no Model API ID (Muse Code only).
-  { name: "Meta", logo: "meta", models: ["muse-spark-1.3", "muse-spark-1.3-contributor", "muse-wonder-1.0"], unavailable: [{ name: "muse-wonder-full", reason: "Muse Code only" }] },
-  { name: "Kimi", logo: "kimi", models: ["kimi-k3.1-pro"] },
-  { name: "Qwen", logo: "qwen", models: ["qwen3.8-max"] },
-  { name: "DeepSeek", logo: "deepseek", models: ["deepseek-v4.1-pro", "deepseek-v4.1-flash"] },
-  // xAI, Z.ai and MiniMax IDs from each provider's model docs; Mistral uses its documented -latest aliases.
-  { name: "xAI", logo: "xai", models: ["grok-4.7", "grok-4.6"] },
-  { name: "Mistral", logo: "mistral", models: ["mistral-large-latest", "mistral-medium-latest", "codestral-latest"] },
-  { name: "Z.ai", logo: "zai", models: ["glm-5.3", "glm-5.3-flash"] },
-  { name: "MiniMax", logo: "minimax", models: ["MiniMax-M3", "MiniMax-M3.1-Flash"] },
-];
+// shortcut: model selections remain a preview until the worker accepts per-agent models.
 // Option values are "provider/model" because one model can be offered by more than one provider.
 // Taskfit (Arkinous) evaluates the task and picks the model for each role; design only, nothing evaluates yet.
 const taskfit = "Arkinous/taskfit";

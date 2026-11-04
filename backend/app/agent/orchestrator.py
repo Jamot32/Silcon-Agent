@@ -1,6 +1,8 @@
 import asyncio
+import hashlib
 import json
 import os
+import re
 from collections.abc import Awaitable, Callable
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING
@@ -21,7 +23,7 @@ from app.llm.types import Budget, Completion, LLM, LLMError, Message, ToolCall
 from app.llm.codex import MalformedProposal, ProviderError
 from app.observability.errors import ObservationBindingError
 from app.models import Metric
-from app.schemas import DesignSpec, Outcome
+from app.schemas import BuildConfig, DesignSpec, Outcome
 
 if TYPE_CHECKING:
     from app.observability import RunObserver
@@ -31,6 +33,36 @@ _ALLOWED = {
     "VERIFY": {"write_file", "read_file", "run_tests", "record_note"},
     "OPTIMIZE": {"write_file", "run_tests", "run_flow", "read_report", "record_note"},
 }
+
+
+class ReviewStopped(Exception):
+    """The REVIEW checkpoint ended without a usable answer; nothing past SPEC ran."""
+
+
+class RtlRepairRequired(Exception):
+    """Physical evidence needs a tested RTL change; configuration-only recovery cannot fix it."""
+
+
+# With no requested clock, any frequency satisfies the request; recovery may slow
+# the backend's default clock down to this floor before asking for an RTL change.
+UNREQUESTED_CLOCK_FLOOR_MHZ = 10.0
+
+_REPAIR_BRIEFS = {
+    "timing_fail": "Shorten the critical path (restructure or balance deep logic) without changing the interface or "
+                   "any cycle-level behavior the existing tests check, then lint.",
+    "gate_level_mismatch": "Simulation and synthesis disagree. Remove simulation-only behavior: reset every register, "
+                           "never depend on uninitialized or X state, keep combinational outputs fully assigned, "
+                           "then lint.",
+}
+
+
+def _measured_setup_wns(result: dict[str, JsonValue]) -> float | None:
+    """Worst setup slack reported by the failed flow itself, if it measured one."""
+    for source, key in ((result.get("signoff_checks"), "setup_wns_ns"), (result.get("metrics"), "wns_ns")):
+        value = source.get(key) if isinstance(source, dict) else None
+        if type(value) in (int, float):
+            return float(value)
+    return None
 
 
 def meets_timing(metric: Metric, targets: dict[str, JsonValue]) -> bool:
@@ -55,6 +87,8 @@ class Orchestrator:
         package_callback: Callable[[str], Awaitable[Path]] | None = None,
         event_callback: Callable[[str, dict[str, JsonValue]], Awaitable[None]] | None = None,
         starter_id: str | None = None,
+        carry_over: dict[str, JsonValue] | None = None,
+        review: Callable[[dict[str, JsonValue]], Awaitable[dict[str, JsonValue]]] | None = None,
         observer: "RunObserver | None" = None,
     ):
         self.llm = llm
@@ -63,6 +97,13 @@ class Orchestrator:
         self.spec_text = spec_text
         self.starter = load_starter(starter_id) if starter_id is not None else None
         self._starter_loaded = False
+        # A revision's parent prompt, DesignSpec and RTL (main.create_run); never combined with a starter.
+        self.carry_over = carry_over
+        self._carry_over_loaded = False
+        self._carried = False
+        # Expert mode: awaits the user's edited DesignSpec and BuildConfig after SPEC (worker.py polls the API).
+        self.review = review
+        self.build = BuildConfig()
         self.targets = targets or {}
         self.package_callback = package_callback
         self.event_callback = event_callback if event_callback is not None else tools.event_callback
@@ -79,9 +120,16 @@ class Orchestrator:
         self._lint_revision: str | None = None
         self._hypothesis_required = False
         self._test_edit_justified = False
+        # run_tests summaries kept apart from last_results, so a long RTL repair
+        # turn cannot push the failing verdict out of the next VERIFY context.
+        self._test_results: list[dict[str, JsonValue]] = []
+        # Failing test names already put to the test author for spec review.
+        self._reviewed_failures: frozenset[str] | None = None
         self.candidates: list[Metric] = []
         self.best: Metric | None = None
         self.bundle_path: Path | None = None
+        # Physical evidence handed to the next RTL repair visit, then cleared.
+        self._repair_brief: str | None = None
 
     async def _emit(self, kind: str, payload: dict[str, JsonValue]) -> None:
         if self.event_callback:
@@ -144,10 +192,10 @@ class Orchestrator:
         files = self._files(stage) if stage != "SPEC" else []
         results = self.last_results[-4:]
         if stage == "VERIFY":
-            results = [result for result in results if result.get("tool") == "run_tests"]
+            results = self._test_results[-4:]
         prompt = stage_prompt(
             stage, spec=self.design_spec, spec_text=self.spec_text,
-            budget={"fix_loops": 5 - self.fix_loops, "flow_runs": 6 - self.tools.flow_runs},
+            budget={"fix_loops": self.build.max_repair_loops - self.fix_loops, "flow_runs": self.tools.flow_limit - self.tools.flow_runs},
             summaries=self.memory.context(verify=stage == "VERIFY"),
             last_results=results, files=files, first_optimization_round=first_optimization_round,
         )
@@ -162,6 +210,19 @@ class Orchestrator:
                 "required_top_module": self.starter.top_module, "required_ports": metadata["ports"],
                 "required_contract": self.starter.spec_text,
             })))
+        if stage == "SPEC" and self.carry_over is not None:
+            messages.append(Message(role="user", content=json.dumps({
+                "revision": "The user revised the request of a previous run. Its RTL is the starting point for this run.",
+                "previous_request": self.carry_over.get("spec_text"),
+                "previous_design_spec": self.carry_over.get("design_spec"),
+                "instruction": "Return the DesignSpec for the current request. Keep the previous top_module, ports and "
+                               "behavior except where the current request changes them.",
+            })))
+        if stage == "RTL" and self._carried:
+            messages.append(Message(role="user", content="src/ starts from the previous run's RTL, carried over by the "
+                                    "orchestrator. Change only what the current DesignSpec requires, then lint."))
+        if stage == "RTL" and self._repair_brief is not None:
+            messages.append(Message(role="user", content=self._repair_brief))
         return messages
 
     async def _remember(self, stage: str) -> None:
@@ -188,6 +249,8 @@ class Orchestrator:
             summary["first_error"] = diagnostic_text(diagnostic)
         self.last_results.append(summary)
         self.last_results = self.last_results[-8:]
+        if call.name == "run_tests" and "passed" in result:
+            self._test_results = [*self._test_results, summary][-4:]
 
     async def _reject(self, call: ToolCall, reason: str) -> dict[str, JsonValue]:
         result = self.tools.record_rejection(call, reason)
@@ -219,7 +282,9 @@ class Orchestrator:
         self._record_result(call, result)
         if call.name == "record_note" and result.get("ok"):
             self._hypothesis_required = False
-            if str(call.arguments.get("text", "")).startswith("TEST_SPEC_CONTRADICTION:"):
+            if stage == "VERIFY" and str(call.arguments.get("text", "")).startswith("TEST_SPEC_CONTRADICTION:"):
+                # Only the spec-only test author may justify a test correction;
+                # the RTL designer has seen the implementation.
                 self._test_edit_justified = True
         if call.name == "write_file" and result.get("ok"):
             if isinstance(path, str) and path.startswith("src/"):
@@ -248,19 +313,51 @@ class Orchestrator:
             trimmed["text"] = str(trimmed["text"])[:2000]
         return Message(role="tool", tool_call_id=call.id, content=json.dumps(trimmed, allow_nan=False))
 
+    def _test_review(self, result: dict[str, JsonValue]) -> str | None:
+        """One spec-only review per distinct failing test set, before an RTL loop is spent."""
+        failures = result.get("failures")
+        cases = [failure for failure in failures if isinstance(failure, dict)] if isinstance(failures, list) else []
+        names = frozenset(str(case.get("test")) for case in cases)
+        if names == self._reviewed_failures:
+            return None
+        self._reviewed_failures = names
+        return json.dumps({
+            "test_review": (
+                "These tests failed against an implementation you cannot see. Before the RTL designer spends a repair "
+                "loop, compare each failing case's stimulus and expected value with the DesignSpec only. If an "
+                "expectation contradicts a DesignSpec requirement, call record_note with 'TEST_SPEC_CONTRADICTION: "
+                "<requirement> - <reason>', rewrite only that expectation, and re-run the same test module. If every "
+                "expectation follows the DesignSpec, reply without tool calls; the RTL will be repaired. Never weaken "
+                "a check the DesignSpec supports."),
+            "failing_cases": [{"test": str(case.get("test")), "message": prefix(str(case.get("message", "")), 400)}
+                              for case in cases[:8]],
+        }, ensure_ascii=False)
+
     async def _design_stage(self, stage: str) -> bool:
         messages = self._context(stage)
+        reviewing = False
         for _ in range(8):
             completion = await self._ask(messages, _ALLOWED[stage])
             if len(completion.tool_calls) > 12:
                 raise LLMError("Too many tool calls in one stage turn")
             messages.append(Message(role="assistant", content=completion.content, tool_calls=completion.tool_calls))
-            for call in completion.tool_calls:
+            if reviewing and not completion.tool_calls:
+                # The spec-only test author stands by the failing expectations.
+                return False
+            for index, call in enumerate(completion.tool_calls):
                 result = await self._execute(stage, call)
                 messages.append(self._tool_reply(call, result))
                 if stage == "VERIFY" and call.name == "run_tests" and "passed" in result:
                     if result.get("ok") is not True:
-                        return False
+                        review = None if reviewing else self._test_review(result)
+                        if review is None:
+                            return False
+                        reviewing = True
+                        for skipped in completion.tool_calls[index + 1:]:
+                            rejected = await self._reject(skipped, "Review the failing tests against the DesignSpec first")
+                            messages.append(self._tool_reply(skipped, rejected))
+                        messages.append(Message(role="user", content=review))
+                        break
             if stage == "RTL" and self._lint_revision and self._lint_revision == self.tools.rtl_digest():
                 return True
             if stage == "VERIFY" and self.tools.verified_revision == self.tools.rtl_digest():
@@ -289,8 +386,41 @@ class Orchestrator:
                     raise LLMError(f"Supplied starter {call.name} failed; inspect the actual tool result")
             self._starter_loaded = True
         else:
+            if self.carry_over is not None and not self._carry_over_loaded:
+                await self._load_carry_over()
             await self._design_stage("RTL")
+            # Later repair visits start from this run's own RTL, not the carried one.
+            self._carried = False
         await self._remember("RTL")
+
+    async def _load_carry_over(self) -> None:
+        assert self.design_spec is not None and self.carry_over is not None
+        self._carry_over_loaded = True
+        top, parent = self.design_spec.top_module, str(self.carry_over["parent_run_id"])[:8]
+        files = self.carry_over["files"]
+        assert isinstance(files, dict)
+        # Same comment/string stripping as ToolRunner's RTL check, so a mention in a comment is not a definition.
+        code = [re.sub(r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"', " ", str(content), flags=re.S) for content in files.values()]
+        if not any(re.search(rf"\b(?:macro)?module\s+{re.escape(top)}\b", text) for text in code):
+            await self._emit("note", {"stage": "RTL", "carry_over": "skipped",
+                                      "text": f"No RTL from run {parent} defines top module {top}; the RTL designer starts from scratch."})
+            return
+        for path, content in files.items():
+            result = await self._execute("RTL", ToolCall(id=uuid4().hex, name="write_file", arguments={"path": path, "content": content}))
+            if result.get("ok") is not True:
+                raise LLMError(f"Carrying over the previous RTL failed at {path}; inspect the actual tool result")
+        digests = ", ".join(f"{path} {hashlib.sha256(str(content).encode()).hexdigest()[:12]}" for path, content in files.items())
+        # record_note appends to design.log, so the packaged bundle states where its starting RTL came from.
+        note = await self._execute("RTL", ToolCall(id=uuid4().hex, name="record_note", arguments={
+            "text": f"Carried over the RTL of run {parent} ({self.carry_over['origin']}) as the starting point for this "
+                    f"revision: {digests} (SHA256 prefixes). It is not newly model-generated in this run.",
+        }))
+        if note.get("ok") is not True:
+            raise LLMError("Recording the carried-over RTL provenance failed; inspect the actual tool result")
+        # Emitted only after every write succeeded: the dashboard keys its revision notice on this marker.
+        await self._emit("note", {"stage": "RTL", "carry_over": "loaded",
+                                  "text": "The RTL designer now adapts the carried-over RTL to the revised request."})
+        self._carried = True
 
     async def _verify(self) -> bool:
         await self._stage("VERIFY")
@@ -312,8 +442,9 @@ class Orchestrator:
         while True:
             failed = self._last_test_result is not None and self._last_test_result.get("ok") is not True
             if failed:
-                if self.fix_loops >= 5:
-                    raise LLMError("Verification failed after five RTL repair loops")
+                if self.fix_loops >= self.build.max_repair_loops:
+                    limit = self.build.max_repair_loops
+                    raise LLMError(f"Verification failed after {'five' if limit == 5 else limit} RTL repair loops")
                 self.fix_loops += 1
             await self._rtl(previous_ok=not failed)
             if await self._verify():
@@ -428,7 +559,7 @@ class Orchestrator:
             failure = classify_failure(stage="FLOW", tool="run_flow", result=status)
             assert failure is not None
             planned = result.get("planned_config_overrides")
-            if not isinstance(planned, dict) or attempt == 2:
+            if not isinstance(planned, dict):
                 raise LLMError("Physical design did not produce a DRC/LVS-clean layout; " + failure.suggested_action)
             current = dict(planned)
             planner = self.tools.physical_planner
@@ -437,9 +568,22 @@ class Orchestrator:
             fixed = planner.fixed_tile if planner is not None else True
             if planner is not None:
                 fixed = fixed or "DIE_AREA" in planner.overrides(overrides)
+            requested = self.design_spec.targets.get("clock_mhz")
             plan = recover_flow(failure.failure_class.value, attempts=attempt,
-                                remaining_flows=6 - self.tools.flow_runs, current=current,
-                                fixed_footprint=fixed)
+                                remaining_flows=self.tools.flow_limit - self.tools.flow_runs, current=current,
+                                fixed_footprint=fixed,
+                                # A requested clock is its own floor, so it is never relaxed.
+                                min_clock_mhz=float(requested) if requested is not None else UNREQUESTED_CLOCK_FLOOR_MHZ,
+                                measured_wns_ns=_measured_setup_wns(result))
+            if plan.action == "rtl_repair":
+                await self._emit("note", {"stage": "FLOW", "text": plan.reason,
+                                           "recovery_action": plan.action, "retry": False,
+                                           "estimated_config_overrides": {}})
+                raise RtlRepairRequired(
+                    f"{plan.reason} {_REPAIR_BRIEFS.get(failure.failure_class.value, '')} "
+                    f"Last run_flow: {prefix(failure.cause + ' ' + failure.evidence, 600)}".strip())
+            if attempt == 2:
+                raise LLMError("Physical design did not produce a DRC/LVS-clean layout; " + failure.suggested_action)
             await self._emit("note", {"stage": "FLOW", "text": plan.reason,
                                        "recovery_action": plan.action, "retry": plan.retry,
                                        "estimated_config_overrides": plan.overrides})
@@ -448,6 +592,31 @@ class Orchestrator:
             current.update(plan.overrides)
         raise LLMError("Physical recovery attempts exhausted")
 
+    async def _measured_flow(self, overrides: dict[str, JsonValue]) -> dict[str, JsonValue]:
+        """Initial flow; a physical failure that needs RTL work costs one repair loop and is re-verified."""
+        while True:
+            try:
+                return await self._initial_flow(overrides)
+            except RtlRepairRequired as request:
+                if self.tools.flow_runs >= self.tools.flow_limit:
+                    raise LLMError(f"{request} No physical-flow runs remain for a repaired RTL.") from None
+                before = self.tools.rtl_digest()
+                while self.tools.rtl_digest() == before:
+                    if self.fix_loops >= self.build.max_repair_loops:
+                        raise LLMError(f"{request} No RTL repair loops remain.") from None
+                    self.fix_loops += 1
+                    self._repair_brief = f"Physical repair request: {request}"
+                    self._hypothesis_required = True
+                    self._lint_revision = None
+                    try:
+                        await self._rtl(previous_ok=False)
+                    finally:
+                        self._repair_brief = None
+                if not await self._verify_existing():
+                    await self._repair()
+                await self._synth()
+                await self._stage("FLOW")
+
     async def _optimize_round(self, *, first_round: bool = False) -> str:
         messages = self._context("OPTIMIZE", first_optimization_round=first_round)
         for _ in range(6):
@@ -455,7 +624,7 @@ class Orchestrator:
             messages.append(Message(role="assistant", content=completion.content, tool_calls=completion.tool_calls))
             flows = [call for call in completion.tool_calls if call.name == "run_flow"]
             if flows:
-                if len(flows) != len(completion.tool_calls) or len(flows) > min(3, 6 - self.tools.flow_runs):
+                if len(flows) != len(completion.tool_calls) or len(flows) > min(3, self.tools.flow_limit - self.tools.flow_runs):
                     for call in completion.tool_calls:
                         result = await self._reject(call, "Use a pure batch of at most three flow calls within the remaining budget")
                         messages.append(self._tool_reply(call, result))
@@ -502,7 +671,8 @@ class Orchestrator:
                 # A verified RTL edit must be measured before asking for another
                 # proposal; synthesis alone cannot establish physical PPA.
                 await self._stage("FLOW")
-                overrides: dict[str, JsonValue] = {}
+                # Re-measure a verified RTL edit with the same reviewed base configuration as the initial flow.
+                overrides: dict[str, JsonValue] = dict(self.build.initial_flow)
                 clock = self.design_spec.targets.get("clock_mhz")
                 if clock is not None:
                     overrides["CLOCK_PERIOD"] = 1000 / float(clock)
@@ -524,9 +694,12 @@ class Orchestrator:
         assert self.design_spec is not None
         if self.best is None or self.best.drc_ok is not True or self.best.lvs_ok is not True:
             raise LLMError("Optimization requires a measured DRC/LVS-clean baseline")
+        if self.tools.flow_runs >= self.tools.flow_limit:
+            await self._emit("note", {"text": f"Optimization skipped: the initial layout used the whole budget of {self.tools.flow_limit} flow attempts."})
+            return
         stagnant = 0
         for round_index in range(6):
-            if self.tools.flow_runs >= 6:
+            if self.tools.flow_runs >= self.tools.flow_limit:
                 break
             before = score_metric(self.best, self.design_spec.targets) if self.best else None
             await self._stage("OPTIMIZE", previous_ok=previous_ok)
@@ -544,7 +717,46 @@ class Orchestrator:
         if len(self.candidates) < 2:
             await self._emit("note", {"text": "Optimization attempts produced no successful comparison; preserving the measured initial design."})
 
+    async def _review(self) -> None:
+        assert self.design_spec is not None and self.review is not None
+        draft, defaults = self.design_spec, BuildConfig()
+        await self._stage("REVIEW")
+        request: dict[str, JsonValue] = {
+            "design_spec": draft.model_dump(mode="json"), "build": defaults.model_dump(mode="json"),
+            # A supplied starter fixes the interface; its source is validated against these fields.
+            "locked": ["top_module", "ports", "purely_combinational"] if self.starter is not None else [],
+        }
+        await self._emit("note", {"stage": "REVIEW", "review_request": request,
+                                  "text": "Waiting for your review of the drafted DesignSpec and build configuration. No RTL is written until you approve."})
+        try:
+            answer = await self.review(request)
+        except TimeoutError as error:
+            raise ReviewStopped(f"{error} The build stopped before any RTL was written.") from None
+        try:
+            spec = DesignSpec.model_validate(answer.get("design_spec"))
+            build = BuildConfig.model_validate(answer.get("build"))
+            if self.starter is not None:
+                self.starter.validate_spec(spec)
+        except (ValueError, AttributeError) as error:
+            raise ReviewStopped(f"The submitted review is invalid: {prefix(str(error), 600)}") from None
+        changed = [name for name in DesignSpec.model_fields if getattr(spec, name) != getattr(draft, name)]
+        settings = {name: value for name, value in build.model_dump(mode="json").items() if value != defaults.model_dump(mode="json")[name]}
+        # record_note appends to design.log, so the bundle records which spec fields a person changed.
+        note = ToolCall(id=uuid4().hex, name="record_note", arguments={"text": (
+            f"User review: {'edited DesignSpec ' + ', '.join(changed) if changed else 'approved the drafted DesignSpec unchanged'}; "
+            + (f"build configuration {json.dumps(settings, separators=(', ', ': '))}." if settings else "default build configuration."))})
+        result = await self.tools.execute(note, allowed_tools={"record_note"})
+        self._record_result(note, result)
+        if result.get("ok") is not True:
+            raise ReviewStopped("Recording the user's review failed; inspect the actual tool result")
+        self.design_spec, self.build = spec, build
+        self.tools.flow_limit = build.max_flow_runs
+        self.tools.base_overrides = dict(build.initial_flow)
+
     def _failure_details(self, error: Exception, message: str) -> tuple[str, str, str, dict[str, JsonValue] | None]:
+        if isinstance(error, ReviewStopped):
+            action = "Use Revise on this run to start it again; the drafted DesignSpec is in the log."
+            return prefix(message, 2400) + f" Next: {action}", "pipeline_failed", action, None
         if isinstance(error, (ProviderError, MalformedProposal, ObservationBindingError)):
             # A stale tool failure must not hide the provider operation that
             # actually terminated this stage or supply its recovery advice.
@@ -592,6 +804,9 @@ class Orchestrator:
                 return scoped
             await self._spec()
             assert self.design_spec is not None
+            # Before anything freezes the spec (clock port, physical planner, memory).
+            if self.review is not None:
+                await self._review()
             self.tools.eda.clock_port = None if self.design_spec.purely_combinational else "clk"
             await self.tools.configure_physics(self.design_spec)
             await self._remember("SPEC")
@@ -600,13 +815,16 @@ class Orchestrator:
                 await self._repair()
             await self._synth()
             await self._stage("FLOW")
-            overrides: dict[str, JsonValue] = {}
+            overrides: dict[str, JsonValue] = dict(self.build.initial_flow)
             clock = self.design_spec.targets.get("clock_mhz")
             if clock is not None:
                 overrides["CLOCK_PERIOD"] = 1000 / float(clock)
-            initial = await self._initial_flow(overrides)
+            initial = await self._measured_flow(overrides)
             try:
-                await self._optimize(previous_ok=initial.get("ok") is True)
+                if not self.build.optimize:
+                    await self._emit("note", {"text": "Optimization skipped: the reviewed build configuration turned it off. Packaging the measured initial design."})
+                else:
+                    await self._optimize(previous_ok=initial.get("ok") is True)
             except LLMError as error:
                 # Optional improvements cannot discard a source-bound, clean
                 # baseline. Packaging below selects that baseline's snapshot.

@@ -1,6 +1,7 @@
 """Private worker control plane; the API is the sole owner of SQLite."""
 
 import os
+import re
 import secrets
 from pathlib import PurePosixPath
 from time import monotonic
@@ -10,7 +11,9 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, ConfigDict, Field, JsonValue
 
 from app.models import Run
-from app.storage import RunStore
+from app.storage import RunLeaseConflict, RunStore
+
+WORKER_ID = re.compile(r"[0-9a-f]{32}\Z")
 
 
 def authorized(request: Request, authorization: str | None = Header(default=None)) -> None:
@@ -22,7 +25,14 @@ def authorized(request: Request, authorization: str | None = Header(default=None
     request.app.state.worker_last_seen = monotonic()
 
 
-router = APIRouter(prefix="/api/internal/worker", dependencies=[Depends(authorized)], include_in_schema=False)
+def worker_identity(x_worker_id: str | None = Header(default=None)) -> str:
+    if x_worker_id is None or not WORKER_ID.match(x_worker_id):
+        raise HTTPException(400, "A 32-character lowercase hexadecimal X-Worker-Id is required")
+    return x_worker_id
+
+
+# Authorization runs first so an unauthenticated caller learns nothing about the identity header.
+router = APIRouter(prefix="/api/internal/worker", dependencies=[Depends(authorized), Depends(worker_identity)], include_in_schema=False)
 
 
 def store(request: Request) -> RunStore:
@@ -68,13 +78,13 @@ def heartbeat():
 
 
 @router.post("/claim", response_model=Run | None)
-def claim(database: RunStore = Depends(store)):
-    return database.claim_pending()
+def claim(database: RunStore = Depends(store), worker_id: str = Depends(worker_identity)):
+    return database.claim_pending(worker_id)
 
 
 @router.post("/recover")
-def recover(database: RunStore = Depends(store)):
-    database.recover_interrupted()
+def recover(database: RunStore = Depends(store), worker_id: str = Depends(worker_identity)):
+    database.recover_interrupted(worker_id)
     return {}
 
 
@@ -83,15 +93,22 @@ def get_run(run_id: str, database: RunStore = Depends(store)):
     return require_run(database, run_id)
 
 
+def _conflict() -> HTTPException:
+    return HTTPException(409, "This worker does not hold an active claim on the run")
+
+
 @router.post("/runs/{run_id}/events")
-def emit(run_id: str, body: WorkerEvent, database: RunStore = Depends(store)):
+def emit(run_id: str, body: WorkerEvent, database: RunStore = Depends(store), worker_id: str = Depends(worker_identity)):
     require_run(database, run_id)
-    database.emit(run_id, body.type, body.payload)
+    try:
+        database.emit(run_id, body.type, body.payload, worker_id=worker_id)
+    except RunLeaseConflict:
+        raise _conflict() from None
     return {}
 
 
 @router.post("/runs/{run_id}/finish")
-def finish(run_id: str, body: Finish, database: RunStore = Depends(store)):
+def finish(run_id: str, body: Finish, database: RunStore = Depends(store), worker_id: str = Depends(worker_identity)):
     from app.schemas import Outcome
 
     require_run(database, run_id)
@@ -99,23 +116,31 @@ def finish(run_id: str, body: Finish, database: RunStore = Depends(store)):
         outcome = Outcome.model_validate(body.outcome)
     except ValueError:
         raise HTTPException(422, "Invalid worker outcome") from None
-    return database.finish(run_id, outcome).plain()
+    try:
+        return database.finish(run_id, outcome, worker_id=worker_id).plain()
+    except RunLeaseConflict:
+        raise _conflict() from None
 
 
 @router.post("/runs/{run_id}/fail")
-def fail(run_id: str, body: Failure, database: RunStore = Depends(store)):
+def fail(run_id: str, body: Failure, database: RunStore = Depends(store), worker_id: str = Depends(worker_identity)):
     require_run(database, run_id)
-    return database.fail(run_id, body.error, body.status).plain()
+    try:
+        return database.fail(run_id, body.error, body.status, worker_id=worker_id).plain()
+    except RunLeaseConflict:
+        raise _conflict() from None
 
 
 @router.post("/runs/{run_id}/artifacts")
-def register(run_id: str, body: Registration, database: RunStore = Depends(store)):
+def register(run_id: str, body: Registration, database: RunStore = Depends(store), worker_id: str = Depends(worker_identity)):
     require_run(database, run_id)
     relative = PurePosixPath(body.path)
     if relative.is_absolute() or ".." in relative.parts or "\\" in body.path or "\x00" in body.path:
         raise HTTPException(422, "Artifact path must be relative to its run")
     try:
-        database.register_artifact(run_id, body.kind, database.root / run_id / body.path, body.run_tag)
+        database.register_artifact(run_id, body.kind, database.root / run_id / body.path, body.run_tag, worker_id=worker_id)
+    except RunLeaseConflict:
+        raise _conflict() from None
     except (OSError, ValueError):
         raise HTTPException(422, "Artifact is missing or outside its run") from None
     return {}

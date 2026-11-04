@@ -13,9 +13,23 @@ from app.eda import sandbox as module
 IMAGE_ID = "sha256:" + "a" * 64
 
 
+class Pipe:
+    """Stdout double: EOF only after the owning process exits."""
+
+    def __init__(self, process):
+        self.process = process
+
+    async def read(self, size):
+        self.process.started.set()
+        if self.process.returncode is None:
+            await self.process.done.wait()
+        return b""
+
+
 class Process:
     def __init__(self, *, stdout=b"", returncode=0, blocked=False):
-        self.stdout = stdout
+        self.output = stdout
+        self.stdout = Pipe(self)
         self.returncode = None if blocked else returncode
         self.started = asyncio.Event()
         self.done = asyncio.Event()
@@ -35,7 +49,7 @@ class Process:
         self.started.set()
         if self.returncode is None:
             await self.done.wait()
-        return self.stdout, None
+        return self.output, None
 
     def kill(self):
         self.kills += 1
@@ -243,7 +257,7 @@ def test_helper_command_timeout_or_cancel_removes_only_owned_container_and_reaps
     asyncio.run(exercise())
     container_name = calls[0][calls[0].index("--name") + 1]
     assert calls[1] == ("docker", "rm", "-f", container_name)
-    assert len(calls) == 2 and command.kills == 1 and command.waits == 2
+    assert len(calls) == 2 and command.kills == 1 and command.waits == 1
     assert cleanup.kills == int(cleanup_blocked)
     assert cleanup.waits == (2 if cleanup_blocked else 1)
 
@@ -260,4 +274,4 @@ def test_cleanup_spawn_failure_still_kills_and_reaps_command(tmp_path, monkeypat
     result = asyncio.run(module.DockerSandbox().run(["true"], input_dir=source, output_dir=output, trusted_test_helper=helper))
     assert result.timed_out is True and result.ok is False
     assert "cleanup launch failure" in result.log_tail
-    assert command.kills == 1 and command.waits == 2
+    assert command.kills == 1 and command.waits == 1

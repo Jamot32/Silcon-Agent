@@ -40,7 +40,7 @@ export function RunHistory() {
       const best = bestMeasured(metrics[run.id] ?? [], run.best_run_tag, run.design_spec?.targets.clock_mhz ?? run.targets.clock_mhz);
       return <Item key={run.id} variant="outline" asChild><Link href={`/runs/${run.id}`}>
         <ItemContent className="min-w-0 basis-80">
-          <ItemTitle className="flex-wrap">{runName(run)}{run.is_replay ? <ReplayBadge>{replayLabel(run)}</ReplayBadge> : null}{run.starter_id ? <Badge variant="outline">Supplied faulty starter</Badge> : null}</ItemTitle>
+          <ItemTitle className="flex-wrap">{runName(run)}{run.is_replay ? <ReplayBadge>{replayLabel(run)}</ReplayBadge> : null}{run.starter_id ? <Badge variant="outline">Supplied faulty starter</Badge> : null}{run.parent_run_id ? <Badge variant="outline">Follow-up</Badge> : null}</ItemTitle>
           <ItemDescription className="max-w-3xl">{run.spec_text}</ItemDescription>
         </ItemContent>
         <ItemActions className="text-sm text-muted-foreground tabular-nums">{best ? <><span>{number(best.area_um2)} µm²</span><span>{number(best.wns_ns)} ns WNS</span></> : null}<StatusBadge status={run.status} /><ChevronRight className="size-4" aria-hidden="true" /></ItemActions>

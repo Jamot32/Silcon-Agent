@@ -166,7 +166,7 @@ def test_replay_api_catalog_queue_busy_and_resume(tmp_path, monkeypatch):
     monkeypatch.setattr(main, "RUNS_DIR", tmp_path / "runs")
     monkeypatch.setattr(main, "RECORDINGS_DIR", CATALOG)
     monkeypatch.setattr(main, "engine", create_engine(f"sqlite:///{tmp_path}/api.db", connect_args={"check_same_thread": False}))
-    with TestClient(main.app) as client:
+    with TestClient(main.app, base_url="http://localhost", headers={"X-Silicon-Request": "1"}) as client:
         catalog = client.get("/api/recordings").json()
         assert any(item["id"] == ID and item["flow_count"] == 4 for item in catalog)
         assert client.post("/api/replays", json={"recording_id": ID, "speed": True}).status_code == 422

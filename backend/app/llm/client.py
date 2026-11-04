@@ -14,6 +14,7 @@ from openai.types.chat import ChatCompletion, ChatCompletionMessageParam, ChatCo
 from openai.types.chat.completion_create_params import CompletionCreateParamsNonStreaming
 from pydantic import ValidationError
 
+from app.llm.policy import META_MODEL
 from app.llm.types import Budget, Completion, LLMError, Message, ToolCall, ToolDefinition
 
 logger = logging.getLogger(__name__)
@@ -59,8 +60,8 @@ def _retry_delay(error: APIStatusError, attempt: int) -> float:
 
 
 class MetaLLM:
-    def __init__(self, *, budget: Budget | None = None, client: AsyncOpenAI | None = None):
-        self.model = os.getenv("META_MODEL", "muse-spark-1.3")
+    def __init__(self, *, budget: Budget | None = None, client: AsyncOpenAI | None = None, api_key: str | None = None):
+        self.model = os.getenv("META_MODEL", META_MODEL)
         if estimate_cost(self.model, 0, 0, 0) is None:
             raise LLMError("No verified Meta pricing for configured model")
         effort = os.getenv("META_REASONING_EFFORT", "medium")
@@ -71,7 +72,7 @@ class MetaLLM:
             max_usd=float(os.getenv("RUN_BUDGET_USD", "2")),
         )
         if client is None:
-            api_key = os.getenv("META_API_KEY", "").strip()
+            api_key = api_key or os.getenv("META_API_KEY", "").strip()
             if not api_key:
                 raise LLMError("META_API_KEY is not set")
             client = AsyncOpenAI(

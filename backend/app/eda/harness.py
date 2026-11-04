@@ -17,7 +17,7 @@ import re
 from typing import Any
 from xml.etree import ElementTree as ET
 
-from app.eda.sandbox import DockerSandbox, MAX_JSON_BYTES, safe_artifact
+from app.eda.sandbox import DockerSandbox, MAX_JSON_BYTES, OUTPUT_LIMIT_ERROR, safe_artifact
 from app.eda.sim import parse_test_cases
 from app.schemas import DesignSpec
 
@@ -660,8 +660,10 @@ async def _run_harness_tests(
         result.update(validate_evidence(frozen, evidence, cases, runtime, execution_ok=execution.ok))
     except (OSError, ValueError, ET.ParseError) as error:
         kind = "harness_error" if isinstance(error, HarnessError) else "infrastructure_error"
-        message = "Simulator timed out" if execution.timed_out else str(error)
-        if kind == "infrastructure_error" and not execution.timed_out and isinstance(runtime.get("error"), str):
+        message = ("Simulator timed out" if execution.timed_out
+                   else OUTPUT_LIMIT_ERROR if execution.output_limit_exceeded else str(error))
+        if (kind == "infrastructure_error" and not execution.timed_out and not execution.output_limit_exceeded
+                and isinstance(runtime.get("error"), str)):
             message = f"{runtime['error'][:2048]} ({message})"
         result.update(ok=False, quality_gate_passed=False, error=message, error_kind=kind,
                       first_diagnostic={"kind": kind, "test": None, "message": message})

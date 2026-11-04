@@ -7,10 +7,12 @@ from pathlib import Path, PurePosixPath
 import stat
 import tempfile
 from zipfile import BadZipFile, ZipFile, ZIP_DEFLATED
+from xml.etree import ElementTree as ET
 
 from app.agent.tools import ToolRunner
 from app.eda.parsers import parse_librelane_metrics
 from app.eda.sandbox import read_json_artifact, safe_artifact
+from app.eda.sim import gate_level_passed, parse_test_case_bytes
 from app.eda.verification import validate_retained_flow
 from app.models import Metric
 from app.schemas import DesignSpec
@@ -27,6 +29,41 @@ HARNESS_MEMBERS = {
     "runtime": "trusted/runtime_result.json", "host_result": "trusted/host_result.json",
     "proof": "trusted/proof.json",
 }
+GATE_LEVEL_RECORD = "gate_level.json"
+GATE_LEVEL_XML = "gate_level/test_results.xml"
+GATE_LEVEL_FIELDS = ("ok", "passed", "failed", "skipped", "run_tag", "top_module", "test_module",
+                     "netlist_sha256", "cell_models", "defines", "image", "cases")
+
+
+def _validate_gate_level(archive: ZipFile, names: set[str], spec: DesignSpec, run_tag: str) -> None:
+    """The selected routed netlist re-ran the selected frozen tests and passed."""
+    if not {GATE_LEVEL_RECORD, GATE_LEVEL_XML, "netlist/design.nl.v"} <= names:
+        raise ValueError("Package gate-level evidence is incomplete")
+    if any(archive.getinfo(name).file_size > 2 * 1024 * 1024 for name in (GATE_LEVEL_RECORD, GATE_LEVEL_XML)):
+        raise ValueError("Package gate-level evidence exceeds size limits")
+    record = json.loads(archive.read(GATE_LEVEL_RECORD))
+    if not isinstance(record, dict) or set(record) != set(GATE_LEVEL_FIELDS) or not gate_level_passed(record):
+        raise ValueError("Package gate-level simulation did not pass")
+    if record["run_tag"] != run_tag or record["top_module"] != spec.top_module:
+        raise ValueError("Package gate-level evidence belongs to a different flow")
+    if not isinstance(record["test_module"], str) or f"test/{record['test_module']}.py" not in names:
+        raise ValueError("Package gate-level test module is not bundled")
+    if record["netlist_sha256"] != hashlib.sha256(archive.read("netlist/design.nl.v")).hexdigest():
+        raise ValueError("Package gate-level evidence does not match the bundled netlist")
+    try:
+        cases = parse_test_case_bytes(archive.read(GATE_LEVEL_XML))
+    except ET.ParseError as error:
+        raise ValueError("Package gate-level test XML is malformed") from error
+    observed = [sum(case["ok"] is value for case in cases) for value in (True, False, None)]
+    if observed != [record["passed"], record["failed"], record["skipped"]]:
+        raise ValueError("Package gate-level counts disagree with their test XML")
+
+
+def _gate_level_record(result: dict) -> str:
+    record = {key: result.get(key) for key in GATE_LEVEL_FIELDS}
+    record["cases"] = [{key: case.get(key) for key in ("test", "ok", "message") if key in case}
+                       for case in result.get("cases") or [] if isinstance(case, dict)]
+    return json.dumps(record, allow_nan=False, indent=2) + "\n"
 
 
 def _validate_harness_bundle(archive: ZipFile, names: set[str], expected_top: str) -> None:
@@ -121,6 +158,8 @@ def validate_bundle(path: Path, *, expected_run_tag: str | None = None, expected
                 raise ValueError("Package ZIP failed its integrity check")
             if require_harness_verification or "verification.json" in names or any(name.startswith("trusted/") for name in names):
                 _validate_harness_bundle(archive, names, spec.top_module)
+            if GATE_LEVEL_RECORD in names or any(name.startswith("gate_level/") for name in names):
+                _validate_gate_level(archive, names, spec, metrics["run_tag"])
     except (BadZipFile, KeyError, RuntimeError) as error:
         raise ValueError("Package is not a readable chip bundle") from error
 
@@ -154,6 +193,11 @@ def _package_design(tools: ToolRunner, best_run_tag: str, spec: DesignSpec) -> P
                 source_names.append(path.name)
     if "netlist" in artifacts:
         files["netlist/design.nl.v"] = _file(root, artifacts["netlist"])
+    gate_level = tools.eda.gate_level_result(best_run_tag)
+    if gate_level is not None:
+        if not gate_level_passed(gate_level) or "netlist" not in artifacts:
+            raise ValueError("Selected flow did not pass gate-level simulation of its routed netlist")
+        files[GATE_LEVEL_XML] = _file(root, tools.eda.gate_level_artifacts(best_run_tag)["xml"])
     if sum(path.stat().st_size for path in files.values()) > MAX_BUNDLE_BYTES:
         raise ValueError("Selected flow artifacts exceed package size limits")
     log = safe_artifact(root, root / "design.log")
@@ -176,6 +220,8 @@ def _package_design(tools: ToolRunner, best_run_tag: str, spec: DesignSpec) -> P
         "info.yaml": _info(spec, source_names, metric.clock_mhz),
         "integration_notes.md": notes,
     }
+    if gate_level is not None:
+        generated[GATE_LEVEL_RECORD] = _gate_level_record(gate_level)
     verification = tools.flow_verification_artifacts(best_run_tag)
     if tools.requires_harness_verification and not verification:
         raise ValueError("Selected flow is missing its trusted harness verification material")

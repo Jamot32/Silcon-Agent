@@ -23,6 +23,8 @@ For Codex live builds on macOS, complete the [external host read-boundary setup]
 
 Choose a preset or type a spec, then click **Build my chip**. A small build takes several minutes. OAuth remains with the host CLI; it never enters an application/EDA container. Plan calls report actual token/call usage and unavailable USD cost. To use competition credentials, set `LLM_PROVIDER=meta` and `META_API_KEY` in ignored `.env`, run `make meta-smoke`, then `make dev`. Meta live acceptance remains deferred until those credentials are available; there is no automatic provider fallback.
 
+**Settings → Subscription accounts** shows host Codex/ChatGPT and Claude Code sign-in status, with commands to sign in or switch accounts. The host worker reports only status every 30 seconds; OAuth stays in the CLIs. **Bring your own keys** saves, replaces, and removes keys for every provider in the model picker, including Meta. Keys are stored as server-only files with directory mode `0700` and file mode `0600` under ignored `runs/.provider-keys/`; they are not encrypted at rest. Saved keys override environment keys; removal reveals any environment key again. New Meta builds use the saved Meta key immediately. Other API providers and Claude subscription builds still need worker adapters; saving credentials does not enable them or change `LLM_PROVIDER`. Model selections remain a labeled preview.
+
 ```sh
 make test             # idle app required; offline units + actual replay E2E, no LLM/EDA
 make eda-tools-check  # explicit real Docker integration checks
@@ -36,7 +38,7 @@ make down
 
 The API alone owns SQLite. The host worker uses private authenticated HTTP; `make setup` creates a server-only worker token without printing it. Real source snapshots, logs, metrics, events and images remain in ignored `runs/<id>/`. [Recording manifests](demo_recordings/README.md) hash every committed playback asset. API health at http://localhost:8000/api/health reports cached real smoke/tool checks and fresh authenticated worker contact without paid requests.
 
-Bundles contain selected-flow GDS, LEF, Verilog, preserved tests, raw/canonical metrics, design log, checksums, and Tiny Tapeout-style metadata. **Clean block DRC/LVS does not establish Tiny Tapeout wrapper, tile fit, or shuttle readiness.** The metadata draft and bundle explain the remaining integration work. No shuttle submission is performed.
+A flow is accepted only if the frozen tests also pass on its routed gate-level netlist and it has zero setup, hold, max-slew, max-cap, max-fanout and antenna violations at every corner, with DRC/LVS clean. Bundles contain selected-flow GDS, LEF, Verilog, preserved tests, the gate-level test result, raw/canonical metrics, design log, checksums, and Tiny Tapeout-style metadata. **Clean block DRC/LVS does not establish Tiny Tapeout wrapper, tile fit, or shuttle readiness.** The metadata draft and bundle explain the remaining integration work. No shuttle submission is performed.
 
 All five presets have completed real model-to-layout builds; all five independent golden references passed real simulation and physical checks. See [milestone evidence](docs/PROGRESS.md), [decisions](docs/DECISIONS.md), [architecture](docs/ARCHITECTURE.md), and [visual verification](docs/design/VERIFICATION.md).
 

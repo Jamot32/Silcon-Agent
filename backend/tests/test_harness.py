@@ -11,7 +11,7 @@ from xml.etree import ElementTree as ET
 import pytest
 
 from app.eda import harness, verification
-from app.eda.sandbox import CommandResult, DockerSandbox
+from app.eda.sandbox import CommandResult, DockerSandbox, OUTPUT_LIMIT_ERROR
 from app.eda.service import EDA
 from app.schemas import DesignSpec
 
@@ -301,6 +301,17 @@ def test_runner_rejects_missing_or_changed_artifacts(tmp_path, mutation, kind, m
     result = run_unit(UnitSandbox(mutation), snapshot(tmp_path), tmp_path / "output")
     assert not result["ok"] and not result["quality_gate_passed"]
     assert result["error_kind"] == kind and match in result["error"]
+
+
+def test_runner_reports_output_limit_instead_of_artifact_errors(tmp_path):
+    class CappedSandbox(UnitSandbox):
+        async def run(self, command, **kwargs):
+            result = await super().run(command, **kwargs)
+            return CommandResult(-9, False, result.log_path, result.log_tail, output_limit_exceeded=True)
+
+    result = run_unit(CappedSandbox(), snapshot(tmp_path), tmp_path / "output")
+    assert not result["ok"] and not result["quality_gate_passed"]
+    assert result["error"] == OUTPUT_LIMIT_ERROR
 
 
 def test_admission_failure_never_runs_and_preserves_alias_input(tmp_path):

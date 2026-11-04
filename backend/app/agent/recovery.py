@@ -15,7 +15,7 @@ class RecoveryPlan:
 
 def recover_flow(failure_class, *, attempts, remaining_flows, current,
                  fixed_footprint=False, occupancy_pct=None, min_clock_mhz=None,
-                 max_die_um=500):
+                 max_die_um=500, measured_wns_ns=None):
     """A bounded next action. Caller executes, validates, accounts and emits it.
 
     No tool/model call occurs here. A retry consumes the original flow budget.
@@ -27,7 +27,8 @@ def recover_flow(failure_class, *, attempts, remaining_flows, current,
         raise ValueError("Resolved current configuration is required")
     if remaining_flows <= 0:
         return RecoveryPlan('stop', {}, 'Flow-run budget exhausted; retain partial artifacts.')
-    if failure_class in {'die_too_small', 'routing_congestion', 'placement_failed'}:
+    # Slew/cap/fanout repair inserts buffers; like placement, it needs whitespace first, then area.
+    if failure_class in {'die_too_small', 'routing_congestion', 'placement_failed', 'electrical_violation'}:
         density = number(current.get('PL_TARGET_DENSITY_PCT'))
         occupancy = number(occupancy_pct, positive=False) if occupancy_pct is not None else None
         lowered = max(Decimal(30), density - 5)
@@ -54,16 +55,24 @@ def recover_flow(failure_class, *, attempts, remaining_flows, current,
         return RecoveryPlan('grow_die', {'DIE_AREA': [float(x0), float(y0), float(x0+width), float(y0+height)]},
                             'Grow the standalone die by 15% per dimension; re-run physical verification.', retry=True)
     if failure_class == 'timing_fail':
-        if min_clock_mhz is None:
-            return RecoveryPlan('rtl_repair', {}, 'No authorized clock floor is present; preserve the requested timing target.')
-        period, floor = number(current.get('CLOCK_PERIOD')), number(min_clock_mhz)
-        slowest = 1000 / floor
-        proposed = min(period * Decimal('1.10'), slowest)
-        if proposed <= period or attempts >= 3:
-            return RecoveryPlan('rtl_repair', {}, 'Clock relaxation is exhausted; a tested RTL change is required.')
-        return RecoveryPlan('relax_clock', {'CLOCK_PERIOD': float(proposed)},
-                            'Relax the timing constraint within the explicit user floor; retain the original target for comparison.',
-                            target_relaxed=True, retry=True)
+        if min_clock_mhz is not None and attempts < 3:
+            period, floor = number(current.get('CLOCK_PERIOD')), number(min_clock_mhz)
+            slowest = 1000 / floor
+            step = period * Decimal('1.10')
+            # A measured violation sizes the step: close the slack with a 25% margin.
+            if measured_wns_ns is not None and measured_wns_ns < 0:
+                step = max(step, period + number(-measured_wns_ns) * Decimal('1.25'))
+            proposed = min(step, slowest)
+            if proposed > period:
+                return RecoveryPlan('relax_clock', {'CLOCK_PERIOD': float(proposed)},
+                                    'Relax the timing constraint within the explicit user floor; retain the original target for comparison.',
+                                    target_relaxed=True, retry=True)
+        if not str(current.get('SYNTH_STRATEGY', '')).startswith('DELAY'):
+            return RecoveryPlan('delay_strategy', {'SYNTH_STRATEGY': 'DELAY 0'},
+                                'Re-synthesize for delay at the same clock target before asking for an RTL change.', retry=True)
+        return RecoveryPlan('rtl_repair', {}, 'Configuration-only timing recovery is exhausted at the requested clock; a tested RTL change is required.')
+    if failure_class == 'gate_level_mismatch':
+        return RecoveryPlan('rtl_repair', {}, 'The routed netlist failed tests that the RTL passed; a tested RTL change is required.')
     if failure_class == 'drc_fail' and attempts == 0:
         density = number(current.get('PL_TARGET_DENSITY_PCT'))
         conservative = max(Decimal(30), density - 5)

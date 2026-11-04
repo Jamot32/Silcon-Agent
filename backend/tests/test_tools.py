@@ -25,6 +25,8 @@ class FakeEDA:
         self.passed = 4
         self.delay = 0.0
         self.large_result = False
+        self.gate_level_ok = True
+        self.gate_level_calls: list[tuple[str, str]] = []
 
     async def lint(self, top):
         self.calls.append("lint")
@@ -53,6 +55,14 @@ class FakeEDA:
             self.active -= 1
         self.flows.add(tag)
         return {"ok": True, "run_tag": tag, "metrics": {}}
+
+    async def gate_level_simulation(self, run_tag, test_module):
+        self.flow_artifacts(run_tag)
+        self.gate_level_calls.append((run_tag, test_module))
+        if self.gate_level_ok:
+            return {"ok": True, "passed": 4, "failed": 0, "skipped": 0, "failures": [], "log_path": "unit/gl.log"}
+        return {"ok": False, "passed": 3, "failed": 1, "skipped": 0, "log_path": "unit/gl.log",
+                "cases": [{"test": "test_count", "ok": False, "message": "unit netlist mismatch"}]}
 
     async def read_report(self, run_tag, kind):
         self.flow_artifacts(run_tag)
@@ -166,8 +176,77 @@ def test_python_source_checks_reject_obvious_escapes(tmp_path, content):
 
 def test_cocotb_public_imports_and_dut_logging_are_allowed(tmp_path):
     runner = ToolRunner(tmp_path, "unit", eda=FakeEDA())
-    content = "import cocotb\nimport math\nimport random\nfrom cocotb.triggers import Timer\n\n@cocotb.test()\nasync def test_log(dut):\n    dut._log.info('check')\n    await Timer(1, unit='ns')\n"
+    content = "import cocotb\nimport math\nimport random\nfrom cocotb.triggers import Timer\n\n@cocotb.test()\nasync def test_log(dut):\n    dut._log.info('check')\n    await Timer(1, unit='ns')\n    assert int(dut.count.value) == 0\n"
     assert asyncio.run(runner.execute(call("write_file", path="test/test_counter.py", content=content)))["ok"] is True
+
+
+_CHECKED_HELPER = (
+    "import cocotb\nfrom cocotb.triggers import Timer\n\n"
+    "class Scoreboard:\n    def compare(self, got, want):\n        if got != want:\n            raise ValueError(f'{got} != {want}')\n\n"
+    "async def expect(dut, want):\n    await Timer(5, unit='ns')\n    Scoreboard().compare(int(dut.count.value), want)\n\n"
+    "@cocotb.test()\nasync def test_reset(dut):\n    await expect(dut, 0)\n"
+)
+
+
+def test_tests_may_check_through_module_local_helpers(tmp_path):
+    runner = ToolRunner(tmp_path, "unit", eda=FakeEDA())
+    assert asyncio.run(runner.execute(call("write_file", path="test/test_counter.py", content=_CHECKED_HELPER)))["ok"] is True
+
+
+_TEST_HEADER = "import cocotb\nfrom cocotb.triggers import Timer\n\n"
+
+
+@pytest.mark.parametrize(("body", "reason"), [
+    # Passes against any RTL: nothing can fail.
+    ("@cocotb.test()\nasync def test_run(dut):\n    await Timer(5, unit='ns')\n", "never checks"),
+    ("@cocotb.test()\nasync def test_run(dut):\n    assert True\n", "never checks"),
+    # A check that exists only in a helper the test never calls.
+    ("def unused(dut):\n    assert int(dut.count.value) == 1\n\n@cocotb.test()\nasync def test_run(dut):\n    await Timer(5, unit='ns')\n", "never checks"),
+    ("@cocotb.test()\nasync def test_run(dut):\n    try:\n        assert int(dut.count.value) == 1\n    except AssertionError:\n        pass\n", "cannot catch"),
+    ("@cocotb.test()\nasync def test_run(dut):\n    try:\n        assert int(dut.count.value) == 1\n    except Exception:\n        pass\n", "cannot catch"),
+    ("@cocotb.test()\nasync def test_run(dut):\n    try:\n        assert int(dut.count.value) == 1\n    except:\n        pass\n", "cannot catch"),
+    ("@cocotb.test(expect_fail=True)\nasync def test_run(dut):\n    assert int(dut.count.value) == 1\n", "expect_fail"),
+    ("@cocotb.test(expect_error=AssertionError)\nasync def test_run(dut):\n    assert int(dut.count.value) == 1\n", "expect_fail"),
+    # Writes onto design state bypass the inputs and differ on the gate-level netlist.
+    ("from cocotb.handle import Deposit\n\n@cocotb.test()\nasync def test_run(dut):\n    dut.count.value = Deposit(3)\n    assert int(dut.count.value) == 3\n", "Deposit"),
+])
+def test_tests_that_cannot_fail_are_rejected(tmp_path, body, reason):
+    runner = ToolRunner(tmp_path, "unit", eda=FakeEDA())
+    result = asyncio.run(runner.execute(call("write_file", path="test/test_counter.py", content=_TEST_HEADER + body)))
+    assert result["ok"] is False and reason in result["error"]
+    assert not (tmp_path / "test/test_counter.py").exists()
+
+
+def test_narrow_exception_handlers_stay_allowed(tmp_path):
+    runner = ToolRunner(tmp_path, "unit", eda=FakeEDA())
+    body = ("@cocotb.test()\nasync def test_run(dut):\n    try:\n        value = int(dut.count.value)\n"
+            "    except ValueError:\n        value = -1\n    assert value == 0\n")
+    assert asyncio.run(runner.execute(call("write_file", path="test/test_counter.py", content=_TEST_HEADER + body)))["ok"] is True
+
+
+@pytest.mark.parametrize(("content", "reason"), [
+    # Yosys predefines SYNTHESIS; Icarus and Verilator do not (real divergence observed).
+    ("module m(input wire a, input wire b, output wire y);\n`ifdef SYNTHESIS\nassign y = a | b;\n`else\nassign y = a & b;\n`endif\nendmodule\n",
+     "Conditional compilation"),
+    ("module m(input wire a, output wire y);\n`ifndef SIM\nassign y = a;\n`endif\nendmodule\n", "Conditional compilation"),
+    ("module m(input wire [1:0] s, output reg y);\nalways @(*) begin\n(* full_case *)\ncase (s) 2'd0: y = 1'b0; endcase\nend\nendmodule\n",
+     "full_case"),
+    ("module m(input wire [1:0] s, output reg y);\nalways @(*) case (s) // synopsys parallel_case\n2'd0: y = 1'b0; default: y = 1'b1; endcase\nendmodule\n",
+     "full_case"),
+    ("module m(input wire a, output wire y);\n// synthesis translate_off\nassign y = a;\n// synthesis translate_on\nendmodule\n", "pragmas"),
+    ("module m(input wire a, output wire y);\n/* verilator lint_off LATCH */\nassign y = a;\nendmodule\n", "lint waivers"),
+    ("module m(input wire a, output wire y);\n// verilator lint_off\nassign y = a;\nendmodule\n", "lint waivers"),
+])
+def test_rtl_that_simulates_differently_from_synthesis_is_rejected(tmp_path, content, reason):
+    runner = ToolRunner(tmp_path, "unit", eda=FakeEDA())
+    result = asyncio.run(runner.execute(call("write_file", path="src/m.v", content=content)))
+    assert result["ok"] is False and reason in result["error"]
+
+
+def test_unused_signal_waivers_stay_allowed(tmp_path):
+    runner = ToolRunner(tmp_path, "unit", eda=FakeEDA())
+    content = "module m(input wire [1:0] a, output wire y);\n/* verilator lint_off UNUSEDSIGNAL */\nassign y = a[0];\nendmodule\n"
+    assert asyncio.run(runner.execute(call("write_file", path="src/m.v", content=content)))["ok"] is True
 
 
 @pytest.mark.parametrize("content", [

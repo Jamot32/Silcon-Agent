@@ -58,15 +58,17 @@ def test_private_endpoints_return_exact_run_bound_transaction_ack(tmp_path, monk
     app = FastAPI()
     app.state.store = RunStore(tmp_path / "runs")
     app.include_router(worker_api.router)
-    auth = {"Authorization": "Bearer " + TOKEN}
+    auth = {"Authorization": "Bearer " + TOKEN, "X-Worker-Id": "c" * 32}
     with TestClient(app) as client:
         run = app.state.store.create_run("Synthetic API cancellation")
+        assert client.post("/api/internal/worker/claim", headers=auth).json()["id"] == run.id
         app.state.store.request_cancel(run.id)
         response = client.post(f"/api/internal/worker/runs/{run.id}/finish", headers=auth,
             json={"outcome": {"status": "done", "summary": "Submitted success"}})
         assert response.status_code == 200
         assert response.json() == {"run_id": run.id, "status": "cancelled", "failure_class": None}
         other = app.state.store.create_run("Synthetic API failure")
+        assert client.post("/api/internal/worker/claim", headers=auth).json()["id"] == other.id
         response = client.post(f"/api/internal/worker/runs/{other.id}/fail", headers=auth,
             json={"status": "failed", "error": "Synthetic failure"})
         assert response.json() == {"run_id": other.id, "status": "failed", "failure_class": None}

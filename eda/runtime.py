@@ -13,6 +13,10 @@ import xml.etree.ElementTree as ET
 INPUT = Path("/input")
 OUTPUT = Path("/output")
 IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
+CELL_MODELS = Path("/pdk/sky130A/libs.ref/sky130_fd_sc_hd/verilog")
+# Zero-delay functional cell models: flop outputs settle in the clock-edge
+# timestep, matching RTL nonblocking semantics observed after ReadOnly.
+GATE_LEVEL_DEFINES = ["-DFUNCTIONAL", "-DUNIT_DELAY="]
 
 
 def sources() -> list[Path]:
@@ -45,12 +49,26 @@ def lint(top: str) -> dict:
 
 
 def simulate(top: str, test_module: str) -> dict:
+    return cocotb_run(top, test_module, sources())
+
+
+def gate_level_simulate(top: str, test_module: str) -> dict:
+    netlist = INPUT / "netlist" / f"{top}.nl.v"
+    if netlist.is_symlink() or not netlist.is_file():
+        raise ValueError("Routed netlist not found")
+    models = [CELL_MODELS / "primitives.v", CELL_MODELS / "sky130_fd_sc_hd.v"]
+    if not all(path.is_file() for path in models):
+        raise ValueError("sky130_fd_sc_hd Verilog models not found in the mounted PDK")
+    return cocotb_run(top, test_module, [*models, netlist], GATE_LEVEL_DEFINES)
+
+
+def cocotb_run(top: str, test_module: str, verilog: list[Path], build_args: list[str] | None = None) -> dict:
     from cocotb_tools.runner import get_runner
 
     if not (INPUT / "test" / f"{test_module}.py").is_file():
         raise ValueError("Test module not found")
     runner = get_runner("icarus")
-    runner.build(sources=sources(), hdl_toplevel=top, build_dir=OUTPUT / "build", timescale=("1ns", "1ps"), always=True)
+    runner.build(sources=verilog, hdl_toplevel=top, build_dir=OUTPUT / "build", build_args=build_args or [], timescale=("1ns", "1ps"), always=True)
     result_path = OUTPUT / "test_results.xml"
     try:
         runner.test(hdl_toplevel=top, test_module=test_module, test_dir=INPUT / "test", results_xml=str(result_path))
@@ -95,7 +113,7 @@ def flow(run_tag: str) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("kind", choices=["lint", "sim", "synth", "flow"])
+    parser.add_argument("kind", choices=["lint", "sim", "gl_sim", "synth", "flow"])
     parser.add_argument("--top", required=True)
     parser.add_argument("--test-module")
     parser.add_argument("--run-tag")
@@ -109,6 +127,8 @@ def main() -> None:
             result = lint(args.top)
         elif args.kind == "sim":
             result = simulate(args.top, args.test_module)
+        elif args.kind == "gl_sim":
+            result = gate_level_simulate(args.top, args.test_module)
         elif args.kind == "synth":
             result = synthesize(args.top)
         else:

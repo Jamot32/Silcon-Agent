@@ -6,9 +6,16 @@ from app.schemas import DesignSpec
 
 SYSTEM_PROMPT = """You are a careful digital design engineer working with the open-source sky130 flow.
 Write synthesizable Verilog-2005 only: no SystemVerilog, initial blocks, RTL delays,
-or latches. Use default case branches and full combinational assignments. Use a
+or latches. Use default case branches and full combinational assignments. Simulation
+and synthesis must read the same RTL: no `ifdef/`ifndef, synthesis pragmas,
+full_case/parallel_case, or Verilator lint_off except UNUSED* waivers. Use a
 synchronous active-low rst_n unless the specification explicitly says otherwise.
-Tests run on cocotb 2.0.1 with Icarus Verilog. Use Timer(5, unit='ns'). Import only
+Tests run on cocotb 2.0.1 with Icarus Verilog, and the backend reruns the same tests
+on the routed gate-level netlist. Use Timer(5, unit='ns'). Every cocotb test must
+assert on observed outputs; never catch AssertionError, Exception or BaseException,
+and never use expect_fail, expect_error or skip. Drive input ports only (no Deposit,
+Force, Freeze or Release) and never change inputs in the same timestep as an active
+clock edge. Import only
 cocotb, its public submodules, random, or math. Access signals directly as dut.port;
 getattr, eval, open, os, and subprocess are forbidden by the source checks.
 Trust actual tool output over assumptions. After a failing test, read the failure,
@@ -26,6 +33,7 @@ STAGE_GOALS = {
     "SPEC": "Return only DesignSpec JSON matching the schema. Make each behavior testable and plan at least four tests covering normal operation and edge cases, plus synchronous reset for sequential designs.",
     "RTL": "Write RTL implementing the specification, then lint it with zero errors. You may read tests but cannot write them. If repairing a failure, record a hypothesis before changing RTL.",
     "VERIFY": "Author independent cocotb tests from the specification before inspecting any implementation. Only read/write test/*.py; RTL is unavailable. Run at least four tests. Keep existing tests unchanged unless an explicit TEST_SPEC_CONTRADICTION note justifies a correction.",
+    "REVIEW": "Wait for the user to review and edit the drafted DesignSpec and build configuration before any RTL is written.",
     "SYNTH": "Check actual Yosys cell statistics before physical design.",
     "FLOW": "Run the backend-controlled initial physical design and render its real layout.",
     "OPTIMIZE": "Improve the measured design. Compare at least one variant even if initial timing passes. Prefer meeting the requested frequency and WNS>=0, then lower stdcell area, then lower flow-reported power. You may propose up to three run_flow calls in one pure-flow batch. Never mix flow calls with writes/tests in the same response. RTL changes must re-pass the existing VERIFY tests before any flow. Record the rationale for each variant.",

@@ -11,7 +11,7 @@ import shutil
 import pytest
 
 from app.eda import physics
-from app.eda.sandbox import CommandResult, MAX_JSON_BYTES
+from app.eda.sandbox import CommandResult, MAX_JSON_BYTES, OUTPUT_LIMIT_ERROR
 from app.eda.service import EDA
 
 FIXTURE = Path(__file__).parent / "fixtures/mapped_synthesis"
@@ -207,7 +207,8 @@ class RecordedMappingTransport:
         if self.status == "cancel":
             raise asyncio.CancelledError
         if self.status != "ok":
-            return CommandResult(1, self.status == "timeout", log, log.read_text()[-8192:])
+            return CommandResult(1, self.status == "timeout", log, log.read_text()[-8192:],
+                                 output_limit_exceeded=self.status == "output_limit")
         tag = command[command.index("--run-tag") + 1]
         root = output_dir / "runs" / tag
         request = json.loads((output_dir / "config.json").read_text())
@@ -279,6 +280,12 @@ def test_real_command_failures_have_truthful_json_and_retained_logs(tmp_path, st
     assert (eda.work_dir / result["results_path"]).is_file()
 
 
+def test_output_limit_is_reported_instead_of_first_log_error(tmp_path):
+    eda, _ = service(tmp_path, status="output_limit")
+    result = asyncio.run(eda.mapped_synth_stats("chip"))
+    assert result["ok"] is False and result["error"] == OUTPUT_LIMIT_ERROR
+
+
 def test_corrupt_checker_and_changed_snapshot_are_not_accepted_as_mapping(tmp_path):
     def corrupt(root, source):
         (source / "src/chip.v").write_text("changed during mapping")
@@ -286,6 +293,17 @@ def test_corrupt_checker_and_changed_snapshot_are_not_accepted_as_mapping(tmp_pa
     result = asyncio.run(eda.mapped_synth_stats("chip"))
     assert result["ok"] is False and "changed" in result["error"]
     assert (eda.work_dir / result["stats_path"]).is_file()
+
+
+def test_planted_results_symlink_is_never_followed_by_the_host_write(tmp_path):
+    victim = tmp_path / "host_file.txt"
+    victim.write_text("host owned\n")
+    def plant(root, source):
+        (root.parent.parent / "mapped_synth.json").symlink_to(victim)
+    eda, _ = service(tmp_path, mutate=plant)
+    with pytest.raises(OSError):
+        asyncio.run(eda.mapped_synth_stats("chip"))
+    assert victim.read_text() == "host owned\n"
 
 
 def test_failure_preserves_the_first_fatal_line_before_truncated_log_context(tmp_path):

@@ -21,6 +21,7 @@ from app.agent.physical import PhysicalPlanner, canonical
 from app.eda.flow import ALLOWED_CONFIG_KEYS
 from app.eda.flow import validate_flow_overrides
 from app.eda.service import EDA
+from app.eda.sim import GATE_LEVEL_MAX_TIMEOUT, apply_gate_level
 from app.eda import harness
 from app.eda.verification import capture_harness_proof, validate_proof
 from app.llm.types import ToolCall, ToolDefinition
@@ -114,6 +115,20 @@ def _bounded_result(result: dict[str, JsonValue]) -> dict[str, JsonValue]:
     return bounded_result(result, MAX_OUTPUT_BYTES)
 
 
+# Constructs that make the simulator and the synthesizer read different RTL, or
+# silence a lint check that guards such a divergence. Unused-signal waivers are
+# style-only and appear in delivered designs, so they stay allowed.
+_RTL_DIVERGENCE = (
+    (re.compile(r"`(ifdef|ifndef|elsif|else|endif)\b"),
+     "Conditional compilation is not allowed; simulation and synthesis must read the same RTL"),
+    (re.compile(r"\b(full_case|parallel_case)\b"),
+     "full_case/parallel_case directives are not allowed; they change synthesized logic but not simulation"),
+    (re.compile(r"\btranslate_(off|on)\b|(//|/\*)\s*(synopsys|pragma)\b"),
+     "Synthesis pragmas are not allowed; simulation and synthesis must read the same RTL"),
+)
+_LINT_WAIVER = re.compile(r"\blint_off\b(?:[ \t]+(?:-rule[ \t]+)?([A-Za-z0-9_]+))?")
+
+
 def _validate_rtl(content: str) -> None:
     tokens = re.sub(r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"', " ", content, flags=re.S)
     forbidden = re.search(
@@ -129,6 +144,12 @@ def _validate_rtl(content: str) -> None:
     for task in re.findall(r"\$[A-Za-z_][A-Za-z0-9_]*", tokens):
         if task not in {"$clog2", "$signed", "$unsigned"}:
             raise ValueError(f"RTL system task/function is not allowed: {task}")
+    for pattern, message in _RTL_DIVERGENCE:
+        if pattern.search(content):
+            raise ValueError(message)
+    for waiver in _LINT_WAIVER.finditer(content):
+        if not (waiver.group(1) or "").startswith("UNUSED"):
+            raise ValueError("Only UNUSED* Verilator lint waivers are allowed; fix the reported warning instead")
 
 
 _DANGEROUS_NAMES = {
@@ -166,11 +187,80 @@ def _validate_test(content: str) -> None:
                 raise ValueError("Private or wildcard test imports are not allowed")
         if isinstance(node, ast.Name) and node.id in _DANGEROUS_NAMES:
             raise ValueError(f"Test builtin is not allowed: {node.id}")
+        forced = (node.id if isinstance(node, ast.Name) else node.attr if isinstance(node, ast.Attribute)
+                  else node.name if isinstance(node, ast.alias) else None)
+        if forced in _FORCING_ACTIONS:
+            raise ValueError("cocotb Deposit/Force/Freeze/Release are not allowed; they bypass the design inputs and "
+                             "behave differently on the gate-level netlist. Drive input ports only")
         if isinstance(node, ast.Attribute):
             if ((node.attr.startswith("_") and node.attr not in {"_log", "_id"})
                     or node.attr in _DANGEROUS_ATTRIBUTES
                     or node.attr.startswith(("exec", "spawn", "posix_spawn"))):
                 raise ValueError(f"Test attribute is not allowed: {node.attr}")
+    _require_checking_tests(tree)
+
+
+# Writes that bypass the design's input ports; the gate-level rerun of the same
+# tests cannot reproduce them on a flattened netlist.
+_FORCING_ACTIONS = {"Deposit", "Force", "Freeze", "Release"}
+
+
+_SWALLOWING = {"Exception", "BaseException", "AssertionError"}
+
+
+def _is_cocotb_test(decorator: ast.expr) -> bool:
+    target = decorator.func if isinstance(decorator, ast.Call) else decorator
+    return ((isinstance(target, ast.Attribute) and target.attr == "test"
+             and isinstance(target.value, ast.Name) and target.value.id == "cocotb")
+            or (isinstance(target, ast.Name) and target.id == "test"))
+
+
+def _require_checking_tests(tree: ast.Module) -> None:
+    """A passing test must have been able to fail: every cocotb test reaches a check.
+
+    A check is a non-constant assert or a raise, in the test or in a module-local
+    function or method it calls (transitively). Handlers that would swallow a
+    failed check, and cocotb options that invert or skip outcomes, are rejected.
+    """
+    functions: dict[str, list[ast.FunctionDef | ast.AsyncFunctionDef]] = {}
+    tests: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ExceptHandler):
+            caught = [] if node.type is None else node.type.elts if isinstance(node.type, ast.Tuple) else [node.type]
+            names = {item.id if isinstance(item, ast.Name) else item.attr if isinstance(item, ast.Attribute) else ""
+                     for item in caught}
+            if node.type is None or names & _SWALLOWING:
+                raise ValueError("Tests cannot catch AssertionError, Exception or BaseException; a failed check must fail the test")
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            functions.setdefault(node.name, []).append(node)
+            for decorator in node.decorator_list:
+                if not _is_cocotb_test(decorator):
+                    continue
+                tests.append(node)
+                if isinstance(decorator, ast.Call) and any(
+                        keyword.arg in {"expect_fail", "expect_error", "skip"} for keyword in decorator.keywords):
+                    raise ValueError("cocotb expect_fail, expect_error and skip options are not allowed")
+
+    def checks(function: ast.AST) -> bool:
+        return any((isinstance(node, ast.Assert) and not isinstance(node.test, ast.Constant))
+                   or isinstance(node, ast.Raise) for node in ast.walk(function))
+
+    def callees(function: ast.AST) -> set[str]:
+        return {node.func.id if isinstance(node.func, ast.Name) else node.func.attr
+                for node in ast.walk(function)
+                if isinstance(node, ast.Call) and isinstance(node.func, (ast.Name, ast.Attribute))}
+
+    checking = {name for name, definitions in functions.items() if any(checks(item) for item in definitions)}
+    grew = True
+    while grew:
+        grew = False
+        for name, definitions in functions.items():
+            if name not in checking and any(callees(item) & checking for item in definitions):
+                checking.add(name)
+                grew = True
+    for test in tests:
+        if not (checks(test) or callees(test) & checking):
+            raise ValueError(f"Test {test.name} never checks a result; add an assert on an observed output")
 
 
 class ToolRunner:
@@ -186,8 +276,13 @@ class ToolRunner:
         self.eda = eda if eda is not None else EDA(self.work_dir, run_id=run_id)
         self.event_callback = event_callback
         self.flow_runs = 0
+        # Hard cap of six; a reviewed BuildConfig may lower it before the first flow.
+        self.flow_limit = 6
+        # Reviewed initial-flow knobs; the SYNTH sizing preflight must size with them, like the flows do.
+        self.base_overrides: dict[str, JsonValue] = {}
         self.verified_revision: str | None = None
         self._verified_tests_digest: str | None = None
+        self._verified_test_module: str | None = None
         self._verified_top: str | None = None
         self._test_lock = asyncio.Lock()
         self._harness_spec: DesignSpec | None = None
@@ -285,6 +380,7 @@ class ToolRunner:
         self.eda.configure_test_harness(self._harness_spec)
         self.verified_revision = None
         self._verified_tests_digest = None
+        self._verified_test_module = None
         self._verified_top = None
         self._harness_proof = None
 
@@ -392,7 +488,8 @@ class ToolRunner:
             arguments = _TOOLS[call.name][0].model_validate(call.arguments)
             result = await asyncio.wait_for(
                 self._dispatch(call.name, arguments),
-                timeout=FLOW_TIMEOUT_SECONDS + TOOL_TIMEOUT_SECONDS if call.name == "run_flow" else TOOL_TIMEOUT_SECONDS,
+                timeout=(FLOW_TIMEOUT_SECONDS + GATE_LEVEL_MAX_TIMEOUT + TOOL_TIMEOUT_SECONDS
+                         if call.name == "run_flow" else TOOL_TIMEOUT_SECONDS),
             )
         except TimeoutError:
             result = {"ok": False, "error": "Tool command timed out"}
@@ -473,6 +570,7 @@ class ToolRunner:
                 tests_before = self._source_digest("test", ".py")
                 self.verified_revision = None
                 self._verified_tests_digest = None
+                self._verified_test_module = None
                 self._verified_top = None
                 self._harness_proof = None
                 result = await (self.eda.run_harness_tests(arguments.top, arguments.test_module)
@@ -500,18 +598,19 @@ class ToolRunner:
                         return result
                     self.verified_revision = before
                     self._verified_tests_digest = tests_before
+                    self._verified_test_module = arguments.test_module
                     self._verified_top = arguments.top
                 await self._emit("test_result", _bounded_result(result))
             return result
         if name == "synth_stats" and isinstance(arguments, _Top):
             if self.physical_planner is not None:
-                return await self.physical_planner.prepare(arguments.top, {})
+                return await self.physical_planner.prepare(arguments.top, dict(self.base_overrides))
             return await self.eda.synth_stats(arguments.top)
         if isinstance(arguments, _Flow):
             overrides = validate_flow_overrides(arguments.config_overrides)
             self._require_verified(arguments.top)
-            if self.flow_runs >= 6:
-                raise ValueError("Flow budget exhausted: at most 6 attempts per run")
+            if self.flow_runs >= self.flow_limit:
+                raise ValueError(f"Flow budget exhausted: at most {self.flow_limit} attempts per run")
             planning = None
             if self.physical_planner is not None:
                 planning = await self.physical_planner.prepare(arguments.top, overrides)
@@ -521,18 +620,29 @@ class ToolRunner:
             # Planning may await a shared mapping. Reserve the attempt only
             # afterward, atomically in this event loop, so siblings cannot
             # oversubscribe the six-command limit.
-            if self.flow_runs >= 6:
-                raise ValueError("Flow budget exhausted: at most 6 attempts per run")
+            if self.flow_runs >= self.flow_limit:
+                raise ValueError(f"Flow budget exhausted: at most {self.flow_limit} attempts per run")
             self.flow_runs += 1
             flow_index = self.flow_runs
             async with _FLOW_SEMAPHORE:
                 self._require_verified(arguments.top)
                 proof = deepcopy(self._harness_proof)
+                test_module = self._verified_test_module
                 result = await (self.eda.run_harness_flow(arguments.top, overrides, proof)
                                 if self._harness_spec is not None
                                 else self.eda.run_flow(arguments.top, overrides))
                 if proof is not None and isinstance(result.get("run_tag"), str):
                     self._flow_proofs[result["run_tag"]] = proof
+            gate_level = None
+            if result.get("ok") is True and isinstance(result.get("run_tag"), str):
+                # The frozen verified tests must also pass on the routed netlist.
+                try:
+                    if test_module is None:
+                        raise ValueError("No verified test module is recorded for gate-level simulation")
+                    gate_level = await self.eda.gate_level_simulation(result["run_tag"], test_module)
+                except (OSError, ValueError) as error:
+                    gate_level = {"ok": False, "error": f"{type(error).__name__}: {error}"}
+            apply_gate_level(result, gate_level)
             if planning is not None:
                 result.update(physical_plan={key: planning[key] for key in (
                     "mapping_cache_key", "mapping_reused", "sizing_plan", "footprint_policy")},
@@ -603,6 +713,7 @@ class ToolRunner:
         if path.suffix in {".v", ".py"}:
             self.verified_revision = None
             self._verified_tests_digest = None
+            self._verified_test_module = None
             self._verified_top = None
             self._harness_proof = None
         return {"ok": True, "bytes": len(content), "diff": _tail(diff)}

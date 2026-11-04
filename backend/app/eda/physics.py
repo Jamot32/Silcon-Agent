@@ -4,6 +4,7 @@ from dataclasses import asdict, dataclass
 from decimal import Decimal, InvalidOperation, ROUND_CEILING, ROUND_FLOOR, localcontext
 import hashlib
 import json
+import os
 from pathlib import Path, PurePosixPath
 import re
 from uuid import uuid4
@@ -11,7 +12,7 @@ from uuid import uuid4
 from pydantic import JsonValue
 
 from app.eda import flow
-from app.eda.sandbox import DockerSandbox, MAX_JSON_BYTES, safe_artifact
+from app.eda.sandbox import DockerSandbox, MAX_JSON_BYTES, OUTPUT_LIMIT_ERROR, safe_artifact
 
 _IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*\Z")
 _ZERO_CHECKS = ("design__lint_error__count", "design__lint_timing_construct__count",
@@ -352,7 +353,7 @@ async def mapped_synth_stats(sandbox: DockerSandbox, input_dir: Path, output_dir
         observed = await sandbox.run(command, input_dir=input_dir, output_dir=output_dir, timeout=60, require_pdk=True)
         result.update(log_path=relative(observed.log_path), log_tail=observed.log_tail[-2048:], timed_out=observed.timed_out)
         if not observed.ok:
-            message = "Mapped synthesis timed out" if observed.timed_out else _command_error(
+            message = "Mapped synthesis timed out" if observed.timed_out else OUTPUT_LIMIT_ERROR if observed.output_limit_exceeded else _command_error(
                 output_dir, observed.log_path, f"Mapped synthesis exited with code {observed.returncode}")
             raise ValueError(message)
         root = safe_artifact(output_dir, output_dir / "runs" / tag)
@@ -396,5 +397,8 @@ async def mapped_synth_stats(sandbox: DockerSandbox, input_dir: Path, output_dir
     except (ValueError, OSError) as error:
         message = str(error)[:1000]
         result.update(ok=False, error=message, first_error=message)
-    results_path.write_text(json.dumps(result, allow_nan=False, indent=2) + "\n")
+    # The container owned output_dir: never follow or replace an entry it may have planted.
+    descriptor = os.open(results_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    with os.fdopen(descriptor, "w") as stream:
+        stream.write(json.dumps(result, allow_nan=False, indent=2) + "\n")
     return result

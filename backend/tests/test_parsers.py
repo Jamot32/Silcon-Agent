@@ -6,7 +6,7 @@ import pytest
 from pydantic import ValidationError
 from sqlmodel import Session, SQLModel, create_engine
 
-from app.eda.parsers import parse_librelane_metrics
+from app.eda.parsers import drv_ok, parse_librelane_metrics, parse_signoff_checks, signoff_failure, signoff_missing
 from app.models import Iteration, Metric, Run
 
 FIXTURE = Path(__file__).parent / "fixtures" / "golden_counter"
@@ -167,3 +167,78 @@ def test_missing_clock_target_fails(tmp_path):
             FIXTURE / "metrics.json", config,
             run_id="run-test", iteration_id="iteration-test", run_tag="golden",
         )
+
+
+SIGNOFF_FIXTURE = Path(__file__).parent / "fixtures" / "signoff"
+CHECK_KEYS = {
+    "setup_wns_ns": "timing__setup__wns", "hold_wns_ns": "timing__hold__wns",
+    "setup_violations": "timing__setup_vio__count", "hold_violations": "timing__hold_vio__count",
+    "max_slew_violations": "design__max_slew_violation__count", "max_cap_violations": "design__max_cap_violation__count",
+    "max_fanout_violations": "design__max_fanout_violation__count",
+    "antenna_violating_nets": "antenna__violating__nets", "antenna_violating_pins": "antenna__violating__pins",
+}
+
+
+def test_clean_golden_signoff_checks(metrics):
+    checks = parse_signoff_checks(metrics)
+    assert {name: checks[name] for name in CHECK_KEYS} == {
+        "setup_wns_ns": 0.0, "hold_wns_ns": 0.0, "setup_violations": 0, "hold_violations": 0,
+        "max_slew_violations": 0, "max_cap_violations": 0, "max_fanout_violations": 0,
+        "antenna_violating_nets": 0, "antenna_violating_pins": 0,
+    }
+    assert checks["violating_corners"] == {kind: [] for kind in ("setup", "hold", "max_slew", "max_cap", "max_fanout")}
+    assert drv_ok(checks) is True
+    assert signoff_failure(checks) is None and signoff_missing(checks) == []
+    json.dumps(checks, allow_nan=False)
+
+
+def test_real_delivered_slew_violation_is_a_failure():
+    # Byte-for-byte final/metrics.json of a delivered uart_tx layout (see provenance.json).
+    checks = parse_signoff_checks(json.loads((SIGNOFF_FIXTURE / "uart_tx_max_slew_metrics.json").read_text()))
+    assert checks["max_slew_violations"] == 11
+    assert checks["violating_corners"]["max_slew"] == ["max_ss_100C_1v60"]
+    assert checks["setup_wns_ns"] == 0 and checks["hold_wns_ns"] == 0
+    assert drv_ok(checks) is False
+    assert signoff_failure(checks) == (
+        "Signoff failed: Max Slew violations found in the following corners: max_ss_100C_1v60 (11 pins)")
+
+
+@pytest.mark.parametrize("name,key", CHECK_KEYS.items())
+def test_missing_signoff_check_is_unknown_never_clean(metrics, name, key):
+    del metrics[key]
+    checks = parse_signoff_checks(metrics)
+    assert checks[name] is None
+    assert signoff_missing(checks) == [name]
+    assert signoff_failure(checks) is None
+    if name.startswith(("max_", "antenna_violating_nets")):
+        assert drv_ok(checks) is None
+
+
+def test_absent_metrics_are_all_unknown():
+    checks = parse_signoff_checks({})
+    assert all(checks[name] is None for name in CHECK_KEYS)
+    assert drv_ok(checks) is None
+    assert signoff_missing(checks) == list(CHECK_KEYS)
+
+
+@pytest.mark.parametrize("key,value,expected", [
+    ("timing__setup__wns", -0.42, "Setup violations found in the following corners: nom_ss_100C_1v60 (worst setup slack -0.42 ns"),
+    ("timing__hold__wns", -0.05, "Hold violations found in the following corners: nom_ss_100C_1v60 (worst hold slack -0.05 ns"),
+    ("design__max_cap_violation__count", 2, "Max Cap violations found in the following corners: nom_ss_100C_1v60 (2 pins)"),
+    ("design__max_fanout_violation__count", 3, "Max Fanout violations found in the following corners: nom_ss_100C_1v60 (3 pins)"),
+    ("antenna__violating__nets", 1, "Antenna violations found: 1 nets, 0 pins"),
+])
+def test_each_violation_has_a_classifiable_message(metrics, key, value, expected):
+    metrics[key] = value
+    corner_key = {"timing__setup__wns": "timing__setup_vio__count", "timing__hold__wns": "timing__hold_vio__count"}.get(key, key)
+    if corner_key != "antenna__violating__nets":
+        metrics[f"{corner_key}__corner:nom_ss_100C_1v60"] = 1
+    failure = signoff_failure(parse_signoff_checks(metrics))
+    assert failure is not None and expected in failure
+
+
+@pytest.mark.parametrize("value", [True, -1, 0.5, "0", None, float("nan"), float("inf")])
+def test_invalid_signoff_check_value_fails(metrics, value):
+    metrics["design__max_slew_violation__count__corner:nom_tt_025C_1v80"] = value
+    with pytest.raises(ValueError, match="max_slew_violation"):
+        parse_signoff_checks(metrics)

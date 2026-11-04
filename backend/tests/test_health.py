@@ -9,7 +9,7 @@ def test_bootstrap_health_is_honest(tmp_path, monkeypatch):
     monkeypatch.setattr(main, "RUNS_DIR", tmp_path)
     monkeypatch.setattr(main, "RECORDINGS_DIR", tmp_path / "recordings")
     monkeypatch.setattr(main, "engine", create_engine(f"sqlite:///{tmp_path}/test.db", connect_args={"check_same_thread": False}))
-    with TestClient(main.app) as client:
+    with TestClient(main.app, base_url="http://localhost") as client:
         response = client.get("/api/health")
         assert response.status_code == 200
         checks = response.json()["checks"]

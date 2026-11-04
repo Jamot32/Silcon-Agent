@@ -30,6 +30,14 @@ class Run(SQLModel, table=True):
     recording_id: str | None = None
     replay_speed: int | None = None
     starter_id: str | None = None
+    parent_run_id: str | None = None
+    # Parent prompt, DesignSpec and RTL a revision starts from; worker-only, never public.
+    carry_over_json: str | None = None
+    # Expert mode: the orchestrator waits at REVIEW until the user's edited DesignSpec and BuildConfig arrive here.
+    review_requested: bool = False
+    review_json: str | None = None
+    # Host worker identity holding the claim; only it may mutate the run through the worker API.
+    claimed_by: str | None = None
 
 
 class Iteration(SQLModel, table=True):

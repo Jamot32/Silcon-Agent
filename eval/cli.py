@@ -93,7 +93,7 @@ async def selfcheck(split: str) -> int:
     from eval.hidden import selfcheck_case
 
     cases = load_cases(ROOT, split, {1, 2, 3, 4})
-    image = os.getenv("EDA_IMAGE", "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1")
+    image = os.getenv("EDA_IMAGE", "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools2")
     image_id = run_command(["docker", "image", "inspect", "--format", "{{.Id}}", image])
     engine = oracle_engine_sha256()
     marker = ROOT / "eval/oracle_checks.json"
@@ -145,7 +145,7 @@ def run_command(arguments: list[str], *, limit: int = 16_384) -> str:
 
 
 def preflight() -> dict:
-    image = os.getenv("EDA_IMAGE", "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1")
+    image = os.getenv("EDA_IMAGE", "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools2")
     image_id = run_command(["docker", "image", "inspect", "--format", "{{.Id}}", image])
     pdk = Path(os.getenv("EDA_PDK_DIR", str(ROOT / "runs/pdk/ciel/sky130/versions/8afc8346a57fe1ab7934ba5a6056ea8b43078e71")))
     if not (pdk / "sky130A").is_dir():

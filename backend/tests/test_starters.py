@@ -165,6 +165,8 @@ def test_supplied_seed_then_real_fixture_failure_and_model_repair_keeps_independ
         # The backend loads the starter; deterministic summaries need no responses.
         response(call("write_file", path="test/test_uart_tx.py", content=(GOLDEN / "test/test_uart_tx.py").read_text()),
                  call("run_tests", top="uart_tx", test_module="test_uart_tx")),
+        # Spec review: the spec-only test author stands by the failing expectations.
+        response(content="The failing bit timing follows the DesignSpec."),
         response(call("record_note", text="Hypothesis: the supplied UART advances serial bits one clock too early."),
                  call("write_file", path="src/uart_tx.v", content=(GOLDEN / "src/uart_tx.v").read_text()),
                  call("lint", top="uart_tx")),
@@ -218,4 +220,4 @@ def test_supplied_seed_then_real_fixture_failure_and_model_repair_keeps_independ
             for message in messages:
                 assert "BAUD_LAST" not in (message.content or "")
                 assert "src/uart_tx.v" not in (message.content or "")
-    assert verify_requests == 2 and rtl_authoring_requests == 1
+    assert verify_requests == 3 and rtl_authoring_requests == 1

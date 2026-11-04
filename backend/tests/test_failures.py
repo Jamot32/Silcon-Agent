@@ -218,3 +218,71 @@ def test_success_does_not_hide_a_real_error_and_inputs_are_not_mutated():
     original = json.dumps(result)
     assert classify_failure(stage="RTL", tool="lint", result=result).failure_class == "syntax_error"
     assert json.dumps(result) == original
+
+
+SIGNOFF = Path(__file__).parent / "fixtures/signoff"
+
+
+@pytest.mark.parametrize("fixture,expected", [
+    # Real tool.log tails (log_tail bytes) of LibreLane 3.0.16 runs with the all-corner checkers.
+    ("counter_1p5ns_setup_tool_log_tail.txt", "timing_fail"),
+    ("chip3255_slew_cap_tool_log_tail.txt", "electrical_violation"),
+])
+def test_real_librelane_checker_errors_classify(fixture, expected):
+    log_tail = (SIGNOFF / fixture).read_text()
+    assert "One or more deferred errors were encountered" in log_tail
+    failure = classify_failure(stage="FLOW", tool="run_flow", result={"ok": False, "log_tail": log_tail})
+    assert failure.failure_class == expected
+    assert "violations found" in failure.evidence
+
+
+def test_real_setup_violation_metrics_classify_with_measured_wns():
+    from app.eda.parsers import parse_signoff_checks, signoff_failure
+    checks = parse_signoff_checks(json.loads((SIGNOFF / "counter_1p5ns_setup_metrics.json").read_text()))
+    assert checks["setup_wns_ns"] < 0 and checks["setup_violations"] == 89
+    failure = classify_failure(stage="FLOW", tool="run_flow", result={
+        "ok": False, "error": signoff_failure(checks), "signoff_checks": checks})
+    assert failure.failure_class == "timing_fail"
+    assert failure.evidence == f"setup_wns_ns={checks['setup_wns_ns']:g}; setup_violations=89"
+
+
+@pytest.mark.parametrize("checks,expected", [
+    ({"hold_wns_ns": -0.05, "hold_violations": 2, "setup_wns_ns": -1.0}, "hold_fail"),
+    ({"setup_wns_ns": -0.2}, "timing_fail"),
+    ({"setup_wns_ns": 0.0, "setup_violations": 3}, "timing_fail"),
+    ({"max_slew_violations": 11}, "electrical_violation"),
+    ({"max_cap_violations": 1}, "electrical_violation"),
+    ({"max_fanout_violations": 1}, "electrical_violation"),
+    ({"antenna_violating_nets": 2}, "electrical_violation"),
+    ({"antenna_violating_pins": 2}, "electrical_violation"),
+])
+def test_structured_signoff_checks_classify(checks, expected):
+    assert classify_failure(stage="FLOW", tool="run_flow", result={"ok": False, "signoff_checks": checks}).failure_class == expected
+
+
+def test_drc_and_lvs_failures_keep_priority_over_signoff_checks():
+    result = {"ok": False, "drc_ok": False, "signoff_checks": {"max_slew_violations": 3}}
+    assert classify_failure(stage="FLOW", tool="run_flow", result=result).failure_class == "drc_fail"
+
+
+@pytest.mark.parametrize("message,expected", [
+    ("Signoff failed: Hold violations found in the following corners: min_ff_n40C_1v95 (worst hold slack -0.02 ns, 1 endpoints)", "hold_fail"),
+    ("Signoff failed: Max Fanout violations found in the following corners: nom_tt_025C_1v80 (1 pins)", "electrical_violation"),
+    ("Signoff failed: Antenna violations found: 2 nets, 2 pins", "electrical_violation"),
+    ("One or more wildcards specified in MAX_SLEW_VIOLATION_CORNERS did not match any corners:", "config_error"),
+])
+def test_signoff_messages_classify(message, expected):
+    assert classify_failure(stage="FLOW", tool="run_flow", result={"ok": False, "error": message}).failure_class == expected
+
+
+def test_verbose_clean_checker_lines_do_not_classify():
+    log = "[V] No setup violations found\n[V] No hold violations found\nNo max slew violations found\nNo max cap violations found"
+    assert classify_failure(stage="FLOW", tool="run_flow", result={"ok": False, "log_tail": log}).failure_class == "flow_failed"
+
+
+def test_gate_level_mismatch_error_kind():
+    failure = classify_failure(stage="FLOW", tool="run_flow", result={
+        "ok": False, "error_kind": "gate_level_mismatch",
+        "error": "Gate-level simulation of the routed netlist failed: test_reset failed"})
+    assert failure.failure_class == "gate_level_mismatch"
+    assert "gate-level netlist" in failure.cause

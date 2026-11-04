@@ -89,6 +89,32 @@ class DesignSpec(BaseModel):
         return self
 
 
+# A run waiting at REVIEW holds the only worker slot. The API refuses answers after this long in REVIEW;
+# the worker starts counting slightly later, so it never gives up on an answer the API accepted.
+REVIEW_TIMEOUT_SECONDS = 30 * 60
+# The reviewed initial flow takes only these knobs: the clock comes from the clock target and the planner sizes the die.
+REVIEW_FLOW_KEYS = {"SYNTH_STRATEGY", "FP_CORE_UTIL", "PL_TARGET_DENSITY_PCT"}
+
+
+class BuildConfig(BaseModel):
+    """Build settings an expert can lower or redirect at the REVIEW checkpoint; defaults are the normal build."""
+    model_config = ConfigDict(extra="forbid", strict=True, allow_inf_nan=False)
+
+    optimize: bool = True
+    max_flow_runs: int = Field(default=6, ge=1, le=6)
+    max_repair_loops: int = Field(default=5, ge=0, le=5)
+    initial_flow: dict[str, JsonValue] = Field(default_factory=dict)
+
+    @field_validator("initial_flow")
+    @classmethod
+    def valid_initial_flow(cls, values: dict[str, JsonValue]) -> dict[str, JsonValue]:
+        from app.eda.flow import validate_flow_overrides
+
+        if set(values) - REVIEW_FLOW_KEYS:
+            raise ValueError("The initial flow accepts only SYNTH_STRATEGY, FP_CORE_UTIL and PL_TARGET_DENSITY_PCT")
+        return validate_flow_overrides(values)
+
+
 class Outcome(BaseModel):
     status: Literal["done", "failed"]
     summary: str

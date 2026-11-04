@@ -19,7 +19,7 @@ import math
 import random
 import re
 
-from .policy import (RequestOptions, ProviderFailureHint, codex_override, MAX_PROMPT_BYTES,
+from .policy import (RequestOptions, ProviderFailureHint, codex_override, MAX_PROMPT_BYTES, MODEL,
                      provider_failure_hint)
 from .types import BudgetExceeded
 from .read_boundary import CodexReadBoundary, CodexLaunchPolicy, ReadBoundaryError
@@ -373,7 +373,7 @@ class CodexCLIClient:
                  launch_policy=None):
         self.budget = budget if budget is not None else Budget()
         self.budget.mark_unknown_cost()  # Honest even if the first call never returns usage.
-        self.model = model or os.getenv("CODEX_MODEL") or "gpt-6.1-sol"
+        self.model = model or os.getenv("CODEX_MODEL") or MODEL
         self.executable = executable or shutil.which("codex")
         self.timeout, self.callback, self.sleep = checked_timeout(timeout), callback, sleep
         self.observer_failed = False

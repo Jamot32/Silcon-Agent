@@ -2,9 +2,10 @@ import json
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from app.models import Run
+from app.schemas import BuildConfig, DesignSpec
 
 
 class Targets(BaseModel):
@@ -20,6 +21,11 @@ class CreateRun(BaseModel):
     preset_id: str | None = Field(default=None, pattern=r"^[a-z0-9_-]{1,64}$")
     targets: Targets | None = None
     starter_id: Literal["uart_off_by_one"] | None = None
+    # A revision links to the run it follows; reuse_design also starts from that run's RTL.
+    parent_run_id: str | None = Field(default=None, pattern=r"^[0-9a-f]{32}$")
+    reuse_design: bool = False
+    # Expert mode: stop after the drafted DesignSpec and wait for the user's review.
+    review: bool = False
 
     @field_validator("spec_text")
     @classmethod
@@ -27,6 +33,14 @@ class CreateRun(BaseModel):
         if len(value.strip()) < 10:
             raise ValueError("Describe the chip in at least ten characters")
         return value.strip()
+
+    @model_validator(mode="after")
+    def revision(self) -> "CreateRun":
+        if self.reuse_design and self.parent_run_id is None:
+            raise ValueError("Starting from a previous design requires parent_run_id")
+        if self.reuse_design and self.starter_id is not None:
+            raise ValueError("A revision starts from the previous design, not a supplied starter")
+        return self
 
 
 class PublicRun(BaseModel):
@@ -51,12 +65,24 @@ class PublicRun(BaseModel):
     recording_id: str | None = None
     replay_speed: int | None = None
     starter_id: str | None = None
+    parent_run_id: str | None = None
+    carried_files: list[str] = []
+    review_requested: bool = False
+    review_submitted: bool = False
 
     @classmethod
     def from_run(cls, run: Run) -> "PublicRun":
-        return cls(**run.model_dump(exclude={"design_spec_json", "targets_json", "cost_known", "cancel_requested", "cost_usd"}),
+        return cls(**run.model_dump(exclude={"design_spec_json", "targets_json", "cost_known", "cancel_requested", "cost_usd", "carry_over_json", "review_json"}),
+                   review_submitted=run.review_json is not None,
+                   carried_files=sorted(json.loads(run.carry_over_json)["files"]) if run.carry_over_json else [],
                    design_spec=json.loads(run.design_spec_json) if run.design_spec_json else None,
                    targets=json.loads(run.targets_json or "{}"), cost_usd=run.cost_usd if run.cost_known else None)
+
+
+class ReviewAnswer(BaseModel):
+    model_config = ConfigDict(extra="forbid", strict=True)
+    design_spec: DesignSpec
+    build: BuildConfig
 
 
 class CreateReplay(BaseModel):

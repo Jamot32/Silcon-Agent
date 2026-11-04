@@ -1,0 +1,23 @@
+{
+  "origin": "real_pinned_docker_gate_level_simulation_of_golden_counter_routed_netlist",
+  "model_generated": false,
+  "command": "uv run --python 3.12 --with-requirements backend/requirements.txt python -m pytest -q -m integration -s backend/tests/integration/test_gate_level.py",
+  "raw_evidence_dir": "runs/eda-tools-check/gate-level-c4aa33ce9c2549eda8a568331d05ba05/work/.eda/gate_level_23a8a7db14364109872090641013dfff",
+  "runtime_command": ["python3", "/opt/silicon-agent/runtime.py", "gl_sim", "--top", "counter", "--test-module", "test_counter"],
+  "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools2",
+  "eda_image_id": "sha256:8bfad1a039398a48a5ae60001daf0b9bde0227d0eb2cabfb755528ee59ab753e",
+  "pdk_revision": "8afc8346a57fe1ab7934ba5a6056ea8b43078e71",
+  "defines": ["FUNCTIONAL", "UNIT_DELAY="],
+  "cell_models": {
+    "primitives.v": "7d4b1441d06b0f2b9662befa675a0484d77149e04eb42a5f1fa2d4cfded7b2ce",
+    "sky130_fd_sc_hd.v": "12d5d6448ccf265c544d88402d5c10ab6de9bee8b8cde48eee1f31ea8c3c3e45"
+  },
+  "test_module_sha256": "283248acf321ba6d4a2ddaedbc7c7c51c17afda5ef5becf62b174b27c32e5bfa",
+  "files": {
+    "counter.nl.v": {"source_path": "input/netlist/counter.nl.v", "sha256": "59bde6cc41ab5e96f6ac49b2612d525fef0e45b3a2adc0d19c3946462ea4b96a"},
+    "test_results.xml": {"source_path": "output/test_results.xml", "sha256": "4a3b0300f95894887306473e2eb615530f615045c137671871d04e44a8efa5b0"},
+    "result.json": {"source_path": "output/result.json", "sha256": "34b187e3d06d83cb7c7a7ed84dc4b54077ddb1d995c1318d0b9d83550d7b9ad1"},
+    "tool.log": {"source_path": "output/tool.log", "sha256": "fed070515fdc55a4bc6d331dad878d3502afe70a1f98e16873657aaeefeb6014"}
+  },
+  "note": "The netlist comes from a different flow run than backend/tests/fixtures/golden_counter (GDS/metrics); packaging unit tests combine them only to exercise bundle validation."
+}

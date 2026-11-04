@@ -6,7 +6,7 @@ import pytest
 
 from app import remote_store, worker
 from app.models import Run
-from app.remote_store import HTTPRunStore, RemoteStoreError
+from app.remote_store import HTTPRunStore, RemoteStoreError, RunClaimConflict
 from app.schemas import Outcome
 
 RUN_ID = "a" * 32
@@ -28,6 +28,7 @@ def test_all_remote_operations_have_auth_and_preserve_payloads(tmp_path):
     def handle(request):
         requests.append(request)
         assert request.headers["Authorization"] == f"Bearer {TOKEN}"
+        assert request.headers["X-Worker-Id"] == store.worker_id
         if request.url.path.endswith("/claim"):
             return httpx.Response(200, json=run_json(status="running"))
         if request.method == "GET":
@@ -104,6 +105,42 @@ def test_mutations_are_not_retried_and_errors_hide_auth_and_body(tmp_path, metho
         actions[method]()
     assert str(caught.value) == "Worker API returned HTTP 503"
     assert TOKEN not in str(caught.value)
+    assert len(calls) == 1
+    store.close()
+
+
+def test_worker_identity_is_stable_private_and_validated(tmp_path):
+    first = adapter(tmp_path, lambda _: httpx.Response(200, json={}))
+    path = tmp_path / "runs" / "worker.id"
+    assert len(first.worker_id) == 32 and set(first.worker_id) <= set("0123456789abcdef")
+    assert path.read_text() == first.worker_id and path.stat().st_mode & 0o777 == 0o600
+    second = adapter(tmp_path, lambda _: httpx.Response(200, json={}))
+    assert second.worker_id == first.worker_id
+    assert adapter(tmp_path / "other", lambda _: httpx.Response(200, json={})).worker_id != first.worker_id
+    path.write_text("not-a-worker-id")
+    with pytest.raises(ValueError, match="worker.id"):
+        adapter(tmp_path, lambda _: httpx.Response(200, json={}))
+    path.unlink()
+    path.symlink_to(tmp_path / "elsewhere")
+    with pytest.raises(OSError):
+        adapter(tmp_path, lambda _: httpx.Response(200, json={}))
+    assert not (tmp_path / "elsewhere").exists()
+
+
+@pytest.mark.parametrize("method", ["emit", "finish", "fail", "register"])
+def test_claim_conflict_is_a_distinct_unretried_store_error(tmp_path, method):
+    calls = []
+    store = adapter(tmp_path, lambda request: calls.append(request) or httpx.Response(409, json={"detail": "conflict"}))
+    artifact = store.work_dir(RUN_ID) / "layout.png"
+    artifact.write_bytes(b"unit artifact")
+    actions = {
+        "emit": lambda: store.emit(RUN_ID, "note", {"text": "value"}),
+        "finish": lambda: store.finish(RUN_ID, Outcome(status="failed", summary="Unit")),
+        "fail": lambda: store.fail(RUN_ID, "Unit"),
+        "register": lambda: store.register_artifact(RUN_ID, "layout", artifact),
+    }
+    with pytest.raises(RunClaimConflict, match="409"):
+        actions[method]()
     assert len(calls) == 1
     store.close()
 

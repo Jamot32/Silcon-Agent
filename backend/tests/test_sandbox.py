@@ -5,7 +5,7 @@ import pytest
 
 from app.eda.flow import validate_flow_overrides
 from app.eda.render import render_layout
-from app.eda.sandbox import CommandResult, DockerSandbox, MAX_JSON_BYTES, log_tail, read_json_artifact, run_runtime, safe_artifact
+from app.eda.sandbox import CommandResult, DockerSandbox, MAX_CONTAINER_FILE_BYTES, MAX_JSON_BYTES, log_tail, read_json_artifact, run_runtime, safe_artifact
 from app.eda.service import EDA, validate_identifier
 
 
@@ -107,15 +107,24 @@ def test_sandbox_timeout_kills_container_and_enforces_limits(tmp_path, monkeypat
     calls = []
 
     class Process:
-        returncode = None
+        def __init__(self, returncode=None):
+            self.returncode = returncode
+            self.exited = asyncio.Event()
+            self.stdout = self  # Pipe double: EOF only after the process exits.
+
+        async def read(self, size):
+            if self.returncode is None:
+                await self.exited.wait()
+            return b""
 
         async def wait(self):
             if self.returncode is None:
-                await asyncio.sleep(10)
+                await self.exited.wait()
             return self.returncode
 
         def kill(self):
             self.returncode = -9
+            self.exited.set()
 
     process = Process()
 
@@ -123,9 +132,7 @@ def test_sandbox_timeout_kills_container_and_enforces_limits(tmp_path, monkeypat
         calls.append(args)
         if args[1] == "run":
             return process
-        cleanup = Process()
-        cleanup.returncode = 0
-        return cleanup
+        return Process(0)
 
     monkeypatch.setattr(asyncio, "create_subprocess_exec", spawn)
     source = tmp_path / "input"
@@ -139,5 +146,6 @@ def test_sandbox_timeout_kills_container_and_enforces_limits(tmp_path, monkeypat
     assert command[command.index("--cpus") + 1] == "4"
     assert command[command.index("--pids-limit") + 1] == "512"
     assert "--read-only" in command
+    assert command[command.index("--ulimit") + 1] == f"fsize={MAX_CONTAINER_FILE_BYTES}"
     assert f"{source.resolve()}:/input:ro" in command
     assert calls[1][:4] == ("docker", "rm", "-f", command[command.index("--name") + 1])

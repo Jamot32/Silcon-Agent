@@ -5,7 +5,7 @@ import os
 import tempfile
 import threading
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from uuid import uuid4
 
@@ -16,14 +16,26 @@ from sqlalchemy.exc import OperationalError
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from app.models import Artifact, Event, Iteration, Metric, Run
+from app.schemas import REVIEW_TIMEOUT_SECONDS
 from app.terminal import TerminalAcknowledgement, TerminalAcknowledgementUnavailable
 
 ACTIVE = ("pending", "running", "cancel_requested")
+LEASED = ("running", "cancel_requested")
 TERMINAL = ("done", "failed", "cancelled")
 
 
 class BusyRunError(ValueError):
     pass
+
+
+class RunLeaseConflict(RuntimeError):
+    """A mutation for a run that is terminal or not currently claimed by the calling worker."""
+
+
+def require_lease(run: Run, worker_id: str | None) -> None:
+    # worker_id None is the API/evaluator process itself (cancel paths, in-process workers, tests).
+    if worker_id is not None and (run.claimed_by != worker_id or run.status not in LEASED):
+        raise RunLeaseConflict("This worker does not hold an active claim on the run")
 
 
 def json_text(value: object) -> str:
@@ -71,6 +83,8 @@ class RunStore:
                 "preset_id": "VARCHAR", "summary": "VARCHAR", "error": "VARCHAR", "best_run_tag": "VARCHAR",
                 "tapeout_ready": "BOOLEAN NOT NULL DEFAULT 0", "cancel_requested": "BOOLEAN NOT NULL DEFAULT 0",
                 "recording_id": "VARCHAR", "replay_speed": "INTEGER", "starter_id": "VARCHAR",
+                "parent_run_id": "VARCHAR", "carry_over_json": "VARCHAR",
+                "review_requested": "BOOLEAN NOT NULL DEFAULT 0", "review_json": "VARCHAR", "claimed_by": "VARCHAR",
             },
             "metric": {"flow_index": "INTEGER NOT NULL DEFAULT 0"},
         }
@@ -83,13 +97,17 @@ class RunStore:
                     connection.exec_driver_sql(f'ALTER TABLE "{table}" ADD COLUMN "{name}" {definition}')
 
     def create_run(self, spec_text: str, *, targets: dict[str, JsonValue] | None = None, preset_id: str | None = None, provider: str = "codex", starter_id: str | None = None,
-                   recording_id: str | None = None, replay_speed: int | None = None) -> Run:
+                   recording_id: str | None = None, replay_speed: int | None = None,
+                   parent_run_id: str | None = None, carry_over: dict[str, JsonValue] | None = None,
+                   review_requested: bool = False) -> Run:
         with Session(self.engine, expire_on_commit=False) as session:
             session.exec(text("BEGIN IMMEDIATE"))
             if session.exec(select(Run.id).where(Run.status.in_(ACTIVE))).first():
                 raise BusyRunError("One chip build is already active. Wait for it or cancel it first.")
             run = Run(spec_text=spec_text, targets_json=json_text(targets or {}), preset_id=preset_id, llm_provider=provider,
-                      starter_id=starter_id, is_replay=recording_id is not None, recording_id=recording_id, replay_speed=replay_speed)
+                      starter_id=starter_id, is_replay=recording_id is not None, recording_id=recording_id, replay_speed=replay_speed,
+                      parent_run_id=parent_run_id, carry_over_json=json_text(carry_over) if carry_over is not None else None,
+                      review_requested=review_requested)
             session.add(run)
             session.flush()
             (self.root / run.id / "work").mkdir(parents=True)
@@ -135,6 +153,28 @@ class RunStore:
                     os.fsync(temporary.fileno())
                 os.replace(temporary.name, directory / name)
 
+    def submit_review(self, run_id: str, answer: dict[str, JsonValue]) -> Run:
+        """Accept one review answer, only while the orchestrator is waiting at REVIEW."""
+        with Session(self.engine, expire_on_commit=False) as session:
+            session.exec(text("BEGIN IMMEDIATE"))
+            run = session.get(Run, run_id)
+            if run is None:
+                raise KeyError(run_id)
+            if not run.review_requested or run.status != "running" or run.stage != "REVIEW" or run.review_json is not None:
+                raise BusyRunError("This run is not waiting for a review.")
+            waiting = session.exec(select(Iteration).where(Iteration.run_id == run_id, Iteration.stage == "REVIEW", Iteration.ended_at.is_(None))).first()
+            started = waiting.started_at if waiting else None
+            if started is not None and datetime.now(timezone.utc) - started.replace(tzinfo=started.tzinfo or timezone.utc) > timedelta(seconds=REVIEW_TIMEOUT_SECONDS):
+                raise BusyRunError(f"The {REVIEW_TIMEOUT_SECONDS // 60}-minute review window has closed.")
+            run.review_json = json_text(answer)
+            # The reviewed targets are now the request: result pages, Revise and replays read targets_json.
+            targets = answer["design_spec"]["targets"] if isinstance(answer.get("design_spec"), dict) else {}
+            run.targets_json = json_text({key: value for key, value in targets.items() if value is not None})
+            session.add(run)
+            session.commit()
+        self.project(run_id)
+        return run
+
     def get_run(self, run_id: str) -> Run:
         with Session(self.engine) as session:
             run = session.get(Run, run_id)
@@ -154,25 +194,27 @@ class RunStore:
         path.mkdir(parents=True, exist_ok=True)
         return path
 
-    def claim_pending(self) -> Run | None:
+    def claim_pending(self, worker_id: str | None = None) -> Run | None:
         with Session(self.engine, expire_on_commit=False) as session:
             session.exec(text("BEGIN IMMEDIATE"))
             run = session.exec(select(Run).where(Run.status == "pending").order_by(Run.created_at)).first()
             if run is None:
                 return None
             run.status = "running"
+            run.claimed_by = worker_id
             session.add(run)
             session.commit()
         self.project(run.id)
         return run
 
-    def emit(self, run_id: str, event_type: str, payload: dict[str, JsonValue]) -> None:
+    def emit(self, run_id: str, event_type: str, payload: dict[str, JsonValue], *, worker_id: str | None = None) -> None:
         encoded = json_text(payload)
         with Session(self.engine) as session:
             session.exec(text("BEGIN IMMEDIATE"))
             run = session.get(Run, run_id)
             if run is None:
                 raise KeyError(run_id)
+            require_lease(run, worker_id)
             current = session.exec(select(Iteration).where(Iteration.run_id == run_id, Iteration.ended_at.is_(None))).first()
             if event_type == "stage_changed":
                 if current:
@@ -245,13 +287,17 @@ class RunStore:
         self.project(run_id)
         return run
 
-    def finish(self, run_id: str, outcome) -> TerminalAcknowledgement:
+    def finish(self, run_id: str, outcome, *, worker_id: str | None = None) -> TerminalAcknowledgement:
         values = outcome.model_dump(mode="json") if hasattr(outcome, "model_dump") else dict(outcome)
         with Session(self.engine) as session:
             session.exec(text("BEGIN IMMEDIATE"))
             run = session.get(Run, run_id)
             if run is None:
                 raise KeyError(run_id)
+            # A committed terminal decision is never overwritten, whoever asks.
+            if run.status in TERMINAL:
+                raise RunLeaseConflict("The run already has a terminal state")
+            require_lease(run, worker_id)
             if run.cancel_requested and values.get("status") == "done":
                 values.update(status="cancelled", summary="Run cancelled by the user before completion was committed.", error=None, tapeout_ready=False)
             for field in ("status", "summary", "error", "best_run_tag", "tapeout_ready"):
@@ -273,22 +319,34 @@ class RunStore:
             raise TerminalAcknowledgementUnavailable("Terminal transaction committed but projection acknowledgement is unavailable") from None
         return acknowledgement
 
-    def fail(self, run_id: str, error: str, status: str = "failed") -> TerminalAcknowledgement:
-        return self.finish(run_id, {"status": status, "summary": error, "error": error, "tapeout_ready": False})
+    def fail(self, run_id: str, error: str, status: str = "failed", *, worker_id: str | None = None) -> TerminalAcknowledgement:
+        return self.finish(run_id, {"status": status, "summary": error, "error": error, "tapeout_ready": False}, worker_id=worker_id)
 
-    def recover_interrupted(self) -> None:
+    def recover_interrupted(self, worker_id: str | None = None) -> None:
+        query = select(Run.id, Run.claimed_by).where(Run.status.in_(LEASED))
+        if worker_id is not None:
+            # Only the worker router claims API runs and always records an owner, so NULL rows predate leases and no live worker holds them.
+            query = query.where((Run.claimed_by == worker_id) | Run.claimed_by.is_(None))
         with Session(self.engine) as session:
-            ids = list(session.exec(select(Run.id).where(Run.status.in_(("running", "cancel_requested")))).all())
-        for run_id in ids:
-            self.fail(run_id, "Worker stopped during this build. Partial files and logs were retained; start a new build to retry.")
+            rows = list(session.exec(query).all())
+        for run_id, owner in rows:
+            try:
+                self.fail(run_id, "Worker stopped during this build. Partial files and logs were retained; start a new build to retry.",
+                          worker_id=owner if worker_id is not None else None)
+            except RunLeaseConflict:
+                continue  # Settled by its owner after the scan; that decision stands.
 
-    def register_artifact(self, run_id: str, kind: str, path: Path, run_tag: str | None = None) -> None:
-        self.get_run(run_id)
+    def register_artifact(self, run_id: str, kind: str, path: Path, run_tag: str | None = None, *, worker_id: str | None = None) -> None:
         root = (self.root / run_id).resolve()
         resolved = path.resolve()
-        if not resolved.is_relative_to(root) or not resolved.is_file():
-            raise ValueError("Artifact must be a file inside its run directory")
         with Session(self.engine) as session:
+            session.exec(text("BEGIN IMMEDIATE"))
+            run = session.get(Run, run_id)
+            if run is None:
+                raise KeyError(run_id)
+            require_lease(run, worker_id)
+            if not resolved.is_relative_to(root) or not resolved.is_file():
+                raise ValueError("Artifact must be a file inside its run directory")
             artifact = session.exec(select(Artifact).where(Artifact.run_id == run_id, Artifact.kind == kind, Artifact.run_tag == run_tag)).first()
             if artifact is None:
                 artifact = Artifact(run_id=run_id, kind=kind, path=resolved.relative_to(root).as_posix(), run_tag=run_tag)

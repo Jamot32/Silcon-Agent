@@ -1,24 +1,34 @@
 import asyncio
 import json
 import os
+import re
+import zlib
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from time import monotonic
 from typing import Literal
+from zipfile import BadZipFile, ZipFile
 
-from fastapi import FastAPI, Header, HTTPException, Query, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlmodel import Session, create_engine
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from app.api_schemas import CreateReplay, CreateRun, PublicRun
-from app.models import Metric
+from app.agent.starters import load_starter
+from app.api_schemas import CreateReplay, CreateRun, PublicRun, ReviewAnswer
+from app.models import Metric, Run
+from app.llm.factory import LLMSettings, llm_settings
+from app.llm.types import LLMError
 from app.replay import RecordingMetadata, list_recordings, load_recording
 from app.storage import BusyRunError, RunStore, TERMINAL
 from app.worker_api import router as worker_router
 from app.reliability.router import router as reliability_router
+from app.connections_api import router as connections_router
+from app.provider_credentials import effective_key
+from app.request_guard import TRUSTED_HOSTS, app_request
 
 RUNS_DIR = Path(os.getenv("RUNS_DIR", "runs"))
 DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{RUNS_DIR}/silicon-agent.db")
@@ -38,8 +48,10 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Silicon Agent", version="0.1.0", lifespan=lifespan)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=TRUSTED_HOSTS)
 app.include_router(worker_router)
 app.include_router(reliability_router)
+app.include_router(connections_router)
 
 
 class Check(BaseModel):
@@ -94,9 +106,13 @@ class CodexSmoke(BaseModel):
 def llm_health() -> Check:
     provider = os.getenv("LLM_PROVIDER", "codex")
     if provider == "meta":
+        try:
+            configured = bool(effective_key(RUNS_DIR, "meta"))
+        except OSError:
+            return Check(status="error", detail="Meta key storage is unavailable")
         return Check(
-            status="not_verified" if os.getenv("META_API_KEY") else "not_configured",
-            detail="Run make meta-smoke" if os.getenv("META_API_KEY") else "META_API_KEY is not set",
+            status="not_verified" if configured else "not_configured",
+            detail="Run make meta-smoke" if configured else "Add a Meta key in Settings or set META_API_KEY",
         )
     if provider != "codex":
         return Check(status="error", detail="LLM_PROVIDER must be codex or meta")
@@ -156,6 +172,15 @@ def health() -> Health:
     return Health(status="ok" if all(check.status == "ok" for check in checks.values()) else "degraded", milestone=CURRENT_MILESTONE, capabilities=CAPABILITIES, checks=checks, llm_provider=os.getenv("LLM_PROVIDER", "codex"))
 
 
+@app.get("/api/settings", response_model=LLMSettings)
+def settings() -> LLMSettings:
+    # Read-only: the API and host worker both load .env, so a change takes effect after make dev.
+    try:
+        return llm_settings()
+    except (LLMError, ValueError) as error:
+        raise HTTPException(500, f"Invalid model configuration in .env: {error}") from None
+
+
 @app.get("/api/presets", response_model=list[Preset])
 def presets() -> list[Preset]:
     path = Path(os.getenv("PRESETS_PATH", "/designs/presets.json"))
@@ -175,14 +200,43 @@ def get_run(run_id: str):
         raise HTTPException(404, "Run not found") from None
 
 
-@app.post("/api/runs", status_code=202)
+def design_sources(run: Run) -> tuple[str, dict[str, str]]:
+    """The RTL a revision starts from, and where it came from."""
+    # OPTIMIZE can leave a losing RTL edit in work/src; a finished run's design is its packaged selected snapshot.
+    if run.status != "done":
+        return "last source state", {path: text for path, text in run_files(run.id).items() if path.startswith("src/")}
+    try:
+        with ZipFile(store().artifact(run.id, "bundle")) as archive:
+            return "selected flow snapshot", {info.filename: archive.read(info).decode() for info in archive.infolist()
+                                              if re.fullmatch(r"src/[A-Za-z_][A-Za-z0-9_]*\.v", info.filename) and info.file_size <= 128 * 1024}
+    except (KeyError, RuntimeError, NotImplementedError, EOFError, zlib.error) as error:
+        raise ValueError("The selected design's bundle is unavailable or unreadable") from error
+
+
+@app.post("/api/runs", status_code=202, dependencies=[Depends(app_request)])
 def create_run(body: CreateRun) -> dict[str, str]:
     if body.preset_id is not None and body.preset_id not in {preset.id for preset in presets()}:
         raise HTTPException(422, "Unknown preset")
+    carry_over = None
+    if body.parent_run_id is not None:
+        try:
+            parent = store().get_run(body.parent_run_id)
+        except KeyError:
+            raise HTTPException(422, "Unknown parent run") from None
+        if body.reuse_design:
+            try:
+                origin, files = design_sources(parent)
+            except (OSError, ValueError, BadZipFile):
+                raise HTTPException(422, "The previous run's design could not be read") from None
+            if not files:
+                raise HTTPException(422, "The previous run has no RTL to start from")
+            carry_over = {"parent_run_id": parent.id, "origin": origin, "spec_text": parent.spec_text,
+                          "design_spec": json.loads(parent.design_spec_json) if parent.design_spec_json else None, "files": files}
     try:
         run = store().create_run(body.spec_text, preset_id=body.preset_id,
                                  targets=body.targets.model_dump(exclude_unset=True) if body.targets else None,
-                                 provider=os.getenv("LLM_PROVIDER", "codex"), starter_id=body.starter_id)
+                                 provider=os.getenv("LLM_PROVIDER", "codex"), starter_id=body.starter_id,
+                                 parent_run_id=body.parent_run_id, carry_over=carry_over, review_requested=body.review)
     except BusyRunError as error:
         raise HTTPException(409, str(error)) from None
     return {"run_id": run.id}
@@ -268,10 +322,24 @@ def bundle(run_id: str) -> FileResponse:
     return artifact_response(run_id, "bundle")
 
 
-@app.post("/api/runs/{run_id}/cancel", response_model=PublicRun)
+@app.post("/api/runs/{run_id}/cancel", response_model=PublicRun, dependencies=[Depends(app_request)])
 def cancel(run_id: str) -> PublicRun:
     get_run(run_id)
     return PublicRun.from_run(store().request_cancel(run_id))
+
+
+@app.post("/api/runs/{run_id}/review", response_model=PublicRun, dependencies=[Depends(app_request)])
+def submit_review(run_id: str, body: ReviewAnswer) -> PublicRun:
+    run = get_run(run_id)
+    if run.starter_id is not None:
+        try:
+            load_starter(run.starter_id).validate_spec(body.design_spec)
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from None
+    try:
+        return PublicRun.from_run(store().submit_review(run_id, body.model_dump(mode="json")))
+    except BusyRunError as error:
+        raise HTTPException(409, str(error)) from None
 
 
 @app.get("/api/recordings", response_model=list[RecordingMetadata])
@@ -279,7 +347,7 @@ def recordings() -> list[RecordingMetadata]:
     return list_recordings(RECORDINGS_DIR)
 
 
-@app.post("/api/replays", status_code=202)
+@app.post("/api/replays", status_code=202, dependencies=[Depends(app_request)])
 def create_replay(body: CreateReplay) -> dict[str, str]:
     try:
         recording = load_recording(RECORDINGS_DIR, body.recording_id)

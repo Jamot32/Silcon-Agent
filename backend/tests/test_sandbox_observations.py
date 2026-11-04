@@ -5,29 +5,66 @@ from types import SimpleNamespace
 
 import pytest
 
+from app.agent.evidence import MAX_LOG_BYTES
 from app.eda import sandbox as sandbox_module
-from app.eda.sandbox import CommandObservation, DockerSandbox
+from app.eda.sandbox import CommandObservation, DockerSandbox, MAX_TOOL_LOG_BYTES, OUTPUT_LIMIT_ERROR, run_runtime
 
 
 IMAGE = "sha256:" + "6" * 64  # Synthetic caller identity, never inspected.
 COMMAND = ["python3", "/opt/silicon-agent/runtime.py", "lint", "--top", "unit"]
 
 
+class SyntheticStream:
+    """Pipe double: queued bytes, then EOF once the process has exited."""
+
+    def __init__(self, process, data):
+        self.process = process
+        self.data = bytearray(data)
+
+    async def read(self, size):
+        self.process.started.set()
+        if not self.data:
+            await self.process.exited.wait()
+        chunk = bytes(self.data[:size])
+        del self.data[:size]
+        return chunk
+
+
+class EndlessStream:
+    """A tool printing forever: output stops only when its process is killed."""
+
+    def __init__(self, process):
+        self.process = process
+        self.streamed = 0
+
+    async def read(self, size):
+        self.process.started.set()
+        await asyncio.sleep(0)
+        if self.process.exited.is_set():
+            return b""
+        self.streamed += size
+        return b"y" * size
+
+
 class SyntheticProcess:
-    def __init__(self, returncode=0):
+    def __init__(self, returncode=0, output=b"SYNTHETIC subprocess log\n"):
         self.returncode = returncode
         self.started = asyncio.Event()
+        self.exited = asyncio.Event()
+        if returncode is not None:
+            self.exited.set()
         self.killed = False
+        self.stdout = SyntheticStream(self, output)
 
     async def wait(self):
         self.started.set()
-        if self.returncode is None:
-            await asyncio.Event().wait()
+        await self.exited.wait()
         return self.returncode
 
     def kill(self):
         self.killed = True
         self.returncode = -9
+        self.exited.set()
 
 
 def install_spawn(monkeypatch, process, *, launch_error=False, cleanup_error=False):
@@ -38,8 +75,8 @@ def install_spawn(monkeypatch, process, *, launch_error=False, cleanup_error=Fal
         if args[:2] == ("docker", "run"):
             if launch_error:
                 raise OSError("SYNTHETIC Docker launch failed")
-            kwargs["stdout"].write(b"SYNTHETIC subprocess log\n")
-            kwargs["stdout"].flush()
+            assert kwargs["stdout"] is asyncio.subprocess.PIPE
+            assert kwargs["stderr"] is asyncio.subprocess.STDOUT
             return process
         assert args[:3] == ("docker", "rm", "-f")
         if cleanup_error:
@@ -169,6 +206,7 @@ def test_optional_callback_preserves_default_docker_argv(tmp_path, monkeypatch):
     assert f"{source.resolve()}:/input:ro" in args
     assert f"{output.resolve()}:/output" in args
     assert "--mount" not in args
+    assert args[args.index("--ulimit") + 1] == f"fsize={sandbox_module.MAX_CONTAINER_FILE_BYTES}"
     assert observations[0].command == tuple(COMMAND)  # No Docker/env discovery exposure.
 
 
@@ -180,3 +218,62 @@ def test_prelaunch_validation_does_not_fabricate_command_observation(tmp_path, m
         asyncio.run(DockerSandbox(image=IMAGE, completion_callback=observations.append).run(
             COMMAND, input_dir=source, output_dir=output, timeout=0))
     assert calls == observations == []
+
+
+def test_endless_output_is_capped_and_container_removed(tmp_path, monkeypatch):
+    source, output = directories(tmp_path)
+    process = SyntheticProcess(None)
+    process.stdout = EndlessStream(process)
+    calls = install_spawn(monkeypatch, process)
+    observations = []
+    payload = asyncio.run(run_runtime(DockerSandbox(image=IMAGE, completion_callback=observations.append),
+                                      "lint", input_dir=source, output_dir=output, top="unit"))
+    assert process.stdout.streamed > MAX_TOOL_LOG_BYTES
+    assert calls[1] == ("docker", "rm", "-f", calls[0][calls[0].index("--name") + 1])
+    assert len(calls) == 2 and process.killed
+    log = (output / "tool.log").read_bytes()
+    assert log == b"y" * MAX_TOOL_LOG_BYTES + f"\n[{OUTPUT_LIMIT_ERROR}]\n".encode()
+    assert len(log) <= MAX_LOG_BYTES  # Still capturable as tool evidence.
+    assert len(observations) == 1
+    check_observation(observations[0], source, output, launched=True, timed_out=False, returncode=-9)
+    assert observations[0].result.output_limit_exceeded is True and not observations[0].result.ok
+    assert payload["ok"] is False and payload["timed_out"] is False
+    assert payload["error"] == OUTPUT_LIMIT_ERROR and OUTPUT_LIMIT_ERROR in payload["log_tail"]
+
+
+def test_container_removal_keeps_reading_the_client_pipe(tmp_path, monkeypatch):
+    """Docker's attach stream stalls `rm -f` until the client's unread pipe is drained."""
+    source, output = directories(tmp_path)
+    process = SyntheticProcess(None)
+    process.stdout = EndlessStream(process)
+    install_spawn(monkeypatch, process)
+    spawn = asyncio.create_subprocess_exec
+    removal = SyntheticProcess(None)  # Finishes once the client pipe is read again, or when killed.
+
+    async def spawn_stalled(*args, **kwargs):
+        result = await spawn(*args, **kwargs)
+        if args[:3] == ("docker", "rm", "-f"):
+            return removal
+        return result
+
+    endless_read = process.stdout.read
+    async def read(size):
+        if removal.started.is_set() and not removal.exited.is_set():
+            removal.returncode = 0
+            removal.exited.set()
+        return await endless_read(size)
+
+    process.stdout.read = read
+    monkeypatch.setattr(asyncio, "create_subprocess_exec", spawn_stalled)
+    result = asyncio.run(DockerSandbox(image=IMAGE).run(COMMAND, input_dir=source, output_dir=output))
+    assert result.output_limit_exceeded and removal.returncode == 0 and process.killed
+    assert b"cleanup timed out" not in result.log_path.read_bytes()
+
+
+def test_output_exactly_at_cap_is_kept_whole(tmp_path, monkeypatch):
+    source, output = directories(tmp_path)
+    data = b"z" * MAX_TOOL_LOG_BYTES
+    calls = install_spawn(monkeypatch, SyntheticProcess(0, data))
+    result = asyncio.run(DockerSandbox(image=IMAGE).run(COMMAND, input_dir=source, output_dir=output))
+    assert result.ok and not result.output_limit_exceeded and len(calls) == 1
+    assert result.log_path.read_bytes() == data

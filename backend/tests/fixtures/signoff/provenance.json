@@ -1,0 +1,31 @@
+{
+  "recorded_at": "2026-11-01",
+  "librelane_version": "3.0.16",
+  "eda_image": "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools1",
+  "files": {
+    "uart_tx_max_slew_metrics.json": {
+      "source_path": "runs/8e898b2c1a9b4788835ef6f9edf0f03e/work/.eda/flow_29b2c2ed4f394ec2aa39fc2836e993db/output/runs/flow_af021e33756f409f/final/metrics.json",
+      "also_in": "runs/8e898b2c1a9b4788835ef6f9edf0f03e/bundle.zip raw_metrics.json (delivered layout)",
+      "sha256": "e474321627f0138dc2a47e3ad0ad134e2c4d0a4de03f2c3bcbc105a975562eca",
+      "bytes": 17113,
+      "notes": "Pre-change flow config (PDK default checker corners); 11 max-slew violations at max_ss_100C_1v60 were only warnings."
+    },
+    "counter_1p5ns_setup_metrics.json": {
+      "source_path": "runs/signoff-measure/r1/counter_setup_1p5ns/output/runs/flow_counter_setup_1p5ns/final/metrics.json",
+      "sha256": "b6f188c6f2975002996d4499293a06a812f6de081717edd40ac1de948d5f7ed0",
+      "bytes": 17559,
+      "notes": "Golden counter with CLOCK_PERIOD 1.5 under the all-corner checker config; LibreLane exited after saving final views."
+    },
+    "counter_1p5ns_setup_tool_log_tail.txt": {
+      "source_path": "runs/signoff-measure/r1/counter_setup_1p5ns/output/tool.log",
+      "extraction": "app.eda.sandbox.log_tail (last 8192 bytes), exactly what run_flow returns as log_tail",
+      "sha256": "a6fe24222ae6807edf0375f9d6c7dddb5c6b0fb56c43be9740b3bb11ac0189be"
+    },
+    "chip3255_slew_cap_tool_log_tail.txt": {
+      "source_path": "runs/signoff-measure/r1/capfan_3255/output/tool.log",
+      "design_source": "runs/complex-stress-eval-20261028-001/eval/results/20261028T214938Z_8eeef491/trials/heldout/x63ad53d6d41/repeat-01/pipeline/7932a6ad9963418e9dc03c754da7629d/bundle.zip src/ and flow_config.json overrides",
+      "extraction": "app.eda.sandbox.log_tail (last 8192 bytes), exactly what run_flow returns as log_tail",
+      "sha256": "1ed2098aec8044348e8e75decd89d09d013f6429a8083f989b3b3367d36ccac4"
+    }
+  }
+}

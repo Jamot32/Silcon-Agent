@@ -101,6 +101,38 @@ def test_worker_records_real_fixture_package_and_events(monkeypatch, tmp_path):
     assert llm.closed
 
 
+@pytest.mark.parametrize("timeout", [False, True])
+def test_worker_waits_for_the_stored_review_answer(monkeypatch, tmp_path, timeout):
+    monkeypatch.setenv("LLM_PROVIDER", "codex")
+    monkeypatch.setattr(worker, "create_llm", lambda *, run_work_dir: UnitLLM())
+    if timeout:
+        monkeypatch.setattr(worker, "REVIEW_TIMEOUT_SECONDS", 0)
+    store = RunStore(tmp_path / "runs")
+    store.create_run("Golden counter", review_requested=True)
+    run = store.claim_pending()
+    answer = {"design_spec": spec().model_dump(mode="json"), "build": {}}
+    received = []
+
+    class ReviewingOrchestrator:
+        design_spec = None
+
+        def __init__(self, llm, tools, **kwargs):
+            self.options = kwargs
+
+        async def run(self):
+            await self.options["event_callback"]("stage_changed", {"stage": "REVIEW"})
+            if not timeout:
+                asyncio.get_running_loop().call_later(0.02, store.submit_review, run.id, answer)
+            try:
+                received.append(await self.options["review"]({}))
+            except TimeoutError as error:
+                received.append(str(error))
+            return Outcome(status="failed", summary="Unit stop after review", error="Unit stop after review")
+
+    asyncio.run(worker.Worker(store, poll_interval=0.001, orchestrator_factory=ReviewingOrchestrator).execute(run))
+    assert received == ["No review was submitted within 0 minutes."] if timeout else received == [answer]
+
+
 def test_user_cancellation_awaits_orchestrator_cleanup(monkeypatch, tmp_path):
     started, cleaned = None, []
 

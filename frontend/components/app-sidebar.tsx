@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { History, SquarePen } from "lucide-react";
+import { History, Settings, SquarePen } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { listRuns, type Run } from "@/lib/api";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarRail } from "@/components/ui/sidebar";
@@ -12,6 +12,7 @@ import { runName } from "@/components/run/format";
 const links = [
   { href: "/", label: "New design", icon: SquarePen },
   { href: "/runs", label: "Run history", icon: History },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function AppSidebar() {

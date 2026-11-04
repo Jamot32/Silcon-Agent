@@ -86,8 +86,8 @@ class RequestMetadata:
 def command_class(command):
     """Classify only documented host entry points, never guessed tool success."""
     if len(command) >= 3 and command[:2] == ["python3", "/opt/silicon-agent/runtime.py"]:
-        return {"lint": "rtl_lint", "sim": "simulation", "synth": "generic_synthesis",
-                "flow": "physical_flow"}.get(command[2], "other")
+        return {"lint": "rtl_lint", "sim": "simulation", "gl_sim": "gate_level_simulation",
+                "synth": "generic_synthesis", "flow": "physical_flow"}.get(command[2], "other")
     if command[:3] == ["python3", "-m", "librelane"]:
         return "mapped_synthesis"
     return "other"

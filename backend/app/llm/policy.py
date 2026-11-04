@@ -6,6 +6,7 @@ import json
 import re
 
 MODEL = 'gpt-6.1-sol'
+META_MODEL = 'muse-spark-1.3'
 CODEX_EFFORTS = frozenset({'low','medium','high','xhigh','max'})
 META_EFFORTS = frozenset({'minimal','low','medium','high','xhigh'})
 MAX_PROMPT_BYTES = 90000
