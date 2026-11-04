@@ -1,4 +1,6 @@
 import { useId, type SVGProps } from "react";
+import { cn } from "cn";
+import { colorMarks } from "@/components/provider-logo-color";
 
 // Monochrome provider marks from @lobehub/icons-static-svg@1.70.0 (MIT).
 const paths = {
@@ -17,8 +19,13 @@ const paths = {
 
 export type ProviderLogoId = keyof typeof paths;
 
-export function ProviderLogo({ provider, ...props }: { provider: ProviderLogoId } & SVGProps<SVGSVGElement>) {
-  return <svg viewBox="0 0 24 24" fill="currentColor" fillRule="evenodd" aria-hidden="true" {...props}>{paths[provider].map((d) => <path key={d} d={d} />)}</svg>;
+// Color mode (`colorful` on <html>) swaps in the brand-color mark where the provider publishes one.
+export function ProviderLogo({ provider, className, ...props }: { provider: ProviderLogoId } & SVGProps<SVGSVGElement>) {
+  const id = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  const color = colorMarks[provider];
+  const mono = <svg viewBox="0 0 24 24" fill="currentColor" fillRule="evenodd" aria-hidden="true" className={cn(className, color && "colorful:hidden")} {...props}>{paths[provider].map((d) => <path key={d} d={d} />)}</svg>;
+  if (!color) return mono;
+  return <>{mono}<svg viewBox="0 0 24 24" fill="currentColor" fillRule={color.evenodd ? "evenodd" : undefined} aria-hidden="true" className={cn(className, "hidden colorful:block")} {...props} dangerouslySetInnerHTML={{ __html: color.markup.replaceAll("logo-id-", `${id}-`) }} /></>;
 }
 
 // Arkinous mark from the arkinous repo's public/favicon.svg, background removed; clip ids are made unique per instance.

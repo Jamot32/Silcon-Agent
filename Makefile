@@ -38,7 +38,7 @@ frontend/node_modules/.package-lock.json: frontend/package.json frontend/package
 
 test-e2e: frontend/node_modules/.package-lock.json
 	cd frontend && npx playwright install chromium
-	cd frontend && npm run test:e2e -- e2e/replay.spec.ts e2e/run-failure.spec.ts e2e/revise.spec.ts e2e/spec-review.spec.ts e2e/settings.spec.ts
+	cd frontend && npm run test:e2e -- e2e/replay.spec.ts e2e/run-failure.spec.ts e2e/revise.spec.ts e2e/spec-review.spec.ts e2e/settings.spec.ts e2e/connections-qol.spec.ts e2e/defaults-qol.spec.ts e2e/new-design-qol.spec.ts e2e/run-layout-qol.spec.ts e2e/revision-comparison.spec.ts e2e/flow-inspection.spec.ts e2e/layout-region.spec.ts e2e/run-management.spec.ts e2e/workspace.spec.ts
 
 record-repair:
 	uv run --python 3.12 --with-requirements backend/requirements.txt python scripts/start_repair_demo.py

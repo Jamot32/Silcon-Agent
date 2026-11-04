@@ -88,6 +88,10 @@ class MetaLLM:
         payload: list[dict[str, object]] = []
         for message in messages:
             entry: dict[str, object] = {"role": message.role, "content": message.content}
+            if message.images:
+                entry["content"] = [{"type": "text", "text": message.content or ""}, *[
+                    {"type": "image_url", "image_url": {"url": f"data:{item.media_type};base64,{item.data}"}}
+                    for item in message.images]]
             if message.tool_call_id is not None:
                 entry["tool_call_id"] = message.tool_call_id
             if message.tool_calls:

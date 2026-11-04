@@ -10,7 +10,7 @@ from typing import Literal
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, ConfigDict, Field, JsonValue
 
-from app.models import Run
+from app.models import LayoutQuestion, Run
 from app.storage import RunLeaseConflict, RunStore
 
 WORKER_ID = re.compile(r"[0-9a-f]{32}\Z")
@@ -80,6 +80,47 @@ def heartbeat():
 @router.post("/claim", response_model=Run | None)
 def claim(database: RunStore = Depends(store), worker_id: str = Depends(worker_identity)):
     return database.claim_pending(worker_id)
+
+
+@router.post("/layout-questions/claim", response_model=LayoutQuestion | None)
+def claim_question(database: RunStore = Depends(store), worker_id: str = Depends(worker_identity)):
+    return database.claim_layout_question(worker_id)
+
+
+def require_question(database, question_id):
+    if not WORKER_ID.fullmatch(question_id):
+        raise HTTPException(404, "Layout question not found")
+    try:
+        return database.get_layout_question(question_id)
+    except KeyError:
+        raise HTTPException(404, "Layout question not found") from None
+
+
+@router.get("/layout-questions/{question_id}", response_model=LayoutQuestion)
+def get_question(question_id: str, database: RunStore = Depends(store)):
+    return require_question(database, question_id)
+
+
+from app.layout_questions import QuestionResult, QuestionState
+
+
+@router.get("/layout-questions/{question_id}/state", response_model=QuestionState)
+def question_state(question_id: str, database: RunStore = Depends(store)):
+    if not WORKER_ID.fullmatch(question_id):
+        raise HTTPException(404, "Layout question not found")
+    try:
+        return database.get_layout_question_state(question_id)
+    except KeyError:
+        raise HTTPException(404, "Layout question not found") from None
+
+
+@router.post("/layout-questions/{question_id}/finish", response_model=LayoutQuestion)
+def finish_question(question_id: str, body: QuestionResult, database: RunStore = Depends(store), worker_id: str = Depends(worker_identity)):
+    require_question(database, question_id)
+    try:
+        return database.finish_layout_question(question_id, body.model_dump(), worker_id=worker_id)
+    except RunLeaseConflict:
+        raise HTTPException(409, "This worker does not hold an active claim on the question") from None
 
 
 @router.post("/recover")

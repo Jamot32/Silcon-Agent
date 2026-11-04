@@ -13,6 +13,7 @@ import pytest
 
 from app.agent.orchestrator import Orchestrator, meets_timing, score_metric
 from app.agent.prompts import stage_prompt
+from app.agent.starters import load_starter
 from app.agent.tools import ToolRunner
 from app.eda.parsers import parse_librelane_metrics
 from app.eda.service import EDA
@@ -168,7 +169,7 @@ class RecordedPlanner:
 
 
 def build_run(tmp_path, script=None, *, budget=None, package=True, prefix_scope=True, carry_over=None, review=None,
-              eda_factory=None):
+              eda_factory=None, build=None):
     events = []
 
     async def record(kind, payload):
@@ -192,7 +193,7 @@ def build_run(tmp_path, script=None, *, budget=None, package=True, prefix_scope=
         return await package_design(tools, tag, orchestrator.design_spec)
 
     orchestrator = Orchestrator(llm, tools, spec_text="An 8-bit up/down counter with load and enable.",
-                                package_callback=bundle if package else None, event_callback=record, carry_over=carry_over, review=review)
+                                package_callback=bundle if package else None, event_callback=record, carry_over=carry_over, review=review, build=build)
     return orchestrator, llm, eda, events
 
 
@@ -618,6 +619,24 @@ def test_expert_review_applies_the_edited_spec_and_build_limits_before_rtl(tmp_p
     assert "User review: edited DesignSpec behavior" in log and '"max_flow_runs": 1' in log
 
 
+@pytest.mark.parametrize("review_enabled", [False, True])
+def test_requested_build_applies_without_review_and_seeds_optional_review(tmp_path, review_enabled):
+    requested = {"optimize": False, "max_flow_runs": 2, "max_repair_loops": 3,
+                 "initial_flow": {"SYNTH_STRATEGY": "DELAY 2", "FP_CORE_UTIL": 30, "PL_TARGET_DENSITY_PCT": 40}}
+    requests = []
+    async def review(request):
+        requests.append(request)
+        return {"design_spec": request["design_spec"], "build": request["build"]}
+    orchestrator, _, eda, _ = build_run(tmp_path, build=requested, review=review if review_enabled else None)
+    outcome = asyncio.run(orchestrator.run())
+    assert outcome.status == "done", outcome.error
+    assert orchestrator.tools.flow_limit == 2 and orchestrator.build.max_repair_loops == 3
+    assert eda.flow_calls == 1
+    assert orchestrator.tools.physical_planner.requests[0] == requested["initial_flow"]
+    assert all(eda.flow_overrides[0][key] == value for key, value in requested["initial_flow"].items())
+    assert requests[0]["build"] == requested if review_enabled else requests == []
+
+
 @pytest.mark.parametrize("answer, message", [
     (TimeoutError("No review was submitted within 30 minutes."), "No review was submitted within 30 minutes. The build stopped before any RTL was written."),
     ({"design_spec": {**spec_data(), "top_module": "Bad Top"}, "build": {}}, "The submitted review is invalid"),
@@ -682,6 +701,79 @@ def test_revision_with_a_renamed_top_module_starts_rtl_from_scratch(tmp_path):
     assert writes == [(GOLDEN / "src/counter.v").read_text()]
     assert not any("carried over by the orchestrator" in message for message in rtl_messages)
     assert ("No RTL from run aaaaaaaa defines top module counter; the RTL designer starts from scratch.", "skipped") in notes
+
+
+def test_follow_up_without_carried_rtl_keeps_baseline_context_but_requires_fresh_evidence(tmp_path):
+    metric = parse_librelane_metrics(FLOW / "metrics.json", FLOW / "resolved.json",
+                                    run_id="parent", iteration_id="parent", run_tag="selected_fixture")
+    baseline = metric.model_dump(mode="json", exclude={"id", "run_id", "iteration_id", "flow_index"})
+    carry_over = {"parent_run_id": "a" * 32, "origin": "fresh implementation", "spec_text": "An 8-bit counter.",
+                  "design_spec": spec_data(), "files": {}, "follow_up": "Reduce area while keeping the interface.",
+                  "revision_intent": "optimize", "parent_context": {
+                      "status": "done", "stage": "DONE", "summary": "Selected measured design.", "error": None,
+                      "best_run_tag": "selected_fixture", "selected_metrics": baseline}}
+    orchestrator, _, _, events = build_run(tmp_path, carry_over=carry_over)
+    spec_context = json.loads(orchestrator._context("SPEC")[-1].content)
+    assert spec_context["follow_up"] == carry_over["follow_up"]
+    assert spec_context["revision_intent"] == "optimize"
+    assert spec_context["parent_context"]["selected_metrics"] == baseline
+    assert "preserve" in spec_context["instruction"].lower()
+    orchestrator.design_spec = DesignSpec.model_validate(spec_data())
+    asyncio.run(orchestrator._load_carry_over())
+    assert not (tmp_path / "work/src").exists()
+    assert not any(payload.get("carry_over") in {"loaded", "skipped"} for _, payload in events)
+    for stage in ("RTL", "OPTIMIZE"):
+        context = json.loads(orchestrator._context(stage)[-1].content)
+        assert context["parent_context"]["selected_metrics"] == baseline
+        assert "fresh" in context["instruction"].lower()
+    assert orchestrator.best is None and orchestrator.candidates == []
+    assert all("selected_fixture" not in (message.content or "") for message in orchestrator._context("VERIFY"))
+
+
+def test_follow_up_scope_and_spec_receive_complete_accumulated_request(tmp_path):
+    orchestrator, llm, _, _ = build_run(tmp_path)
+    orchestrator.spec_text = "Build an eight bit counter.\n\nFollow-up (feature):\nAdd a synchronous clear input."
+    asyncio.run(orchestrator._assess_scope())
+    assert json.loads(llm.requests[0][0][1].content)["request_data"]["spec_text"] == orchestrator.spec_text
+    spec_context = json.loads(orchestrator._context("SPEC")[1].content)
+    assert spec_context["spec_text"] == orchestrator.spec_text
+
+
+@pytest.mark.parametrize("intent", ["feature", "fix", "optimize"])
+def test_follow_up_accepted_parent_contract_overrides_older_request_wording(tmp_path, intent):
+    approved = spec_data()
+    approved["summary"] = "16-bit counter accepted during review"
+    for port in approved["ports"]:
+        if port["name"] in {"count", "load_value"}:
+            port["width"] = 16
+    approved["behavior"][2] = "Enabled up/down counting wraps modulo 65536"
+    carry_over = {"parent_run_id": "a" * 32, "origin": "fresh implementation", "spec_text": "An 8-bit counter.",
+                  "design_spec": approved, "files": {}, "follow_up": "Improve the existing design without changing its width.",
+                  "revision_intent": intent}
+    orchestrator, llm, _, _ = build_run(tmp_path, carry_over=carry_over)
+    asyncio.run(orchestrator._assess_scope())
+    for context in (json.loads(llm.requests[0][0][-1].content), json.loads(orchestrator._context("SPEC")[-1].content)):
+        assert context["previous_design_spec"] == approved
+        assert context["follow_up"] == carry_over["follow_up"]
+        assert "accepted parent contract" in context["instruction"]
+        assert "takes precedence over older request wording" in context["instruction"]
+        assert "Only the new follow_up" in context["instruction"]
+
+
+def test_full_request_replaces_prior_requirements_and_current_starter_controls_provenance(tmp_path):
+    carry_over = {"parent_run_id": "a" * 32, "origin": "fresh implementation", "spec_text": "An 8-bit counter.",
+                  "design_spec": spec_data(), "files": {}}
+    orchestrator, _, _, _ = build_run(tmp_path, carry_over=carry_over)
+    context = json.loads(orchestrator._context("SPEC")[-1].content)
+    assert "complete replacement" in context["instruction"]
+    assert "omitted" in context["instruction"]
+    assert "Apply accumulated follow-ups" not in context["instruction"]
+    assert "starter provenance are historical" in context["instruction"]
+    # A full retry of the supplied fault scenario still obeys its current starter contract.
+    orchestrator.starter = load_starter("uart_off_by_one")
+    messages = orchestrator._context("SPEC")
+    assert any("supplied_starter" in (message.content or "") for message in messages)
+    assert "starter provenance are historical" not in json.loads(messages[-1].content)["instruction"]
 
 
 def test_five_repair_loops_are_a_hard_limit(tmp_path):

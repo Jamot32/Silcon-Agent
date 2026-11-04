@@ -15,6 +15,7 @@ from app import main, replay, worker
 from app.api_schemas import PublicRun
 from app.replay import list_recordings, load_recording, play_recording
 from app.storage import RunStore
+from app.schemas import BuildConfig
 
 CATALOG = Path(__file__).resolve().parents[2] / "demo_recordings"
 ID = "uart-optimization"
@@ -44,6 +45,17 @@ def test_authentic_catalog_has_four_real_uart_flows_and_improved_counter():
     counter = load_recording(CATALOG, "counter-improvement")
     assert counter.metadata.flow_count == 2
     assert {entry.id for entry in list_recordings(CATALOG)} >= {ID, "counter-improvement"}
+
+
+@pytest.mark.parametrize("known_build", [False, True])
+def test_replay_preserves_known_effective_build_without_inventing_historical_requests(tmp_path, known_build):
+    source = load_recording(CATALOG, ID).run
+    effective = BuildConfig(optimize=False, max_flow_runs=2, initial_flow={"SYNTH_STRATEGY": "DELAY 2"}) if known_build else None
+    source = source.model_copy(update={"requested_build": BuildConfig() if known_build else None, "build_config": effective})
+    store = RunStore(tmp_path / "runs")
+    replayed = PublicRun.from_run(store.create_replay(ID, 4, source))
+    assert replayed.requested_build is None
+    assert replayed.build_config == effective
 
 
 @pytest.mark.parametrize("change", [

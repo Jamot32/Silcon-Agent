@@ -22,7 +22,7 @@ class Integration:
     async def ask(self, llm, messages, tools, metadata):
         # The app supplies actual typed messages/schemas. No raw material is
         # passed to the writer; hashing is inside the observer's inference scope.
-        plain = lambda values: [value if type(value) is dict else value.model_dump(mode="json") for value in values]
+        plain = lambda values: [value if type(value) is dict else value.trace_dump() if hasattr(value, "trace_dump") else value.model_dump(mode="json") for value in values]
         with self.observer.inference(plain(messages), plain(tools), metadata,
                                      budget_snapshot=lambda: self._budget(llm)):
             return await llm.complete(messages, tools)

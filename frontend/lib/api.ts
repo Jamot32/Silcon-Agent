@@ -1,7 +1,7 @@
 export interface Check { status: string; detail: string }
 export interface Health {
   status: "ok" | "degraded";
-  checks: { database: Check; eda: Check; llm: Check };
+  checks: { database: Check; eda: Check; llm: Check; worker?: Check };
   milestone: string;
   llm_provider: string;
 }
@@ -19,8 +19,33 @@ export interface DesignSpec {
   top_module: string; summary: string; ports: Port[]; behavior: string[];
   targets: Targets; test_plan: string[]; purely_combinational: boolean;
 }
+export type RevisionIntent = "feature" | "fix" | "optimize";
+export interface LayoutRegionInput {
+  run_tag: string;
+  bounds: { x0: number; y0: number; x1: number; y1: number };
+  expected_image_sha256?: string;
+}
+export interface LayoutRegionContext extends LayoutRegionInput {
+  image_sha256: string; image_width: number; image_height: number;
+  coordinate_space: "image_normalized_top_left";
+  pixel_bounds: { x0: number; y0: number; x1: number; y1: number };
+}
+export interface LayoutQuestion {
+  id: string; run_id: string; status: "pending" | "running" | "done" | "failed" | "cancelled";
+  cancel_requested?: boolean;
+  question: string; region: LayoutRegionContext; answer: string | null; error: string | null;
+  provider: string | null; model: string | null; input_tokens: number; output_tokens: number; cost_usd: number | null;
+}
+export interface ParentContext {
+  status: string; stage: string; summary: string | null; error: string | null;
+  best_run_tag: string | null; selected_metrics: Omit<Metric, "id" | "run_id" | "iteration_id" | "flow_index"> | null;
+}
 export interface PublicRun {
+  execution_mode?: "agent" | "manual";
+  has_manual_edits?: boolean;
   id: string; spec_text: string; design_spec: DesignSpec | null; targets: Targets;
+  // Older recording packs predate history organization; the live API supplies these fields.
+  display_name?: string | null; pinned?: boolean; archived?: boolean; project_id?: string | null;
   preset_id: string | null; status: string; stage: string; created_at: string;
   cost_usd: number | null; input_tokens: number; output_tokens: number; call_count: number;
   llm_provider: string; is_replay: boolean; summary: string | null; error: string | null;
@@ -28,6 +53,9 @@ export interface PublicRun {
   recording_id: string | null; replay_speed: number | null; starter_id: string | null;
   parent_run_id: string | null; carried_files: string[];
   review_requested: boolean; review_submitted: boolean;
+  follow_up?: string | null; revision_intent?: RevisionIntent | null; parent_context?: ParentContext | null;
+  requested_build?: BuildConfig | null; build_config?: BuildConfig | null;
+  layout_region?: LayoutRegionContext | null;
 }
 export type FlowKnob = "SYNTH_STRATEGY" | "FP_CORE_UTIL" | "PL_TARGET_DENSITY_PCT";
 // Mirrors BuildConfig in backend/app/schemas.py; the orchestrator sends its defaults with each review request.
@@ -59,8 +87,12 @@ export interface TestResults {
 export interface Layout { run_tag: string; image_url: string; clock_mhz?: number; width?: number; height?: number; event_id?: number }
 export interface FileDiff { path: string; diff: string; before: string | null; after: string | null; event_id: number; ts: string }
 export interface CreateRunInput {
+  execution_mode?: "agent" | "manual"; manual_files?: Record<string, string>;
   spec_text: string; preset_id?: string; targets?: Targets; starter_id?: "uart_off_by_one";
   parent_run_id?: string; reuse_design?: boolean; review?: boolean;
+  follow_up?: string; revision_intent?: RevisionIntent;
+  build?: BuildConfig;
+  layout_region?: LayoutRegionInput;
 }
 export interface CreateReplayInput { recording_id: string; speed: 1 | 4 }
 export interface ServerSettings {
@@ -110,7 +142,7 @@ async function requestJson<T>(path: string, options: RequestInit = {}): Promise<
     const body: unknown = await response.json().catch(() => null);
     throw new ApiError(response.status, errorDetail(body, response.status));
   }
-  return response.json() as Promise<T>;
+  return response.status === 204 ? undefined as T : response.json() as Promise<T>;
 }
 
 export async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
@@ -122,7 +154,29 @@ const runPath = (id: string) => `/api/runs/${encodeURIComponent(id)}`;
 const appHeaders = { "X-Silicon-Request": "1" };
 const jsonHeaders = { ...appHeaders, "Content-Type": "application/json" };
 export const getRun = (id: string, signal?: AbortSignal) => getJson<PublicRun>(runPath(id), signal);
-export const listRuns = (signal?: AbortSignal) => getJson<PublicRun[]>("/api/runs", signal);
+export const listRuns = (signal?: AbortSignal) => getJson<PublicRun[]>("/api/runs?include_all=true", signal);
+export type RunMetadata = { display_name?: string | null; pinned?: boolean; archived?: boolean };
+export interface RunCleanup { deleted_ids: string[]; skipped: { id: string; reason: string }[] }
+export const updateRunMetadata = (id: string, body: RunMetadata) => requestJson<PublicRun>(runPath(id), {
+  method: "PATCH", headers: jsonHeaders, body: JSON.stringify(body),
+});
+export const deleteRun = (id: string) => requestJson<void>(runPath(id), { method: "DELETE", headers: appHeaders });
+export const cleanupRuns = (runIds: string[]) => requestJson<RunCleanup>("/api/runs/cleanup", {
+  method: "POST", headers: jsonHeaders, body: JSON.stringify({ run_ids: runIds }),
+});
+export interface Project { id: string; name: string; created_at: string }
+export const listProjects = (signal?: AbortSignal) => getJson<Project[]>("/api/projects", signal);
+export const createProject = (name: string) => requestJson<Project>("/api/projects", {
+  method: "POST", headers: jsonHeaders, body: JSON.stringify({ name }),
+});
+export const renameProject = (id: string, name: string) => requestJson<Project>(`/api/projects/${encodeURIComponent(id)}`, {
+  method: "PATCH", headers: jsonHeaders, body: JSON.stringify({ name }),
+});
+export const deleteProject = (id: string) => requestJson<void>(`/api/projects/${encodeURIComponent(id)}`, { method: "DELETE", headers: appHeaders });
+// project_id null returns the runs to unfiled history; the API moves at most 100 IDs per request.
+export const moveRuns = (runIds: string[], projectId: string | null) => requestJson<PublicRun[]>("/api/runs/move", {
+  method: "POST", headers: jsonHeaders, body: JSON.stringify({ run_ids: runIds, project_id: projectId }),
+});
 export const getSettings = (signal?: AbortSignal) => getJson<ServerSettings>("/api/settings", signal);
 export const getConnections = (signal?: AbortSignal) => requestJson<Connections>("/api/settings/connections", { signal, headers: jsonHeaders });
 export const saveProviderKey = (provider: string, apiKey: string) => requestJson<ProviderConnection>(`/api/settings/connections/${encodeURIComponent(provider)}`, {
@@ -138,6 +192,14 @@ export const bundleUrl = (id: string) => `${runPath(id)}/bundle.zip`;
 export const eventsUrl = (id: string, after = 0) => `${runPath(id)}/events?after=${after}`;
 export const createRun = (body: CreateRunInput, signal?: AbortSignal) => requestJson<{ run_id: string }>("/api/runs", {
   method: "POST", headers: jsonHeaders, body: JSON.stringify(body), signal,
+});
+export const askLayoutQuestion = (id: string, selection: LayoutRegionInput, question: string) => requestJson<LayoutQuestion>(`${runPath(id)}/layout-questions`, {
+  method: "POST", headers: jsonHeaders, body: JSON.stringify({ selection, question }),
+});
+export const getLayoutQuestion = (id: string, questionId: string, signal?: AbortSignal) => getJson<LayoutQuestion>(`${runPath(id)}/layout-questions/${encodeURIComponent(questionId)}`, signal);
+export const getLayoutQuestions = (id: string, signal?: AbortSignal) => getJson<LayoutQuestion[]>(`${runPath(id)}/layout-questions`, signal);
+export const cancelLayoutQuestion = (id: string, questionId: string) => requestJson<LayoutQuestion>(`${runPath(id)}/layout-questions/${encodeURIComponent(questionId)}/cancel`, {
+  method: "POST", headers: appHeaders,
 });
 export const cancelRun = (id: string, signal?: AbortSignal) => requestJson<PublicRun>(`${runPath(id)}/cancel`, { method: "POST", headers: appHeaders, signal });
 export const submitReview = (id: string, body: { design_spec: DesignSpec; build: BuildConfig }, signal?: AbortSignal) => requestJson<PublicRun>(`${runPath(id)}/review`, {

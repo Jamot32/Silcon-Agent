@@ -84,6 +84,15 @@ def test_storage_failure_is_safe(client, monkeypatch):
     assert response.status_code == 503 and "private-secret" not in response.text
 
 
+def test_corrupt_key_storage_returns_safe_unavailable_status(client, tmp_path):
+    save_key(tmp_path, "meta", "private-secret")
+    key_path(tmp_path, "meta").write_bytes(b"private-secret\xff")
+    response = client.get("/api/settings/connections", headers=HEADERS)
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Provider key storage is unavailable"
+    assert "private-secret" not in response.text
+
+
 def test_meta_factory_uses_saved_key_for_new_runs(tmp_path, monkeypatch):
     from app.llm import client as llm_client
     monkeypatch.setenv("LLM_PROVIDER", "meta")

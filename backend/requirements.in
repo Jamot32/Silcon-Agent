@@ -5,3 +5,4 @@ sqlmodel==0.0.48
 pytest==9.1.1
 httpx==0.28.1
 openai==3.37.0
+pillow==13.0.0

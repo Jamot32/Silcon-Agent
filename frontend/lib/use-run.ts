@@ -61,6 +61,7 @@ export function useRun(id: string) {
         await refresh();
       } catch (caught) {
         if (!disposed && !controller.signal.aborted) setError(caught instanceof Error ? caught.message : "The run could not be cancelled.");
+        throw caught;
       }
     };
     controls.current = { refresh, cancel };

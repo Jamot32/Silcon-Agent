@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Check, ChevronDown, Copy, ExternalLink, KeyRound, RefreshCw } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Check, ChevronDown, Copy, Eye, EyeOff, ExternalLink, KeyRound, RefreshCw } from "lucide-react";
 import { getConnections, removeProviderKey, saveProviderKey, type Connections, type ProviderConnection, type SubscriptionStatus } from "@/lib/api";
 import { keyProviders, type ModelProvider } from "@/lib/model-catalog";
 import { ProviderLogo } from "@/components/provider-logo";
@@ -50,7 +50,7 @@ function SubscriptionCard({ account, status }: { account: typeof subscriptions[n
     <Collapsible>
       <CollapsibleTrigger asChild><Button type="button" variant="outline" size="sm" className="w-full">{status === "connected" ? "Manage account" : "Set up account"}<ChevronDown /></Button></CollapsibleTrigger>
       <CollapsibleContent className="space-y-3 pt-3">
-        <p className="text-xs text-muted-foreground">Run on the machine hosting the worker, then finish sign-in in your browser. The host checks every 30 seconds; refresh connections after signing in.</p>
+        <p className="text-xs text-muted-foreground">Run on the machine hosting the worker, then finish sign-in in your browser. Status refreshes automatically when you return here and every 30 seconds.</p>
         <CopyCommand command={account.command} />
         <p className="text-xs text-muted-foreground">To switch accounts, sign out first:</p>
         <CopyCommand command={account.logout} />
@@ -66,38 +66,59 @@ function ProviderKeyForm({ provider, connection, disabled, onChange }: {
   const [open, setOpen] = useState(false);
   const [key, setKey] = useState("");
   const [pending, setPending] = useState(false);
+  const [showKey, setShowKey] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const [invalidKey, setInvalidKey] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const removeRef = useRef<HTMLButtonElement>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   async function update(remove = false) {
-    setPending(true); setError(""); setMessage("");
+    if (pending || disabled) return;
+    const cleanKey = key.trim();
+    if (!remove && !/^[!-~]{8,4096}$/.test(cleanKey)) {
+      setError("Enter 8–4096 characters without spaces or line breaks.");
+      setInvalidKey(true); inputRef.current?.focus(); return;
+    }
+    setPending(true); setError(""); setMessage(""); setInvalidKey(false);
     try {
       const next = remove ? await removeProviderKey(provider.id) : await saveProviderKey(provider.id, key.trim());
-      onChange(next); setKey("");
+      onChange(next); setKey(""); setShowKey(false); setConfirmRemove(false);
       setMessage(remove ? (next.source === "environment" ? "Saved key removed. The environment key is still configured." : "Key removed.") : "Key saved. Provider access has not been verified.");
     } catch (reason) { setError(messageOf(reason)); }
     finally { setPending(false); }
   }
-  return <Collapsible open={open} onOpenChange={(value) => { setOpen(value); if (!value) { setKey(""); setError(""); setMessage(""); } }} className="border-b last:border-b-0" data-testid={`provider-${provider.id}`}>
-    <CollapsibleTrigger className="flex w-full items-center gap-3 py-4 text-left hover:text-foreground/80">
+  return <Collapsible open={open} onOpenChange={(value) => { setOpen(value); if (!value) { setShowKey(false); setConfirmRemove(false); } }} data-testid={`provider-${provider.id}`}>
+    <CollapsibleTrigger className="flex w-full items-center gap-3 rounded-md py-4 text-left hover:text-foreground/80 focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2">
       <ProviderLogo provider={provider.logo} className="size-5 shrink-0" />
       <div className="min-w-0 flex-1"><p className="text-sm font-medium">{provider.name}</p><p className="truncate text-xs text-muted-foreground">{provider.models.join(" · ")}</p></div>
       <Badge variant="outline" className="shrink-0">{connection?.source === "saved" ? "Key saved" : connection?.source === "environment" ? "Environment" : "No key"}</Badge>
-      <ChevronDown className={`size-4 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+      <ChevronDown className={`size-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none ${open ? "rotate-180" : ""}`} />
     </CollapsibleTrigger>
     <CollapsibleContent className="space-y-4 pb-5 pl-8">
       <div className="flex flex-wrap gap-1.5">{provider.models.map((model) => <Badge key={model} variant="secondary" className="font-mono text-[10px]">{model}</Badge>)}</div>
       {provider.unavailable?.map((model) => <p key={model.name} className="text-xs text-muted-foreground"><code>{model.name}</code> — {model.reason}; unavailable through BYOK.</p>)}
       <form onSubmit={(event) => { event.preventDefault(); void update(); }} className="space-y-2">
         <Label htmlFor={`key-${provider.id}`}>{provider.name} API key</Label>
-        <Input id={`key-${provider.id}`} type="password" autoComplete="off" spellCheck={false} value={key} onChange={(event) => { setKey(event.target.value); setError(""); setMessage(""); }} placeholder={connection?.configured ? "Enter a replacement key" : "Paste your API key"} disabled={pending || disabled} maxLength={4096} aria-describedby={`key-detail-${provider.id}`} />
+        <div className="flex items-center gap-2">
+          <Input ref={inputRef} id={`key-${provider.id}`} name={`${provider.id}-api-key`} type={showKey ? "text" : "password"} autoComplete="off" spellCheck={false} value={key} onChange={(event) => { setKey(event.target.value); setError(""); setMessage(""); setInvalidKey(false); }} placeholder={connection?.configured ? "Enter a replacement key…" : "Paste your API key…"} disabled={pending || disabled} maxLength={4096} aria-invalid={invalidKey} aria-describedby={`key-detail-${provider.id} key-feedback-${provider.id}`} />
+          <Button type="button" variant="outline" size="icon" aria-label={showKey ? "Hide API key" : "Show API key"} aria-pressed={showKey} onClick={() => setShowKey((value) => !value)} disabled={!key || pending || disabled}>{showKey ? <EyeOff aria-hidden="true" /> : <Eye aria-hidden="true" />}</Button>
+        </div>
         <p id={`key-detail-${provider.id}`} className="text-xs text-muted-foreground">{provider.id === "meta" ? "Used by new builds when the server provider is Meta. A saved key takes priority over META_API_KEY." : "Save a key for these models. Build support for this provider is not available yet."}</p>
         <div className="flex flex-wrap gap-2 pt-1">
-          <Button type="submit" size="sm" disabled={pending || disabled || key.trim().length < 8}>{pending ? "Updating…" : connection?.configured ? "Replace key" : "Save key"}</Button>
-          {connection?.source === "saved" ? <Button type="button" variant="outline" size="sm" disabled={pending || disabled} onClick={() => void update(true)}>Remove key</Button> : null}
+          <Button type="submit" size="sm" disabled={pending || disabled}>{pending ? "Updating…" : connection?.configured ? "Replace key" : "Save key"}</Button>
+          {connection?.source === "saved" ? <Button ref={removeRef} type="button" variant="outline" size="sm" disabled={pending || disabled} onClick={() => setConfirmRemove(true)}>Remove key</Button> : null}
         </div>
       </form>
+      {confirmRemove ? <div role="group" aria-label={`Remove ${provider.name} key`} className="space-y-2 rounded-md border p-3">
+        <p className="text-xs">Remove the saved {provider.name} key? You will need to paste it again to reconnect. Any server environment key will remain available.</p>
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" size="sm" variant="destructive" disabled={pending || disabled} onClick={() => void update(true)}>Remove saved key</Button>
+          <Button type="button" size="sm" variant="outline" disabled={pending} onClick={() => { setConfirmRemove(false); removeRef.current?.focus(); }}>Cancel removal</Button>
+        </div>
+      </div> : null}
       {connection?.source === "environment" ? <p className="text-xs text-muted-foreground">The current key comes from the server environment. Remove it there to disconnect fully.</p> : null}
-      <p role={error ? "alert" : "status"} className={`text-xs ${error ? "text-destructive" : "text-muted-foreground"}`}>{error || message}</p>
+      <p id={`key-feedback-${provider.id}`} role={error ? "alert" : "status"} className={`text-xs ${error ? "text-destructive" : "text-muted-foreground"}`}>{error || message}</p>
     </CollapsibleContent>
   </Collapsible>;
 }
@@ -107,18 +128,39 @@ export function ProviderConnections() {
   const [error, setError] = useState("");
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState("");
-  useEffect(() => {
+  const requestRef = useRef<AbortController | null>(null);
+  const requestVersion = useRef(0);
+  const refresh = useCallback(async () => {
+    const version = ++requestVersion.current;
+    requestRef.current?.abort();
     const controller = new AbortController();
-    getConnections(controller.signal).then(setConnections, (reason: unknown) => { if (!controller.signal.aborted) setError(messageOf(reason)); });
-    return () => controller.abort();
+    requestRef.current = controller;
+    setRefreshing(true);
+    try {
+      const next = await getConnections(controller.signal);
+      if (version === requestVersion.current) { setConnections(next); setError(""); }
+    } catch (reason) {
+      if (!controller.signal.aborted && version === requestVersion.current) setError(messageOf(reason));
+    } finally {
+      if (version === requestVersion.current) setRefreshing(false);
+    }
   }, []);
-  async function refresh() {
-    setRefreshing(true); setError("");
-    try { setConnections(await getConnections()); }
-    catch (reason) { setError(messageOf(reason)); }
-    finally { setRefreshing(false); }
-  }
+  useEffect(() => {
+    void refresh();
+    const refreshVisible = () => { if (document.visibilityState === "visible") void refresh(); };
+    const timer = window.setInterval(refreshVisible, 30_000);
+    window.addEventListener("focus", refreshVisible);
+    document.addEventListener("visibilitychange", refreshVisible);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refreshVisible);
+      document.removeEventListener("visibilitychange", refreshVisible);
+      requestVersion.current++; requestRef.current?.abort();
+    };
+  }, [refresh]);
   function changed(connection: ProviderConnection) {
+    // A status request started before a save must not restore old credential metadata.
+    requestVersion.current++; requestRef.current?.abort(); setRefreshing(false);
     setConnections((current) => current ? { ...current, keys: current.keys.map((key) => key.provider === connection.provider ? connection : key) } : current);
   }
   const query = search.trim().toLowerCase();
@@ -129,15 +171,16 @@ export function ProviderConnections() {
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1.5"><CardTitle>Subscription accounts</CardTitle><CardDescription>Use your Claude or ChatGPT subscription through its host CLI.</CardDescription></div>
-          <Button type="button" variant="ghost" size="icon-sm" onClick={refresh} disabled={refreshing} aria-label="Refresh connections"><RefreshCw className={refreshing ? "animate-spin" : ""} /></Button>
+          <Button type="button" variant="ghost" size="icon-sm" onClick={refresh} disabled={refreshing} aria-label="Refresh connections"><RefreshCw className={refreshing ? "animate-spin motion-reduce:animate-none" : ""} /></Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="grid gap-3 sm:grid-cols-2">{subscriptions.map((account) => <SubscriptionCard key={account.id} account={account} status={connections?.subscriptions[account.id] ?? "unknown"} />)}</div>
+        <div className="grid gap-3 sm:grid-cols-2">{subscriptions.map((account) => <SubscriptionCard key={account.id} account={account} status={error ? "unknown" : connections?.subscriptions[account.id] ?? "unknown"} />)}</div>
         <p className="text-xs text-muted-foreground">Sign-in stays on the host. Account passwords and subscription tokens are never stored here. Status reflects CLI sign-in, not remaining quota.</p>
+        {connections && connections.subscriptions.checked_at > 0 && !error ? <p className="text-xs text-muted-foreground">Host checked <time dateTime={new Date(connections.subscriptions.checked_at * 1000).toISOString()}>{new Date(connections.subscriptions.checked_at * 1000).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</time>. Updates automatically.</p> : null}
         {!connections && !error ? <p role="status" className="text-xs text-muted-foreground">Loading connections…</p> : null}
         {connections?.subscriptions.checked_at === 0 ? <p className="text-xs text-muted-foreground">Waiting for the host worker to report sign-in status. Start or restart it with <code>make dev</code>.</p> : null}
-        {error ? <p role="alert" className="text-sm text-destructive">{error}</p> : null}
+        {error ? <div className="flex flex-wrap items-center gap-2"><p role="alert" className="text-sm text-destructive">{error}</p><Button type="button" size="sm" variant="outline" disabled={refreshing} onClick={refresh}>Retry connections</Button></div> : null}
       </CardContent>
     </Card>
     <Card>
@@ -148,7 +191,7 @@ export function ProviderConnections() {
       <CardContent>
         <Label htmlFor="provider-search" className="sr-only">Search providers or models</Label>
         <Input id="provider-search" type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search providers or models…" className="mb-1" />
-        {visible.map((provider) => <ProviderKeyForm key={provider.id} provider={provider} connection={connections?.keys.find((key) => key.provider === provider.id)} disabled={!connections || Boolean(error)} onChange={changed} />)}
+        {keyProviders.map((provider) => <div key={provider.id} className="border-b last:border-b-0" hidden={!visible.includes(provider)}><ProviderKeyForm provider={provider} connection={connections?.keys.find((key) => key.provider === provider.id)} disabled={!connections || Boolean(error)} onChange={changed} /></div>)}
         {!visible.length ? <p role="status" className="py-6 text-center text-sm text-muted-foreground">No providers or models match “{search}”.</p> : null}
         <p className="border-t pt-4 text-xs leading-relaxed text-muted-foreground">Keys are stored in a private file on this server, outside design files. They are never returned to the browser. Saving a key does not verify access or change the server&apos;s build provider. Builds currently support Codex and Meta.</p>
       </CardContent>

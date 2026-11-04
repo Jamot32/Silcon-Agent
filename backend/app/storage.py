@@ -1,27 +1,36 @@
 """Authoritative API-owned SQLite transactions and durable run projections."""
 
 import json
+import logging
 import os
+import re
+import shutil
 import tempfile
 import threading
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 from pydantic import JsonValue
-from sqlalchemy import event, text
+from sqlalchemy import delete, event, func, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from app.models import Artifact, Event, Iteration, Metric, Run
-from app.schemas import REVIEW_TIMEOUT_SECONDS
+from app.models import Artifact, Event, Iteration, LayoutQuestion, Metric, Project, Run, RunDeletion
+from app.layout_question_store import LayoutQuestionStore, QUESTION_ACTIVE
+from app.schemas import BuildConfig, REVIEW_TIMEOUT_SECONDS
 from app.terminal import TerminalAcknowledgement, TerminalAcknowledgementUnavailable
+
+if TYPE_CHECKING:
+    from app.workspace import WorkspaceState
 
 ACTIVE = ("pending", "running", "cancel_requested")
 LEASED = ("running", "cancel_requested")
 TERMINAL = ("done", "failed", "cancelled")
+logger = logging.getLogger(__name__)
 
 
 class BusyRunError(ValueError):
@@ -30,6 +39,18 @@ class BusyRunError(ValueError):
 
 class RunLeaseConflict(RuntimeError):
     """A mutation for a run that is terminal or not currently claimed by the calling worker."""
+
+
+class ProjectNotFoundError(LookupError):
+    pass
+
+
+class ProjectNameConflict(ValueError):
+    pass
+
+
+class RunCleanupError(RuntimeError):
+    """The database deletion committed, but its durable file-cleanup intent remains."""
 
 
 def require_lease(run: Run, worker_id: str | None) -> None:
@@ -42,11 +63,12 @@ def json_text(value: object) -> str:
     return json.dumps(value, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
 
 
-class RunStore:
+class RunStore(LayoutQuestionStore):
     def __init__(self, root: Path, database_url: str | None = None, *, engine: Engine | None = None):
         self.root = root.resolve()
         self.root.mkdir(parents=True, exist_ok=True)
         self._projection_lock = threading.RLock()
+        self._deletion_lock = threading.Lock()
         self.engine = engine or create_engine(database_url or f"sqlite:///{self.root}/silicon-agent.db", connect_args={"check_same_thread": False, "timeout": 30})
         if self.engine.dialect.name == "sqlite":
             @event.listens_for(self.engine, "connect")
@@ -67,6 +89,7 @@ class RunStore:
                 connection.exec_driver_sql("BEGIN IMMEDIATE")
             SQLModel.metadata.create_all(connection)
             self._migrate_bootstrap(connection)
+        self._recover_deleted_runs()
         # Rebuild from committed rows after a crash, including any missed append.
         with Session(self.engine) as session:
             run_ids = list(session.exec(select(Run.id)).all())
@@ -83,8 +106,11 @@ class RunStore:
                 "preset_id": "VARCHAR", "summary": "VARCHAR", "error": "VARCHAR", "best_run_tag": "VARCHAR",
                 "tapeout_ready": "BOOLEAN NOT NULL DEFAULT 0", "cancel_requested": "BOOLEAN NOT NULL DEFAULT 0",
                 "recording_id": "VARCHAR", "replay_speed": "INTEGER", "starter_id": "VARCHAR",
-                "parent_run_id": "VARCHAR", "carry_over_json": "VARCHAR",
+                "parent_run_id": "VARCHAR", "carry_over_json": "VARCHAR", "build_json": "VARCHAR",
+                "display_name": "VARCHAR", "pinned": "BOOLEAN NOT NULL DEFAULT 0", "archived": "BOOLEAN NOT NULL DEFAULT 0",
+                "execution_mode": "VARCHAR NOT NULL DEFAULT 'agent'", "workspace_json": "VARCHAR", "workspace_revision": "INTEGER NOT NULL DEFAULT 0",
                 "review_requested": "BOOLEAN NOT NULL DEFAULT 0", "review_json": "VARCHAR", "claimed_by": "VARCHAR",
+                "project_id": "VARCHAR",
             },
             "metric": {"flow_index": "INTEGER NOT NULL DEFAULT 0"},
         }
@@ -99,15 +125,25 @@ class RunStore:
     def create_run(self, spec_text: str, *, targets: dict[str, JsonValue] | None = None, preset_id: str | None = None, provider: str = "codex", starter_id: str | None = None,
                    recording_id: str | None = None, replay_speed: int | None = None,
                    parent_run_id: str | None = None, carry_over: dict[str, JsonValue] | None = None,
-                   review_requested: bool = False) -> Run:
+                   review_requested: bool = False, build: dict[str, JsonValue] | None = None, execution_mode: str = "agent") -> Run:
+        # New real runs record explicit defaults; old recordings retain unknown configuration.
+        build_config = BuildConfig.model_validate(build if build is not None else {}).model_dump(mode="json") if build is not None or recording_id is None else None
         with Session(self.engine, expire_on_commit=False) as session:
             session.exec(text("BEGIN IMMEDIATE"))
             if session.exec(select(Run.id).where(Run.status.in_(ACTIVE))).first():
                 raise BusyRunError("One chip build is already active. Wait for it or cancel it first.")
+            if session.exec(select(LayoutQuestion.id).where(LayoutQuestion.status.in_(QUESTION_ACTIVE))).first():
+                raise BusyRunError("A layout question is already active. Wait for it or cancel it first.")
+            if parent_run_id is not None:
+                parent = session.get(Run, parent_run_id)
+                if parent is None or parent.status not in TERMINAL:
+                    raise BusyRunError("The previous run is no longer available to revise. Refresh run history.")
             run = Run(spec_text=spec_text, targets_json=json_text(targets or {}), preset_id=preset_id, llm_provider=provider,
                       starter_id=starter_id, is_replay=recording_id is not None, recording_id=recording_id, replay_speed=replay_speed,
                       parent_run_id=parent_run_id, carry_over_json=json_text(carry_over) if carry_over is not None else None,
-                      review_requested=review_requested)
+                      review_requested=review_requested, build_json=json_text(build_config) if build_config is not None else None,
+                      execution_mode=execution_mode,
+                      design_spec_json=json_text(carry_over["design_spec"]) if carry_over is not None and carry_over.get("origin") in {"manual edits", "workspace edits"} else None)
             session.add(run)
             session.flush()
             (self.root / run.id / "work").mkdir(parents=True)
@@ -121,7 +157,8 @@ class RunStore:
             raise ValueError("Replay speed must be 1 or 4")
         return self.create_run(source.spec_text, targets=source.targets, preset_id=source.preset_id,
                                provider=source.llm_provider, starter_id=source.starter_id,
-                               recording_id=recording_id, replay_speed=speed)
+                               recording_id=recording_id, replay_speed=speed,
+                               build=source.build_config.model_dump(mode="json") if source.build_config is not None else None)
 
     def project(self, run_id: str) -> None:
         """Rewrite bounded projections atomically; the database remains authoritative."""
@@ -182,21 +219,264 @@ class RunStore:
                 raise KeyError(run_id)
             return run
 
-    def list_runs(self) -> list[Run]:
+    def list_runs(self, *, limit: int | None = 100) -> list[Run]:
         with Session(self.engine) as session:
-            return list(session.exec(select(Run).order_by(Run.created_at.desc()).limit(100)).all())
+            query = select(Run).order_by(Run.created_at.desc())
+            if limit is not None:
+                query = query.limit(limit)
+            return list(session.exec(query).all())
+
+    def workspace(self, run_id: str) -> "WorkspaceState":
+        from app.workspace import workspace_state
+
+        return workspace_state(self.get_run(run_id))
+
+    def save_workspace(self, run_id: str, values: dict[str, JsonValue]) -> "WorkspaceState":
+        from app.workspace import WorkspaceWrite, workspace_state
+
+        body = WorkspaceWrite.model_validate(values)
+        with Session(self.engine, expire_on_commit=False) as session:
+            session.exec(text("BEGIN IMMEDIATE"))
+            run = session.get(Run, run_id)
+            if run is None:
+                raise KeyError(run_id)
+            if body.expected_revision != run.workspace_revision:
+                raise BusyRunError("This draft was changed in another tab. Reload the saved draft before saving again.")
+            run.workspace_revision += 1
+            run.workspace_json = json_text({"files": body.files, "base_source": body.base_source.model_dump() if body.base_source else None,
+                                            "updated_at": datetime.now(timezone.utc).isoformat()})
+            session.add(run)
+            session.commit()
+        return workspace_state(run)
+
+    def discard_workspace(self, run_id: str, expected_revision: int) -> None:
+        with Session(self.engine) as session:
+            session.exec(text("BEGIN IMMEDIATE"))
+            run = session.get(Run, run_id)
+            if run is None:
+                raise KeyError(run_id)
+            if expected_revision != run.workspace_revision:
+                raise BusyRunError("This draft was changed in another tab. Reload the saved draft before discarding it.")
+            run.workspace_json = None
+            run.workspace_revision += 1
+            session.add(run)
+            session.commit()
+
+    def update_metadata(self, run_id: str, changes: dict[str, JsonValue]) -> Run:
+        from app.api_schemas import UpdateRun
+
+        values = UpdateRun.model_validate(changes).model_dump(exclude_unset=True)
+        with self._projection_lock:
+            with Session(self.engine, expire_on_commit=False) as session:
+                session.exec(text("BEGIN IMMEDIATE"))
+                run = session.get(Run, run_id)
+                if run is None:
+                    raise KeyError(run_id)
+                if values.get("archived") is True and run.status not in TERMINAL:
+                    raise BusyRunError("Wait for this run to finish or stop before archiving it.")
+                for field, value in values.items():
+                    setattr(run, field, value)
+                session.add(run)
+                session.commit()
+            self.project(run_id)
+            return run
+
+    def list_projects(self) -> list[Project]:
+        with Session(self.engine) as session:
+            return list(session.exec(select(Project).order_by(Project.created_at)).all())
+
+    @staticmethod
+    def _require_unique_name(session: Session, name: str, project_id: str | None = None) -> None:
+        query = select(Project.id).where(func.lower(Project.name) == name.lower())
+        if project_id is not None:
+            query = query.where(Project.id != project_id)
+        if session.exec(query).first() is not None:
+            raise ProjectNameConflict("A project with this name already exists.")
+
+    def create_project(self, name: str) -> Project:
+        with Session(self.engine, expire_on_commit=False) as session:
+            session.exec(text("BEGIN IMMEDIATE"))
+            self._require_unique_name(session, name)
+            project = Project(name=name)
+            session.add(project)
+            session.commit()
+            return project
+
+    def rename_project(self, project_id: str, name: str) -> Project:
+        with Session(self.engine, expire_on_commit=False) as session:
+            session.exec(text("BEGIN IMMEDIATE"))
+            project = session.get(Project, project_id)
+            if project is None:
+                raise ProjectNotFoundError(project_id)
+            self._require_unique_name(session, name, project_id)
+            project.name = name
+            session.add(project)
+            session.commit()
+            return project
+
+    def delete_project(self, project_id: str) -> list[str]:
+        """Delete only the folder; its runs and files stay in unfiled history."""
+        with self._projection_lock:
+            with Session(self.engine) as session:
+                session.exec(text("BEGIN IMMEDIATE"))
+                project = session.get(Project, project_id)
+                if project is None:
+                    raise ProjectNotFoundError(project_id)
+                released = list(session.exec(select(Run).where(Run.project_id == project_id)).all())
+                for run in released:
+                    run.project_id = None
+                    session.add(run)
+                session.delete(project)
+                session.commit()
+                released_ids = [run.id for run in released]
+            for run_id in released_ids:
+                self.project(run_id)
+            return released_ids
+
+    def move_runs(self, run_ids: list[str], project_id: str | None) -> list[Run]:
+        """Move every listed run atomically; one missing run or project changes nothing."""
+        ids = list(dict.fromkeys(run_ids))
+        with self._projection_lock:
+            with Session(self.engine, expire_on_commit=False) as session:
+                session.exec(text("BEGIN IMMEDIATE"))
+                if project_id is not None and session.get(Project, project_id) is None:
+                    raise ProjectNotFoundError(project_id)
+                runs = list(session.exec(select(Run).where(Run.id.in_(ids))).all())
+                missing = set(ids) - {run.id for run in runs}
+                if missing:
+                    raise KeyError(sorted(missing)[0])
+                for run in runs:
+                    run.project_id = project_id
+                    session.add(run)
+                session.commit()
+            for run in runs:
+                self.project(run.id)
+            return runs
+
+    def _deletion_directory(self, run_id: str) -> Path:
+        if re.fullmatch(r"[0-9a-f]{32}", run_id) is None:
+            raise ValueError("Unsafe run directory")
+        directory = self.root / run_id
+        if directory.is_symlink() or directory.resolve() != directory:
+            raise ValueError("Unsafe run directory")
+        if directory.exists() and not directory.is_dir():
+            raise ValueError("Run directory is not a directory")
+        return directory
+
+    def _purge_deleted_run(self, run_id: str) -> None:
+        """Remove only a tombstoned run; never follow its directory or nested symlinks."""
+        with self._deletion_lock:
+            with Session(self.engine) as session:
+                if session.get(RunDeletion, run_id) is None:
+                    return
+                if session.get(Run, run_id) is not None:
+                    raise ValueError("A run with pending cleanup is still present")
+            # The row is gone, so project/work_dir cannot recreate this directory.
+            # Disk cleanup holds neither a database write transaction nor the projection lock.
+            directory = self._deletion_directory(run_id)
+            try:
+                shutil.rmtree(directory)
+            except FileNotFoundError:
+                if directory.exists():
+                    raise  # A disappearing child must not discard cleanup for its remaining parent.
+            with Session(self.engine) as session:
+                session.exec(text("BEGIN IMMEDIATE"))
+                deletion = session.get(RunDeletion, run_id)
+                if deletion is not None:
+                    session.delete(deletion)
+                session.commit()
+
+    def _recover_deleted_runs(self) -> None:
+        with Session(self.engine) as session:
+            pending = list(session.exec(select(RunDeletion.run_id)).all())
+        for run_id in pending:
+            try:
+                self._purge_deleted_run(run_id)
+            except (OSError, ValueError):
+                logger.warning("Run %s file cleanup remains pending", run_id)
+
+    def delete_runs(self, run_ids: list[str], *, skip_protected: bool = False) -> tuple[list[str], list[dict[str, str]]]:
+        """Delete eligible rows atomically, then purge owned files with durable recovery."""
+        ids = list(dict.fromkeys(run_ids))
+        deleted: list[str] = []
+        skipped: list[dict[str, str]] = []
+        children: list[str] = []
+        with self._projection_lock:
+            with Session(self.engine) as session:
+                session.exec(text("BEGIN IMMEDIATE"))
+                for run_id in ids:
+                    run = session.get(Run, run_id)
+                    pending = session.get(RunDeletion, run_id)
+                    reason = None
+                    if run is None and pending is None:
+                        reason = "Run not found."
+                    elif run is not None and run.pinned:
+                        reason = "Unpin this run before deleting it."
+                    elif run is not None and run.status not in TERMINAL:
+                        reason = "Wait for this run to finish or stop before deleting it."
+                    elif session.exec(select(LayoutQuestion.id).where(LayoutQuestion.run_id == run_id,
+                            LayoutQuestion.status.in_(QUESTION_ACTIVE))).first():
+                        reason = "Wait for this run's layout question to finish or cancel it before deleting it."
+                    if reason is not None:
+                        if skip_protected:
+                            skipped.append({"id": run_id, "reason": reason})
+                            continue
+                        if run is None:
+                            raise KeyError(run_id)
+                        raise BusyRunError(reason)
+                    try:
+                        self._deletion_directory(run_id)
+                    except ValueError:
+                        if not skip_protected:
+                            raise
+                        skipped.append({"id": run_id, "reason": "Run files could not be safely removed."})
+                        continue
+                    deleted.append(run_id)
+                if deleted:
+                    for child in session.exec(select(Run).where(Run.parent_run_id.in_(deleted), Run.id.not_in(deleted))).all():
+                        parent_id = child.parent_run_id
+                        child.parent_run_id = None
+                        session.add(child)
+                        session.add(Event(run_id=child.id, type="note", payload_json=json_text({
+                            "text": f"Previous run {parent_id} was deleted. This revision retains its saved requirements, historical context, and any copied source.",
+                            "deleted_parent_run_id": parent_id,
+                        })))
+                        children.append(child.id)
+                    for model in (Artifact, Event, Metric, Iteration, LayoutQuestion):
+                        session.exec(delete(model).where(model.run_id.in_(deleted)))
+                    session.exec(delete(Run).where(Run.id.in_(deleted)))
+                    for run_id in deleted:
+                        if session.get(RunDeletion, run_id) is None:
+                            session.add(RunDeletion(run_id=run_id))
+                    session.commit()
+            for child_id in children:
+                self.project(child_id)
+        purged: list[str] = []
+        for run_id in deleted:
+            try:
+                self._purge_deleted_run(run_id)
+                purged.append(run_id)
+            except (OSError, ValueError) as error:
+                message = "Run removed from history; file cleanup is pending. Retry deletion or restart the API to retry cleanup."
+                if not skip_protected:
+                    raise RunCleanupError(message) from error
+                skipped.append({"id": run_id, "reason": message})
+        return purged, skipped
 
     def work_dir(self, run_id: str) -> Path:
-        self.get_run(run_id)
-        path = self.root / run_id / "work"
-        if not path.resolve().is_relative_to(self.root) or path.is_symlink():
-            raise ValueError("Unsafe run directory")
-        path.mkdir(parents=True, exist_ok=True)
-        return path
+        with self._projection_lock:
+            self.get_run(run_id)
+            path = self.root / run_id / "work"
+            if not path.resolve().is_relative_to(self.root) or path.is_symlink():
+                raise ValueError("Unsafe run directory")
+            path.mkdir(parents=True, exist_ok=True)
+            return path
 
     def claim_pending(self, worker_id: str | None = None) -> Run | None:
         with Session(self.engine, expire_on_commit=False) as session:
             session.exec(text("BEGIN IMMEDIATE"))
+            if session.exec(select(LayoutQuestion.id).where(LayoutQuestion.status.in_(QUESTION_ACTIVE))).first():
+                return None
             run = session.exec(select(Run).where(Run.status == "pending").order_by(Run.created_at)).first()
             if run is None:
                 return None
@@ -315,7 +595,12 @@ class RunStore:
             session.commit()
         try:
             self.project(run_id)
-        except Exception:
+        except Exception as error:
+            if isinstance(error, KeyError):
+                with Session(self.engine) as session:
+                    if session.get(Run, run_id) is None:
+                        # Deletion after the terminal commit cannot invalidate its acknowledgement.
+                        return acknowledgement
             raise TerminalAcknowledgementUnavailable("Terminal transaction committed but projection acknowledgement is unavailable") from None
         return acknowledgement
 
@@ -323,6 +608,7 @@ class RunStore:
         return self.finish(run_id, {"status": status, "summary": error, "error": error, "tapeout_ready": False}, worker_id=worker_id)
 
     def recover_interrupted(self, worker_id: str | None = None) -> None:
+        self.recover_layout_questions(worker_id)
         query = select(Run.id, Run.claimed_by).where(Run.status.in_(LEASED))
         if worker_id is not None:
             # Only the worker router claims API runs and always records an owner, so NULL rows predate leases and no live worker holds them.

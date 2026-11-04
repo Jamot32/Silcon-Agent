@@ -31,13 +31,62 @@ class Run(SQLModel, table=True):
     replay_speed: int | None = None
     starter_id: str | None = None
     parent_run_id: str | None = None
+    display_name: str | None = None
+    pinned: bool = False
+    archived: bool = False
+    # Organization only: a project folder groups runs; it shares no memory or build context.
+    project_id: str | None = None
+    execution_mode: str = "agent"
+    # User-owned drafts are independent of immutable tool evidence and worker inputs.
+    workspace_json: str | None = None
+    workspace_revision: int = 0
     # Parent prompt, DesignSpec and RTL a revision starts from; worker-only, never public.
     carry_over_json: str | None = None
+    # Requested bounded build controls; NULL means an older run did not record them.
+    build_json: str | None = None
     # Expert mode: the orchestrator waits at REVIEW until the user's edited DesignSpec and BuildConfig arrive here.
     review_requested: bool = False
     review_json: str | None = None
     # Host worker identity holding the claim; only it may mutate the run through the worker API.
     claimed_by: str | None = None
+
+
+class Project(SQLModel, table=True):
+    """A user-named folder of runs; deleting it returns its runs to unfiled history."""
+
+    id: str = Field(default_factory=lambda: uuid4().hex, primary_key=True)
+    name: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+
+class RunDeletion(SQLModel, table=True):
+    """Durable file-cleanup intent after a run's database rows are removed."""
+
+    run_id: str = Field(primary_key=True)
+
+
+class LayoutQuestion(SQLModel, table=True):
+    """A frozen visual question; never a chip build or a source mutation."""
+
+    id: str = Field(default_factory=lambda: uuid4().hex, primary_key=True)
+    run_id: str = Field(foreign_key="run.id", index=True)
+    status: str = "pending"
+    question: str
+    region_json: str
+    evidence_json: str
+    images_json: str | None
+    answer: str | None = None
+    error: str | None = None
+    provider: str | None = None
+    model: str | None = None
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cost_usd: float | None = None
+    cancel_requested: bool = False
+    claimed_by: str | None = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class Iteration(SQLModel, table=True):

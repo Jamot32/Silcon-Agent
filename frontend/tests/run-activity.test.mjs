@@ -77,7 +77,7 @@ test("live runs show open tools and stages until their finish events arrive", ()
     { id: 2, ts: at(1), type: "tool_started", payload: { tool: "run_flow", tool_call_id: "a" } },
     { id: 3, ts: at(1), type: "tool_started", payload: { tool: "run_flow", tool_call_id: "b" } },
     { id: 4, ts: at(30), type: "tool_finished", payload: { tool: "run_flow", tool_call_id: "a", result: { ok: false, run_tag: "flow_a", error: "Flow failed\nlog" } } },
-    // Rejected before LibreLane: no run_tag, so never a chip variant.
+    // Rejected before LibreLane: retain the call for inspection without claiming a physical run.
     { id: 5, ts: at(31), type: "tool_started", payload: { tool: "run_flow", tool_call_id: "c" } },
     { id: 6, ts: at(31), type: "tool_finished", payload: { tool: "run_flow", tool_call_id: "c", result: { ok: false, error: "Use a pure batch" } } },
     // A provider attempt is counted before the request; no token change means no response.
@@ -90,12 +90,40 @@ test("live runs show open tools and stages until their finish events arrive", ()
   assert.equal(activity.stages[0].end, null);
   assert.equal(activity.modelCalls[0].responded, false);
   assert.equal(toolSummary(activity.tools.at(-1)), "4/6 passed · 2 skipped");
-  assert.equal(flowVariants(activity, [], events, false).length, 2);
-  const [failed, running] = flowVariants(activity, [], events, false);
+  assert.equal(flowVariants(activity, [], events, false).length, 3);
+  const [failed, running, rejected] = flowVariants(activity, [], events, false);
   assert.equal(failed.status, "failed");
   assert.equal(toolSummary(failed.span), "Flow failed");
   assert.equal(running.status, "running");
+  assert.equal(rejected.status, "failed");
+  assert.equal(rejected.span.result.run_tag, undefined);
   assert.equal(flowVariants(activity, [], events, true)[1].status, "unfinished");
+});
+
+test("failed measured flows retain real PPA values and their failure outcome", () => {
+  const metric = metrics(recording("uart-optimization"))[0];
+  const events = [{ id: 1, ts: "2026-11-03T00:00:00Z", type: "tool_finished", payload: {
+    tool: "run_flow", tool_call_id: "measured_failure", result: { ok: false, run_tag: metric.run_tag,
+      error: "Routed netlist verification failed", metrics: metric },
+  } }];
+  const [variant] = flowVariants(runActivity(events), [metric], events, true);
+  assert.equal(variant.status, "failed");
+  assert.equal(variant.metric, metric);
+  assert.equal(variant.span.finishedOrder, 1);
+  assert.equal(toolSummary(variant.span), "Routed netlist verification failed");
+});
+
+test("repeated call IDs remain separate attempts and missing measurements are not invented failures", () => {
+  const events = [
+    { id: 1, type: "tool_started", payload: { tool: "run_flow", tool_call_id: "flow" } },
+    { id: 2, type: "tool_finished", payload: { tool: "run_flow", tool_call_id: "flow", result: { ok: false, error: "No verified source" } } },
+    { id: 3, type: "tool_started", payload: { tool: "run_flow", tool_call_id: "flow" } },
+    { id: 4, type: "tool_finished", payload: { tool: "run_flow", tool_call_id: "flow", result: { ok: true, run_tag: "missing_metric" } } },
+  ].map((event) => ({ ...event, ts: "2026-11-03T00:00:00Z" }));
+  const variants = flowVariants(runActivity(events), [], events, true);
+  assert.deepEqual(variants.map((variant) => variant.span.finishedOrder), [2, 4]);
+  assert.deepEqual(variants.map((variant) => variant.status), ["failed", "unavailable"]);
+  assert.equal(new Set(variants.map((variant) => variant.key)).size, 2);
 });
 
 test("every recorded action is attributed to the agent that issued it", () => {

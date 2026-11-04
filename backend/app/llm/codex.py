@@ -304,7 +304,7 @@ def parse_completion(events, *, model, tools, latency_ms, budget, usage_callback
 
 
 def wrapped_prompt(messages, tools):
-    application = {"messages": [m.model_dump(mode="json") for m in messages],
+    application = {"messages": [m.trace_dump() for m in messages],
                    "tools": [t.model_dump(mode="json") for t in tools]}
     body = json.dumps(application, allow_nan=False)
     prompt = ("You are the Silicon Agent model provider. Return only the requested JSON envelope. "
@@ -513,9 +513,30 @@ class CodexCLIClient:
             try:
                 with tempfile.TemporaryDirectory(prefix="silicon-codex-") as directory:
                     workdir = Path(directory)
+                    # Keep the existing empty outer-boundary cwd and deny policy
+                    # unchanged. Attach only host-prepared bytes beside the
+                    # existing invocation schema, never paths from a prompt.
+                    roots = (boundary.original_project_root, *boundary.worktree_roots, *boundary.additional_archive_roots)
+                    if any(workdir.resolve().is_relative_to(Path(root)) for root in roots):
+                        raise ProviderError("local_configuration")
                     schema = workdir / "proposal.schema.json"
                     schema.write_text(json.dumps(proposal_schema(definitions)))
                     args = build_command(executable, model, workdir, schema, options)
+                    attached = set()
+                    for message in conversation:
+                        for item in message.images:
+                            digest = (item.label, item.metadata()["sha256"])
+                            if digest in attached:
+                                continue
+                            attached.add(digest)
+                            if len(attached) > 2:
+                                raise ProviderError("image_limit")
+                            image_path = workdir / f"image-{len(attached)}.png"
+                            import base64
+                            with image_path.open("xb") as handle:
+                                os.chmod(image_path, 0o600)
+                                handle.write(base64.b64decode(item.data, validate=True))
+                            args[-1:-1] = ["--image", str(image_path)]
                     await asyncio.wait_for(self._request(args, prompt, env, incoming, boundary), timeout)
                 if completion is None:
                     raise ProviderError("missing_usage")

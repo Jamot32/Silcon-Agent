@@ -39,7 +39,7 @@ function Cases({ cases }: { cases: JsonValue[] }) {
   })}</ul>;
 }
 
-const flowName = (variant: FlowVariant | undefined) => variant?.metric ? `Flow ${variant.metric.flow_index}` : variant?.status === "running" ? "Flow running" : variant?.status === "failed" ? "Flow failed" : "Flow unfinished";
+const flowName = (variant: FlowVariant | undefined) => variant?.metric ? `Flow ${variant.metric.flow_index}` : variant?.status === "running" ? "Flow running" : variant?.status === "failed" ? "Flow failed" : variant?.status === "unavailable" ? "Flow measurements unavailable" : "Flow unfinished";
 const callId = (span: ToolSpan) => span.agent === "orchestrator" ? "" : ` · call id ${span.id}`;
 
 function toolEntry(span: ToolSpan, variants: FlowVariant[], ongoing: boolean, replay: boolean, end: number, runId: string): Entry {
@@ -158,17 +158,17 @@ function AgentCard({ role, run, activity, variants, ongoing }: { role: typeof ro
 function FlowWorker({ variant, end, ongoing, replay }: { variant: FlowVariant; end: number; ongoing: boolean; replay: boolean }) {
   const span = variant.span!, metric = variant.metric, result = span.result ?? {};
   const log = text(result.log_tail);
-  const label = variant.status === "running" ? replay ? "In progress in the recording" : `Running · ${clock(end - span.start)}` : variant.status === "measured" ? `Finished · ${clock(span.end! - span.start)}` : variant.status === "failed" ? "Failed" : "No finish recorded";
+  const label = variant.status === "running" ? replay ? "In progress in the recording" : `Running · ${clock(end - span.start)}` : variant.status === "measured" ? `Measured · ${clock(span.end! - span.start)}` : variant.status === "failed" ? `Failed${metric ? " · measurements available" : ""}` : variant.status === "unavailable" ? "Measurements unavailable" : "No finish recorded";
   return <article className="flex min-w-0 flex-col gap-2 rounded-lg border bg-card p-3 text-xs" data-testid="flow-worker" data-status={variant.status}>
     <div>
       <h4 className="text-sm font-medium">{flowName(variant)}</h4>
-      <p className="text-[11px] [overflow-wrap:anywhere] text-muted-foreground">Launched by the {roleName(span.agent)} in {span.stage}{callId(span)}</p>
+      <p className="text-[11px] [overflow-wrap:anywhere] text-muted-foreground">Requested by the {roleName(span.agent)} in {span.stage}{callId(span)}</p>
       <p className={cn("mt-1 flex items-center gap-1.5 text-[11px]", variant.status === "failed" ? "text-destructive" : variant.status === "running" ? "text-primary" : "text-muted-foreground")}>{variant.status === "running" && ongoing ? <Spinner className="size-3" aria-hidden="true" role={undefined} /> : null}{label}</p>
     </div>
+    {variant.status === "failed" ? <p className="text-destructive">{toolSummary(span) ?? "The flow reported failure."}</p> : null}
     {metric ? <p className="flex flex-wrap gap-x-3 gap-y-1 tabular-nums"><span>{number(metric.area_um2)} µm²</span><span>WNS {number(metric.wns_ns, 3)} ns</span><span>{number(metric.power_mw, 4)} mW</span><span>{number(metric.cell_count, 0)} cells</span><span>DRC <Signoff value={metric.drc_ok} /></span><span>LVS <Signoff value={metric.lvs_ok} /></span></p>
-      : variant.status === "failed" ? <p className="line-clamp-3 text-destructive">{toolSummary(span) ?? "The flow reported failure."}</p>
       : variant.status === "unfinished" ? <p className="text-muted-foreground">The run ended before this flow reported a result.</p>
-      : <p className="text-muted-foreground">Placement, routing and signoff run in a sandboxed LibreLane container; its log arrives when it finishes.</p>}
+      : variant.status === "running" ? <p className="text-muted-foreground">Placement, routing and signoff run in a sandboxed LibreLane container; its log arrives when it finishes.</p> : <p className="text-muted-foreground">No measured PPA is available for this attempt.</p>}
     {log ? <details><summary className="cursor-pointer text-[11px] text-muted-foreground hover:text-foreground">LibreLane log tail</summary><pre className={block}>{log}</pre></details> : null}
   </article>;
 }
@@ -188,7 +188,7 @@ export function AgentRoster({ run, activity, variants, ongoing }: { run: PublicR
     <p className="text-[11px] text-muted-foreground">Model calls are listed under the stage they happened in; the events do not record what each call was for.</p>
     <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">{roles.map((role) => <AgentCard key={role.id} role={role} run={run} activity={activity} variants={variants} ongoing={ongoing} />)}</div>
     {workers.length ? <section id="agent-flow-workers" className="scroll-mt-4 space-y-2" aria-labelledby="flow-workers-title">
-      <div><h3 id="flow-workers-title" className="text-sm font-semibold">Sub-agents: LibreLane flow workers</h3><p className="text-[11px] text-muted-foreground">Each flow is a separate sandboxed place-and-route job. Batches from the optimizer run in parallel.</p></div>
+      <div><h3 id="flow-workers-title" className="text-sm font-semibold">Sub-agents: LibreLane flow workers</h3><p className="text-[11px] text-muted-foreground">Physical flows run as separate sandboxed place-and-route jobs. Rejected calls may stop before launch. Batches from the optimizer run in parallel.</p></div>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{workers.map((variant) => <FlowWorker key={variant.key} variant={variant} end={end} ongoing={ongoing} replay={run.is_replay} />)}</div>
     </section> : null}
   </div>;
