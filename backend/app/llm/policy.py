@@ -1,7 +1,6 @@
 """Explicit host per-call options and sanitized provider failure policy."""
 from dataclasses import dataclass
 from typing import Literal
-import hashlib
 import json
 import re
 
@@ -25,17 +24,6 @@ class RequestOptions:
             raise ValueError('Diversity label must be a host candidate identifier')
 
 
-def options_for(stage: str, *, repair_attempt=0, fresh_candidate=None):
-    if type(stage) is not str or type(repair_attempt) is not int or repair_attempt < 0:
-        raise ValueError('Host stage and nonnegative repair index required')
-    effort = 'high' if stage in {'SPEC','SPEC_CRITIC','BLOCK_PLAN'} or repair_attempt > 1 else 'medium'
-    if fresh_candidate is not None:
-        if type(fresh_candidate) is not int or not 1 <= fresh_candidate <= 3:
-            raise ValueError('Best-of-k candidate index must be1..3')
-        return RequestOptions(effort,f'candidate_{fresh_candidate}')
-    return RequestOptions(effort)
-
-
 def codex_override(options: RequestOptions, *, selected_model: str):
     if type(options) is not RequestOptions or selected_model != MODEL:
         raise ValueError('Capability profile is pinned only to the selected model')
@@ -43,32 +31,6 @@ def codex_override(options: RequestOptions, *, selected_model: str):
         raise ValueError('The selected Codex model does not advertise this effort')
     # An invocation-only TOML scalar; no user/global mutable configuration.
     return ('-c','model_reasoning_effort='+json.dumps(options.reasoning_effort))
-
-
-def meta_override(options: RequestOptions):
-    if type(options) is not RequestOptions or options.reasoning_effort not in META_EFFORTS:
-        raise ValueError('Configured Meta profile does not advertise this effort')
-    return {'reasoning_effort':options.reasoning_effort}
-
-
-def bind_prompt(messages,tools,options,*,maximum_bytes=MAX_PROMPT_BYTES):
-    """Hashes the exact application context, not native provider wrapper bytes.
-
-    Caller must apply its byte cap again to the final serialized provider prompt.
-    No raw message/tool payload is returned in trace metadata.
-    """
-    if type(messages) is not list or type(tools) is not list or type(options) is not RequestOptions:
-        raise ValueError('Explicit ordered messages/tools and immutable options required')
-    if type(maximum_bytes) is not int or not 1000 <= maximum_bytes <= MAX_PROMPT_BYTES:
-        raise ValueError('Unsupported context byte bound')
-    raw=json.dumps({'messages':messages,'tools':tools},sort_keys=True,separators=(',',':'),
-                   ensure_ascii=False,allow_nan=False).encode()
-    if len(raw)>maximum_bytes:
-        raise ValueError('context_overflow: rebuild bounded stage context before calling the provider')
-    return {'prompt_sha256':hashlib.sha256(raw).hexdigest(),'context_bytes':len(raw),
-            'requested_reasoning_effort':options.reasoning_effort,
-            'serving_model_revision':None,'dollar_cost_estimate':None,
-            'diversity_label':options.diversity_label}
 
 
 @dataclass(frozen=True)
@@ -86,6 +48,8 @@ class ProviderFailureHint:
 _FAILURE_POLICY = {
     'local_configuration': ('infrastructure_error','host','Local Codex CLI is unavailable.',
         'Configure the pinned CLI 0.163.0 executable and retry.'),
+    'boundary_policy': ('infrastructure_error','host','The Codex read-boundary policy is missing, stale or could not be admitted.',
+        'Rerun scripts/setup_codex_boundary.py for the current worktree and set SILICON_CODEX_BOUNDARY_CONFIG to the generated policy.'),
     'local_authentication_or_version': ('infrastructure_error','host','Local Codex authentication or version check did not match.',
         'Verify CLI 0.163.0 and run codex login before retrying.'),
     'local_preflight_timeout': ('infrastructure_error','host','Local Codex version/login check timed out before a model request.',

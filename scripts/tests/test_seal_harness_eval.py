@@ -19,6 +19,7 @@ from scripts import seal_harness_eval as seal
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "backend/tests/fixtures/trusted_harness"
 SNAPSHOT_FILES = (
+    "eda/versions.env",
     "backend/app/__init__.py",
     "backend/app/eda/__init__.py",
     "backend/app/eda/verification.py",

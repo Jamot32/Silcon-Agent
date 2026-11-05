@@ -131,13 +131,19 @@ class Budget:
         if self.max_tokens is not None and self.total_tokens > self.max_tokens:
             raise BudgetExceeded("Model token budget exceeded")
 
-    def reserve(self) -> None:
-        """Reserve one provider attempt before sending it, including retries."""
+    def check_available(self) -> None:
+        """Reject an exhausted budget before waiting for or sending an attempt."""
         self.check()
+        if self._known_cost_usd >= self.max_usd:
+            raise BudgetExceeded("Model dollar budget exhausted")
         if self.calls >= self.max_calls:
             raise BudgetExceeded("Model call budget exhausted")
         if self.max_tokens is not None and self.total_tokens >= self.max_tokens:
             raise BudgetExceeded("Model token budget exhausted")
+
+    def reserve(self) -> None:
+        """Reserve one provider attempt before sending it, including retries."""
+        self.check_available()
         self.calls += 1
 
     def mark_unknown_cost(self) -> None:

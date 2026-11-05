@@ -63,7 +63,7 @@ def recover_flow(failure_class, *, attempts, remaining_flows, current,
             if measured_wns_ns is not None and measured_wns_ns < 0:
                 step = max(step, period + number(-measured_wns_ns) * Decimal('1.25'))
             proposed = min(step, slowest)
-            if proposed > period:
+            if float(proposed) > float(period):
                 return RecoveryPlan('relax_clock', {'CLOCK_PERIOD': float(proposed)},
                                     'Relax the timing constraint within the explicit user floor; retain the original target for comparison.',
                                     target_relaxed=True, retry=True)

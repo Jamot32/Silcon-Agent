@@ -91,7 +91,8 @@ def test_legacy_route_has_no_helper_mount_or_pythonpath_change(tmp_path, monkeyp
     result = asyncio.run(sandbox.run(["python3", "trusted-command.py"], input_dir=source, output_dir=output))
     assert result.ok and len(calls) == 1
     argv = calls[0]
-    assert "--mount" not in argv
+    assert argv.count("--mount") == 1
+    assert "target=/opt/silicon-agent/runtime.py" in argv[argv.index("--mount") + 1]
     assert not any("PYTHONPATH" in part or "/opt/silicon-python/sa_tb.py" in part for part in argv)
     assert f"{source}:/input:ro" in argv and f"{output}:/output" in argv
     assert argv[-3:] == ("local:legacy", "python3", "trusted-command.py")
@@ -166,10 +167,12 @@ def test_pinning_observes_local_id_without_mutating_legacy_sandbox(tmp_path, mon
         calls.append(args)
         return process
     monkeypatch.setattr(module.asyncio, "create_subprocess_exec", spawn)
-    legacy = module.DockerSandbox(image="local:mutable", pdk_dir=tmp_path / "same-pdk", user="987:654")
+    callback = lambda observation: None
+    legacy = module.DockerSandbox(image="local:mutable", pdk_dir=tmp_path / "same-pdk", user="987:654", completion_callback=callback)
     pinned, identity = asyncio.run(module.pin_sandbox_image(legacy))
     assert pinned is not legacy and legacy.image == "local:mutable"
     assert pinned.image == IMAGE_ID and pinned.user == legacy.user and pinned.pdk_dir == legacy.pdk_dir
+    assert pinned.completion_callback is callback
     assert calls == [("docker", "image", "inspect", "--format", "{{.Id}}", "local:mutable")]
     assert identity["reference"] == legacy.image and identity["image_id"] == IMAGE_ID
     assert identity["authority"] == "docker_image_inspect"
@@ -257,9 +260,10 @@ def test_helper_command_timeout_or_cancel_removes_only_owned_container_and_reaps
     asyncio.run(exercise())
     container_name = calls[0][calls[0].index("--name") + 1]
     assert calls[1] == ("docker", "rm", "-f", container_name)
-    assert len(calls) == 2 and command.kills == 1 and command.waits == 1
+    assert calls[2] == calls[1]
+    assert len(calls) == 3 and command.kills == 1 and command.waits == 1
     assert cleanup.kills == int(cleanup_blocked)
-    assert cleanup.waits == (2 if cleanup_blocked else 1)
+    assert cleanup.waits == (3 if cleanup_blocked else 2)
 
 
 def test_cleanup_spawn_failure_still_kills_and_reaps_command(tmp_path, monkeypatch):

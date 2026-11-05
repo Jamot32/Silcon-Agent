@@ -32,7 +32,7 @@ measurements or describe recorded/unit-test evidence as a live model result.
 STAGE_GOALS = {
     "SPEC": "Return only DesignSpec JSON matching the schema. Make each behavior testable and plan at least four tests covering normal operation and edge cases, plus synchronous reset for sequential designs.",
     "RTL": "Write RTL implementing the specification, then lint it with zero errors. You may read tests but cannot write them. If repairing a failure, record a hypothesis before changing RTL.",
-    "VERIFY": "Author independent cocotb tests from the specification before inspecting any implementation. Only read/write test/*.py; RTL is unavailable. Run at least four tests. Keep existing tests unchanged unless an explicit TEST_SPEC_CONTRADICTION note justifies a correction.",
+    "VERIFY": "Author independent cocotb tests from the specification before inspecting any implementation. Only read/write test/*.py; RTL is unavailable. Write the complete suite with at least four @cocotb.test cases in a single test/test_<top_module>.py file before calling run_tests. Pass its basename without .py as test_module. Each run executes only that module; passing counts from separate modules are not accumulated. Keep existing tests unchanged unless an explicit TEST_SPEC_CONTRADICTION note justifies a correction.",
     "REVIEW": "Wait for the user to review and edit the drafted DesignSpec and build configuration before any RTL is written.",
     "SYNTH": "Check actual Yosys cell statistics before physical design.",
     "FLOW": "Run the backend-controlled initial physical design and render its real layout.",
@@ -58,7 +58,7 @@ def stage_prompt(
     if stage == "OPTIMIZE" and first_optimization_round and isinstance(remaining_flows, int) and remaining_flows >= 3:
         clock = spec.targets.get("clock_mhz") if spec else None
         clock_instruction = (
-            f"Include CLOCK_PERIOD={1000 / float(clock):g} ns in all three variants to preserve the requested {float(clock):g} MHz. "
+            f"Include CLOCK_PERIOD={1000 / float(clock)!r} ns in all three variants to preserve the requested {float(clock):g} MHz. "
             if clock is not None else "Keep the initial clock target unchanged; do not override CLOCK_PERIOD. "
         )
         context["first_round_plan"] = (

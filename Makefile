@@ -59,10 +59,10 @@ golden-flow-check:
 	uv run --python 3.12 --with-requirements backend/requirements.txt python scripts/check_golden.py --flow
 
 llm-smoke: setup
-	PYTHONPATH=backend $(if $(CODEX_POLICY),SILICON_CODEX_BOUNDARY_CONFIG="$(CODEX_POLICY)") uv run --env-file .env --python 3.12 --with-requirements backend/requirements.txt python scripts/provider_smoke_test.py
+	RUNS_DIR="$(CURDIR)/runs" PYTHONPATH=backend $(if $(CODEX_POLICY),SILICON_CODEX_BOUNDARY_CONFIG="$(CODEX_POLICY)") uv run --env-file .env --python 3.12 --with-requirements backend/requirements.txt python scripts/provider_smoke_test.py
 
 meta-smoke: setup
-	uv run --env-file .env --python 3.11 --with-requirements scripts/requirements-smoke.txt python scripts/llm_smoke_test.py
+	RUNS_DIR="$(CURDIR)/runs" uv run --env-file .env --python 3.11 --with-requirements scripts/requirements-smoke.txt python scripts/llm_smoke_test.py
 
 logs:
 	docker compose logs -f --tail=100

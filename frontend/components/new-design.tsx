@@ -131,13 +131,13 @@ export function NewDesign() {
   return (
     <div className="mx-auto flex min-h-[calc(100svh-6.5rem)] w-full max-w-3xl flex-col gap-6 pb-[10vh]">
       <div className="flex flex-1 flex-col items-center justify-center gap-5">
-        <Logo className="size-28 text-neutral-400 opacity-40" strokeWidth={1.25} />
+        <Logo className="size-28 text-muted-foreground" strokeWidth={1.5} />
         <h1 className="text-2xl font-medium tracking-tight text-muted-foreground">Describe a chip. Get a real layout.</h1>
       </div>
       <form onSubmit={build} className="@container space-y-3" aria-labelledby="design-title">
         <h2 id="design-title" className="sr-only">Design specification</h2>
         {/* The stock group dims whenever a child is disabled; drive fade/glow from the prompt instead. */}
-        <InputGroup aria-busy={building} className={cn("rounded-2xl bg-card transition-[opacity,box-shadow,border-color] duration-300 has-disabled:bg-card dark:bg-card dark:has-disabled:bg-card", spec.trim() ? "border-ring/60 shadow-[0_0_32px_-6px_oklch(0_0_0/0.14)] dark:shadow-[0_0_32px_-6px_oklch(1_0_0/0.18)] has-disabled:opacity-100" : "opacity-60 shadow-none has-disabled:opacity-60 focus-within:opacity-100 focus-within:has-disabled:opacity-100")}>
+        <InputGroup aria-busy={building} className={cn("glass rounded-2xl bg-transparent transition-[opacity,box-shadow,border-color] duration-300 has-disabled:bg-transparent dark:bg-transparent dark:has-disabled:bg-transparent", spec.trim() ? "border-ring/60 shadow-[0_0_32px_-6px_oklch(0_0_0/0.14)] dark:shadow-[0_0_32px_-6px_oklch(1_0_0/0.18)] has-disabled:opacity-100" : "opacity-60 shadow-none has-disabled:opacity-60 focus-within:opacity-100 focus-within:has-disabled:opacity-100")}>
           <Label className="sr-only" htmlFor="design-spec">Describe your chip</Label>
           <InputGroupTextarea id="design-spec" className="min-h-28 px-4 pt-4 text-base leading-relaxed" value={spec} maxLength={maxSpecLength} disabled={building || !draftReady} aria-describedby="design-hint" onChange={(event) => editDraft({ spec: event.target.value, selectedPreset: undefined })} onKeyDown={(event) => { if (!event.nativeEvent.isComposing && event.key === "Enter" && (event.metaKey || event.ctrlKey)) { event.preventDefault(); if (flowError) setBuildError(flowError); else event.currentTarget.form?.requestSubmit(); } }} spellCheck={false} placeholder="An 8-bit counter with enable and synchronous reset…" />
           <InputGroupAddon align="block-end" className="flex-wrap items-center gap-3 border-t px-3 pt-2.5">
@@ -164,7 +164,7 @@ export function NewDesign() {
           <p className="w-full" role="status">{draftError || draftMessage}</p>
         </div>
         {buildError ? <Alert variant="destructive"><CircleAlert /><AlertDescription>{buildError}</AlertDescription></Alert> : null}
-        <details className="rounded-lg border px-3 py-2">
+        <details className="glass rounded-lg border px-3 py-2">
           <summary className="cursor-pointer rounded-sm text-xs font-medium focus-visible:outline-2 focus-visible:outline-ring">Configure physical flow{draft.build ? " · customized" : ""}{flowError ? " · needs attention" : ""}</summary>
           <div className="pt-3"><BuildSettings value={flowDraft} disabled={building || !draftReady} onChange={(build) => editDraft({ build })} /></div>
         </details>
@@ -177,7 +177,7 @@ export function NewDesign() {
         <ul className="flex flex-wrap items-center justify-center gap-2" aria-live="polite">
           {checks.map((check) => <li key={check.name}>
             <Popover>
-              <PopoverTrigger asChild><Button type="button" variant="outline" size="sm" className="check-row rounded-full text-xs" aria-label={`${check.name}: ${check.label}. Show details`}>
+              <PopoverTrigger asChild><Button type="button" variant="outline" size="sm" className="check-row glass rounded-full bg-transparent text-xs dark:bg-transparent" aria-label={`${check.name}: ${check.label}. Show details`}>
                 <span className={check.ready ? "size-1.5 rounded-full bg-success" : "size-1.5 rounded-full bg-muted-foreground"} aria-hidden="true" />
                 <span className="font-medium">{check.name}</span><span className="text-muted-foreground">{check.label}</span>
               </Button></PopoverTrigger>

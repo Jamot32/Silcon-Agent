@@ -19,8 +19,17 @@ from uuid import uuid4
 from pydantic import JsonValue
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-IMAGE = "silicon-agent-eda:librelane-3.0.16-cocotb-2.0.1-tools2"
-PDK_REVISION = "8afc8346a57fe1ab7934ba5a6056ea8b43078e71"
+
+
+def _versions(path: Path) -> dict[str, str]:
+    return {key: value for line in path.read_text().splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+            for key, separator, value in [line.partition("=")] if separator}
+
+
+_PINNED_VERSIONS = _versions(REPO_ROOT / "eda/versions.env")
+IMAGE = _PINNED_VERSIONS["EDA_IMAGE"]
+PDK_REVISION = _PINNED_VERSIONS["SKY130_REVISION"]
 TAIL_BYTES = 8192
 MAX_JSON_BYTES = 2 * 1024 * 1024
 # tool.log bound: ~40x the largest observed real LibreLane log (~390 KB) and half of
@@ -123,21 +132,27 @@ async def _stop(name: str, process: asyncio.subprocess.Process, log: BinaryIO) -
         while await process.stdout.read(_READ_CHUNK):
             pass
     drain = asyncio.create_task(discard())
-    try:
-        cleanup = await asyncio.create_subprocess_exec("docker", "rm", "-f", name, stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
+    async def remove() -> None:
         try:
-            await asyncio.wait_for(cleanup.wait(), 10)
-        except TimeoutError:
-            cleanup.kill()
-            await cleanup.wait()
-            log.write(b"\nDocker cleanup timed out; daemon must be checked.\n")
-    except OSError as cleanup_error:
-        log.write(f"\nDocker cleanup could not launch: {cleanup_error}\n".encode())
+            cleanup = await asyncio.create_subprocess_exec("docker", "rm", "-f", name, stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.DEVNULL)
+            try:
+                await asyncio.wait_for(cleanup.wait(), 10)
+            except TimeoutError:
+                cleanup.kill()
+                await cleanup.wait()
+                log.write(b"\nDocker cleanup timed out; daemon must be checked.\n")
+        except OSError as cleanup_error:
+            log.write(f"\nDocker cleanup could not launch: {cleanup_error}\n".encode())
+    try:
+        await remove()
     finally:
         if process.returncode is None:
             process.kill()
         await drain
         await process.wait()
+        # An early cancellation can race Docker's create request. Recheck only
+        # after its client has exited, so a late-created container is removed.
+        await remove()
 
 
 class DockerSandbox:
@@ -186,6 +201,12 @@ class DockerSandbox:
                 "target=/opt/silicon-python/sa_tb.py", "readonly",
             ])
             args += ["--mount", mount.getvalue()]
+        runtime_mount = io.StringIO()
+        csv.writer(runtime_mount, lineterminator="").writerow([
+            "type=bind", f"source={REPO_ROOT / 'eda/runtime.py'}",
+            "target=/opt/silicon-agent/runtime.py", "readonly",
+        ])
+        args += ["--mount", runtime_mount.getvalue()]
         args += [self.image, *command]
         path = output_dir / "tool.log"
         timed_out = output_limit_exceeded = False
@@ -240,7 +261,8 @@ async def pin_sandbox_image(sandbox: DockerSandbox) -> tuple[DockerSandbox, dict
         raise ValueError("Docker inspection did not return an immutable EDA image ID")
     identity = {"reference": reference, "image_id": image_id,
                 "authority": "docker_image_inspect", "observed_at": datetime.now(timezone.utc).isoformat()}
-    return DockerSandbox(image=image_id, pdk_dir=sandbox.pdk_dir, user=sandbox.user), identity
+    return DockerSandbox(image=image_id, pdk_dir=sandbox.pdk_dir, user=sandbox.user,
+                         completion_callback=sandbox.completion_callback), identity
 
 
 async def run_runtime(sandbox: DockerSandbox, kind: str, *, input_dir: Path, output_dir: Path, top: str, extra: list[str] | None = None, timeout: float = 60, require_pdk: bool = False, trusted_test_helper: Path | None = None) -> dict[str, JsonValue]:

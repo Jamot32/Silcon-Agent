@@ -24,6 +24,7 @@ SECRET = 'PRIVATE_PROVIDER_AUTH_PROMPT_VALUE_MUST_NOT_ESCAPE'
     ('context_overflow','context_overflow','context'),('native_tool_violation','llm_bad_tool_call','proposal'),
     ('observer_failure','observability_incomplete','observability'),
     ('local_configuration','infrastructure_error','host'),
+    ('boundary_policy','infrastructure_error','host'),
     ('local_authentication_or_version','infrastructure_error','host'),
     ('local_preflight_timeout','infrastructure_error','host'),('local_launch_failure','infrastructure_error','host'),
     ('invalid_retry_configuration','infrastructure_error','host'),

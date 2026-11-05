@@ -17,6 +17,7 @@ from uuid import uuid4
 
 ROOT = Path(__file__).resolve().parents[1]
 STOP_GRACE_SECONDS = 40
+STARTUP_TIMEOUT_SECONDS = 15
 
 
 def _owned(metadata: dict, root: Path) -> bool:
@@ -90,6 +91,7 @@ def start(root: Path, *, codex_policy: str | None = None) -> int:
     # Provider selection/admission happens in the actual child factory after uv
     # loads .env; stale Codex locators never block the ordinary Meta branch here.
     token = uuid4().hex
+    (root / "worker.ready").unlink(missing_ok=True)
     args = [uv, "run", "--env-file", str(ROOT / ".env"), "--python", "3.12", "--with-requirements", str(ROOT / "backend/requirements.txt"),
             "python", "-m", "app.worker", "--runs-dir", str(root), "--owner-token", token]
     env = {**os.environ, "PYTHONPATH": str(ROOT / "backend")}
@@ -100,12 +102,21 @@ def start(root: Path, *, codex_policy: str | None = None) -> int:
     metadata = {"pid": process.pid, "token": token, "runs_dir": str(root)}
     (root / "worker.json").write_text(json.dumps(metadata) + "\n")
     (root / "worker.pid").write_text(f"{process.pid}\n")
-    time.sleep(0.2)
-    if process.poll() is not None:
-        print("Host worker exited during startup; inspect runs/worker.log.")
-        return 1
-    print(f"Host worker started (PID {process.pid}); log: {root / 'worker.log'}")
-    return 0
+    deadline = time.monotonic() + STARTUP_TIMEOUT_SECONDS
+    while time.monotonic() < deadline:
+        if process.poll() is not None:
+            print("Host worker exited during startup; inspect runs/worker.log.")
+            return 1
+        try:
+            ready = json.loads((root / "worker.ready").read_text())
+        except (OSError, ValueError):
+            ready = {}
+        if ready.get("token") == token and type(ready.get("pid")) is int:
+            print(f"Host worker started (PID {ready['pid']}); log: {root / 'worker.log'}")
+            return 0
+        time.sleep(0.1)
+    print("Host worker has not confirmed startup; inspect runs/worker.log.")
+    return 1
 
 
 def stop(root: Path) -> int:
@@ -122,7 +133,7 @@ def stop(root: Path) -> int:
         os.kill(target, signal.SIGTERM)
     except ProcessLookupError:
         pass
-    # Allow bounded worker RPC settlement (5s), EDA removal (10s), and the
+    # Allow bounded worker RPC settlement (5s), two EDA removals (20s), and the
     # terminal write to finish before the process-group fallback is necessary.
     deadline = time.monotonic() + STOP_GRACE_SECONDS
     while _owned(metadata, root) and time.monotonic() < deadline:
@@ -131,6 +142,7 @@ def stop(root: Path) -> int:
         os.killpg(pid, signal.SIGKILL)
     (root / "worker.pid").unlink(missing_ok=True)
     (root / "worker.json").unlink(missing_ok=True)
+    (root / "worker.ready").unlink(missing_ok=True)
     print("Host worker stopped.")
     return 0
 

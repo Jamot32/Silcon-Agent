@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import re
 import secrets
+import tempfile
 from typing import Literal
 
 import httpx
@@ -29,21 +30,32 @@ class RunClaimConflict(RemoteStoreError):
 def load_worker_id(root: Path) -> str:
     """Return this runs directory's stable worker identity, creating it once with owner-only access."""
     path = root / "worker.id"
-    try:
-        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
-    except FileExistsError:
+    def existing() -> str:
         descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
         with os.fdopen(descriptor, "r", encoding="ascii", errors="replace") as handle:
             value = handle.read(64)
         if not RUN_ID.match(value):
             raise ValueError(f"{path} must contain exactly 32 lowercase hexadecimal characters") from None
         return value
+    try:
+        return existing()
+    except FileNotFoundError:
+        pass
     value = secrets.token_hex(16)
-    with os.fdopen(descriptor, "w", encoding="ascii") as handle:
-        handle.write(value)
-        handle.flush()
-        os.fsync(handle.fileno())
-    return value
+    descriptor, temporary = tempfile.mkstemp(prefix=".worker-id-", dir=root)
+    try:
+        with os.fdopen(descriptor, "w", encoding="ascii") as handle:
+            handle.write(value)
+            handle.flush()
+            os.fsync(handle.fileno())
+        try:
+            # Publish complete bytes without replacing a concurrent worker's ID.
+            os.link(temporary, path, follow_symlinks=False)
+        except FileExistsError:
+            return existing()
+        return value
+    finally:
+        os.unlink(temporary)
 
 
 class HTTPRunStore:

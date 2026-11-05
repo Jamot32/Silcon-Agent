@@ -190,6 +190,11 @@ class Worker:
             work_dir = await self._call(self.store.work_dir, run.id)
             if self.observer_factory is not None:
                 observer = self.observer_factory(work_dir, run.id)
+            if self.stop_event.is_set():
+                acknowledgement = await self._terminal_call(terminal_write, self.store.fail, run.id, "Worker stopped before execution")
+                terminal_status, terminal_class, store_confirmed = self._terminal_result(
+                    acknowledgement, run.id, "failed", None)
+                return
             if run.is_replay:
                 self.current_task = asyncio.create_task(self._replay(run))
                 terminal_status, terminal_class, store_confirmed = await self._complete_task(run, observer=observer, terminal_write=terminal_write)
@@ -200,7 +205,7 @@ class Worker:
             if not manual:
                 if run.llm_provider != os.getenv("LLM_PROVIDER", "codex"):
                     raise LLMError("Queued provider does not match the worker configuration; restart with the selected LLM_PROVIDER")
-                llm = create_llm(run_work_dir=work_dir)
+                llm = await asyncio.to_thread(create_llm, run_work_dir=work_dir)
                 if observer is not None:
                     observer.configure_llm(llm, run.llm_provider)
             orchestrator: Orchestrator | ManualBuild
@@ -409,7 +414,7 @@ class Worker:
         return await play_recording(recording, run.id, run.replay_speed, work, emit=emit, register=register)
 
 
-async def _serve(store: WorkerStore) -> None:
+async def _serve(store: WorkerStore, *, owner_token: str = "manual") -> None:
     worker = Worker(store)
     loop = asyncio.get_running_loop()
     for signum in (signal.SIGTERM, signal.SIGINT):
@@ -427,10 +432,17 @@ async def _serve(store: WorkerStore) -> None:
     # Probe only on the host; API/EDA containers never receive OAuth or CLI output.
     reporter = asyncio.create_task(report_subscriptions())
     try:
+        # The launcher waits for initialized Python worker code, rather than
+        # treating a still-running uv dependency resolver as a ready worker.
+        ready = store.root / "worker.ready"
+        temporary = store.root / f".worker-ready-{os.getpid()}"
+        temporary.write_text(json.dumps({"pid": os.getpid(), "token": owner_token}) + "\n")
+        temporary.replace(ready)
         await worker.run()
     finally:
         worker.stop_event.set()
         await reporter
+        (store.root / "worker.ready").unlink(missing_ok=True)
 
 
 def main() -> int:
@@ -452,7 +464,7 @@ def main() -> int:
             return 2
         store = HTTPRunStore(root)
         try:
-            asyncio.run(_serve(store))
+            asyncio.run(_serve(store, owner_token=options.owner_token))
         finally:
             store.close()
     return 0

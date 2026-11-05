@@ -69,7 +69,7 @@ export function AppSidebar() {
   // Filed runs live under their project folder instead of Recent.
   const recent = runs.filter((run) => !run.pinned && !run.archived && !run.project_id).slice(0, 12);
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="[&>[data-slot=sidebar-inner]]:glass [&>[data-slot=sidebar-inner]]:bg-transparent [&>[data-slot=sidebar-inner]]:[--glass-blur:2px] [&>[data-slot=sidebar-inner]]:[--glass-tint:15%]">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

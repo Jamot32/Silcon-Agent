@@ -97,7 +97,7 @@ def test_meta_request_replays_tool_history_and_never_streams(sdk):
     assert request["tool_choice"] == "auto"
     assert request["parallel_tool_calls"] is True
     assert "stream" not in request
-    assert request["max_completion_tokens"] == 4096
+    assert request["max_completion_tokens"] == 16384
     assert request["reasoning_effort"] == "medium"
     history_call = request["messages"][1]["tool_calls"][0]
     assert json.loads(history_call["function"]["arguments"]) == {"a": 2, "b": 3}
@@ -115,6 +115,66 @@ def test_meta_without_tools_omits_tool_parameters(sdk):
     assert not {"tools", "tool_choice", "parallel_tool_calls"}.intersection(request)
     assert result.content == '{"top_module":"counter"}'
     assert result.tool_calls == []
+
+
+@pytest.mark.parametrize("partial_tool", [None, '{"a":', '{"a":2,"b":3}'])
+def test_meta_retries_length_limited_responses_before_returning_any_tools(sdk, partial_tool):
+    truncated = sdk_response(arguments=partial_tool or '{}')
+    truncated.choices[0].finish_reason = "length"
+    if partial_tool is None:
+        truncated.choices[0].message.tool_calls = None
+    truncated.usage.completion_tokens = 16384
+    truncated.usage.total_tokens = 16484
+    sdk.chat.completions.create.side_effect = [truncated, sdk_response()]
+    budget = Budget()
+
+    result = asyncio.run(MetaLLM(client=sdk, budget=budget).complete(MESSAGES, [ADD]))
+
+    assert result.tool_calls[0].arguments == {"a": 2, "b": 3}
+    assert [request.kwargs["max_completion_tokens"] for request in sdk.chat.completions.create.call_args_list] == [16384, 32768]
+    assert budget.calls == 2 and budget.output_tokens == 16394
+
+
+def test_meta_stops_with_a_precise_error_when_the_larger_response_is_also_truncated(sdk):
+    truncated = sdk_response()
+    truncated.choices[0].finish_reason = "length"
+    truncated.choices[0].message.tool_calls = None
+    sdk.chat.completions.create.return_value = truncated
+    budget = Budget()
+
+    with pytest.raises(LLMError, match="output limit"):
+        asyncio.run(MetaLLM(client=sdk, budget=budget).complete(MESSAGES, [ADD]))
+
+    assert sdk.chat.completions.create.await_count == 2
+    assert budget.calls == 2 and budget.output_tokens == 20
+
+
+def test_meta_output_retry_respects_the_existing_run_budget(sdk):
+    truncated = sdk_response()
+    truncated.choices[0].finish_reason = "length"
+    truncated.choices[0].message.tool_calls = None
+    sdk.chat.completions.create.return_value = truncated
+    budget = Budget(max_calls=1)
+
+    with pytest.raises(BudgetExceeded, match="call"):
+        asyncio.run(MetaLLM(client=sdk, budget=budget).complete(MESSAGES, [ADD]))
+
+    assert sdk.chat.completions.create.await_count == 1
+    assert budget.output_tokens == 10
+
+
+def test_meta_does_not_return_an_empty_stopped_response_as_a_successful_turn(sdk):
+    empty = sdk_response()
+    empty.choices[0].finish_reason = "stop"
+    empty.choices[0].message.tool_calls = None
+    sdk.chat.completions.create.return_value = empty
+    budget = Budget()
+
+    with pytest.raises(LLMError, match="empty completion"):
+        asyncio.run(MetaLLM(client=sdk, budget=budget).complete(MESSAGES, [ADD]))
+
+    assert sdk.chat.completions.create.await_count == 1
+    assert budget.output_tokens == 10
 
 
 def test_meta_retries_rate_limit_and_server_errors(sdk, monkeypatch):
@@ -136,6 +196,15 @@ def test_meta_honors_retry_after(sdk, monkeypatch):
     monkeypatch.setattr(meta_client.asyncio, "sleep", sleep)
     asyncio.run(MetaLLM(client=sdk).complete(MESSAGES, [ADD]))
     sleep.assert_awaited_once_with(7.5)
+
+
+@pytest.mark.parametrize("header", ["36000", "1e100", "Wed, 01 Jan 2098 00:00:00 GMT"])
+def test_meta_caps_retry_after(sdk, monkeypatch, header):
+    sdk.chat.completions.create.side_effect = [sdk_error(429, retry_after=header), sdk_response()]
+    sleep = AsyncMock()
+    monkeypatch.setattr(meta_client.asyncio, "sleep", sleep)
+    asyncio.run(MetaLLM(client=sdk).complete(MESSAGES, [ADD]))
+    sleep.assert_awaited_once_with(30.0)
 
 
 def test_meta_stops_after_five_retries(sdk, monkeypatch):
@@ -218,10 +287,23 @@ def test_budget_stops_future_calls_after_dollar_limit(sdk):
 
 def test_budget_limits_retry_attempts(sdk, monkeypatch):
     sdk.chat.completions.create.side_effect = sdk_error(429)
-    monkeypatch.setattr(meta_client.asyncio, "sleep", AsyncMock())
+    sleep = AsyncMock()
+    monkeypatch.setattr(meta_client.asyncio, "sleep", sleep)
     with pytest.raises(BudgetExceeded, match="call"):
         asyncio.run(MetaLLM(client=sdk, budget=Budget(max_calls=1)).complete(MESSAGES, [ADD]))
     assert sdk.chat.completions.create.await_count == 1
+    sleep.assert_not_awaited()
+
+
+@pytest.mark.parametrize("at_limit", [False, True])
+def test_dollar_budget_at_zero_or_exact_limit_prevents_next_request(sdk, at_limit):
+    budget = Budget(max_usd=1.0 if at_limit else 0.0)
+    if at_limit:
+        budget.record(scripted_completion(cost_usd=1.0))
+    with pytest.raises(BudgetExceeded, match="dollar"):
+        asyncio.run(MetaLLM(client=sdk, budget=budget).complete(MESSAGES, [ADD]))
+    sdk.chat.completions.create.assert_not_awaited()
+    assert budget.calls == 0
 
 
 def test_unknown_plan_cost_is_none_and_token_budget_still_applies():

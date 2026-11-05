@@ -22,6 +22,7 @@ from app.llm.types import ToolCall
 from app.models import Metric
 from app.observability import RunObserver
 from app.packaging import validate_bundle
+from app.remote_store import RemoteStoreError
 from app.schemas import BuildConfig, DesignSpec, Outcome
 from app.workspace import validate_files
 
@@ -173,6 +174,8 @@ class ManualBuild:
             return Outcome(status="done", design_spec=self.design_spec, best_run_tag=tag,
                 tapeout_ready=False, block_signoff_clean=True,
                 summary=f"Manual build {tag}; {target_status}. Your RTL and tests are unchanged. DRC, LVS and routed gate-level tests passed. Tiny Tapeout wrapper and shuttle integration require separate verification.")
+        except RemoteStoreError:
+            raise
         except Exception as error:
             if isinstance(error, ValidationError):
                 first = error.errors(include_input=False)[0]

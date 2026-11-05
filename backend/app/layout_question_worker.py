@@ -56,7 +56,7 @@ async def execute_layout_question(worker, job):
             return
         if worker.stop_event.is_set() or current.cancel_requested:
             raise asyncio.CancelledError()
-        llm = create_llm(budget=budget, run_work_dir=work_dir)
+        llm = await asyncio.to_thread(create_llm, budget=budget, run_work_dir=work_dir)
         messages = [Message(role="system", content=INSTRUCTION), Message(role="user", images=images,
             content=json.dumps({"question": job.question, "region": region.model_dump(mode="json"),
                                 "recorded_evidence": evidence}, ensure_ascii=False))]
