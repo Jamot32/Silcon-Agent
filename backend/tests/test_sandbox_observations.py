@@ -145,7 +145,7 @@ def test_timeout_retains_one_launched_observation_even_if_cleanup_cannot_launch(
     observations = []
     result = asyncio.run(DockerSandbox(image=IMAGE, completion_callback=observations.append).run(
         COMMAND, input_dir=source, output_dir=output, timeout=0.001))
-    assert len(calls) == 2
+    assert len(calls) == 3
     assert calls[1][:3] == ("docker", "rm", "-f")
     assert len(observations) == 1  # Cleanup is not a second EDA command.
     assert process.killed
@@ -173,7 +173,7 @@ def test_cancellation_observes_launched_process_before_reraising(
             await task
 
     asyncio.run(exercise())
-    assert len(calls) == 2
+    assert len(calls) == 3
     assert len(observations) == 1
     assert process.killed
     check_observation(observations[0], source, output, launched=True,
@@ -205,7 +205,8 @@ def test_optional_callback_preserves_default_docker_argv(tmp_path, monkeypatch):
     assert "--read-only" in args
     assert f"{source.resolve()}:/input:ro" in args
     assert f"{output.resolve()}:/output" in args
-    assert "--mount" not in args
+    assert args.count("--mount") == 1
+    assert "target=/opt/silicon-agent/runtime.py" in args[args.index("--mount") + 1]
     assert args[args.index("--ulimit") + 1] == f"fsize={sandbox_module.MAX_CONTAINER_FILE_BYTES}"
     assert observations[0].command == tuple(COMMAND)  # No Docker/env discovery exposure.
 
@@ -230,7 +231,7 @@ def test_endless_output_is_capped_and_container_removed(tmp_path, monkeypatch):
                                       "lint", input_dir=source, output_dir=output, top="unit"))
     assert process.stdout.streamed > MAX_TOOL_LOG_BYTES
     assert calls[1] == ("docker", "rm", "-f", calls[0][calls[0].index("--name") + 1])
-    assert len(calls) == 2 and process.killed
+    assert len(calls) == 3 and process.killed
     log = (output / "tool.log").read_bytes()
     assert log == b"y" * MAX_TOOL_LOG_BYTES + f"\n[{OUTPUT_LIMIT_ERROR}]\n".encode()
     assert len(log) <= MAX_LOG_BYTES  # Still capturable as tool evidence.

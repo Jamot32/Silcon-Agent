@@ -13,4 +13,6 @@ frontend/tsconfig.tsbuildinfo
 .pdk/
 .cache/
 .artifacts/
+# Generated local code analysis, including machine paths and caches.
+/graphify-out/
 .DS_Store

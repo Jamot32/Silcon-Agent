@@ -396,18 +396,18 @@ class CodexCLIClient:
     @staticmethod
     def _validate_boundary(boundary):
         if type(boundary) is not CodexReadBoundary:
-            raise ProviderError("local_configuration")
+            raise ProviderError("boundary_policy")
         try:
             boundary.command(("/usr/bin/true",))
         except ReadBoundaryError:
-            raise ProviderError("local_configuration") from None
+            raise ProviderError("boundary_policy") from None
 
     async def _spawn(self, args, env, boundary, *, stdin, limit=None):
         self._validate_boundary(boundary)
         try:
             plan = boundary.command(args)
         except ReadBoundaryError:
-            raise ProviderError("local_configuration") from None
+            raise ProviderError("boundary_policy") from None
         kwargs = {"stdin": stdin, "stdout": asyncio.subprocess.PIPE,
             "stderr": asyncio.subprocess.PIPE, "env": env, "cwd": plan.cwd,
             "close_fds": True, "start_new_session": True}
@@ -442,12 +442,12 @@ class CodexCLIClient:
     async def complete(self, messages, tools, options: RequestOptions | None = None):
         policy = self.launch_policy
         if type(policy) is not CodexLaunchPolicy:
-            raise ProviderError("local_configuration")
+            raise ProviderError("boundary_policy")
         try:
             with policy.open_boundary() as boundary:
                 return await self._complete_in_boundary(messages, tools, options, boundary)
         except ReadBoundaryError:
-            raise ProviderError("local_configuration") from None
+            raise ProviderError("boundary_policy") from None
 
     async def _complete_in_boundary(self, messages, tools, options, boundary):
         # Capture client configuration and inputs before any await. Per-call
@@ -518,7 +518,7 @@ class CodexCLIClient:
                     # existing invocation schema, never paths from a prompt.
                     roots = (boundary.original_project_root, *boundary.worktree_roots, *boundary.additional_archive_roots)
                     if any(workdir.resolve().is_relative_to(Path(root)) for root in roots):
-                        raise ProviderError("local_configuration")
+                        raise ProviderError("boundary_policy")
                     schema = workdir / "proposal.schema.json"
                     schema.write_text(json.dumps(proposal_schema(definitions)))
                     args = build_command(executable, model, workdir, schema, options)

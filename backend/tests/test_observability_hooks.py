@@ -262,7 +262,7 @@ def test_tool_runner_command_and_policy_paths_are_traced_and_do_not_clear_blocke
                         physical_planner_factory=Planner, observer=observer)
     async def run():
         await runner.configure_physics(None)
-        async def dispatch(name, arguments):
+        async def dispatch(name, arguments, *, flow_index=None):
             runner.eda.sandbox.completion_callback(synthetic_observation(tmp_path))
             return {"ok": False, "error": "SYNTHETIC flow failure"}
         runner._dispatch = dispatch
@@ -328,7 +328,7 @@ def test_tool_evidence_finalizer_cannot_replace_actual_cancellation(tmp_path):
     observer = RunObserver(tmp_path, RUN, writer=MemoryWriter())
     runner = ToolRunner(tmp_path, RUN, observer=observer)
     runner.evidence = BrokenFinalizer()
-    async def cancelled(name, arguments):
+    async def cancelled(name, arguments, *, flow_index=None):
         raise primary
     runner._dispatch = cancelled
     with pytest.raises(asyncio.CancelledError) as caught:

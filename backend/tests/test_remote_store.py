@@ -238,8 +238,9 @@ def test_worker_main_uses_http_store_without_creating_sqlite(tmp_path, monkeypat
         def close(self):
             closed.append(True)
 
-    async def serve(store):
+    async def serve(store, *, owner_token):
         assert isinstance(store, UnitRemote)
+        assert owner_token == "manual"
 
     monkeypatch.setattr(remote_store, "HTTPRunStore", UnitRemote)
     monkeypatch.setattr(worker, "_serve", serve)

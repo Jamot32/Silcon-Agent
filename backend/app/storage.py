@@ -68,6 +68,7 @@ class RunStore(LayoutQuestionStore):
         self.root = root.resolve()
         self.root.mkdir(parents=True, exist_ok=True)
         self._projection_lock = threading.RLock()
+        self._projection_cursors: dict[str, tuple[int, int, int]] = {}
         self._deletion_lock = threading.Lock()
         self.engine = engine or create_engine(database_url or f"sqlite:///{self.root}/silicon-agent.db", connect_args={"check_same_thread": False, "timeout": 30})
         if self.engine.dialect.name == "sqlite":
@@ -94,7 +95,10 @@ class RunStore(LayoutQuestionStore):
         with Session(self.engine) as session:
             run_ids = list(session.exec(select(Run.id)).all())
         for run_id in run_ids:
-            self.project(run_id)
+            try:
+                self.project(run_id)
+            except Exception:
+                logger.exception("Run %s projection recovery failed", run_id)
 
     def _migrate_bootstrap(self, connection) -> None:
         # Additive migration from the M0-M4 schema; no recorded run is discarded.
@@ -160,35 +164,103 @@ class RunStore(LayoutQuestionStore):
                                recording_id=recording_id, replay_speed=speed,
                                build=source.build_config.model_dump(mode="json") if source.build_config is not None else None)
 
+    @staticmethod
+    def _write_projection(path: Path, contents: str) -> None:
+        temporary_name = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent, delete=False) as temporary:
+                temporary_name = temporary.name
+                temporary.write(contents)
+                temporary.flush()
+                os.fsync(temporary.fileno())
+            os.replace(temporary_name, path)
+        finally:
+            if temporary_name is not None:
+                Path(temporary_name).unlink(missing_ok=True)
+
+    def _projected_event_id(self, path: Path) -> int | None:
+        """Read the final complete line once; a torn append requires a full rebuild."""
+        if not path.exists():
+            return 0
+        stat = path.stat()
+        size = stat.st_size
+        cached = self._projection_cursors.get(path.parent.name)
+        if cached is not None and cached[:2] == (size, stat.st_mtime_ns):
+            return cached[2]
+        if not size:
+            return 0
+        with path.open("rb") as stream:
+            length = min(size, 4096)
+            while True:
+                stream.seek(size - length)
+                tail = stream.read()
+                if not tail.endswith(b"\n"):
+                    return None
+                # Include the preceding newline, even when the last event is large.
+                if length == size or b"\n" in tail[:-1]:
+                    break
+                length = min(size, length * 2)
+        try:
+            value = json.loads(tail.splitlines()[-1])
+            event_id = value["id"]
+            return event_id if type(event_id) is int and event_id > 0 else None
+        except (ValueError, KeyError, TypeError):
+            return None
+
     def project(self, run_id: str) -> None:
-        """Rewrite bounded projections atomically; the database remains authoritative."""
+        """Append committed events and replace only changed summary projections."""
         from app.api_schemas import PublicRun
 
         with self._projection_lock:
+            directory = self.root / run_id
+            if directory.is_symlink() or not directory.resolve().is_relative_to(self.root):
+                raise ValueError("Unsafe run projection directory")
+            for name in ("run.json", "metrics.json", "events.jsonl"):
+                if (directory / name).is_symlink():
+                    raise ValueError("Unsafe run projection file")
+            event_path = directory / "events.jsonl"
+            cursor = self._projected_event_id(event_path)
             with Session(self.engine) as session:
                 run = session.get(Run, run_id)
                 if run is None:
                     raise KeyError(run_id)
-                events = session.exec(select(Event).where(Event.run_id == run_id).order_by(Event.id)).all()
+                events = session.exec(select(Event).where(Event.run_id == run_id, Event.id > (cursor or 0)).order_by(Event.id)).all()
                 metrics = session.exec(select(Metric).where(Metric.run_id == run_id).order_by(Metric.flow_index)).all()
                 values = {
                     "run.json": json_text(PublicRun.from_run(run).model_dump(mode="json")) + "\n",
                     "metrics.json": json_text([metric.model_dump(mode="json") for metric in metrics]) + "\n",
-                    "events.jsonl": "".join(json_text({"id": event.id, "ts": event.ts.isoformat(), "type": event.type,
-                                                     "payload": json.loads(event.payload_json)}) + "\n" for event in events),
                 }
-            directory = self.root / run_id
-            if directory.is_symlink() or not directory.resolve().is_relative_to(self.root):
-                raise ValueError("Unsafe run projection directory")
             directory.mkdir(exist_ok=True)
             for name, contents in values.items():
-                if (directory / name).is_symlink():
-                    raise ValueError("Unsafe run projection file")
-                with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=directory, delete=False) as temporary:
-                    temporary.write(contents)
-                    temporary.flush()
-                    os.fsync(temporary.fileno())
-                os.replace(temporary.name, directory / name)
+                path = directory / name
+                if not path.exists() or path.read_text(encoding="utf-8") != contents:
+                    self._write_projection(path, contents)
+            contents = "".join(
+                '{"id":' + str(event.id) + ',"ts":' + json_text(event.ts.isoformat())
+                + ',"type":' + json_text(event.type) + ',"payload":' + event.payload_json + '}\n'
+                for event in events
+            )
+            try:
+                if cursor is None:
+                    self._write_projection(event_path, contents)
+                elif contents or not event_path.exists():
+                    with event_path.open("a", encoding="utf-8") as stream:
+                        stream.write(contents)
+                        stream.flush()
+                        os.fsync(stream.fileno())
+                last_id = events[-1].id if events else (cursor or 0)
+                stat = event_path.stat()
+                self._projection_cursors[run_id] = (stat.st_size, stat.st_mtime_ns, last_id)
+            except Exception:
+                self._projection_cursors.pop(run_id, None)
+                raise
+
+    def _project_committed(self, run_id: str, operation: str) -> None:
+        """A projection failure cannot undo the authoritative transaction."""
+        try:
+            self.project(run_id)
+        except Exception:
+            logger.exception("Run %s %s committed but projection failed", run_id, operation)
 
     def submit_review(self, run_id: str, answer: dict[str, JsonValue]) -> Run:
         """Accept one review answer, only while the orchestrator is waiting at REVIEW."""
@@ -329,9 +401,9 @@ class RunStore(LayoutQuestionStore):
                 session.delete(project)
                 session.commit()
                 released_ids = [run.id for run in released]
-            for run_id in released_ids:
-                self.project(run_id)
-            return released_ids
+        for run_id in released_ids:
+            self._project_committed(run_id, "folder deletion")
+        return released_ids
 
     def move_runs(self, run_ids: list[str], project_id: str | None) -> list[Run]:
         """Move every listed run atomically; one missing run or project changes nothing."""
@@ -349,9 +421,9 @@ class RunStore(LayoutQuestionStore):
                     run.project_id = project_id
                     session.add(run)
                 session.commit()
-            for run in runs:
-                self.project(run.id)
-            return runs
+        for run in runs:
+            self._project_committed(run.id, "folder move")
+        return runs
 
     def _deletion_directory(self, run_id: str) -> Path:
         if re.fullmatch(r"[0-9a-f]{32}", run_id) is None:
@@ -449,8 +521,8 @@ class RunStore(LayoutQuestionStore):
                         if session.get(RunDeletion, run_id) is None:
                             session.add(RunDeletion(run_id=run_id))
                     session.commit()
-            for child_id in children:
-                self.project(child_id)
+        for child_id in children:
+            self._project_committed(child_id, "parent deletion")
         purged: list[str] = []
         for run_id in deleted:
             try:
@@ -536,7 +608,7 @@ class RunStore(LayoutQuestionStore):
             session.add(run)
             session.add(Event(run_id=run_id, type=event_type, payload_json=encoded))
             session.commit()
-        self.project(run_id)
+        self._project_committed(run_id, "event")
 
     def events(self, run_id: str, after: int = 0, limit: int = 100) -> list[Event]:
         with Session(self.engine) as session:

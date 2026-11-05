@@ -25,6 +25,7 @@ from app.eda.sim import GATE_LEVEL_MAX_TIMEOUT, apply_gate_level
 from app.eda import harness
 from app.eda.verification import capture_harness_proof, validate_proof
 from app.llm.types import ToolCall, ToolDefinition
+from app.remote_store import RemoteStoreError
 from app.schemas import DesignSpec
 from app.observability import RunObserver
 from app.observability.integration import Integration
@@ -77,15 +78,9 @@ class _Note(_Args):
     text: str = Field(min_length=1, max_length=MAX_OUTPUT_BYTES)
 
 
-class _Finish(_Args):
-    summary: str = Field(min_length=1, max_length=MAX_OUTPUT_BYTES)
-    best_run_tag: str | None = Field(default=None, pattern=_RUN_TAG)
-
-
 _TOOLS: dict[str, tuple[type[_Args], str]] = {
     "write_file": (_Write, "Write src/*.v, test/*.py, or allowlisted flow overrides in config.json."),
     "read_file": (_Read, "Read a file inside the run working directory; long output is truncated."),
-    "list_files": (_Args, "List files inside the run working directory."),
     "lint": (_Top, "Lint synthesizable Verilog using Verilator."),
     "run_tests": (_Tests, "Run cocotb tests with the real simulator."),
     "synth_stats": (_Top, "Run Yosys synthesis and return real cell and area statistics."),
@@ -93,7 +88,6 @@ _TOOLS: dict[str, tuple[type[_Args], str]] = {
     "read_report": (_Report, "Read an existing physical-design report."),
     "render_layout": (_Render, "Render an existing real GDS layout."),
     "record_note": (_Note, "Append a design hypothesis or observation to the run log."),
-    "finish": (_Finish, "Propose a final summary and an existing best flow tag; the orchestrator decides completion."),
 }
 
 
@@ -218,8 +212,9 @@ def _is_cocotb_test(decorator: ast.expr) -> bool:
 def _require_checking_tests(tree: ast.Module) -> None:
     """A passing test must have been able to fail: every cocotb test reaches a check.
 
-    A check is a non-constant assert or a raise, in the test or in a module-local
-    function or method it calls (transitively). Handlers that would swallow a
+    A check is an assert that references a name, attribute or call, or a raise,
+    in the test or in a module-local function or method it calls (transitively).
+    Handlers that would swallow a
     failed check, and cocotb options that invert or skip outcomes, are rejected.
     """
     functions: dict[str, list[ast.FunctionDef | ast.AsyncFunctionDef]] = {}
@@ -242,7 +237,8 @@ def _require_checking_tests(tree: ast.Module) -> None:
                     raise ValueError("cocotb expect_fail, expect_error and skip options are not allowed")
 
     def checks(function: ast.AST) -> bool:
-        return any((isinstance(node, ast.Assert) and not isinstance(node.test, ast.Constant))
+        return any((isinstance(node, ast.Assert) and any(
+                       isinstance(part, (ast.Name, ast.Attribute, ast.Call)) for part in ast.walk(node.test)))
                    or isinstance(node, ast.Raise) for node in ast.walk(function))
 
     def callees(function: ast.AST) -> set[str]:
@@ -276,6 +272,7 @@ class ToolRunner:
         self.eda = eda if eda is not None else EDA(self.work_dir, run_id=run_id)
         self.event_callback = event_callback
         self.flow_runs = 0
+        self._flow_proposals = 0
         # Hard cap of six; a reviewed BuildConfig may lower it before the first flow.
         self.flow_limit = 6
         # Reviewed initial-flow knobs; the SYNTH sizing preflight must size with them, like the flows do.
@@ -475,6 +472,12 @@ class ToolRunner:
         return await self._execute(call, allowed_tools)
 
     async def _execute(self, call: ToolCall, allowed_tools: set[str] | None = None) -> dict[str, JsonValue]:
+        flow_index = None
+        if call.name == "run_flow":
+            # Event saves and synthesis planning may finish out of order.
+            # Reserve the proposal's position before either can yield.
+            self._flow_proposals = max(self._flow_proposals, self.flow_runs) + 1
+            flow_index = self._flow_proposals
         await self._emit("tool_started", {"tool": call.name, "tool_call_id": call.id})
         context = None
         rejection_kind = None
@@ -487,7 +490,7 @@ class ToolRunner:
                 raise ValueError("Tool is not allowed in this stage")
             arguments = _TOOLS[call.name][0].model_validate(call.arguments)
             result = await asyncio.wait_for(
-                self._dispatch(call.name, arguments),
+                self._dispatch(call.name, arguments, flow_index=flow_index),
                 timeout=(FLOW_TIMEOUT_SECONDS + GATE_LEVEL_MAX_TIMEOUT + TOOL_TIMEOUT_SECONDS
                          if call.name == "run_flow" else TOOL_TIMEOUT_SECONDS),
             )
@@ -502,6 +505,8 @@ class ToolRunner:
                         self.observer.failure = self.observer.failure or {
                             "phase": "cancelled_tool_evidence", "exception_type": type(finalizer_error).__name__}
                     error.add_note("host evidence finalization failed during tool cancellation")
+            raise
+        except RemoteStoreError:
             raise
         except Exception as error:
             if isinstance(error, ValidationError):
@@ -534,7 +539,7 @@ class ToolRunner:
         await self._emit("tool_finished", {"tool": call.name, "tool_call_id": call.id, "result": result})
         return result
 
-    async def _dispatch(self, name: str, arguments: _Args) -> dict[str, JsonValue]:
+    async def _dispatch(self, name: str, arguments: _Args, *, flow_index: int | None = None) -> dict[str, JsonValue]:
         if isinstance(arguments, _Write):
             return await self._write(arguments)
         if isinstance(arguments, _Read):
@@ -543,18 +548,6 @@ class ToolRunner:
                 os.lseek(descriptor, max(0, size - MAX_OUTPUT_BYTES), os.SEEK_SET)
                 content = os.read(descriptor, MAX_OUTPUT_BYTES).decode("utf-8", errors="replace")
             return {"content": content, "truncated": size > MAX_OUTPUT_BYTES}
-        if name == "list_files":
-            files: list[JsonValue] = []
-            for directory, subdirs, names in os.walk(self.work_dir, followlinks=False):
-                subdirs[:] = sorted(part for part in subdirs
-                                    if part != ".eda" and not (Path(directory) / part).is_symlink())
-                for filename in sorted(names):
-                    path = Path(directory) / filename
-                    if not path.is_symlink():
-                        files.append(path.relative_to(self.work_dir).as_posix())
-                    if len(files) >= 1000:
-                        return {"files": files, "truncated": True}
-            return {"files": files, "tool_outputs": ".eda/ (omitted from source listing)"}
         if isinstance(arguments, _Note):
             text = arguments.text.encode("utf-8")
             if len(text) > MAX_OUTPUT_BYTES:
@@ -564,10 +557,6 @@ class ToolRunner:
                 os.write(descriptor, text + b"\n")
             await self._emit("note", {"text": arguments.text})
             return {"ok": True}
-        if isinstance(arguments, _Finish):
-            if arguments.best_run_tag is not None:
-                self.eda.flow_artifacts(arguments.best_run_tag)
-            return {"ok": True, "summary": arguments.summary, "best_run_tag": arguments.best_run_tag}
         if name == "lint" and isinstance(arguments, _Top):
             return await self.eda.lint(arguments.top)
         if isinstance(arguments, _Tests):
@@ -606,6 +595,14 @@ class ToolRunner:
                     self._verified_tests_digest = tests_before
                     self._verified_test_module = arguments.test_module
                     self._verified_top = arguments.top
+                elif (result.get("ok") is True and type(result.get("passed")) is int
+                      and 0 <= result["passed"] < 4 and type(result.get("failed")) is int
+                      and result["failed"] == 0):
+                    result.update(ok=False, quality_gate_passed=False, error_kind="insufficient_tests", error=(
+                        "Verification requires at least four passing tests in a single test_module; "
+                        f"{arguments.test_module} ran only {result['passed']}. "
+                        "Passing tests from separate modules are not accumulated. Preserve the existing checks "
+                        "and write a complete spec-derived suite in one module, then run it."))
                 await self._emit("test_result", _bounded_result(result))
             return result
         if name == "synth_stats" and isinstance(arguments, _Top):
@@ -613,6 +610,7 @@ class ToolRunner:
                 return await self.physical_planner.prepare(arguments.top, dict(self.base_overrides))
             return await self.eda.synth_stats(arguments.top)
         if isinstance(arguments, _Flow):
+            assert flow_index is not None
             overrides = validate_flow_overrides(arguments.config_overrides)
             self._require_verified(arguments.top)
             if self.flow_runs >= self.flow_limit:
@@ -629,7 +627,6 @@ class ToolRunner:
             if self.flow_runs >= self.flow_limit:
                 raise ValueError(f"Flow budget exhausted: at most {self.flow_limit} attempts per run")
             self.flow_runs += 1
-            flow_index = self.flow_runs
             async with _FLOW_SEMAPHORE:
                 self._require_verified(arguments.top)
                 proof = deepcopy(self._harness_proof)

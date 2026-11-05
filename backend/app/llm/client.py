@@ -20,6 +20,15 @@ from app.llm.types import Budget, Completion, LLMError, Message, ToolCall, ToolD
 logger = logging.getLogger(__name__)
 ReasoningEffort = Literal["minimal", "low", "medium", "high", "xhigh"]
 MAX_RETRIES = 5
+MAX_RETRY_DELAY_SECONDS = 30.0
+# This cap includes reasoning as well as visible text and tool arguments.
+# A complete test suite needs more room than the previous 4096-token cap.
+INITIAL_COMPLETION_TOKENS = 16384
+MAX_COMPLETION_TOKENS = 32768
+
+
+class _OutputLimitExceeded(LLMError):
+    """Billed response was truncated; none of its tool calls may execute."""
 
 
 def estimate_cost(model: str, input_tokens: int, cached_tokens: int, output_tokens: int) -> float | None:
@@ -56,7 +65,7 @@ def _retry_delay(error: APIStatusError, attempt: int) -> float:
                 return delay
         if math.isfinite(seconds):
             delay = max(delay, seconds)
-    return delay
+    return min(delay, MAX_RETRY_DELAY_SECONDS)
 
 
 class MetaLLM:
@@ -78,7 +87,7 @@ class MetaLLM:
             client = AsyncOpenAI(
                 api_key=api_key,
                 base_url=os.getenv("META_BASE_URL", "https://api.meta.ai/v1"),
-                timeout=60.0,
+                timeout=300.0,
                 # Retries are explicit so every attempt consumes the run budget.
                 max_retries=0,
             )
@@ -108,7 +117,7 @@ class MetaLLM:
             "model": self.model,
             "messages": cast(list[ChatCompletionMessageParam], payload),
             "reasoning_effort": self.reasoning_effort,
-            "max_completion_tokens": 4096,
+            "max_completion_tokens": INITIAL_COMPLETION_TOKENS,
         }
         if definitions:
             request.update(
@@ -120,15 +129,28 @@ class MetaLLM:
             self.budget.reserve()
             try:
                 response = await self.client.chat.completions.create(**request)
-                break
             except APIStatusError as error:
                 if (error.status_code == 429 or 500 <= error.status_code < 600) and attempt < MAX_RETRIES:
+                    self.budget.check_available()
                     await asyncio.sleep(_retry_delay(error, attempt))
                     continue
                 raise LLMError(f"Meta API returned HTTP {error.status_code}") from None
             except APIError as error:
                 raise LLMError(f"Meta API request failed ({type(error).__name__})") from None
-        return self._parse(response, tools, (perf_counter() - started) * 1000)
+            try:
+                return self._parse(response, tools, (perf_counter() - started) * 1000)
+            except _OutputLimitExceeded:
+                limit = request["max_completion_tokens"]
+                if limit >= MAX_COMPLETION_TOKENS or attempt == MAX_RETRIES:
+                    raise LLMError(
+                        f"Meta API response reached its output limit ({limit} tokens); "
+                        "no partial tool calls were executed. Reduce the requested output or reasoning effort."
+                    ) from None
+                self.budget.check_available()
+                request["max_completion_tokens"] = min(limit * 2, MAX_COMPLETION_TOKENS)
+                logger.warning("Meta response truncated; retrying with max_completion_tokens=%d",
+                               request["max_completion_tokens"])
+        raise LLMError("Meta API retry budget exhausted")
 
     def _parse(self, response: ChatCompletion, tools: list[ToolDefinition], latency_ms: float) -> Completion:
         if not response.choices or response.usage is None:
@@ -151,14 +173,20 @@ class MetaLLM:
             raise LLMError("Meta returned invalid token usage") from None
         logger.info(
             "llm_call provider=meta model=%s input_tokens=%d cached_input_tokens=%d "
-            "output_tokens=%d latency_ms=%.1f estimated_cost_usd=%s",
+            "output_tokens=%d latency_ms=%.1f estimated_cost_usd=%s finish_reason=%s",
             completion.model, completion.input_tokens, completion.cached_input_tokens,
-            completion.output_tokens, completion.latency_ms, completion.cost_usd,
+            completion.output_tokens, completion.latency_ms, completion.cost_usd, response.choices[0].finish_reason,
         )
         # Even a malformed tool call consumed billed tokens.
         self.budget.record(completion)
         if completion.cost_usd is None:
             raise LLMError("Meta returned a model without verified pricing; run must stop")
+        # Check before parsing tool JSON: a length-limited response can contain
+        # no visible output, partial JSON, or a truncated batch of valid calls.
+        if response.choices[0].finish_reason == "length":
+            raise _OutputLimitExceeded("Meta API response reached its output limit")
+        if not completion.content.strip() and not message.tool_calls:
+            raise LLMError("Meta API returned an empty completion with no tool calls")
         calls: list[ToolCall] = []
         try:
             for call in message.tool_calls or []:

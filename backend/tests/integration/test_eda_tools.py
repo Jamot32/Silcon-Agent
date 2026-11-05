@@ -34,7 +34,6 @@ def test_golden_tools_and_real_failure():
                 written = await call("write_file", path=f"{directory}/{source.name}", content=source.read_text())
                 assert written["ok"], written
         assert (await call("read_file", path="src/counter.v"))["content"]
-        assert (await call("list_files"))["files"]
         assert (await call("record_note", text="Verify the independent golden counter with real EDA tools."))["ok"]
         lint = await call("lint", top="counter")
         assert lint["ok"], lint
@@ -63,7 +62,6 @@ def test_golden_tools_and_real_failure():
         assert raw_failed["failures"]
         assert "count + 8'd1" in (artifacts["source_dir"] / "counter.v").read_text()
         assert "count + 8'd2" in rtl.read_text()
-        assert (await call("finish", summary="Golden reference passed real signoff. Separate increment-by-two mutation failed simulation.", best_run_tag=tag))["ok"]
         (root / "results.json").write_text(json.dumps({"lint": lint, "tests": tests, "synthesis": synthesis, "flow": flow, "render": render, "failed_tests": raw_failed, "artifacts": {key: str(value) for key, value in artifacts.items()}}, indent=2) + "\n")
         print(f"Real tool results: {root / 'results.json'}")
 

@@ -15,6 +15,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlmodel import Session, create_engine
+from starlette.concurrency import run_in_threadpool
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.agent.starters import load_starter
@@ -475,7 +476,7 @@ def run_files(run_id: str) -> dict[str, str]:
 
 @app.get("/api/runs/{run_id}/events")
 async def run_events(run_id: str, request: Request, last_event_id: str | None = Header(default=None), after: int = Query(default=0, ge=0, le=2**63 - 1)):
-    get_run(run_id)
+    await run_in_threadpool(get_run, run_id)
     if last_event_id is not None:
         if not last_event_id.isascii() or not last_event_id.isdigit() or len(last_event_id) > 18:
             raise HTTPException(400, "Last-Event-ID must be a nonnegative integer")
@@ -485,18 +486,19 @@ async def run_events(run_id: str, request: Request, last_event_id: str | None = 
         cursor = after
         last_ping = asyncio.get_running_loop().time()
         while not await request.is_disconnected():
-            batch = store().events(run_id, cursor)
+            try:
+                terminal = (await run_in_threadpool(store().get_run, run_id)).status in TERMINAL
+            except KeyError:
+                break  # A terminal run may have been deleted after this stream opened.
+            batch = await run_in_threadpool(store().events, run_id, cursor)
             for event in batch:
                 cursor = event.id
-                envelope = {"id": event.id, "ts": event.ts.isoformat(), "type": event.type, "payload": json.loads(event.payload_json)}
-                data = json.dumps(envelope, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
+                data = ('{"id":' + str(event.id) + ',"ts":' + json.dumps(event.ts.isoformat())
+                        + ',"type":' + json.dumps(event.type) + ',"payload":' + event.payload_json + '}')
                 yield f"id: {event.id}\nevent: {event.type}\ndata: {data}\n\n"
-            if len(batch) < 100:
-                try:
-                    if store().get_run(run_id).status in TERMINAL:
-                        break
-                except KeyError:
-                    break  # A terminal run may have been deleted after this stream opened.
+            # Only a terminal snapshot taken before this batch proves it includes the final event.
+            if terminal and len(batch) < 100:
+                break
             now = asyncio.get_running_loop().time()
             if now - last_ping >= 15:
                 yield ": keep-alive\n\n"

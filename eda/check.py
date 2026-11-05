@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import struct
 import time
+import xml.etree.ElementTree as ET
 
 
 WORK = Path("/work")
@@ -37,11 +38,15 @@ def validate_outputs() -> None:
     layout.read(str(artifacts["gds"]))
     if layout.top_cell() is None or layout.top_cell().bbox().empty():
         raise RuntimeError("GDS contains no nonempty top cell")
+    simulation = ET.parse(WORK / "test_results.xml").getroot()
+    test_count = len(simulation.findall(".//testcase"))
+    if not test_count or simulation.findall(".//failure") or simulation.findall(".//error"):
+        raise RuntimeError("Golden simulation did not contain passing cocotb tests")
     (WORK / "check_result.json").write_text(json.dumps({
         "status": "passed",
         "librelane_version": "3.0.16",
         "artifacts": {kind: str(path.relative_to(WORK)) for kind, path in artifacts.items()},
-        "checks": {"drc_ok": True, "lvs_ok": True, "cocotb_tests": 4},
+        "checks": {"drc_ok": True, "lvs_ok": True, "cocotb_tests": test_count},
     }, indent=2) + "\n")
     print("[artifacts] PASS: readable GDS, PNG, LEF, netlist, metrics; DRC/LVS/XOR clean", flush=True)
 

@@ -9,6 +9,7 @@ import math
 from pathlib import Path, PurePosixPath
 import re
 import shutil
+import threading
 from time import monotonic
 from typing import Awaitable, Callable
 from zipfile import ZipFile
@@ -222,14 +223,35 @@ def load_recording(catalog: Path, recording_id: str) -> Recording:
     return Recording(root, metadata, run, spec, events, files, layouts, bundle)
 
 
+_recording_metadata_cache: dict[Path, tuple[tuple[int, int], RecordingMetadata | None]] = {}
+_recording_metadata_lock = threading.Lock()
+
+
 def list_recordings(catalog: Path) -> list[RecordingMetadata]:
     if not catalog.is_dir():
         return []
     result = []
     for directory in sorted(catalog.iterdir()):
-        if directory.is_dir() and RECORDING_ID.fullmatch(directory.name):
+        if not directory.is_symlink() and directory.is_dir() and RECORDING_ID.fullmatch(directory.name):
             try:
-                result.append(load_recording(catalog, directory.name).metadata)
+                manifest = directory / "manifest.json"
+                if manifest.is_symlink():
+                    continue
+                stat = manifest.stat()
+                signature = (stat.st_mtime_ns, stat.st_size)
+                key = directory.resolve()
+                with _recording_metadata_lock:
+                    cached = _recording_metadata_cache.get(key)
+                    if cached is None or cached[0] != signature:
+                        try:
+                            metadata = load_recording(catalog, directory.name).metadata
+                        except (ValueError, OSError, TypeError, KeyError):
+                            metadata = None
+                        _recording_metadata_cache[key] = (signature, metadata)
+                    else:
+                        metadata = cached[1]
+                if metadata is not None:
+                    result.append(metadata.model_copy(deep=True))
             except (ValueError, OSError, TypeError, KeyError):
                 continue  # Invalid recordings are never offered as runnable demos.
     return result

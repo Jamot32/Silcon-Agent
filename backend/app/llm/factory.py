@@ -45,7 +45,7 @@ def create_llm(*, budget: Budget | None = None, run_work_dir=None) -> LLM:
         try:
             policy, _ = admit_installed(os.getenv("SILICON_CODEX_BOUNDARY_CONFIG"), run_work_dir)
         except HostSetupError:
-            raise ProviderError("local_configuration") from None
+            raise ProviderError("boundary_policy") from None
         return CodexCLIClient(budget=budget, launch_policy=policy)
     from app.llm.client import MetaLLM
     from app.provider_credentials import effective_key

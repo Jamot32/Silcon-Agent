@@ -27,10 +27,10 @@ def test_raw_seventeen_root_inventory_is_rejected(tmp_path):
 def test_default_client_still_fails_closed_without_host_policy():
     client=CodexCLIClient(executable='/synthetic/codex')
     with pytest.raises(ProviderError) as caught:asyncio.run(client.complete([Message(role='user',content='neutral')],[]))
-    assert caught.value.kind=='local_configuration' and client.budget.calls==0
+    assert caught.value.kind=='boundary_policy' and client.budget.calls==0
 
 
 def test_opt_in_fixture_keeps_explicit_none_unconfigured(configured_codex_transport):
     client=CodexCLIClient(executable='/synthetic/codex',launch_policy=None)
     with pytest.raises(ProviderError) as caught:asyncio.run(client.complete([],[]))
-    assert caught.value.kind=='local_configuration' and client.budget.calls==0
+    assert caught.value.kind=='boundary_policy' and client.budget.calls==0

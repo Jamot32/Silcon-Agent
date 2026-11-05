@@ -1,6 +1,7 @@
 import asyncio
 import hashlib
 import json
+import math
 import os
 import re
 from collections.abc import Awaitable, Callable
@@ -23,6 +24,7 @@ from app.llm.types import Budget, Completion, ImageInput, LLM, LLMError, Message
 from app.llm.codex import MalformedProposal, ProviderError
 from app.observability.errors import ObservationBindingError
 from app.models import Metric
+from app.remote_store import RemoteStoreError
 from app.schemas import BuildConfig, DesignSpec, Outcome
 
 if TYPE_CHECKING:
@@ -74,7 +76,8 @@ def _measured_setup_wns(result: dict[str, JsonValue]) -> float | None:
 
 def meets_timing(metric: Metric, targets: dict[str, JsonValue]) -> bool:
     requested = targets.get("clock_mhz")
-    return metric.wns_ns >= 0 and (requested is None or metric.clock_mhz >= float(requested))
+    return metric.wns_ns >= 0 and (requested is None or metric.clock_mhz >= float(requested)
+                                 or math.isclose(metric.clock_mhz, float(requested), rel_tol=1e-9))
 
 
 def score_metric(metric: Metric, targets: dict[str, JsonValue]) -> tuple[int, float, float]:
@@ -351,9 +354,14 @@ class Orchestrator:
         if call.name == "lint" and result.get("ok"):
             self._lint_revision = self.tools.rtl_digest()
         if call.name == "run_tests" and "passed" in result:
-            self.test_module = str(call.arguments["test_module"])
+            # A passing but incomplete suite is still being authored. Freeze
+            # complete suites and any suite with real failures, so changing
+            # modules cannot hide a failing assertion.
+            incomplete = result.get("error_kind") == "insufficient_tests"
+            if not incomplete:
+                self.test_module = str(call.arguments["test_module"])
             self._last_test_result = result
-            if result.get("ok") is not True:
+            if result.get("ok") is not True and not incomplete:
                 self._hypothesis_required = True
         return result
 
@@ -405,6 +413,8 @@ class Orchestrator:
                 result = await self._execute(stage, call)
                 messages.append(self._tool_reply(call, result))
                 if stage == "VERIFY" and call.name == "run_tests" and "passed" in result:
+                    if result.get("error_kind") == "insufficient_tests":
+                        continue
                     if result.get("ok") is not True:
                         review = None if reviewing else self._test_review(result)
                         if review is None:
@@ -513,6 +523,7 @@ class Orchestrator:
                     limit = self.build.max_repair_loops
                     raise LLMError(f"Verification failed after {'five' if limit == 5 else limit} RTL repair loops")
                 self.fix_loops += 1
+            self._lint_revision = None
             await self._rtl(previous_ok=not failed)
             if await self._verify():
                 return
@@ -613,6 +624,11 @@ class Orchestrator:
         if (metric.drc_ok is True and metric.lvs_ok is True
                 and (self.best is None or score_metric(metric, self.design_spec.targets) < score_metric(self.best, self.design_spec.targets))):
             self.best = metric
+
+    async def _render_flow(self, result: dict[str, JsonValue]) -> None:
+        if result.get("ok") is not True:
+            return
+        tag = result["run_tag"]
         render = ToolCall(id=uuid4().hex, name="render_layout", arguments={"run_tag": tag})
         rendered = await self.tools.execute(render, allowed_tools={"render_layout"})
         self._record_result(render, rendered)
@@ -629,6 +645,7 @@ class Orchestrator:
             result = await self.tools.execute(call, allowed_tools={"run_flow"})
             self._record_result(call, result)
             await self._accept_flow(result)
+            await self._render_flow(result)
             await self._remember("FLOW")
             if self.best is not None:
                 return result
@@ -721,6 +738,16 @@ class Orchestrator:
                     raise
                 for result in results:
                     await self._accept_flow(result)
+                render_error = None
+                for result in results:
+                    try:
+                        await self._render_flow(result)
+                    except LLMError as error:
+                        # Every measured candidate has already been ranked;
+                        # one optional preview must not discard a better flow.
+                        render_error = render_error or error
+                if render_error is not None:
+                    raise render_error
                 return "compared"
             if len(completion.tool_calls) > 12:
                 raise LLMError("Too many optimization tool calls")
@@ -761,6 +788,7 @@ class Orchestrator:
                 flow = await self.tools.execute(flow_call, allowed_tools={"run_flow"})
                 self._record_result(flow_call, flow)
                 await self._accept_flow(flow)
+                await self._render_flow(flow)
                 await self._remember("FLOW")
                 await self._stage("OPTIMIZE", previous_ok=flow.get("ok") is True)
                 return "compared"
@@ -938,6 +966,8 @@ class Orchestrator:
                         + ("DRC and LVS clean." if ready else "Not tapeout-ready: DRC or LVS is failed or unknown.")
                         + " Tiny Tapeout wrapper and shuttle integration require separate verification.",
             )
+        except RemoteStoreError:
+            raise
         except Exception as error:
             if isinstance(error, ValidationError):
                 first = error.errors()[0]

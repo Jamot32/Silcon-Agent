@@ -6,6 +6,7 @@ import { getSettings, type ServerSettings } from "@/lib/api";
 import { ChevronDown } from "lucide-react";
 import { ArkinousMark, ProviderLogo } from "@/components/provider-logo";
 import { providers } from "@/lib/model-catalog";
+import { OrchestratorBackground } from "@/components/orchestrator-background";
 import { Button } from "@/components/ui/button";
 import { InputGroupButton } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
@@ -54,6 +55,9 @@ export function ModelSettings() {
   const custom = agents.filter((agent) => (agentModels[agent.id] ?? inherit) !== inherit).length;
   const taskfitEverywhere = orchestrator === taskfit && custom === 0;
   return (
+    <>
+    {/* EXPERIMENT (revert freely): animated background keyed to the previewed orchestrator. */}
+    <OrchestratorBackground kind={orchestrator === taskfit ? "arkinous" : providers.find((provider) => orchestrator.startsWith(`${provider.name}/`))?.logo} model={orchestrator} />
     <Popover>
       <PopoverTrigger asChild>
         <InputGroupButton type="button" variant="ghost" size="sm" className="ml-auto rounded-full text-muted-foreground" aria-label="Model settings">
@@ -102,5 +106,6 @@ export function ModelSettings() {
         <p className="rounded-md bg-muted px-2.5 py-2 text-xs text-muted-foreground">Preview: this selection is not sent to builds yet. Runs use the server-configured model.</p>
       </PopoverContent>
     </Popover>
+    </>
   );
 }

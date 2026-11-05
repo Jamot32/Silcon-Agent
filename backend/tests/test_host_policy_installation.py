@@ -59,7 +59,7 @@ def test_registered_drift_between_installation_and_client_is_rejected(host,monke
     policy=install(host);host['actual'].append(str(host['project']/'new-worktree'))
     monkeypatch.setenv('SILICON_CODEX_BOUNDARY_CONFIG',str(policy))
     with pytest.raises(codex.ProviderError)as caught:factory.create_llm(run_work_dir=host['run'])
-    assert caught.value.kind=='local_configuration'
+    assert caught.value.kind=='boundary_policy'
 
 @pytest.mark.parametrize('key,value',[('retained_inventory_complete',False),('git_object_roots',[]),('explicit_private_roots',['/private/tmp'])])
 def test_unadmitted_incomplete_or_broad_inventory_refuses_before_install(host,key,value):
@@ -89,7 +89,7 @@ def test_failed_or_modified_generation_cannot_be_used_or_overwritten(host,fault)
 
 def test_meta_factory_ignores_stale_policy_and_preserves_unlimited_tokens(host,monkeypatch):
     class Meta:
-        def __init__(self,*,budget):self.budget=budget
+        def __init__(self,*,budget,api_key):self.budget=budget
     from app.llm import client
     monkeypatch.setattr(client,'MetaLLM',Meta);monkeypatch.setenv('LLM_PROVIDER','meta');monkeypatch.setenv('SILICON_CODEX_BOUNDARY_CONFIG','/missing/stale')
     monkeypatch.setenv('LLM_MAX_TOKENS','')
@@ -102,7 +102,10 @@ def test_manager_only_forwards_locator_after_provider_is_left_to_child(host,monk
     monkeypatch.setattr(manage_worker.shutil,'which',lambda name:'/synthetic/uv')
     monkeypatch.setattr(manage_worker.time,'sleep',lambda delay:None)
     launches=[]
-    def launch(args,**kwargs):launches.append((args,kwargs));return SimpleNamespace(pid=987654321,poll=lambda:None)
+    def launch(args,**kwargs):
+        launches.append((args,kwargs))
+        (host['run']/'worker.ready').write_text(json.dumps({'pid':987654321,'token':args[-1]}))
+        return SimpleNamespace(pid=987654321,poll=lambda:None)
     monkeypatch.setattr(manage_worker.subprocess,'Popen',launch)
     assert manage_worker.start(host['run'],codex_policy='/stale/external/policy')==0
     assert launches[0][1]['env']['SILICON_CODEX_BOUNDARY_CONFIG']=='/stale/external/policy'

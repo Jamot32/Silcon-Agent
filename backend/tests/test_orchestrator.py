@@ -280,7 +280,7 @@ def test_first_optimization_round_runs_three_parallel_configuration_variants(tmp
     assert optimization["remaining_budget"]["flow_runs"] == 5
     assert "exactly three run_flow" in optimization["first_round_plan"]
     assert "record_note once" in optimization["first_round_plan"]
-    assert "CLOCK_PERIOD=20 ns" in optimization["first_round_plan"]
+    assert "CLOCK_PERIOD=20.0 ns" in optimization["first_round_plan"]
     assert outcome.best_run_tag == "recorded_1"  # Equal recorded metrics do not prove improvement.
 
 
@@ -812,6 +812,73 @@ def test_failed_tool_reply_retains_bounded_failure_context():
 
 
 WRONG_TEST = (GOLDEN / "test/test_counter.py").read_text() + "\n# Draft expectation, later corrected against the DesignSpec.\n"
+
+
+class PartialSuiteEDA(RecordedEDA):
+    """Unit-only partial-suite result reproduces the split-module controller trap."""
+
+    async def run_tests(self, top, test_module):
+        if test_module == "test_reset":
+            result = {"ok": True, "passed": 2, "failed": 0, "skipped": 0, "failures": []}
+            self.test_results.append(result)
+            return result
+        return await super().run_tests(top, test_module)
+
+
+def test_partial_suite_can_be_followed_by_a_complete_suite_without_exhausting_verify(tmp_path):
+    partial = "import cocotb\n\n" + "\n".join(
+        f"@cocotb.test()\nasync def test_reset_{index}(dut):\n    assert int(dut.count.value) == 0\n"
+        for index in range(2)
+    )
+    run_full = response(call("run_tests", top="counter", test_module="test_counter"))
+    script = [
+        response(call("write_file", path="test/test_reset.py", content=partial),
+                 call("run_tests", top="counter", test_module="test_reset")),
+        response(call("write_file", path="test/test_counter.py", content=(GOLDEN / "test/test_counter.py").read_text()),
+                 call("run_tests", top="counter", test_module="test_counter")),
+        *[run_full for _ in range(6)],
+    ]
+    controller, llm, eda, _ = build_run(tmp_path, script, prefix_scope=False, eda_factory=PartialSuiteEDA)
+    controller.design_spec = DesignSpec.model_validate(spec_data())
+
+    async def scenario():
+        source = (GOLDEN / "src/counter.v").read_text()
+        assert (await controller._execute("RTL", call("write_file", path="src/counter.v", content=source)))["ok"]
+        return await controller._verify()
+
+    assert asyncio.run(scenario()) is True
+    assert len(llm.requests) == 2
+    assert controller.test_module == "test_counter"
+    assert controller.fix_loops == 0
+    assert [result["passed"] for result in eda.test_results] == [2, 4]
+    assert (tmp_path / "work/test/test_reset.py").read_text() == partial
+
+
+def test_failing_partial_suite_still_cannot_be_replaced(tmp_path, monkeypatch):
+    controller, _, eda, _ = build_run(tmp_path, [], prefix_scope=False)
+    controller.design_spec = DesignSpec.model_validate(spec_data())
+
+    async def fail_tests(top, test_module):
+        return {"ok": False, "passed": 1, "failed": 1, "failures": [
+            {"test": "test_reset", "message": "Unit-only assertion failure"},
+        ]}
+
+    monkeypatch.setattr(eda, "run_tests", fail_tests)
+
+    async def scenario():
+        source = (GOLDEN / "src/counter.v").read_text()
+        await controller._execute("RTL", call("write_file", path="src/counter.v", content=source))
+        await controller._execute("VERIFY", call("write_file", path="test/test_reset.py",
+                                                content=(GOLDEN / "test/test_counter.py").read_text()))
+        failed = await controller._execute("VERIFY", call("run_tests", top="counter", test_module="test_reset"))
+        assert failed["ok"] is False
+        assert controller.test_module == "test_reset"
+        assert controller._hypothesis_required is True
+        return await controller._execute("VERIFY", call("run_tests", top="counter", test_module="test_counter"))
+
+    rejected = asyncio.run(scenario())
+    assert rejected["ok"] is False
+    assert rejected["error"] == "Re-run the original spec-derived test module"
 
 
 class WrongTestEDA(RecordedEDA):

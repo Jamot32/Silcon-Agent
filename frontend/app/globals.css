@@ -122,6 +122,20 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Frosted surface over the animated background; set bg-transparent so the tint below stays see-through.
+   Large panels lower --glass-blur and --glass-tint so the thin background strokes still show through. */
+@utility glass {
+  background-image: linear-gradient(160deg, oklch(1 0 0 / 0.45), oklch(1 0 0 / 0.08) 55%), linear-gradient(color-mix(in oklch, var(--card) var(--glass-tint, 45%), transparent));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 14px)) saturate(1.6);
+  backdrop-filter: blur(var(--glass-blur, 14px)) saturate(1.6);
+  --tw-inset-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.7);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow, 0 0 #0000), var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 #0000);
+  @variant dark {
+    background-image: linear-gradient(160deg, oklch(1 0 0 / 0.1), oklch(1 0 0 / 0.02) 55%), linear-gradient(color-mix(in oklch, var(--card) var(--glass-tint, 40%), transparent));
+    --tw-inset-shadow: inset 0 1px 0 0 oklch(1 0 0 / 0.12);
+  }
+}
+
 @layer base {
   * { @apply border-border outline-ring/50; }
   body { @apply bg-background font-sans text-foreground antialiased; }
